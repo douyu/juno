@@ -1,0 +1,76 @@
+
+[app]
+  mode = "local"
+
+[jupiter]
+
+  [jupiter.logger]
+
+    [jupiter.logger.default]
+      debug = true
+      name = "test"
+
+  [jupiter.server]
+
+    [jupiter.server.grpc]
+      host = "0.0.0.0"
+      port = 50011
+
+    [jupiter.server.http]
+      host = "0.0.0.0"
+      port = 50010
+
+[plugin]
+
+  [plugin.appConf]
+    enable = true
+    env = ["dev","live","pre"]
+    prefix = "/juno-agent"
+    timeout = "3s"
+
+    [plugin.appConf.etcd]
+      enable = true
+      endpoints = ["juno-etcd:2379"]
+
+  [plugin.envs]
+    enable = true
+    info = ["dev"]
+
+  [plugin.etcdv3]
+
+    [plugin.etcdv3.registry]
+      enable = false
+      endpoints = ["juno-etcd:2379"]
+      secure = false
+      timeout = "3s"
+
+  [plugin.healthCheck]
+    enable = true
+
+  [plugin.report]
+    addr = "http://juno:50000/api/v1/resource/node/heartbeat"
+    enable = true
+    env = "APP_ENV"
+    hostName = "JUPITER_HOST"     # 环境变量的名称，或者命令行参数的名称
+    internal = 60
+    regionCode = "REGION_CODE"     # 环境变量的名称，或者命令行参数的名称
+    regionName = "REGION_NAME"
+    zoneCode = "ZONE_CODE"
+    zoneName = "ZONE_NAME"
+
+  [plugin.supervisor]
+    dir = "/etc/supervisor/conf.d"
+    enable = true
+
+  [plugin.systemd]
+    dir = "/etc/systemd/system"
+    enable = true
+
+[pugin]
+
+  [pugin.appConf]
+
+    [pugin.appConf.mysql]
+      dsn = ""
+      enable = false
+      secure = false

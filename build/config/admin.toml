@@ -1,0 +1,61 @@
+
+[app]
+  mode = "local"
+  name = "juno"
+  token = "123456"
+
+  [app.registry]
+
+    [app.registry.etcd]
+      endpoints = ["127.0.0.1:2379"]
+      timeout = "2s"
+
+[clientProxy]
+
+  [clientProxy.etcd]
+    endpoints = ["127.0.0.1:2379"]
+
+  [clientProxy.http]
+    disableKeepAlives = true
+    listenAddr = "127.0.0.0:8888"
+    maxIdelPerHost = 1
+    maxIdleConns = 10
+    timeout = 100
+
+[confgo]
+  dir = "/tmp/www/server"
+  prefix = "juno-agent"
+
+  [confgo.agent]
+    port = 50010
+
+[jupiter]
+
+  [jupiter.mysql]
+
+    [jupiter.mysql.juno]
+      connMaxLifetime = "300s"
+      debug = true
+      dsn = "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+      level = "panic"
+      maxIdleConns = 50
+      maxOpenConns = 100
+
+  [jupiter.server]
+
+    [jupiter.server.http]
+      host = "0.0.0.0"
+      port = 50000
+
+[proxy]
+  mode = "local"
+
+  [proxy.etcdv3]
+
+    [proxy.etcdv3.confgo]
+      endpoints = ["127.0.0.1:2379"]
+
+[session]
+  maxAge = 172800
+  secret = "ldfgoqnf935nvav34"
+  type = ""
