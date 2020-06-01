@@ -43,7 +43,7 @@ func NodeList(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	list, pagination, err := resource.Resource.GetNodeList(reqModel.Node, reqModel.CurrentPage, reqModel.PageSize, reqModel.KeywordsType, reqModel.Keywords, "update_time desc")
+	list, pagination, err := resource.Resource.GetNodeList(reqModel.Node, reqModel.CurrentPage, reqModel.PageSize, reqModel.KeywordsType, reqModel.Keywords, "update_time desc,id desc")
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
