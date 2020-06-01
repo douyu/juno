@@ -156,7 +156,7 @@ func (r *resource) GetEnvCnt() (cnt int) {
 func (r *resource) GetSelectData() (respRegion, respZone, respEnv []view.SelectData) {
 	// 找到所有的Region
 	var regionArr []db.Zone
-	r.DB.Model(db.Zone{}).Group("region_code").Find(&regionArr)
+	r.DB.Model(db.Zone{}).Select("region_name, region_code").Group("region_name, region_code").Find(&regionArr)
 	respRegion = make([]view.SelectData, 0)
 	for _, value := range regionArr {
 		respRegion = append(respRegion, view.SelectData{
@@ -166,7 +166,7 @@ func (r *resource) GetSelectData() (respRegion, respZone, respEnv []view.SelectD
 	}
 
 	var zoneArr []db.Zone
-	r.DB.Model(db.Zone{}).Group("zone_code").Find(&zoneArr)
+	r.DB.Model(db.Zone{}).Select("zone_code, zone_name").Group("zone_code, zone_name").Find(&zoneArr)
 	respZone = make([]view.SelectData, 0)
 	for _, value := range zoneArr {
 		respZone = append(respZone, view.SelectData{
@@ -176,7 +176,7 @@ func (r *resource) GetSelectData() (respRegion, respZone, respEnv []view.SelectD
 	}
 
 	var envArr []db.Zone
-	r.DB.Model(db.Zone{}).Group("env").Find(&envArr)
+	r.DB.Model(db.Zone{}).Select("env").Group("env").Find(&envArr)
 	respEnv = make([]view.SelectData, 0)
 	for _, value := range envArr {
 		respEnv = append(respEnv, view.SelectData{

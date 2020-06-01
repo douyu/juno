@@ -41,7 +41,7 @@ func (r *analysis) ListAllCfgType() ([]string, error) {
 		Type string `json:"type"`
 	}, 0)
 	result := make([]string, 0)
-	if err := r.DB.Table("app_topology").Select("type").Group("type").Order("id asc").Find(&types).Error; err != nil {
+	if err := r.DB.Table("app_topology").Select("type").Group("type").Find(&types).Error; err != nil {
 		return result, err
 	}
 
@@ -55,7 +55,7 @@ func (r *analysis) ListAllCfgType() ([]string, error) {
 func (r *analysis) ListAddr() ([]string, error) {
 	addrs := make([]db.AppTopology, 0)
 	result := make([]string, 0)
-	if err := r.DB.Table("app_topology").Select("addr").Group("addr").Order("id asc").Find(&addrs).Error; err != nil {
+	if err := r.DB.Table("app_topology").Select("addr").Group("addr").Find(&addrs).Error; err != nil {
 		return result, err
 	}
 
