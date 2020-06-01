@@ -41,7 +41,7 @@ func AppList(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	list, page, err := resource.Resource.GetAppList(reqModel.AppInfo, reqModel.CurrentPage, reqModel.PageSize, reqModel.KeywordsType, reqModel.Keywords, reqModel.SearchPort, "update_time desc")
+	list, page, err := resource.Resource.GetAppList(reqModel.AppInfo, reqModel.CurrentPage, reqModel.PageSize, reqModel.KeywordsType, reqModel.Keywords, reqModel.SearchPort, "update_time desc,aid desc")
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
