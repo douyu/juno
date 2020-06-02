@@ -1,14 +1,16 @@
 package parse
 
-
-const(
+const (
 	TypToml = "toml"
+	TypYaml = "yaml"
 )
 
 var (
-	tp Parse
+	tp  Parse
+	tpy Parse
 )
 
-func Init(){
+func Init() {
 	tp = NewTomlParse()
+	tpy = NewYanmlParse()
 }
