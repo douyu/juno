@@ -4,10 +4,11 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/douyu/juno/pkg/model/view"
 	"sort"
 	"strconv"
 	"time"
+
+	"github.com/douyu/juno/pkg/model/view"
 
 	"github.com/douyu/juno/pkg/util"
 
@@ -236,7 +237,7 @@ func (r *resource) AppNodeTransferPut(tx *gorm.DB, add, del map[string]interface
 		appevent.AppEvent.AppNodeCreateEvent(app.Aid, app.AppName, item.ZoneCode, item.Env, item.HostName, string(metadata), user)
 	}
 
-	for hostName, _ := range del {
+	for hostName := range del {
 		item := &db.AppNode{}
 		err = tx.Model(db.AppNode{}).Where("aid = ? and host_name=?", app.Aid, hostName).Delete(item).Error
 		if err != nil {

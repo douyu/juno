@@ -75,8 +75,6 @@ func GetVal(val string, typeStr string) (result interface{}, typ reflect.Kind, e
 	return
 }
 
-
-
 func GetTyp(typeStr string) (typ reflect.Kind, err error) {
 	switch typeStr {
 	case "string":

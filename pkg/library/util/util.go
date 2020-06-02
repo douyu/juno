@@ -291,7 +291,7 @@ func IntNumberSet(ids []int) []int {
 		setMap[number] = 1
 	}
 	sets := make([]int, 0)
-	for k, _ := range setMap {
+	for k := range setMap {
 		sets = append(sets, k)
 	}
 	return sets

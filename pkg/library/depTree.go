@@ -43,7 +43,7 @@ var ids []int
 func FindTreeIds(root *Tree) []int {
 	ids = append(ids, root.ID)
 	if len(root.Children) > 0 {
-		for index, _ := range root.Children {
+		for index := range root.Children {
 			FindTreeIds(root.Children[index])
 		}
 	}

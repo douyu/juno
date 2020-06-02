@@ -1,11 +1,12 @@
 package confgo
 
 import (
+	"time"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/packages/contrib/output"
 	"github.com/douyu/juno/pkg/service/confgo"
 	"github.com/labstack/echo/v4"
-	"time"
 )
 
 func TplInfo(c echo.Context) error {

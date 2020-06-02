@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/douyu/jupiter/pkg/conf"
 	"log"
+
+	"github.com/douyu/jupiter/pkg/conf"
 
 	clientProxy "github.com/douyu/juno/pkg/service/proxy"
 	"github.com/douyu/juno/router"

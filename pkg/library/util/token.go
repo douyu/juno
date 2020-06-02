@@ -3,8 +3,9 @@ package util
 import (
 	"crypto/md5"
 	"fmt"
-	"github.com/douyu/jupiter/pkg/conf"
 	"strconv"
+
+	"github.com/douyu/jupiter/pkg/conf"
 )
 
 func TokenValid(token string) bool {

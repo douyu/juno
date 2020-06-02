@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"strings"
 
-	toml2 "github.com/douyu/juno/pkg/service/codec/go-toml"
 	toml "github.com/achun/tom-toml"
+	toml2 "github.com/douyu/juno/pkg/service/codec/go-toml"
 )
 
 // DecodeToml 将字符串转化成为标准item list

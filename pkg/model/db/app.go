@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql/driver"
 	"encoding/json"
+
 	"github.com/douyu/juno/pkg/library/util"
 )
 

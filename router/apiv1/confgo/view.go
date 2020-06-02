@@ -16,7 +16,7 @@ type ConfigStaticsInfo struct {
 }
 
 type RespStatics struct {
-	EnvCnt  []ConfigStaticsInfo `json:"env_cnt"`
-	CmcCnt  []ConfigStaticsInfo `json:"cmc_cnt"`
-	Total int  `json:"total"`
+	EnvCnt []ConfigStaticsInfo `json:"env_cnt"`
+	CmcCnt []ConfigStaticsInfo `json:"cmc_cnt"`
+	Total  int                 `json:"total"`
 }

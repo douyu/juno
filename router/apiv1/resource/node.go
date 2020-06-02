@@ -1,13 +1,14 @@
 package resource
 
 import (
+	"time"
+
 	"github.com/douyu/juno/pkg/invoker"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/packages/contrib/output"
 	"github.com/douyu/juno/pkg/service/resource"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/labstack/echo/v4"
-	"time"
 )
 
 func NodeInfo(c echo.Context) error {

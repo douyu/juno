@@ -1,9 +1,10 @@
 package grpcgovern
 
 import (
-	"github.com/douyu/jupiter/pkg/conf"
 	"sync"
 	"time"
+
+	"github.com/douyu/jupiter/pkg/conf"
 
 	"github.com/go-resty/resty/v2"
 )

@@ -1,9 +1,10 @@
 package proxy
 
 import (
+	"net/http"
+
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/labstack/gommon/log"
-	"net/http"
 )
 
 type HttpWorker struct {
@@ -12,7 +13,7 @@ type HttpWorker struct {
 
 func NewProxyHttpWorker() *HttpWorker {
 	server := &http.Server{
-		Addr: conf.GetString("clientProxy.http.listenAddr"),
+		Addr:    conf.GetString("clientProxy.http.listenAddr"),
 		Handler: NewHttpProxy()}
 	return &HttpWorker{
 		server: server,
@@ -24,12 +25,11 @@ func (worker *HttpWorker) Run() error {
 	return worker.server.ListenAndServe()
 }
 
-func (worker *HttpWorker) Stop() error{
+func (worker *HttpWorker) Stop() error {
 	// stop the worker
 	log.Infof("stopping for http proxy")
 	return worker.server.Close()
 }
-
 
 type GrpcWorker struct {
 	server *grpcProxy
@@ -46,7 +46,7 @@ func (worker *GrpcWorker) Run() error {
 	return worker.server.startGRPCProxy()
 }
 
-func (worker *GrpcWorker) Stop() error{
+func (worker *GrpcWorker) Stop() error {
 	log.Infof("stopping for grpc proxy")
 	worker.server.close()
 	return nil

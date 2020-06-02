@@ -90,7 +90,7 @@ func TopologyRelationship(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	list, _, err := analysis.Analysis.GetTopologyList(reqModel.AppTopology, 1, 10000,  "update_time desc,id desc")
+	list, _, err := analysis.Analysis.GetTopologyList(reqModel.AppTopology, 1, 10000, "update_time desc,id desc")
 
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())

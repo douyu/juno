@@ -2,10 +2,11 @@ package parse_test
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/douyu/juno/pkg/service/parse"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/google/go-cmp/cmp"
-	"testing"
 )
 
 func TestTomlParse_Fusion(t *testing.T) {

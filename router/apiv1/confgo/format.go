@@ -3,10 +3,11 @@ package confgo
 import (
 	"bytes"
 	"fmt"
-	"github.com/douyu/juno/pkg/service/confgo"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/packages/contrib/output"
 	"github.com/douyu/juno/pkg/service/codec"
+	"github.com/douyu/juno/pkg/service/confgo"
 	"github.com/labstack/echo/v4"
 )
 
@@ -65,4 +66,3 @@ func TomlFormat(c echo.Context) error {
 func mergeGlobalConfig(gloablVal string, val string) string {
 	return fmt.Sprintf("%s\n%s\n", val, gloablVal)
 }
-

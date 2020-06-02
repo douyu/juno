@@ -2,8 +2,9 @@ package invoker
 
 import (
 	"fmt"
-	"github.com/douyu/jupiter/pkg/conf"
 	"time"
+
+	"github.com/douyu/jupiter/pkg/conf"
 
 	"go.etcd.io/etcd/clientv3"
 )

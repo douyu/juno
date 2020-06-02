@@ -40,5 +40,3 @@ func WithData(data interface{}) JSONResult {
 		Data:    data,
 	}
 }
-
-

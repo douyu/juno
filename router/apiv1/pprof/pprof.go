@@ -2,8 +2,9 @@ package pprofHandle
 
 import (
 	"fmt"
-	"github.com/douyu/juno/pkg/service/resource"
 	"strings"
+
+	"github.com/douyu/juno/pkg/service/resource"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/packages/contrib/output"

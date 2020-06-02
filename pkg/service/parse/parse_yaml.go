@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	yaml "gopkg.in/yaml.v2"
 	"reflect"
 	"strings"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 type YamlParse struct {

@@ -86,13 +86,13 @@ func (cmc *confu) GetDiffKeys(oriCid, rafCid int) (diffKeys []diffKeyItem, err e
 	for _, i := range rafkeys {
 		rafmap[i.Key] = true
 	}
-	for k, _ := range orimap {
+	for k := range orimap {
 		// 参考文本没有，源文件有
 		if _, ok := rafmap[k]; !ok {
 			diffKeys = append(diffKeys, diffKeyItem{Key: k, Status: "new"})
 		}
 	}
-	for k, _ := range rafmap {
+	for k := range rafmap {
 		// 参考文本有，源文件没有
 		if _, ok := orimap[k]; !ok {
 			diffKeys = append(diffKeys, diffKeyItem{Key: k, Status: "lack"})

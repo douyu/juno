@@ -54,7 +54,7 @@ var _ = Describe("Dencode", func() {
 	It("fmt/toml/right", func() {
 		var content = "[app]\n  mode = \"local\"\n\n  [app.registry]\n\n    [app.registry.etcd]\n      endpoints = [\"wsd-projecta-etcd-rd.dev.unp.oyw:2379\"]\n      secure = false\n      timeout = \"1s\"\n\n[jupiter]\n\n  [jupiter.mysql]\n\n    [jupiter.mysql.dirty_filter]\n#      connMaxLifetime = \"300s\"\n      debug = true\n      dsn = \"web_cm_user:7g1L275Q85sG94ioG5Nz@tcp(wsd-projecta.master.mysql.dev.dba.unp.oyw:13306)/cl_filter?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=1s\"\n      level = \"panic\"\n      maxIdleConns = 10\n      maxOpenConns = 30\n\n[server]\n\n  [server.govern]\n    port = 35289\n\n  [server.grpc]\n    port = 59138\n    [[server.grpc.services]]# 声明服务接口\n        namespace = \"com.xxx.tribe.text.filter\"  # 命名空间 [required]\n        name = \"DirtyFilterServiceGrpc$IDirtyFilterService\" # 服务名称 [required]\n        dubbo = \"2.0.2\" # dubbo传输协议的版本号 [default, optional]\n        release = \"2.7.4-grpc-SNAPSHOT\" # dubbo注册协议的版本号 [default, optional]\n        group=\"local\"\n\n  [server.http]\n    port = 59139"
 		items, err := codec.DecodeToml(content, true)
-		fmt.Println("content:-----",content)
+		fmt.Println("content:-----", content)
 		for _, v := range items {
 			fmt.Println("v -- ", v)
 		}

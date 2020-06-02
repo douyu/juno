@@ -3,6 +3,9 @@ package service
 import (
 	"encoding/base64"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/douyu/juno/pkg/invoker"
 	"github.com/douyu/juno/pkg/library/util"
 	"github.com/douyu/juno/pkg/model/db"
@@ -14,8 +17,6 @@ import (
 	"github.com/douyu/juno/pkg/service/resource"
 	"github.com/douyu/jupiter/pkg/conf"
 	log "github.com/sirupsen/logrus"
-	"strconv"
-	"time"
 )
 
 type appDep struct{}

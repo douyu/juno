@@ -2,11 +2,12 @@ package proxy
 
 import (
 	"errors"
-	"github.com/douyu/jupiter/pkg/conf"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"time"
+
+	"github.com/douyu/jupiter/pkg/conf"
 
 	"github.com/douyu/juno/pkg/packages/roundtrip"
 	"github.com/labstack/gommon/log"

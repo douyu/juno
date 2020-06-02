@@ -1,10 +1,11 @@
 package proxy
 
 import (
-	"github.com/douyu/jupiter/pkg/conf"
-	"golang.org/x/sync/errgroup"
 	"net"
 	"time"
+
+	"github.com/douyu/jupiter/pkg/conf"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/namespace"
@@ -20,17 +21,17 @@ import (
 )
 
 type grpcProxy struct {
-	grpcProxyListenAddr        string
-	grpcProxyEndpoints         []string
-	grpcProxyCert              string
-	grpcProxyKey               string
-	grpcProxyCA                string
-	grpcProxyNamespace string
+	grpcProxyListenAddr string
+	grpcProxyEndpoints  []string
+	grpcProxyCert       string
+	grpcProxyKey        string
+	grpcProxyCA         string
+	grpcProxyNamespace  string
 
 	grpcServer *grpc.Server
 }
 
-func NewEtcdGrpcProxy() *grpcProxy{
+func NewEtcdGrpcProxy() *grpcProxy {
 	grpcProxyListenAddr := conf.GetString("clientProxy.etcd.listenAddr")
 	if grpcProxyListenAddr == "" {
 		grpcProxyListenAddr = "127.0.0.1:23790"
@@ -43,16 +44,16 @@ func NewEtcdGrpcProxy() *grpcProxy{
 
 	obj := &grpcProxy{
 		grpcProxyListenAddr: grpcProxyListenAddr,
-		grpcProxyEndpoints: grpcProxyEndpoints,
-		grpcProxyCert: conf.GetString("clientProxy.etcd.tls.cert"),
-		grpcProxyKey: conf.GetString("clientProxy.etcd.tls.key"),
-		grpcProxyCA: conf.GetString("clientProxy.etcd.tls.cacert"),
-		grpcProxyNamespace: conf.GetString("clientProxy.etcd.namespace"),
+		grpcProxyEndpoints:  grpcProxyEndpoints,
+		grpcProxyCert:       conf.GetString("clientProxy.etcd.tls.cert"),
+		grpcProxyKey:        conf.GetString("clientProxy.etcd.tls.key"),
+		grpcProxyCA:         conf.GetString("clientProxy.etcd.tls.cacert"),
+		grpcProxyNamespace:  conf.GetString("clientProxy.etcd.namespace"),
 	}
 	return obj
 }
 
-func (gp *grpcProxy)startGRPCProxy() error {
+func (gp *grpcProxy) startGRPCProxy() error {
 	l, err := net.Listen("tcp", gp.grpcProxyListenAddr)
 	if err != nil {
 		return err
@@ -116,7 +117,7 @@ func (gp *grpcProxy)startGRPCProxy() error {
 	return eg.Wait()
 }
 
-func (gp *grpcProxy)newClientCfg() (*clientv3.Config, error) {
+func (gp *grpcProxy) newClientCfg() (*clientv3.Config, error) {
 	// set tls if any one tls option set
 	var cfgtls *transport.TLSInfo
 	tlsinfo := transport.TLSInfo{}
@@ -150,6 +151,6 @@ func (gp *grpcProxy)newClientCfg() (*clientv3.Config, error) {
 	return &cfg, nil
 }
 
-func (gp *grpcProxy)close()  {
+func (gp *grpcProxy) close() {
 	gp.grpcServer.Stop()
 }

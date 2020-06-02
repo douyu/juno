@@ -2,10 +2,11 @@ package system
 
 import (
 	"errors"
+	"time"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/store/gorm"
-	"time"
 )
 
 var System *system

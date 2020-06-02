@@ -2,9 +2,10 @@ package user
 
 import (
 	"errors"
-	"github.com/douyu/jupiter/pkg/conf"
 	"sync"
 	"time"
+
+	"github.com/douyu/jupiter/pkg/conf"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"

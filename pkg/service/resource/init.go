@@ -1,6 +1,6 @@
 package resource
 
-import 	"github.com/douyu/jupiter/pkg/store/gorm"
+import "github.com/douyu/jupiter/pkg/store/gorm"
 
 var (
 	Resource *resource

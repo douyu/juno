@@ -3,8 +3,9 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/douyu/jupiter/pkg/conf"
 	"strings"
+
+	"github.com/douyu/jupiter/pkg/conf"
 )
 
 func PPP(key string, in interface{}) {

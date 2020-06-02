@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/douyu/jupiter/pkg/conf"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/douyu/jupiter/pkg/conf"
 
 	"github.com/douyu/juno/pkg/model/db"
 

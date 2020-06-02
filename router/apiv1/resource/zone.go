@@ -44,7 +44,7 @@ func ZoneList(c echo.Context) error {
 		Env:        reqModel.Env,
 		RegionCode: reqModel.RegionCode,
 		RegionName: reqModel.RegionName,
-	}, reqModel.CurrentPage, reqModel.PageSize, reqModel.KeywordsType, reqModel.Keywords,  "update_time desc,id desc")
+	}, reqModel.CurrentPage, reqModel.PageSize, reqModel.KeywordsType, reqModel.Keywords, "update_time desc,id desc")
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}

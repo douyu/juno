@@ -6,4 +6,3 @@ type ProxyRoundTripper interface {
 	http.RoundTripper
 	CancelRequest(*http.Request)
 }
-

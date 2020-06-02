@@ -10,7 +10,6 @@ require (
 	github.com/cncd/queue v0.0.0-20170406022548-63b1974bbcc9
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/coreos/etcd v3.3.20+incompatible
-	github.com/davecgh/go-spew v1.1.1
 	github.com/douyu/jupiter v0.0.0-20200529124528-a97a02954bdf
 	github.com/go-resty/resty/v2 v2.2.0
 	github.com/go-sql-driver/mysql v1.4.1
@@ -29,7 +28,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/viper v1.6.3
-	github.com/stretchr/testify v1.5.1
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/unknwon/com v1.0.1
 	github.com/urfave/cli/v2 v2.2.0
@@ -38,8 +36,10 @@ require (
 	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
 	golang.org/x/net v0.0.0-20200520004742-59133d7f0dd7
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
+	golang.org/x/tools v0.0.0-20200601175630-2caf76543d99 // indirect
 	google.golang.org/grpc v1.29.1
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
+	gopkg.in/yaml.v2 v2.3.0
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0

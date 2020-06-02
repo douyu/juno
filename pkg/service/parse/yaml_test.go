@@ -2,8 +2,9 @@ package parse_test
 
 import (
 	"fmt"
-	"github.com/douyu/juno/pkg/service/parse"
 	"testing"
+
+	"github.com/douyu/juno/pkg/service/parse"
 )
 
 var (

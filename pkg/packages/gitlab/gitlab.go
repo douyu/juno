@@ -2,14 +2,16 @@ package gitlab
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
-	"github.com/douyu/jupiter/pkg/conf"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/douyu/jupiter/pkg/conf"
 
 	"github.com/douyu/juno/pkg/library/util"
 	"github.com/douyu/juno/pkg/model/db"
@@ -18,7 +20,6 @@ import (
 	"github.com/douyu/juno/pkg/packages/httputil"
 	"github.com/douyu/juno/pkg/packages/oauth2"
 	"github.com/douyu/juno/pkg/packages/remote"
-	"github.com/kataras/go-errors"
 )
 
 // DefaultScope ...

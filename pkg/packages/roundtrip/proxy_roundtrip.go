@@ -1,9 +1,10 @@
 package roundtrip
 
 import (
+	"io/ioutil"
 	"net/http"
 	"time"
-	"io/ioutil"
+
 	"golang.org/x/net/context"
 )
 

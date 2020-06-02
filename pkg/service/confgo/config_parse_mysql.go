@@ -1,9 +1,10 @@
 package confgo
 
 import (
+	"time"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/service/resource"
-	"time"
 )
 
 func (c *configApp) ParseToMysql(aid int, appName string, items []*CmcTpl) (err error) {

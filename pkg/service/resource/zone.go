@@ -2,10 +2,11 @@ package resource
 
 import (
 	"errors"
-	"github.com/douyu/juno/pkg/model/view"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/douyu/juno/pkg/model/view"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"

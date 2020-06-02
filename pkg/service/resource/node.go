@@ -3,10 +3,11 @@ package resource
 import (
 	"encoding/json"
 	"errors"
-	"github.com/douyu/juno/pkg/model/view"
-	"github.com/douyu/juno/pkg/service/appevent"
 	"strings"
 	"time"
+
+	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/service/appevent"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
@@ -26,7 +27,7 @@ func (r *resource) GetNode(tx *gorm.DB, identify interface{}) (resp db.Node, err
 	return
 }
 
-func (r *resource) GetNodeList(where db.Node, currentPage, pageSize int,keyType, keyWords string, sort string) (resp []db.Node, page *view.Pagination, err error) {
+func (r *resource) GetNodeList(where db.Node, currentPage, pageSize int, keyType, keyWords string, sort string) (resp []db.Node, page *view.Pagination, err error) {
 	page = view.NewPagination(currentPage, pageSize)
 	sql := r.DB.Model(db.Node{}).Where(where)
 	keyWords = strings.TrimSpace(keyWords)

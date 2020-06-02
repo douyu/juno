@@ -73,8 +73,8 @@ type ReqNodeInfo struct {
 
 type ReqNodeList struct {
 	db.Node
-	CurrentPage int `query:"currentPage"`
-	PageSize    int `query:"pageSize"`
+	CurrentPage  int    `query:"currentPage"`
+	PageSize     int    `query:"pageSize"`
 	KeywordsType string `query:"keywords_type"`
 	Keywords     string `query:"keywords"`
 }
