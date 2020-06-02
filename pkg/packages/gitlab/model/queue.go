@@ -58,11 +58,11 @@ func (q *persistentQueue) Push(c context.Context, task *queue.Task) error {
 func (q *persistentQueue) Poll(c context.Context, f queue.Filter) (*queue.Task, error) {
 	task, err := q.Queue.Poll(c, f)
 	if task != nil {
-		fmt.Println("pull queue item: %s: remove from backup", task.ID)
+		fmt.Printf("pull queue item: %s: remove from backup\n", task.ID)
 		if derr := q.store.TaskDelete(task.ID); derr != nil {
-			fmt.Println("pull queue item: %s: failed to remove from backup: %s", task.ID, derr)
+			fmt.Printf("pull queue item: %s: failed to remove from backup: %s\n", task.ID, derr)
 		} else {
-			fmt.Println("pull queue item: %s: successfully removed from backup", task.ID)
+			fmt.Printf("pull queue item: %s: successfully removed from backup\n", task.ID)
 		}
 	}
 	return task, err
@@ -72,7 +72,7 @@ func (q *persistentQueue) Poll(c context.Context, f queue.Filter) (*queue.Task, 
 func (q *persistentQueue) Evict(c context.Context, id string) error {
 	err := q.Queue.Evict(c, id)
 	if err == nil {
-		q.store.TaskDelete(id)
+		_ = q.store.TaskDelete(id)
 	}
 	return err
 }

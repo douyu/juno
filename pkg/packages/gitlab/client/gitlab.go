@@ -99,7 +99,7 @@ func (c *Client) Do(method, urll, opaque string, body []byte) ([]byte, error) {
 	}
 
 	if resp.StatusCode >= 400 {
-		err = fmt.Errorf("*Gitlab.buildAndExecRequest failed: %s code:%d", resp.StatusCode, req.URL)
+		err = fmt.Errorf("*Gitlab.buildAndExecRequest failed: %v code:%v", resp.StatusCode, req.URL)
 	}
 
 	return contents, err

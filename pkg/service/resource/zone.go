@@ -156,7 +156,8 @@ func (r *resource) GetEnvCnt() (cnt int) {
 func (r *resource) GetSelectData() (respRegion, respZone, respEnv []view.SelectData) {
 	// 找到所有的Region
 	var regionArr []db.Zone
-	r.DB.Model(db.Zone{}).Select("region_name, region_code").Group("region_name, region_code").Find(&regionArr)
+	r.DB.Model(db.Zone{}).Select("region_name, region_code").
+		Group("region_name, region_code").Find(&regionArr)
 	respRegion = make([]view.SelectData, 0)
 	for _, value := range regionArr {
 		respRegion = append(respRegion, view.SelectData{
