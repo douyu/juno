@@ -1,0 +1,8 @@
+{
+  "aid":1,
+  "app_name":"douyu-edogawa-konan",
+  "zone_code":"cn-wuhan-guanggu-f1",
+  "env":"live",
+  "format": "toml",
+  "file_name":"config-live.toml"
+}

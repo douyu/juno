@@ -1,0 +1,5 @@
+{
+  "addr":"{{ADDR}}",
+  "user":"{{USERNAME}}",
+  "password":"{{PASSWORD}}"
+}
