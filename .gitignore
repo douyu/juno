@@ -18,7 +18,7 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-
+*.zip
 
 ### Go Patch ###
 */vendor/
@@ -37,11 +37,8 @@ assets/pprof_static/*
 bin/*
 go.sum
 
-/build/docker/*/juno-agent/*
-/build/docker/install/bin/*
-/build/docker/install/cmd/*
-/build/docker/juno/assets/*
-/build/docker/juno/pprof/*
-/build/docker/juno/bin/*
-/release/juno/*
+/docker/*
+/pprof/*
+/release/*
+
 

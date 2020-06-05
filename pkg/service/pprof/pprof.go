@@ -45,13 +45,13 @@ const tempFilePath = "/tmp"
 
 func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 	// 检测 Golang环境，如果没有退出返回错误
-	if res, err := CheckShell("tool/pprof/checkGo.sh"); err != nil {
+	if res, err := CheckShell("pprof/checkGo.sh"); err != nil {
 		fmt.Println("checkGo err", res)
 		return fmt.Errorf("checkGo err:%v", err)
 	}
 
 	// 检测 Graphviz环境，如果没有自动安装
-	if res, err := CheckShell("tool/pprof/graphviz.sh"); err != nil {
+	if res, err := CheckShell("pprof/graphviz.sh"); err != nil {
 		fmt.Println("CheckGraphviz err", res)
 		return fmt.Errorf("CheckGraphviz install err:%v", err)
 	}
@@ -109,7 +109,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 
 		// 4. 将临时文件生成对应的pprof 图
 
-		execRs := RunCmd(fmt.Sprintf("tool/pprof/pprof.sh %s %s", saveFileName, saveSvgName))
+		execRs := RunCmd(fmt.Sprintf("pprof/pprof.sh %s %s", saveFileName, saveSvgName))
 		fmt.Printf("execShell result\n----\n%v---\n", execRs)
 
 		if !FileExists(saveSvgName) {
