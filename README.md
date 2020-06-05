@@ -20,7 +20,6 @@ See the [中文文档](http://jupiter.douyu.com/juno) for document in Chinese.
 
 [在线演示](http://jupiterconsole.douyu.com/user/login?return_url=/)
 
-
 ## Bugs and Feedback
 
 For bug report, questions and discussions please submit GitHub Issues.
