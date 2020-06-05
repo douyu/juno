@@ -1,0 +1,74 @@
+version: "2"
+services:
+  etcd:
+    container_name: etcd
+    image: bitnami/etcd:latest
+    env_file:
+      - ./env/etcd.env
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    restart: on-failure
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    env_file:
+      - ./env/mysql.env
+    depends_on:
+      - etcd
+    ports:
+      - 3306:3306
+      - 33060:33060
+    restart: on-failure
+  install:
+    container_name: juno-install
+    image: mixmore/juno-install:latest
+    links:
+      - mysql
+    depends_on:
+      - mysql
+    restart: on-failure
+  juno:
+    container_name: juno
+    image: mixmore/juno:latest
+    ports:
+      - "50000:50000"
+    links:
+      - mysql
+      - etcd
+    depends_on:
+      - mysql
+    restart: on-failure
+  file-watch-demo:
+    container_name: file-watch-demo
+    image: mixmore/file-watch-demo:latest
+    links:
+      - mysql
+      - etcd
+      - juno
+    depends_on:
+      - juno
+    restart: on-failure
+  http-watch-demo:
+    container_name: http-watch-demo
+    image: mixmore/http-watch-demo:latest
+    links:
+      - mysql
+      - etcd
+      - juno
+    depends_on:
+      - juno
+    restart: on-failure
+  nginx:
+    container_name: juno-nginx
+    image: mixmore/juno-nginx:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - juno
+    links:
+      - juno
+      - file-watch-demo
+      - http-watch-demo
+    restart: on-failure
+

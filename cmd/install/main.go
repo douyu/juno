@@ -3,21 +3,19 @@ package main
 import (
 	"fmt"
 
+	"github.com/douyu/juno/cmd/install/mock"
 	"github.com/douyu/juno/pkg/invoker"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/service"
 	"github.com/douyu/jupiter"
-
-	"github.com/douyu/juno/cmd/install/mock"
-
 	"github.com/douyu/jupiter/pkg/flag"
-
-	"github.com/douyu/juno/pkg/model/db"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli/v2"
 )
 
+// Admin indicates the user is a system administrator.
 type Admin struct {
 	jupiter.Application
 }
@@ -45,14 +43,13 @@ func main() {
 
 }
 
-//func migrateDB(cli *cli.Context) error {
+// func migrateDB(cli *cli.Context) error {
 func migrateDB() error {
 	var dbName = "juno"
 	gormdb, err := gorm.Open(
 		"mysql",
 		viper.GetString("jupiter.mysql.juno.dsn"),
 	)
-
 	if err != nil {
 		return err
 	}

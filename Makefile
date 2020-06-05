@@ -16,6 +16,6 @@ docker:
 	@docker-compose -f ./build/docker/standalone.yaml up
 
 docker.build.run:
-	@./build/docker/script/run.sh
+	@./docker/run.sh
 
 

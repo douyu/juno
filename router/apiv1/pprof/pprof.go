@@ -43,6 +43,7 @@ func SetSysConfig(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
+// CheckDep pprofy dependency detection
 func CheckDep(c echo.Context) error {
 	reqModel := db.ReqCheck{}
 	if err := c.Bind(&reqModel); err != nil {
@@ -55,22 +56,22 @@ func CheckDep(c echo.Context) error {
 	}
 	resp := RespCheck{}
 
-	if res, err := pprof.CheckShell("tool/pprof/checkGo.sh"); err != nil {
+	if res, err := pprof.CheckShell("pprof/checkGo.sh"); err != nil {
 		fmt.Println("checkGo err", res)
 		//return fmt.Errorf("checkGo err:%v", err)
 		//return output.JSON(c, output.MsgErr, err.Error())
 	} else {
 		resp.Golang = 1
 	}
-	if res, err := pprof.CheckShell("tool/pprof/checkGoTorch.sh"); err != nil {
+	if res, err := pprof.CheckShell("pprof/checkGoTorch.sh"); err != nil {
 		fmt.Println("checkGoTorch err", res)
 		//return fmt.Errorf("checkGo err:%v", err)
 		//return output.JSON(c, output.MsgErr, err.Error())
 	} else {
 		resp.GoTorch = 1
 	}
-	if res, err := pprof.CheckShell("tool/pprof/checkGraphviz.sh"); err != nil {
-		fmt.Println("checkGoTorch err", res)
+	if res, err := pprof.CheckShell("pprof/checkGraphviz.sh"); err != nil {
+		fmt.Println("checkGraphviz err", res)
 		//return fmt.Errorf("checkGo err:%v", err)
 		//return output.JSON(c, output.MsgErr, err.Error())
 	} else {
@@ -120,13 +121,13 @@ func InstallDep(c echo.Context) error {
 
 	switch reqModel.InstallType {
 	case 1:
-		if res, err := pprof.CheckShell("tool/pprof/graphviz.sh"); err != nil {
+		if res, err := pprof.CheckShell("pprof/graphviz.sh"); err != nil {
 			fmt.Println("graphviz err", res)
 			//return fmt.Errorf("checkGo err:%v", err)
 			return output.JSON(c, output.MsgErr, err.Error())
 		}
 	case 2:
-		if res, err := pprof.CheckShell("tool/pprof/installGoTorch.sh"); err != nil {
+		if res, err := pprof.CheckShell("pprof/installGoTorch.sh"); err != nil {
 			fmt.Println("installGoTorch err", res)
 			//return fmt.Errorf("checkGo err:%v", err)
 			return output.JSON(c, output.MsgErr, err.Error())
