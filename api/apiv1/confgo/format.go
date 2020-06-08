@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// 配置变更列表
+// ListAppConfigChanges Configuration change list
 func ListAppConfigChanges(c echo.Context) error {
 	reqModel := struct {
 		Page  int `json:"page"`
@@ -41,7 +41,7 @@ func ListAppConfigChanges(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "", result)
 }
 
-// toml文本格式化
+// TomlFormat ...
 func TomlFormat(c echo.Context) error {
 	reqModel := new(struct {
 		Content string `json:"content" form:"content"`

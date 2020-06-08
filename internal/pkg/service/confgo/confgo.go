@@ -5,11 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/util"
-
 	"github.com/douyu/juno/internal/pkg/model"
-
 	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/internal/pkg/util"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
@@ -105,9 +103,9 @@ func (c *confgo) publishLogAdd(tx *gorm.DB, caid int, historyID int, commonVal s
 				return
 			}
 			return
-		} else { // No release record
-			return
 		}
+		// No release record
+		return
 	}
 
 	latestData, preData := resultList[0], resultList[1]
@@ -130,19 +128,19 @@ func (c *confgo) syncItemsStatus(tx *gorm.DB, caid int) error {
 	return nil
 }
 
-func (c *confgo) Rollback(configId int, nowId, historyId int, u *db.User) (err error) {
+func (c *confgo) Rollback(configID int, nowID, historyID int, u *db.User) (err error) {
 	tx := c.DB.Begin()
-	if err = c.rollbackItems(tx, configId); err != nil {
+	if err = c.rollbackItems(tx, configID); err != nil {
 		tx.Rollback()
 		return
 	}
-	nowItems, err := c.getVersionKVList(nowId)
+	nowItems, err := c.getVersionKVList(nowID)
 	if err != nil {
 		tx.Rollback()
 		return
 	}
 
-	historyItems, err := c.getVersionKVList(historyId)
+	historyItems, err := c.getVersionKVList(historyID)
 	if err != nil {
 		tx.Rollback()
 		return
@@ -163,14 +161,11 @@ func (c *confgo) Rollback(configId int, nowId, historyId int, u *db.User) (err e
 	del := util.Diff(oldTargetMap, newTargetMap)
 
 	var update []db.CmcHistoryItem
-	for historyItemKeyId, row := range newTargetMap {
-		if _, ok := oldTargetMap[historyItemKeyId]; ok {
+	for historyItemKeyID, row := range newTargetMap {
+		if _, ok := oldTargetMap[historyItemKeyID]; ok {
 			update = append(update, row.(db.CmcHistoryItem))
 		}
 	}
-	util.PPP("add", add)
-	util.PPP("del", del)
-	util.PPP("update", update)
 	if err = c.updateConfigKV(tx, update, u); err != nil {
 		tx.Rollback()
 		return
@@ -195,10 +190,10 @@ func (c *confgo) convertConfigItem(in map[string]interface{}) (out []db.CmcHisto
 	return out
 }
 
-func (c *confgo) getVersionKVList(historyId int) (result []db.CmcHistoryItem, err error) {
+func (c *confgo) getVersionKVList(historyID int) (result []db.CmcHistoryItem, err error) {
 	result = make([]db.CmcHistoryItem, 0)
 	dbConn := c.DB.Table("cmc_history_item")
-	if err := dbConn.Where("cmc_history_id = ?", historyId).Find(&result).Error; err != nil {
+	if err := dbConn.Where("cmc_history_id = ?", historyID).Find(&result).Error; err != nil {
 		return result, err
 	}
 	return result, nil

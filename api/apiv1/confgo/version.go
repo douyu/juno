@@ -3,15 +3,14 @@ package confgo
 import (
 	"fmt"
 
-	"github.com/douyu/juno/internal/pkg/service/confgo"
-
 	"github.com/douyu/juno/internal/pkg/model/db"
-
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
+	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 )
 
+// ListVersions ..
 func ListVersions(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcHistory)
@@ -48,7 +47,7 @@ func VersionChange(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "", result)
 }
 
-//  VersionChangeOrigin View current modifications and last published version
+// VersionChangeOrigin View current modifications and last published version
 func VersionChangeOrigin(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcHistory)

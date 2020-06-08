@@ -9,13 +9,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// TplInfo ...
 func TplInfo(c echo.Context) error {
 	var (
 		err  error
 		info db.CmcTpl
 	)
 	type ReqInfo struct {
-		Id int `json:"id"`
+		ID int `json:"id"`
 	}
 
 	reqModel := ReqInfo{}
@@ -24,14 +25,14 @@ func TplInfo(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	info, err = confgo.ConfuSrv.GetTpl(reqModel.Id)
+	info, err = confgo.ConfuSrv.GetTpl(reqModel.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 	return output.JSON(c, output.MsgOk, "success", info)
 }
 
-// 创建一个配置模板
+// TplCreate Create a configuration template
 func TplCreate(c echo.Context) error {
 	var err error
 	type ReqCreate struct {
@@ -61,7 +62,7 @@ func TplCreate(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "创建成功", param)
 }
 
-// 更新数据
+// TplUpdate ...
 func TplUpdate(c echo.Context) error {
 	var (
 		err error
@@ -82,14 +83,14 @@ func TplUpdate(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
-// 删除数据
+// TplDelete ...
 func TplDelete(c echo.Context) error {
 	var (
 		err error
 	)
 
 	type ReqInfo struct {
-		Id int `json:"id"`
+		ID int `json:"id"`
 	}
 
 	reqModel := ReqInfo{}
@@ -97,7 +98,7 @@ func TplDelete(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	err = confgo.ConfuSrv.DeleteTpl(reqModel.Id, &db.User{})
+	err = confgo.ConfuSrv.DeleteTpl(reqModel.ID, &db.User{})
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -105,7 +106,7 @@ func TplDelete(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
-// 应用列表
+// TplList ..
 func TplList(c echo.Context) error {
 	var err error
 	reqModel := ReqTplList{}

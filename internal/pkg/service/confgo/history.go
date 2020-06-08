@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/pkg/errors"
-
 	"github.com/douyu/juno/internal/pkg/model/db"
-
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/pkg/errors"
 )
 
 type history struct {
@@ -31,11 +29,11 @@ func (h *history) GetHistoryChange(historyID int) (result db.DiffText, err error
 	return
 }
 
-// ListVersions查询历史记录
-func (cmc *history) ListVersions(c *db.CmcHistory) ([]db.CmcHistory, error) {
+// ListVersions 查询历史记录
+func (h *history) ListVersions(c *db.CmcHistory) ([]db.CmcHistory, error) {
 	var err error
 	var res []db.CmcHistory
-	dbConn := cmc.DB.Table("cmc_history")
+	dbConn := h.DB.Table("cmc_history")
 	err = dbConn.Where("caid = ?", c.Caid).Order("create_time desc").Find(&res).Error
 	if err != nil {
 		return res, err
@@ -43,7 +41,7 @@ func (cmc *history) ListVersions(c *db.CmcHistory) ([]db.CmcHistory, error) {
 	return res, nil
 }
 
-func (h *history) GetPreHistory(caid int) (nowId, historyId int, err error) {
+func (h *history) GetPreHistory(caid int) (nowID, historyID int, err error) {
 	resultList := make([]db.CmcHistory, 0)
 	dbConn := h.DB.Table("cmc_history")
 	if err = dbConn.Where("caid = ?", caid).Limit(2).Order("create_time desc").Find(&resultList).Error; err != nil {
