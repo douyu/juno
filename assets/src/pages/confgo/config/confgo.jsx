@@ -782,7 +782,7 @@ export default class Configserver extends React.Component {
       {
         key: 'value',
         dataIndex: 'value',
-        title: '值',
+        title: '文本',
         filterDropdown: (
           <div className="custom-filter-dropdown">
             <Input
@@ -808,11 +808,7 @@ export default class Configserver extends React.Component {
         },
         render(t, r) {
           if (!r.is_resource) {
-            let tmp = t;
-            if (t.length > 400) {
-              tmp = tmp.substring(0, 400) + '...';
-            }
-            return <span style={{ wordBreak: 'break-word' }}>{tmp}</span>;
+            return <pre style={{ wordBreak: 'break-word' }}>{t}</pre>;
           }
           const { relatedList = [] } = that.props;
           const arr = t.split('');
@@ -1339,9 +1335,9 @@ export default class Configserver extends React.Component {
               <Tabs
                 style={{
                   backgroundColor: '#fff',
-                  marginTop: '4px',
-                  marginLeft: '4px',
-                  marginRight: '4px',
+                  marginTop: '5px',
+                  marginLeft: '5px',
+                  marginRight: '5px',
                 }}
                 activeKey={this.state.tab}
                 onChange={this.changeTab}
@@ -1350,34 +1346,12 @@ export default class Configserver extends React.Component {
                   tab={
                     <span>
                       <TableOutlined />
-                      配置编辑
+                      编辑
                     </span>
                   }
                   key="table"
                 >
                   <Row>
-                    {/* <Col span={12}>
-                      <Radio.Group
-                        value={filterKey}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          that.setState({
-                            filterKey: val,
-                          });
-                        }}
-                        style={{ marginBottom: '8px', marginLeft: '8px' }}
-                      >
-                        <Radio.Button value={''}>全部</Radio.Button>
-                        <Radio.Button value={'x-custom'}>项目</Radio.Button>
-                        <Radio.Button value={'app'}>app</Radio.Button>
-                        <Radio.Button value={'jupiter.redix'}>redis</Radio.Button>
-                        <Radio.Button value={'jupiter.grpc'}>grpc</Radio.Button>
-                        <Radio.Button value={'jupiter.mysql'}>mysql</Radio.Button>
-                        <Radio.Button value={'jupiter.rocketmq'}>rocketmq</Radio.Button>
-                        <Radio.Button value={'jupiter.hrpc'}>http</Radio.Button>
-                        <Radio.Button value={'jupiter.worker'}>任务</Radio.Button>
-                      </Radio.Group>
-                    </Col> */}
                     <Col style={{ marginLeft: '10px', marginTop: '-10px', marginBottom: '5px' }}>
                       <Button.Group>
                         <Button
@@ -1387,7 +1361,7 @@ export default class Configserver extends React.Component {
                             that.getEnvResource();
                           }}
                         >
-                          新增配置项
+                          新增配置块
                         </Button>
                       </Button.Group>
                     </Col>
@@ -1418,7 +1392,7 @@ export default class Configserver extends React.Component {
                   tab={
                     <span>
                       <FileOutlined />
-                      配置预览
+                      预览
                     </span>
                   }
                   key="text"
@@ -1553,7 +1527,7 @@ export default class Configserver extends React.Component {
                     <span>
                       <FileDoneOutlined />
                       <Badge count={changeNum} overflowCount={9999} offset={[0, 18]}>
-                        更新记录
+                        变更历史
                       </Badge>
                     </span>
                   }
@@ -1571,7 +1545,7 @@ export default class Configserver extends React.Component {
                   tab={
                     <span>
                       <HddOutlined />
-                      运行实例
+                      实例列表
                     </span>
                   }
                   key="status"

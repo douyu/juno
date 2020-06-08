@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/douyu/juno/router"
+	router "github.com/douyu/juno/api"
 	"github.com/douyu/jupiter/pkg/conf"
 )
 
