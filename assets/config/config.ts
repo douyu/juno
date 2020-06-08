@@ -17,6 +17,8 @@ export default defineConfig({
     locale: false,
     logo: '/ant/favicon.png',
     navTheme: 'light',
+    layout: 'topmenu',
+    autoHideHeader: true,
   },
   locale: {
     // default zh-CN

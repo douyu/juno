@@ -7,10 +7,8 @@ import {
 } from '@/services/event';
 import { message, Card, Row, Col } from 'antd';
 import EventList from './components/EventList';
-import NumberCard from './components/NumberCard';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 export interface HomeProps {}
-import styles from './index.less';
 import ReactEcharts from 'echarts-for-react';
 
 export default class Base extends React.Component<HomeProps, any> {
@@ -256,7 +254,7 @@ export default class Base extends React.Component<HomeProps, any> {
 
     return (
       <PageHeaderWrapper>
-        <div>
+        <Card>
           <Row gutter={4} style={{ marginTop: '4px' }}>
             <Col span={12}>
               <Row gutter={4} style={{ marginTop: '4px' }}>
@@ -348,7 +346,7 @@ export default class Base extends React.Component<HomeProps, any> {
               </Row>
             </Col>
           </Row>
-        </div>
+        </Card>
       </PageHeaderWrapper>
     );
   }

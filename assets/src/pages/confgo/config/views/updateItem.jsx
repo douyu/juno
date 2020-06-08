@@ -205,7 +205,7 @@ export default class NormalLoginForm extends React.Component {
           <Form.Item
             label={'值'}
             name="value"
-            rules={[{ required: true, message: '请输入配置项的value!' }]}
+            rules={[{ required: false, message: '请输入配置项的value!' }]}
           >
             <div className={'configEditor'}>
               <ReactCodeMirror
@@ -221,7 +221,7 @@ export default class NormalLoginForm extends React.Component {
                   this.configInputText = editor.getValue();
                 }}
               />
-            </div>{' '}
+            </div>
           </Form.Item>
           {/* <Form.Item label={'是否关联资源'} name="is_resource" valuePropName="checked">
             <Switch checkedChildren="是" unCheckedChildren="否" onChange={this.chooseResource} />,
