@@ -5,21 +5,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/parse"
-	"github.com/douyu/jupiter/pkg/conf"
-	"github.com/jinzhu/gorm"
-
 	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
-	"github.com/douyu/juno/internal/pkg/service/auth"
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/jupiter/pkg/conf"
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 )
 
+// GetAppConfigInfo ..
 func GetAppConfigInfo(c echo.Context) error {
 	reqModel := new(struct {
 		AppName  string `json:"app_name"`
@@ -49,48 +48,34 @@ func GetAppConfigInfo(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "", result)
 }
 
-// addAppConfig 应用创建配置文件
+// CreateConfigFile 应用创建配置文件
 func CreateConfigFile(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcAppView)
 	if err = c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
 	reqModel.FileName = strings.TrimSpace(reqModel.FileName)
-
 	app := db.App{}
 	if err := confgo.CmcAppSrv.DB.Table("app").Where("aid = ?", reqModel.Aid).First(&app).Error; err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	// 线上环境需要检查
-	user := user.GetUser(c)
-
-	if strings.HasPrefix(reqModel.Env, "prod") || strings.HasPrefix(reqModel.Env, "gray") {
-		// todo 线上环境检查条件需要调整，需要管理员权限
-		authOk, err := auth.GitlabAuth(user.Uid, reqModel.AppName)
-		if err != nil {
-			return output.JSON(c, output.MsgErr, "权限校验失败")
-		}
-		if !authOk {
-			return output.JSON(c, output.MsgErr, "没有项目权限，请到gitlab申请")
-		}
-	}
-
+	u := user.GetUser(c)
 	// todo language="go" format="toml"
 	aid, appName, fileName, env, zoneCode := reqModel.Aid, reqModel.AppName, reqModel.FileName, reqModel.Env, reqModel.ZoneCode
-
 	info, err := confgo.CmcAppSrv.CreateConfigFile(aid, appName, env, zoneCode, fileName, reqModel.Format, reqModel.Create)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
+	if err := confgo.ConfuSrv.Add(info.Id, "application", "", 0, u.Nickname); err != nil {
+		return output.JSON(c, output.MsgErr, "add error"+err.Error())
+	}
 	meta, _ := json.Marshal(reqModel)
-	appevent.AppEvent.ConfgoFileCreateEvent(aid, appName, env, zoneCode, string(meta), user)
-
-	return output.JSON(c, output.MsgOk, "add configfile success", info)
+	appevent.AppEvent.ConfgoFileCreateEvent(aid, appName, env, zoneCode, string(meta), u)
+	return output.JSON(c, output.MsgOk, "配置文件添加成功", info)
 }
 
+// DeleteConfig ...
 func DeleteConfig(c echo.Context) (err error) {
 	reqModel := new(db.CmcAppView)
 	if err = c.Bind(reqModel); err != nil {
@@ -119,7 +104,7 @@ func DeleteConfig(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "删除配置文件成功")
 }
 
-// GetAppConfig获取应用的k-v列表和配置文件文本
+// GetAppConfig Get the application's k-v list and configuration file text
 func GetAppConfig(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcConfig)
@@ -229,7 +214,7 @@ func ItemCheck(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "add success")
 }
 
-// 更新配置
+// UpdateAppConfigItem ...
 func UpdateAppConfigItem(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcConfig)
@@ -258,7 +243,7 @@ func UpdateAppConfigItem(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "update success")
 }
 
-// 删除配置
+// DelAppConfigItem ...
 func DelAppConfigItem(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcConfig)
@@ -281,7 +266,7 @@ func DelAppConfigItem(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "del success")
 }
 
-// diffAppConfig 应用配置对照
+// DiffAppConfig ..
 func DiffAppConfig(c echo.Context) error {
 	reqModel := new(struct {
 		OriginCid int `json:"origin_cid"`
@@ -446,13 +431,13 @@ func RollbackConfig(c echo.Context) error {
 	u := user.GetUser(c)
 
 	// Find the last historical release version
-	nowId, historyId, err := confgo.HistorySrv.GetPreHistory(reqModel.Caid)
+	nowID, historyID, err := confgo.HistorySrv.GetPreHistory(reqModel.Caid)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
 	// Reset configuration item data (delete unpublished data first, then diff sync)
-	if err = confgo.Confgo.Rollback(reqModel.Caid, nowId, historyId, u); err != nil {
+	if err = confgo.Confgo.Rollback(reqModel.Caid, nowID, historyID, u); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
@@ -463,7 +448,7 @@ func RollbackConfig(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
-// ConfigStatics
+// ConfigStatics ..
 func ConfigStatics(c echo.Context) error {
 	end := time.Now().Unix()
 	start := end - 86400*30

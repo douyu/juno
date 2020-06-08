@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
+// AppRestart ...
 func AppRestart(c echo.Context) error {
 	reqModel := new(struct {
 		AppName  string `json:"app_name" form:"app_name"`

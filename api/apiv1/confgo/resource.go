@@ -5,17 +5,16 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
+	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/auth"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/resource"
-
-	"github.com/douyu/juno/internal/pkg/model/db"
-	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	user2 "github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/labstack/echo/v4"
 )
 
-// listResource 获取所有资源 admin admin
+// ListResource Get all resources
 func ListResource(c echo.Context) error {
 	typ := c.Param("typ")
 	switch typ {
@@ -31,7 +30,7 @@ func ListResource(c echo.Context) error {
 	return output.JSON(c, output.MsgErr, "typ error")
 }
 
-// listAdminResource 获取所有资源
+// ListAdminResource Get all resources
 func ListAdminResource(c echo.Context) error {
 	var err error
 	reqModel := new(resourceListParams)
@@ -44,7 +43,7 @@ func ListAdminResource(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, errors.New("not admin").Error())
 	}
 
-	res, count, err := confgo.ResourceSrv.GetAdminResourceList(reqModel.ID, reqModel.AppId, reqModel.Name, reqModel.Value, reqModel.Env, reqModel.ZoneCode, reqModel.Type, reqModel.Page, reqModel.Limit)
+	res, count, err := confgo.ResourceSrv.GetAdminResourceList(reqModel.ID, reqModel.AppID, reqModel.Name, reqModel.Value, reqModel.Env, reqModel.ZoneCode, reqModel.Type, reqModel.Page, reqModel.Limit)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -63,7 +62,7 @@ func listUserResource(c echo.Context) error {
 	if err = c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	res, count, err := confgo.ResourceSrv.GetUserResourceList(reqModel.ID, reqModel.AppId, reqModel.Name, reqModel.Value, reqModel.Env, reqModel.Type, reqModel.Page, reqModel.Limit)
+	res, count, err := confgo.ResourceSrv.GetUserResourceList(reqModel.ID, reqModel.AppID, reqModel.Name, reqModel.Value, reqModel.Env, reqModel.Type, reqModel.Page, reqModel.Limit)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -75,7 +74,7 @@ func listUserResource(c echo.Context) error {
 	})
 }
 
-// addResource 添加资源
+// AddResource ...
 func AddResource(c echo.Context) error {
 	var err error
 	reqModel := make([]db.CmcResource, 0)
@@ -103,7 +102,7 @@ func AddResource(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "添加资源成功")
 }
 
-// delResource 删除资源
+// DelResource ..
 func DelResource(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcResource)
@@ -123,7 +122,7 @@ func DelResource(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "删除资源成功")
 }
 
-// updateResource 更新资源
+// UpdateResource ..
 func UpdateResource(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcResource)
@@ -153,7 +152,7 @@ func UpdateResource(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "更新资源成功")
 }
 
-// getRelatedResource ...
+// GetRelatedResource ...
 func GetRelatedResource(c echo.Context) error {
 	var err error
 	reqModel := new(struct {
@@ -165,20 +164,19 @@ func GetRelatedResource(c echo.Context) error {
 		Limit int    `json:"limit"`
 		ID    int    `json:"id"`
 		Caid  int    `json:"caid"`
-		AppId int    `json:"appId"`
+		AppID int    `json:"appId"`
 	})
 	if err = c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
 	res, err := confgo.ResourceSrv.GetRelatedSourceList(reqModel.Caid, true)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
 	return output.JSON(c, output.MsgOk, "查询资源成功", res)
 }
 
+// ListDepResource ..
 func ListDepResource(c echo.Context) (err error) {
 	reqModel := new(db.CmcResource)
 	if err = c.Bind(reqModel); err != nil {
@@ -194,7 +192,7 @@ func ListDepResource(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "", appList)
 }
 
-// 根据应用id或者应用名称，获取所有机房应用配置
+// InfoAll According to the application id or application name, get all the application configuration of the computer room
 func InfoAll(c echo.Context) error {
 	var err error
 	type ReqAppInfo struct {
@@ -222,7 +220,7 @@ func InfoAll(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "查询资源成功", resp)
 }
 
-// 根据应用id或者应用名称，解析应用配置
+// ParseAll Analyze the application configuration according to the application id or application name
 func ParseAll(c echo.Context) error {
 	var err error
 	type ReqAppInfo struct {
@@ -296,7 +294,7 @@ type resourceListParams struct {
 	Limit    int    `json:"limit"`
 	ID       int    `json:"id"`
 	Caid     int    `json:"caid"`
-	AppId    int    `json:"app_id"`
+	AppID    int    `json:"app_id"`
 	ZoneCode string `json:"zone_code"`
 	DepNum   int    `json:"dep_num"`
 }
