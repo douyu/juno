@@ -2,7 +2,7 @@ package db
 
 // AppPackage ...
 type AppPackage struct {
-	Id         int    `json:"id" gorm:"not null;column:id"`   // id类型?
+	ID         int    `json:"id" gorm:"not null;column:id"`   // id类型?
 	Aid        int    `json:"aid" gorm:"not null;column:aid"` // id类型?
 	Name       string `json:"name" gorm:"not null;column:name"`
 	Branch     string `json:"branch" gorm:"not null;column:branch"`

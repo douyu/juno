@@ -67,7 +67,7 @@ func CreateConfigFile(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	if err := confgo.ConfuSrv.Add(info.Id, "application", "", 0, u.Nickname); err != nil {
+	if err := confgo.ConfuSrv.Add(info.ID, "application", "", 0, u.Nickname); err != nil {
 		return output.JSON(c, output.MsgErr, "add error"+err.Error())
 	}
 	meta, _ := json.Marshal(reqModel)
@@ -81,7 +81,7 @@ func DeleteConfig(c echo.Context) (err error) {
 	if err = c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	caid, aid, zoneCode, appName, fileName := reqModel.Id, reqModel.Aid, reqModel.ZoneCode, reqModel.AppName, reqModel.FileName
+	caid, aid, zoneCode, appName, fileName := reqModel.ID, reqModel.Aid, reqModel.ZoneCode, reqModel.AppName, reqModel.FileName
 	if caid == 0 || aid == 0 || zoneCode == "" || appName == "" || fileName == "" {
 		return output.JSON(c, output.MsgErr, "缺少请求参数")
 	}
@@ -133,8 +133,8 @@ func GetAppConfig(c echo.Context) error {
 
 	commonText := ""
 	filePath := ""
-	if history.Id != 0 {
-		val, err := confgo.HistorySrv.GetHistoryChange(history.Id)
+	if history.ID != 0 {
+		val, err := confgo.HistorySrv.GetHistoryChange(history.ID)
 		if err != nil {
 		}
 		commonText = val.CommonContent
@@ -157,16 +157,13 @@ func ItemCreate(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 	caid, key, value, resourceID := reqModel.Caid, reqModel.Key, reqModel.Value, reqModel.ResourceID
-
 	if caid == 0 {
 		return output.JSON(c, output.MsgErr, "require caid")
 	}
 	if key == "" {
 		return output.JSON(c, output.MsgErr, "require key")
 	}
-
 	u := user.GetUser(c)
-
 	typ, _ := confgo.ConfuSrv.GetConfigTyp(caid)
 	text, err := parse.GetParseManage(typ).Format([]byte(value))
 	if err != nil {
@@ -175,11 +172,9 @@ func ItemCreate(c echo.Context) error {
 	if err := confgo.ConfuSrv.Add(caid, key, text, resourceID, u.Nickname); err != nil {
 		return output.JSON(c, output.MsgErr, "add error"+err.Error())
 	}
-
 	cmcApp, _ := confgo.ConfuSrv.CmcAppDetail(reqModel.Caid)
 	meta, _ := json.Marshal(cmcApp)
 	appevent.AppEvent.ConfgoItemCreateEvent(cmcApp.Aid, cmcApp.AppName, cmcApp.Env, cmcApp.ZoneCode, string(meta), u)
-
 	return output.JSON(c, output.MsgOk, "add success")
 }
 
@@ -191,7 +186,7 @@ func ItemCheck(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	id, caid, key, value := reqModel.Id, reqModel.Caid, reqModel.Key, reqModel.Value
+	id, caid, key, value := reqModel.ID, reqModel.Caid, reqModel.Key, reqModel.Value
 	if caid == 0 {
 		return output.JSON(c, output.MsgErr, "require caid")
 	}
@@ -204,7 +199,7 @@ func ItemCheck(c echo.Context) error {
 	if err != gorm.ErrRecordNotFound && err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	if configItem.Id != 0 {
+	if configItem.ID != 0 {
 		return output.JSON(c, output.MsgErr, "键值已存在")
 	}
 	_, err = confgo.GenConfig(caid, int(id), value)
@@ -221,7 +216,7 @@ func UpdateAppConfigItem(c echo.Context) error {
 	if err = c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	id, caid, key, value, rID := reqModel.Id, reqModel.Caid, reqModel.Key, reqModel.Value, reqModel.ResourceID
+	id, caid, key, value, rID := reqModel.ID, reqModel.Caid, reqModel.Key, reqModel.Value, reqModel.ResourceID
 	if id == 0 {
 		return output.JSON(c, output.MsgErr, "require id")
 	}
@@ -250,7 +245,7 @@ func DelAppConfigItem(c echo.Context) error {
 	if err = c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	id := reqModel.Id
+	id := reqModel.ID
 	if id == 0 {
 		return output.JSON(c, output.MsgErr, "require id")
 	}
@@ -310,7 +305,7 @@ func PublishConfig(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "找不到应用")
 	}
-	if cmcApp.Id == 0 || cmcApp.Aid == 0 {
+	if cmcApp.ID == 0 || cmcApp.Aid == 0 {
 		return output.JSON(c, output.MsgErr, "找不到应用")
 	}
 

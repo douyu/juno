@@ -2,7 +2,7 @@ package db
 
 // AppData ...
 type AppData struct {
-	Id              int
+	ID              int
 	Aid             int
 	Commit          string
 	UpdateTime      int64

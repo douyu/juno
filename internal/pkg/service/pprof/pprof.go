@@ -74,7 +74,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 
 	var (
 		governPort = appInfo.GovernPort
-		ip         = appNode.Ip
+		ip         = appNode.IP
 		fileList   = make([]db.PProfFileInfo, 0)
 	)
 

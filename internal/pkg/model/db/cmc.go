@@ -4,8 +4,9 @@ import (
 	"github.com/douyu/juno/internal/pkg/model"
 )
 
+// CmcAppView ..
 type CmcAppView struct {
-	Id         int                  `json:"id" gorm:"column:id"`
+	ID         int                  `json:"id" gorm:"column:id"`
 	Aid        int                  `json:"aid" gorm:"column:aid"`
 	FileName   string               `json:"file_name" gorm:"column:file_name"`
 	ZoneCode   string               `json:"zone_code"`
@@ -14,7 +15,7 @@ type CmcAppView struct {
 	Language   model.ConfigLanguage `json:"language" gorm:"column:language"`
 	AppName    string               `json:"app_name"`
 	Name       string               `json:"name"`
-	WebUrl     string               `json:"web_url"`
+	WebURL     string               `json:"web_url"`
 	UpdateTime int64                `json:"update_time"`
 	Lang       string               `json:"lang"`
 	Create     bool                 `json:"create"`
@@ -22,8 +23,9 @@ type CmcAppView struct {
 	CreateTime int64                `json:"create_time"`
 }
 
+// CmcAppLog ...
 type CmcAppLog struct {
-	Id         int    `json:"id"`
+	ID         int    `json:"id"`
 	Caid       int    `json:"caid"`
 	Aid        int    `json:"aid"`
 	AppName    string `json:"app_name"`
@@ -37,8 +39,9 @@ type CmcAppLog struct {
 	Env        string `json:"env"`
 }
 
+// CmcApp ..
 type CmcApp struct {
-	Id         int                  `json:"id" gorm:"column:id"`
+	ID         int                  `json:"id" gorm:"column:id"`
 	Aid        int                  `json:"aid" gorm:"column:aid"`
 	AppName    string               `json:"app_name" gorm:"column:app_name"`
 	FileName   string               `json:"file_name" gorm:"column:file_name"`
@@ -52,19 +55,21 @@ type CmcApp struct {
 	CreateTime int64                `json:"create_time" gorm:"column:create_time"`
 }
 
+// TableName ..
 func (t *CmcApp) TableName() string {
 	return "cmc_app"
 }
 
-// CmcConfig表cmc_config的机构
+// CmcConfig ...
 type CmcConfig struct {
-	Id         uint64           `gorm:"column:id" json:"id" form:"id"`
+	ID         uint64           `gorm:"column:id" json:"id" form:"id"`
 	Caid       int              `gorm:"column:caid" json:"caid" form:"caid"`
 	Prefix     string           `gorm:"column:prefix" json:"prefix"`
 	Key        string           `gorm:"column:key" json:"key"`
 	Value      string           `gorm:"type:longtext" json:"value"`
 	ResourceID int              `gorm:"column:resource_id" json:"resource_id"`
-	IsResource int              `gorm:"column:is_resource" json:"is_resource"` // 1是资源 0不是
+	IsResource int              `gorm:"column:is_resource" json:"is_resource"`
+	IsPublic   int              `gorm:"column:is_public" json:"is_public"` // Is it a public resource
 	IsWatch    int              `gorm:"column:is_watch" json:"is_watch"`
 	Status     model.ItemStatus `json:"status"`
 	UpdateTime int64            `json:"update_time"`
@@ -72,6 +77,7 @@ type CmcConfig struct {
 	DiffKey    string           `json:"diff_key" gorm:"column:diff_key"`
 }
 
+// TableName ..
 func (c CmcConfig) TableName() string {
 	return "cmc_config"
 }
@@ -116,6 +122,7 @@ type CmcResource struct {
 	IsCommon   int64  `json:"is_common"` // '是否是公共资源：1是 2不是'
 }
 
+// TableName ..
 func (r *CmcResource) TableName() string {
 	return "cmc_resource"
 }
@@ -142,11 +149,12 @@ type CmcPublishLog struct {
 	DiffText   string `json:"diff_text" gorm:"type:longtext"`
 }
 
+// TableName ..
 func (t *CmcPublishLog) TableName() string {
 	return "cmc_publish_log"
 }
 
-// 展示配置中心的app信息
+// App ..
 type App struct {
 	AppName  string   `json:"appName"`
 	Aid      int      `json:"aid"`
@@ -155,7 +163,7 @@ type App struct {
 
 // CmcHistoryItem ...
 type CmcHistoryItem struct {
-	Id           int    `gorm:"column:id" json:"id"`
+	ID           int    `gorm:"column:id" json:"id"`
 	Caid         int    `json:"caid"`
 	KeyId        int    `gorm:"column:key_id" json:"key_id"`
 	CmcHistoryId int    `gorm:"column:cmc_history_id" json:"cmc_history_id"`
@@ -169,13 +177,14 @@ type CmcHistoryItem struct {
 	OpName       string `json:"op_name"`
 }
 
+// TableName ..
 func (c CmcHistoryItem) TableName() string {
 	return "cmc_history_item"
 }
 
 // CmcHistory ...
 type CmcHistory struct {
-	Id            int    `gorm:"column:id" json:"id"`
+	ID            int    `gorm:"column:id" json:"id"`
 	Caid          int    `json:"caid"`
 	Aid           int    `gorm:"column:aid" json:"aid"`
 	AppName       string `json:"app_name" gorm:"column:app_name"`
@@ -193,13 +202,14 @@ type CmcHistory struct {
 	FilePath      string `json:"file_path"`
 }
 
+// TableName ..
 func (c CmcHistory) TableName() string {
 	return "cmc_history"
 }
 
-// CmcConfigLog表cmc_config_log的结构
+// CmcConfigLog ..
 type CmcConfigLog struct {
-	Id         int                 `json:"id" gorm:"column:id"`
+	ID         int                 `json:"id" gorm:"column:id"`
 	Caid       int                 `gorm:"column:caid" json:"caid" form:"caid"`
 	Key        string              `json:"key" gorm:"column:key"`
 	OldValue   string              `json:"old_value" gorm:"type:longtext"`
@@ -209,15 +219,17 @@ type CmcConfigLog struct {
 	OpName     string              `json:"op_name" gorm:"column:op_name"`
 }
 
+// TableName ..
 func (t *CmcConfigLog) TableName() string {
 	return "cmc_config_log"
 }
 
+// DeployInstance ..
 type DeployInstance struct {
 	HostName         string `json:"hostname"`
 	MD5              string `json:"md5"`
 	Timestamp        int64  `json:"timestamp"`
-	PubId            int    `json:"pub_id"`
+	PubID            int    `json:"pub_id"`
 	Message          string `json:"message"`
 	IsLatest         bool   `json:"is_latest"`
 	IsUse            bool   `json:"is_use"`
@@ -227,6 +239,7 @@ type DeployInstance struct {
 	ProcessStartTime int64  `json:"process_start_time"`
 }
 
+// EtcdInstance ..
 type EtcdInstance struct {
 	Host      string `json:"host"`
 	MD5       string `json:"md5"`
@@ -236,8 +249,9 @@ type EtcdInstance struct {
 	ZoneCode  string `json:"idc_code"`
 }
 
+// IdcSrv ..
 type IdcSrv struct {
-	Id         int    `json:"id" gorm:"column:id"`             // id类型?
+	ID         int    `json:"id" gorm:"column:id"`             // id类型?
 	ZoneCode   string `json:"idc_code" gorm:"column:idc_code"` // id类型?
 	SrvType    int    `json:"srv_type" gorm:"column:srv_type"`
 	SrvConfig  string `json:"srv_config" gorm:"column:srv_config"`
@@ -247,10 +261,12 @@ type IdcSrv struct {
 	UpdatedBy  int    `json:"updated_by" gorm:"column:updated_by"`
 }
 
+// TableName ..
 func (t *IdcSrv) TableName() string {
 	return "idc_srv"
 }
 
+// ConfigStatus ..
 type ConfigStatus struct {
 	FileName   string `json:"file_name"`
 	Md5        string `json:"md5"`
@@ -263,8 +279,9 @@ type ConfigStatus struct {
 	HealthPort string `json:"health_port"`
 }
 
+// CmcUseStatus ..
 type CmcUseStatus struct {
-	Id       int    `json:"id" gorm:"column:id"`
+	ID       int    `json:"id" gorm:"column:id"`
 	Aid      int32  `json:"aid" gorm:"column:aid"` // aid
 	Caid     int    `json:"caid" gorm:"column:caid"`
 	AppName  string `json:"app_name" gorm:"column:app_name"`
@@ -277,22 +294,26 @@ type CmcUseStatus struct {
 	UseTyp   string `json:"use_typ" gorm:"column:use_typ"`
 }
 
+// TableName ..
 func (t *CmcUseStatus) TableName() string {
 	return "cmc_use_status"
 }
 
+// AppNodeInfo ..
 type AppNodeInfo struct {
 	HostName   string `json:"host_name"`
 	CreateTime int64  `json:"create_time"`
 	UpdateTime int64  `json:"update_time"`
 }
 
+// AppCmcStat ..
 type AppCmcStat struct {
 	Env string `json:"env"`
 	Cnt int    `json:"cnt"`
 }
 
+// CmcCnt ..
 type CmcCnt struct {
 	DayTime string `json:"day_time" gorm:"day_time"`
-	Cnt     int    `gorm:"cnt"json:"cnt"`
+	Cnt     int    `gorm:"cnt" json:"cnt"`
 }

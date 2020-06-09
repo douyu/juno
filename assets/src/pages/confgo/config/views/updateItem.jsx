@@ -121,7 +121,7 @@ export default class NormalLoginForm extends React.Component {
     const that = this;
     //todo  资源类型的配置直接从模版生成
     const { show, item = {}, env, zone_code } = this.props;
-    const { key, value, comment, is_resource = false, resource_id = 0, resourceData = {} } = item;
+    const { key, value, comment, is_resource = false, resource_id = 0, resourceData = {}, is_publish=false } = item;
     const { list = [] } = resourceData;
 
     const resource = list.find((v) => v.id === resource_id) || {};
@@ -193,14 +193,28 @@ export default class NormalLoginForm extends React.Component {
           {...layout}
           onFinish={this.handleSubmit}
           className="login-form"
-          initialValues={{ key: key, value: value, is_resource: is_resource, comment: comment }}
+          initialValues={{ key: key, value: value, isPublic:is_publish, is_resource: is_resource, comment: comment }}
         >
           <Form.Item
-            label={'标识'}
+            label={'Block'}
             name="key"
             rules={[{ required: true, message: '请输入配置项的key!' }]}
           >
             <Input placeholder="" disabled="disable" />
+          </Form.Item>
+          <Form.Item
+            label={'类型'}
+            name="isPublic"
+            rules={[{ required: true, message: '选择配置类型' }]}
+          >
+            <Radio.Group>
+              <Radio key="true" value="true">
+                public
+              </Radio>
+              <Radio key="false" value="false">
+                private
+              </Radio>
+            </Radio.Group>
           </Form.Item>
           <Form.Item
             label={'值'}

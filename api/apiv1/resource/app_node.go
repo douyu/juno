@@ -41,7 +41,7 @@ func AppNodeList(c echo.Context) error {
 		AppName:  reqModel.AppName,
 		Aid:      reqModel.Aid,
 		HostName: reqModel.HostName,
-		Ip:       reqModel.Ip,
+		IP:       reqModel.Ip,
 		Env:      reqModel.Env,
 		ZoneCode: reqModel.ZoneCode,
 	}, reqModel.CurrentPage, reqModel.PageSize, "update_time desc,id desc")

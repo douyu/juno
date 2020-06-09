@@ -16,7 +16,7 @@ func (a *appEvent) AppCreateEvent(aid int, appName, metaData string, user *db.Us
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -32,7 +32,7 @@ func (a *appEvent) AppUpdateEvent(aid int, appName, metaData string, user *db.Us
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -48,7 +48,7 @@ func (a *appEvent) AppDeleteEvent(aid int, appName, metaData string, user *db.Us
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -67,7 +67,7 @@ func (a *appEvent) AppNodeCreateEvent(aid int, appName, zoneCode, env, hostName,
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -86,7 +86,7 @@ func (a *appEvent) AppNodeDeleteEvent(aid int, appName, zoneCode, env, hostName,
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -103,7 +103,7 @@ func (a *appEvent) NodeCreateEvent(zoneCode, env, hostName, metaData string, use
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -120,7 +120,7 @@ func (a *appEvent) NodeUpdateEvent(zoneCode, env, hostName, metaData string, use
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -137,7 +137,7 @@ func (a *appEvent) NodeDeleteEvent(zoneCode, env, hostName, metaData string, use
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -155,7 +155,7 @@ func (a *appEvent) ConfgoFileCreateEvent(aid int, appName, zoneCode, env, metaDa
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -173,7 +173,7 @@ func (a *appEvent) ConfgoFileUpdateEvent(aid int, appName, zoneCode, env, metaDa
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -190,7 +190,7 @@ func (a *appEvent) ConfgoFileDeleteEvent(aid int, appName, zoneCode, metaData st
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -208,7 +208,7 @@ func (a *appEvent) ConfgoItemCreateEvent(aid int, appName, zoneCode, env, metaDa
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -226,7 +226,7 @@ func (a *appEvent) ConfgoItemUpdateEvent(aid int, appName, zoneCode, env, metaDa
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -244,7 +244,7 @@ func (a *appEvent) ConfgoItemDeleteEvent(aid int, appName, zoneCode, env, metaDa
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -262,7 +262,7 @@ func (a *appEvent) ConfgoFilePublishEvent(aid int, appName, zoneCode, env, metaD
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -280,7 +280,7 @@ func (a *appEvent) ConfgoFileRollbackEvent(aid int, appName, zoneCode, env, meta
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -296,7 +296,7 @@ func (a *appEvent) ConfgoWatchHttpPushEvent(zoneCode, env, hostName, metaData st
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -312,7 +312,7 @@ func (a *appEvent) ConfgoWatchFileSyncEvent(zoneCode, env, hostName, metaData st
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -327,7 +327,7 @@ func (a *appEvent) UserCreateEvent(userName, metaData string, user *db.User) {
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -342,7 +342,7 @@ func (a *appEvent) UserUpdateEvent(userName, metaData string, user *db.User) {
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }
@@ -357,7 +357,7 @@ func (a *appEvent) UserDeleteEvent(userName, metaData string, user *db.User) {
 	}
 	if user != nil {
 		appEvent.UserName = user.Username
-		appEvent.Uid = user.Uid
+		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
 }

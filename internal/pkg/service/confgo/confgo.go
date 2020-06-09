@@ -27,7 +27,7 @@ func (c *confgo) PublishRecordHistory(history *db.CmcHistory, items []db.CmcConf
 		tx.Rollback()
 		return
 	}
-	if diffKeyList, err = c.publishLogAdd(tx, history.Caid, history.Id, commonVal); err != nil {
+	if diffKeyList, err = c.publishLogAdd(tx, history.Caid, history.ID, commonVal); err != nil {
 		tx.Rollback()
 		return
 	}
@@ -44,8 +44,8 @@ func (c *confgo) publishRecordHistoryItem(tx *gorm.DB, items []db.CmcConfig, his
 	for _, item := range items {
 		var historyItem = db.CmcHistoryItem{
 			Caid:         item.Caid,
-			KeyId:        int(item.Id),
-			CmcHistoryId: history.Id,
+			KeyId:        int(item.ID),
+			CmcHistoryId: history.ID,
 			Aid:          history.Aid,
 			AppName:      history.AppName,
 			ZoneCode:     history.ZoneCode,

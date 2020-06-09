@@ -51,7 +51,7 @@ func (h *history) GetPreHistory(caid int) (nowID, historyID int, err error) {
 		err = errors.New("没有历史版本配置")
 		return
 	}
-	return resultList[0].Id, resultList[1].Id, nil
+	return resultList[0].ID, resultList[1].ID, nil
 }
 
 func (h *history) GetPrePublish(caid int) (result db.CmcHistory, err error) {
@@ -60,7 +60,7 @@ func (h *history) GetPrePublish(caid int) (result db.CmcHistory, err error) {
 	if err := dbConn.Where("caid = ?", caid).Order("create_time desc").First(&result).Error; err != nil {
 		return result, err
 	}
-	if result.Id == 0 {
+	if result.ID == 0 {
 		return result, fmt.Errorf("没有历史版本")
 	}
 	return result, nil

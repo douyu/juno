@@ -137,7 +137,7 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 		// 设置节点
 		err = r.PutNode(tx, db.Node{
 			HostName:      item.HostName,
-			Ip:            item.Ip,
+			Ip:            item.IP,
 			CreateTime:    time.Now().Unix(),
 			UpdateTime:    time.Now().Unix(),
 			HeartbeatTime: 0,
@@ -219,7 +219,7 @@ func (r *resource) AppNodeTransferPut(tx *gorm.DB, add, del map[string]interface
 			AppName:    app.AppName,
 			Aid:        app.Aid,
 			HostName:   node.HostName,
-			Ip:         node.Ip,
+			IP:         node.Ip,
 			DeviceID:   0,
 			Env:        node.Env,
 			RegionCode: node.RegionCode,

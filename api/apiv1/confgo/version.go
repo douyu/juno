@@ -37,10 +37,10 @@ func VersionChange(c echo.Context) error {
 	if err = c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	if reqModel.Id == 0 {
+	if reqModel.ID == 0 {
 		return output.JSON(c, output.MsgErr, "id不能为空")
 	}
-	result, err := confgo.HistorySrv.GetHistoryChange(reqModel.Id)
+	result, err := confgo.HistorySrv.GetHistoryChange(reqModel.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "查询失败:"+err.Error())
 	}

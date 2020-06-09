@@ -307,12 +307,12 @@ func (a *resource) Delete(appName string, action db.AppLogAction) (err error) {
 		BizDomain:  app.BizDomain,
 		CreatedBy:  app.CreatedBy,
 		UpdatedBy:  app.UpdatedBy,
-		HttpPort:   app.HttpPort,
-		RpcPort:    app.RpcPort,
+		HTTPPort:   app.HTTPPort,
+		RPCPort:    app.RPCPort,
 		HealthPort: app.GovernPort,
-		HookId:     app.HookId,
+		HookID:     app.HookID,
 		Users:      app.Users,
-		WebUrl:     app.WebUrl,
+		WebURL:     app.WebURL,
 		Action:     string(action),
 	})
 	if err := queryLog.Error; err != nil {
@@ -362,7 +362,7 @@ func (a *resource) appDownEvent(app *db.AppInfo, user *db.User) error {
 		ZoneCode:  "",
 		Env:       "prod",
 		UserName:  user.Username,
-		Uid:       user.Uid,
+		UID:       user.Uid,
 		Operation: event.EventCMDBAppDelete,
 		Source:    event.SourceCMDB,
 		Metadata:  string(metaData),
@@ -384,7 +384,7 @@ func (a *resource) appUpEvent(app *db.AppInfo, user *db.User) error {
 		Metadata:  string(metaData),
 	}
 	if user != nil {
-		ev.Uid = user.Uid
+		ev.UID = user.Uid
 		ev.UserName = user.Username
 	}
 	ev.HandleOperationName()
@@ -404,7 +404,7 @@ func (a *resource) appUpdateEvent(app *db.AppInfo, user *db.User) error {
 		Metadata:  string(metaData),
 	}
 	if user != nil {
-		ev.Uid = user.Uid
+		ev.UID = user.Uid
 		ev.UserName = user.Username
 	}
 	ev.HandleOperationName()

@@ -84,7 +84,7 @@ func (c *configApp) CreateConfigFile(aid int, appName, env, zoneCode string, fil
 
 	resp = db.CmcApp{}
 	c.DB.Where("aid = ? AND file_name = ?", aid, fileName).First(&resp)
-	if resp.Id != 0 {
+	if resp.ID != 0 {
 		err = fmt.Errorf("该应用的配置文件已存在")
 		return
 	}

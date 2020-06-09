@@ -118,7 +118,7 @@ func (cmc *confu) GetAppKVlist(c *db.CmcConfig) ([]db.ConfigData, error) {
 	}
 	for _, v := range vals {
 		val := db.ConfigVal{
-			ID:         int(v.Id),
+			ID:         int(v.ID),
 			Value:      v.Value,
 			ResourceID: v.ResourceID,
 			Prefix:     v.Prefix,
@@ -179,12 +179,12 @@ func (cmc *confu) GetAllConfigTextByApp(identify interface{}) (resp view.RespCon
 	}
 
 	for _, value := range result {
-		configText, err = cmc.GetAppConfigText(value.Id)
+		configText, err = cmc.GetAppConfigText(value.ID)
 		if err != nil {
 			return
 		}
 		resp.Config = append(resp.Config, view.RespOneConfig{
-			Caid:     value.Id,
+			Caid:     value.ID,
 			Env:      value.Env,
 			ZoneCode: value.ZoneCode,
 			Content:  configText,
@@ -251,7 +251,7 @@ func (c *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
 	if err != nil {
 		return result, err
 	}
-	if cmcApp.Id == 0 {
+	if cmcApp.ID == 0 {
 		return result, fmt.Errorf("no this app")
 	}
 
@@ -282,14 +282,14 @@ func (c *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
 				if latestMd5 == etcdItem.MD5 {
 					deployList[index].IsLatest = true
 					deployList[index].Message = message
-					deployList[index].PubId = int(pubID)
+					deployList[index].PubID = int(pubID)
 					deployList[index].Params = etcdItem.Params
 					deployList[index].ZoneCode = etcdItem.ZoneCode
 				} else {
 					_, oldMessage, oldPubID := pubConfigInfoByMD5(c.DB, caid, etcdItem.MD5)
 					deployList[index].IsLatest = false
 					deployList[index].Message = oldMessage
-					deployList[index].PubId = int(oldPubID)
+					deployList[index].PubID = int(oldPubID)
 					deployList[index].Params = etcdItem.Params
 					deployList[index].ZoneCode = etcdItem.ZoneCode
 				}
@@ -328,7 +328,7 @@ func (p *confu) StatusRefresh(caid int) (list []db.CmcUseStatus, err error) {
 	list = make([]db.CmcUseStatus, 0)
 	// Get file detail
 	cmcApp, _ := p.CmcAppDetail(caid)
-	if cmcApp.Id == 0 {
+	if cmcApp.ID == 0 {
 		err = fmt.Errorf("app not exists error")
 		return
 	}
@@ -346,7 +346,7 @@ func (c *confu) assemblyNodeParams(nodes []db.AppNode, env string) []db.AppNodeA
 	res := make([]db.AppNodeAgentView, 0)
 	for _, node := range nodes {
 		if node.Env == env {
-			res = append(res, db.AppNodeAgentView{HostName: node.HostName, IpPort: node.Ip + fmt.Sprintf(":%d", agentPort)})
+			res = append(res, db.AppNodeAgentView{HostName: node.HostName, IPPort: node.IP + fmt.Sprintf(":%d", agentPort)})
 		}
 	}
 	return res
@@ -358,7 +358,7 @@ func (c *confu) UpdateNewStatus(list []db.CmcUseStatus) error {
 		if err := c.DB.Where("app_name = ? AND hostname = ? and caid = ?", item.AppName, item.Hostname, item.Caid).First(&tempData).Error; err != nil && err != gorm.ErrRecordNotFound {
 			return err
 		}
-		if tempData.Id == 0 { // create
+		if tempData.ID == 0 { // create
 			if err := c.DB.Create(&item).Error; err != nil {
 				return err
 			}
@@ -468,7 +468,7 @@ func (c *confu) AddWithTx(caid int, key, value string, resourceID int, opName st
 func (c *confu) UpdateWithTx(id uint64, caid int, key, value string, resourceID int, opName string, tx *gorm.DB) (err error) {
 	oldItem := db.CmcConfig{}
 	tx.Where("id = ?", id).First(&oldItem)
-	if oldItem.Id == 0 {
+	if oldItem.ID == 0 {
 		return fmt.Errorf("id is 0")
 	}
 	if oldItem.Value == value && oldItem.ResourceID == resourceID { // 没有变化
@@ -522,7 +522,7 @@ func (c *confu) DeleteWithTx(id uint64, opName string, tx *gorm.DB) (err error) 
 
 	oldItem := db.CmcConfig{}
 	c.DB.Where("id = ?", id).First(&oldItem)
-	if oldItem.Id == 0 {
+	if oldItem.ID == 0 {
 		return fmt.Errorf("item is not exists")
 	}
 
@@ -567,7 +567,7 @@ func (c *confu) Del(id uint64, opName string) (err error) {
 
 	oldItem := db.CmcConfig{}
 	c.DB.Where("id = ?", id).First(&oldItem)
-	if oldItem.Id == 0 {
+	if oldItem.ID == 0 {
 		return fmt.Errorf("item is not exists")
 	}
 
@@ -635,7 +635,7 @@ func pubConfigLatestInfo(gormdb *gorm.DB, caid int) (md5, effectMD5 string, mess
 	dbConn := gormdb.Table("cmc_history")
 	messageData := db.CmcHistory{}
 	dbConn.Where("caid = ?", caid).Order("create_time desc").First(&messageData)
-	return messageData.Md5, messageData.EffectMd5, messageData.Message, messageData.Id
+	return messageData.Md5, messageData.EffectMd5, messageData.Message, messageData.ID
 }
 
 func pubConfigInfoByMD5(gormdb *gorm.DB, caid int, itemMd5 string) (md5 string, message string, pubID int) {
@@ -643,7 +643,7 @@ func pubConfigInfoByMD5(gormdb *gorm.DB, caid int, itemMd5 string) (md5 string, 
 	dbConn := gormdb.Table("cmc_history")
 	messageData := db.CmcHistory{}
 	dbConn.Where("caid = ? AND md5 = ?", caid, itemMd5).Order("create_time desc").First(&messageData)
-	return messageData.Md5, messageData.Message, messageData.Id
+	return messageData.Md5, messageData.Message, messageData.ID
 }
 
 func etcdInstanceList(gormdb *gorm.DB, appName, fileName, env, zoneCode string) (result []db.EtcdInstance, err error) {
