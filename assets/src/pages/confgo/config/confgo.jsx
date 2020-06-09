@@ -16,6 +16,7 @@ import {
   Tooltip,
   Collapse,
   Popconfirm,
+  Divider,
   Tag,
   Modal,
   Alert,
@@ -60,9 +61,12 @@ import {
   HddOutlined,
   FileDoneOutlined,
   QuestionCircleOutlined,
+  CaretRightOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 
 import './style/code.less';
+import './style.less';
 
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -719,209 +723,19 @@ export default class Configserver extends React.Component {
     };
     const statusMap = (t, status) => {
       const map = {
-        1: <span>{t}</span>,
-        2: (
-          <span>
-            {t}
-            {getOpSapn('new')}
-          </span>
-        ),
-        3: (
-          <span>
-            {t}
-            {getOpSapn('update')}
-          </span>
-        ),
-        4: (
-          <span>
-            {t}
-            {getOpSapn('del')}
-          </span>
-        ),
+        1: <span></span>,
+        2: <span>{getOpSapn('new')}</span>,
+        3: <span>{getOpSapn('update')}</span>,
+        4: <span>{getOpSapn('del')}</span>,
       };
       return map[status];
     };
-
-    const cols = [
-      {
-        key: 'key',
-        dataIndex: 'key',
-        title: '标识',
-        width: 120,
-        filterDropdown: (
-          <div className="custom-filter-dropdown">
-            <Input
-              ref={(ele) => (this.searchInputKey = ele)}
-              placeholder="查询标识"
-              value={this.state.searchKey}
-              onChange={(e) => {
-                that.setState({
-                  searchKey: e.target.value,
-                });
-              }}
-            />
-          </div>
-        ),
-        filterDropdownVisible: this.state.showKeyFilter,
-        onFilterDropdownVisibleChange: (visible) => {
-          this.setState(
-            {
-              showKeyFilter: visible,
-            },
-            () => this.searchInputKey && this.searchInputKey.focus(),
-          );
-        },
-        render(t, r) {
-          const { status } = r;
-          if (status === 5) {
-            return t;
-          }
-          return statusMap(t, status);
-        },
-      },
-      {
-        key: 'value',
-        dataIndex: 'value',
-        title: '文本',
-        filterDropdown: (
-          <div className="custom-filter-dropdown">
-            <Input
-              ref={(ele) => (this.searchInputValue = ele)}
-              placeholder="查询值"
-              value={this.state.searchValue}
-              onChange={(e) => {
-                that.setState({
-                  searchValue: e.target.value,
-                });
-              }}
-            />
-          </div>
-        ),
-        filterDropdownVisible: this.state.showValueFilter,
-        onFilterDropdownVisibleChange: (visible) => {
-          this.setState(
-            {
-              showValueFilter: visible,
-            },
-            () => this.searchInputValue && this.searchInputValue.focus(),
-          );
-        },
-        render(t, r) {
-          if (!r.is_resource) {
-            return <pre style={{ wordBreak: 'break-word' }}>{t}</pre>;
-          }
-          const { relatedList = [] } = that.props;
-          const arr = t.split('');
-          const varName = arr.slice(2, arr.length - 2).join('');
-          const res = relatedList.find((v) => v.name === varName) || {};
-          const { value = '' } = res;
-          return (
-            <div>
-              <span style={{ marginRight: '6px', wordBreak: 'break-word' }}>{value}</span>
-              <span
-                style={{
-                  backgroundColor: '#52c47f',
-                  color: 'white',
-                  borderRadius: '5px',
-                  padding: '3px',
-                  wordBreak: 'break-word',
-                }}
-              >{`${t}`}</span>
-            </div>
-          );
-        },
-      },
-      {
-        key: 'op',
-        dataIndex: 'op',
-        title: '操作',
-        width: 120,
-        render(t, r) {
-          const { id, key, value, comment, is_resource, resource_id } = r;
-          let workerOp = null;
-          if (key.startsWith('jupiter.worker') && key.indexOf('pause') !== -1) {
-            if (value === 'true') {
-              workerOp = (
-                <Tag
-                  color={'green'}
-                  onClick={(e) => {
-                    that.updateItem({
-                      id,
-                      key,
-                      value: 'false',
-                      comment,
-                      is_resource,
-                      resource_id,
-                    });
-                    that.getConfigList();
-                  }}
-                >
-                  启动
-                </Tag>
-              );
-            } else {
-              workerOp = (
-                <Tag
-                  color={'orange'}
-                  onClick={(e) => {
-                    that.updateItem({
-                      id,
-                      key,
-                      value: 'true',
-                      comment,
-                      is_resource,
-                      resource_id,
-                    });
-                    that.getConfigList();
-                  }}
-                >
-                  暂停
-                </Tag>
-              );
-            }
-          }
-          return (
-            <div>
-              {workerOp}
-              {workerOp === null && (
-                <Tag
-                  color={'blue'}
-                  onClick={() => {
-                    that.setState({
-                      selectItemID: id,
-                      selectKey: key,
-                      selectValue: value,
-                      selectComment: comment,
-                      selectIsResource: is_resource,
-                      selectResourceID: resource_id,
-                      showUpdateItem: true,
-                    });
-                    that.getEnvResource();
-                  }}
-                >
-                  编辑
-                </Tag>
-              )}
-              &nbsp;
-              <Popconfirm
-                title="确定删除吗？"
-                onConfirm={() => {
-                  that.delItem({ id: id });
-                }}
-              >
-                <Tag color={'red'}>删除</Tag>
-              </Popconfirm>
-            </div>
-          );
-        },
-      },
-    ];
 
     const changListCols = [
       {
         key: 'key',
         dataIndex: 'key',
-        title: '标识',
+        title: 'Block',
         width: 120,
         render(t, r) {
           return <span style={{ wordBreak: 'break-word' }}>{t}</span>;
@@ -997,22 +811,7 @@ export default class Configserver extends React.Component {
           </span>
         ),
         render(t) {
-          return t ? (
-            getOpSapn('new', '已接入')
-          ) : (
-            <div>
-              {getOpSapn('del', '未接入')}
-              <Tooltip title="查看接入文档">
-                <a
-                  style={{ marginLeft: '8px' }}
-                  href="http://doc.xxxx.com/ddse/preview/share/a7d0512dd8e8572737ba?sid=336&shareType=1"
-                  target={'_blank'}
-                >
-                  <Icon type="info-circle" />
-                </a>
-              </Tooltip>
-            </div>
-          );
+          return t ? getOpSapn('new', '已接入') : <div>{getOpSapn('del', '未接入')}</div>;
         },
       },
       {
@@ -1120,26 +919,9 @@ export default class Configserver extends React.Component {
             return t;
           }
           const params = paramsArr[1];
-          const formatParams = (arr) => {
-            return arr
-              .split(' ')
-              .filter((v) => v)
-              .filter((v) => v.indexOf('-host') === -1)
-              .map((v) => {
-                return v.split('=');
-              })
-              .reduce((a, b) => {
-                return a.concat(b);
-              })
-              .map((v) => {
-                const regex = new RegExp('/home/www/.config/juno-agent/(.*?)/config', 'ig');
-                return v.replace(regex, '${ConfuDir}');
-              })
-              .join(' ');
-          };
           return (
             <div>
-              <p style={{ margin: 0 }}>{formatParams(params)}</p>
+              <p style={{ margin: 0 }}>{params}</p>
             </div>
           );
         },
@@ -1203,6 +985,70 @@ export default class Configserver extends React.Component {
       idcArr.push(element.zone_code);
       zone_codeMap[element.zone_code] = element.zone_name;
     });
+
+    const genExtra = (record) => (
+      <div>
+        {statusMap(record.key, record.status)}
+        <Divider type="vertical" />
+
+        {record.status != 4 && (
+          <Tag
+            color={'blue'}
+            onClick={(event) => {
+              event.stopPropagation();
+              that.setState({
+                selectItemID: record.id,
+                selectKey: record.key,
+                selectValue: record.value,
+                selectComment: record.comment,
+                selectIsResource: record.is_resource,
+                selectResourceID: record.resource_id,
+                showUpdateItem: true,
+              });
+              that.getEnvResource();
+            }}
+          >
+            编辑
+          </Tag>
+        )}
+        {record.status != 4 && (
+          <Popconfirm
+            title="确定删除吗？"
+            onConfirm={() => {
+              that.delItem({ id: record.id });
+            }}
+          >
+            <Tag color={'red'}>删除</Tag>
+          </Popconfirm>
+        )}
+      </div>
+    );
+
+    let configItemList = [];
+    configList.forEach((element) => {
+      configItemList.push(
+        <Panel
+          header={element.key}
+          key={element.key}
+          className="site-collapse-custom-panel"
+          extra={genExtra(element)}
+        >
+          <ReactCodeMirror
+            ref="editor"
+            value={element.value}
+            options={{
+              mode: 'text/x-toml',
+              lineNumbers: true,
+              autoMatchParens: true,
+              lineWrapping: false,
+              readOnly: this.state.readOnly,
+              scrollbarStyle: null,
+            }}
+          />
+        </Panel>,
+      );
+    });
+
     return (
       <Layout>
         <Sider width={250} style={{ backgroundColor: 'transparent' }}>
@@ -1345,14 +1191,16 @@ export default class Configserver extends React.Component {
                 <TabPane
                   tab={
                     <span>
-                      <TableOutlined />
-                      编辑
+                      <div style={{ marginLeft: 10 }}>
+                        <TableOutlined />
+                        配置编辑
+                      </div>
                     </span>
                   }
                   key="table"
                 >
                   <Row>
-                    <Col style={{ marginLeft: '10px', marginTop: '-10px', marginBottom: '5px' }}>
+                    <Col style={{ marginTop: '-5px' }}>
                       <Button.Group>
                         <Button
                           type="primary"
@@ -1361,38 +1209,32 @@ export default class Configserver extends React.Component {
                             that.getEnvResource();
                           }}
                         >
-                          新增配置块
+                          添加 Block
                         </Button>
                       </Button.Group>
                     </Col>
                   </Row>
-
-                  <Table
-                    columns={cols}
-                    dataSource={configList
-                      .filter((v) => {
-                        if (filterKey === 'x-custom') {
-                          return (
-                            !v.key.startsWith('app') &&
-                            !v.key.startsWith('jupiter') &&
-                            !v.key.startsWith('server')
-                          );
-                        } else if (filterKey === 'app') {
-                          return v.key.startsWith(filterKey) || v.key.startsWith('server');
-                        }
-                        return v.key.startsWith(filterKey);
-                      })
-                      .filter(that.filterByKey)
-                      .filter(that.filterByValue)}
-                    pagination={false}
-                    size={'small'}
-                  />
+                  <Row gutter={24}>
+                    <Col span={24} style={{ marginTop: '10px' }}>
+                      <Collapse
+                        bordered={false}
+                        defaultActiveKey={['application']}
+                        expandIcon={({ isActive }) => (
+                          <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                        )}
+                        className="site-collapse-custom-collapse"
+                        expandIconPosition="right"
+                      >
+                        {configItemList}
+                      </Collapse>
+                    </Col>
+                  </Row>
                 </TabPane>
                 <TabPane
                   tab={
                     <span>
                       <FileOutlined />
-                      预览
+                      发布预览
                     </span>
                   }
                   key="text"
@@ -1429,14 +1271,6 @@ export default class Configserver extends React.Component {
                             >
                               复制
                             </Button>
-                            {/* <Button
-                              type={'primary'}
-                              onClick={() => {
-                                that.setState({ readOnly: false });
-                              }}
-                            >
-                              编辑
-                            </Button> */}
                           </span>
                         ) : (
                           <span>

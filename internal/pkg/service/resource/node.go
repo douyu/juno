@@ -214,7 +214,7 @@ func (r *resource) NodeHeartBeat(
 		tx.Where("app_name = ?", appName).Find(&appInfo)
 		var appNodeInfo db.AppNode
 		tx.Where("host_name = ? and app_name =?", hostName, appName).Find(&appNodeInfo)
-		if appInfo.Aid > 0 && appNodeInfo.Id == 0 {
+		if appInfo.Aid > 0 && appNodeInfo.ID == 0 {
 			addMap := make(map[string]interface{}, 0)
 			addMap[hostName] = hostName
 			err = r.AppNodeTransferPut(tx, addMap, nil, appInfo, nil)

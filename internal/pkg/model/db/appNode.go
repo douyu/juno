@@ -1,30 +1,34 @@
 package db
 
+// AppNodeAgentView ..
 type AppNodeAgentView struct {
 	HostName string `json:"host_name"`
-	IpPort   string `json:"ip"`
+	IPPort   string `json:"ip"`
 }
 
+// AppNode ..
 type AppNode struct {
-	Id         int    `json:"id" gorm:"not null;column:id"` // id类型?
+	ID         int    `json:"id" gorm:"not null;column:id"` // id类型?
 	AppName    string `json:"app_name" gorm:"not null;column:app_name"`
 	Aid        int    `json:"aid" gorm:"not null;column:aid"` // id类型?
 	HostName   string `json:"host_name" gorm:"not null;column:host_name"`
-	Ip         string `json:"ip" gorm:"not null;column:ip"`
+	IP         string `json:"ip" gorm:"not null;column:ip"`
 	DeviceID   int    `json:"device_id" gorm:"not null;column:device_id"`
-	Env        string `json:"env"gorm:"not null"`
-	RegionCode string `json:"region_code"gorm:"not null"`
-	RegionName string `json:"region_name"gorm:"not null"`
-	ZoneCode   string `json:"zone_code"gorm:"not null"`
-	ZoneName   string `json:"zone_name"gorm:"not null"`
-	CreateTime int64  `gorm:"not null;"json:"create_time"`
-	UpdateTime int64  `gorm:"not null;"json:"update_time"`
+	Env        string `json:"env" gorm:"not null"`
+	RegionCode string `json:"region_code" gorm:"not null"`
+	RegionName string `json:"region_name" gorm:"not null"`
+	ZoneCode   string `json:"zone_code" gorm:"not null"`
+	ZoneName   string `json:"zone_name" gorm:"not null"`
+	CreateTime int64  `gorm:"not null;" json:"create_time"`
+	UpdateTime int64  `gorm:"not null;" json:"update_time"`
 }
 
+// TableName ..
 func (t *AppNode) TableName() string {
 	return "app_node"
 }
 
+// AppNodeMap ..
 type AppNodeMap struct {
 	ID      int    `json:"id"`
 	Aid     int    `json:"aid"`
@@ -32,6 +36,7 @@ type AppNodeMap struct {
 	MD5     string `json:"md5"` // 由md5(app_name+deviceIDs)
 }
 
+// TableName ..
 func (a *AppNodeMap) TableName() string {
 	return "app_node_map"
 }

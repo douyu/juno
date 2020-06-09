@@ -90,7 +90,7 @@ func mockConfigByFile(configFile string, configContent string, urlFile string, u
 	}
 	fmt.Println(string(file))
 	param1 := map[string]interface{}{
-		"caid":  resp.Data.Id,
+		"caid":  resp.Data.ID,
 		"key":   "default",
 		"value": string(file),
 	}

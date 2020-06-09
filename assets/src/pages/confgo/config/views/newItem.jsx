@@ -137,9 +137,7 @@ export default class NormalLoginForm extends React.Component {
     const { show, prefix, item = {}, env, zone_code } = this.props;
     const { resourceData = {} } = item;
     const { list = [] } = resourceData;
-
     const { is_resource } = this.state;
-
     const cols = [
       {
         title: '名称',
@@ -183,7 +181,7 @@ export default class NormalLoginForm extends React.Component {
     };
     return (
       <Modal
-        title="新增配置"
+        title="新建 Block"
         visible={show}
         maskClosable={false}
         width={1200}
@@ -198,11 +196,25 @@ export default class NormalLoginForm extends React.Component {
           initialValues={{ is_resource: is_resource }}
         >
           <Form.Item
-            label={'标识'}
+            label={'名称'}
             name="key"
             rules={[{ required: true, message: '请输入配置项的key' }]}
           >
             <Input placeholder="" />
+          </Form.Item>
+          <Form.Item
+            label={'类型'}
+            name="isPublic"
+            rules={[{ required: true, message: '选择配置类型' }]}
+          >
+            <Radio.Group>
+              <Radio key="true" value="true">
+                public
+              </Radio>
+              <Radio key="false" value="false">
+                private
+              </Radio>
+            </Radio.Group>
           </Form.Item>
           <Form.Item label={'值'}>
             <div className={'configEditor'}>
@@ -210,6 +222,7 @@ export default class NormalLoginForm extends React.Component {
                 ref="editor"
                 value={this.state.value}
                 options={{
+                  theme: 'monokai',
                   lineNumbers: true,
                   autoMatchParens: true,
                   lineWrapping: true,

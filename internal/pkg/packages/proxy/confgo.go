@@ -143,7 +143,7 @@ func (c *confgo) GetUsingInfo(caid int, app *db.CmcAppView, agent db.AppNodeAgen
 		Config: filePath,
 	}
 	bodyBuf, _ := json.Marshal(body)
-	resp, err := client.Post(fmt.Sprintf("http://%s/api/v1/conf/command_line/status", agent.IpPort), "application/json; charset=utf-8", strings.NewReader(string(bodyBuf)))
+	resp, err := client.Post(fmt.Sprintf("http://%s/api/v1/conf/command_line/status", agent.IPPort), "application/json; charset=utf-8", strings.NewReader(string(bodyBuf)))
 	if err != nil {
 		return
 	}

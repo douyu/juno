@@ -279,7 +279,7 @@ func NodeStatics(c echo.Context) error {
 
 		cnt, _ := resource.Resource.CountAppNode(db.AppNode{
 			HostName: v.HostName,
-			Ip:       v.Ip,
+			IP:       v.Ip,
 		})
 		if cnt == 0 {
 			app0.Value++

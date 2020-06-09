@@ -35,7 +35,7 @@ func (c *configApp) ParseToMysql(aid int, appName string, items []*CmcTpl) (err 
 			ZoneCode:   value.ZoneCode,
 			Env:        value.Env,
 			Addr:       addr,
-			Ip:         value.Ip,
+			IP:         value.Ip,
 			Port:       value.Port,
 			Name:       value.Key,
 			Type:       value.TplType,
