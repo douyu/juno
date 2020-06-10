@@ -121,6 +121,7 @@ func (eng *Admin) serveHTTP() {
 		confgoGroup.POST("/item/update", confgo.UpdateAppConfigItem)
 		confgoGroup.POST("/item/delete", confgo.DelAppConfigItem)
 		confgoGroup.POST("/item/rollback", confgo.RollbackConfig)
+		confgoGroup.GET("/item/list", confgo.ItemList)
 
 		// Configuration version
 		confgoGroup.POST("/version/list", confgo.ListVersions)
@@ -275,6 +276,7 @@ func apiV1(server *xecho.Server) {
 		confgoGroup.POST("/item/update", confgo.UpdateAppConfigItem)
 		confgoGroup.POST("/item/delete", confgo.DelAppConfigItem)
 		confgoGroup.POST("/item/rollback", confgo.RollbackConfig)
+		confgoGroup.GET("/item/list", confgo.ItemList)
 
 		// Configuration version
 		confgoGroup.POST("/version/list", confgo.ListVersions)

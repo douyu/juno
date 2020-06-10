@@ -72,10 +72,10 @@ export async function ConfuItems(body) {
 
 //添加配置 /confu/add
 export async function ConfuAddItem(body) {
-  const { caid, key, value, comment, resource_id } = body;
+  const { caid, key, value, comment, resource_id, is_public } = body;
   return request(`/api/admin/confgo/item/create`, {
     method: 'POST',
-    data: { caid, key, value, comment, resource_id },
+    data: { caid, key, value, comment, resource_id,is_public },
   });
 }
 
@@ -92,10 +92,10 @@ export async function getAdminResource(params) {
 
 //更新配置 /confu/update
 export async function ConfuUpdateItem(body) {
-  const { id, caid, key, value, comment, resource_id } = body;
+  const { id, caid, key, value, comment, resource_id,is_public } = body;
   return request(`/api/admin/confgo/item/update`, {
     method: 'POST',
-    data: { id, caid, key, value, comment, resource_id },
+    data: { id, caid, key, value, comment, resource_id,is_public },
   });
 }
 

@@ -102,7 +102,7 @@ func migrateDB() error {
 		&db.Option{},
 		&db.SystemConfig{},
 	}
-	gormdb.DropTable(models...)
+	gormdb.DropTableIfExists(models...)
 
 	// 删除原来的表
 	gormdb.SingularTable(true)

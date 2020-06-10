@@ -48,7 +48,7 @@ func GetAppConfigInfo(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "", result)
 }
 
-// CreateConfigFile 应用创建配置文件
+// CreateConfigFile Create an app profile
 func CreateConfigFile(c echo.Context) error {
 	var err error
 	reqModel := new(db.CmcAppView)
@@ -67,7 +67,7 @@ func CreateConfigFile(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	if err := confgo.ConfuSrv.Add(info.ID, "application", "", 0, u.Nickname); err != nil {
+	if err := confgo.ConfuSrv.Add(info.ID, "application", "", 0, u.Nickname, env, zoneCode, 0); err != nil {
 		return output.JSON(c, output.MsgErr, "add error"+err.Error())
 	}
 	meta, _ := json.Marshal(reqModel)
@@ -112,10 +112,7 @@ func GetAppConfig(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	// 检查权限
-	if !user.IsAdmin(c) {
-		return output.JSON(c, output.MsgErr, "没有访问权限")
-	}
+	// TODO 权限检查
 
 	configListRes, err := confgo.ConfuSrv.GetAppKVlist(reqModel)
 	if err != nil {
@@ -164,18 +161,33 @@ func ItemCreate(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, "require key")
 	}
 	u := user.GetUser(c)
-	typ, _ := confgo.ConfuSrv.GetConfigTyp(caid)
+	typ, env, zoneCode, _ := confgo.ConfuSrv.GetConfigTyp(caid)
 	text, err := parse.GetParseManage(typ).Format([]byte(value))
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	if err := confgo.ConfuSrv.Add(caid, key, text, resourceID, u.Nickname); err != nil {
+	if err := confgo.ConfuSrv.Add(caid, key, text, resourceID, u.Nickname, env, zoneCode, reqModel.IsPublic); err != nil {
 		return output.JSON(c, output.MsgErr, "add error"+err.Error())
 	}
 	cmcApp, _ := confgo.ConfuSrv.CmcAppDetail(reqModel.Caid)
 	meta, _ := json.Marshal(cmcApp)
 	appevent.AppEvent.ConfgoItemCreateEvent(cmcApp.Aid, cmcApp.AppName, cmcApp.Env, cmcApp.ZoneCode, string(meta), u)
 	return output.JSON(c, output.MsgOk, "add success")
+}
+
+// ItemList Get a common configuration block
+func ItemList(c echo.Context) error {
+	var err error
+	reqModel := new(ReqItemList)
+	if err = c.Bind(reqModel); err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	var cc db.CmcConfig
+	list, err := cc.List(reqModel.Env, reqModel.ZoneCode)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	return output.JSON(c, output.MsgOk, "success", list)
 }
 
 // ItemCheck ...

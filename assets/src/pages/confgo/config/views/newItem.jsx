@@ -10,6 +10,8 @@ import {
   Radio,
   Table,
   message,
+  Row,
+  Col,
 } from 'antd';
 import React from 'react';
 import ReactCodeMirror from 'react-cmirror';
@@ -90,7 +92,6 @@ export default class NormalLoginForm extends React.Component {
     values.value = this.configInputText;
     values.caid = this.props.caid;
     ServiceConfigItemCheck(values).then((res) => {
-      console.log(1111, res);
       if (res.code != 0) {
         message.error('配置格式错误：' + res.msg);
       } else {
@@ -189,11 +190,19 @@ export default class NormalLoginForm extends React.Component {
         footer={null}
         destroyOnClose
       >
+        {/* <Row>
+          <Radio.Group value="default" onChange={this.handleSizeChange}>
+            <Radio.Button value="large">Large</Radio.Button>
+            <Radio.Button value="default">Default</Radio.Button>
+            <Radio.Button value="small">Small</Radio.Button>
+          </Radio.Group>
+        </Row>
+        <Row> */}
         <Form
           {...layout}
           onFinish={this.handleSubmit}
           className="login-form"
-          initialValues={{ is_resource: is_resource }}
+          initialValues={{ is_resource: is_resource, is_public: 0 }}
         >
           <Form.Item
             label={'名称'}
@@ -204,15 +213,15 @@ export default class NormalLoginForm extends React.Component {
           </Form.Item>
           <Form.Item
             label={'类型'}
-            name="isPublic"
+            name="is_public"
             rules={[{ required: true, message: '选择配置类型' }]}
           >
             <Radio.Group>
-              <Radio key="true" value="true">
-                public
+              <Radio key={0} value={0}>
+                私有
               </Radio>
-              <Radio key="false" value="false">
-                private
+              <Radio key={1} value={1}>
+                公有
               </Radio>
             </Radio.Group>
           </Form.Item>
@@ -311,6 +320,9 @@ export default class NormalLoginForm extends React.Component {
             </div>
           </Form.Item>
         </Form>
+        {/* </Row> */}
+
+        {/* <Row></Row> */}
       </Modal>
     );
   }

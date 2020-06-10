@@ -121,7 +121,15 @@ export default class NormalLoginForm extends React.Component {
     const that = this;
     //todo  资源类型的配置直接从模版生成
     const { show, item = {}, env, zone_code } = this.props;
-    const { key, value, comment, is_resource = false, resource_id = 0, resourceData = {}, is_publish=false } = item;
+    const {
+      key,
+      value,
+      comment,
+      is_resource = false,
+      resource_id = 0,
+      resourceData = {},
+      is_public = 0,
+    } = item;
     const { list = [] } = resourceData;
 
     const resource = list.find((v) => v.id === resource_id) || {};
@@ -178,7 +186,7 @@ export default class NormalLoginForm extends React.Component {
     };
     return (
       <Modal
-        title="更新配置"
+        title="更新 Block"
         visible={show}
         maskClosable={false}
         width={1200}
@@ -193,10 +201,16 @@ export default class NormalLoginForm extends React.Component {
           {...layout}
           onFinish={this.handleSubmit}
           className="login-form"
-          initialValues={{ key: key, value: value, isPublic:is_publish, is_resource: is_resource, comment: comment }}
+          initialValues={{
+            key: key,
+            value: value,
+            is_public: is_public,
+            is_resource: is_resource,
+            comment: comment,
+          }}
         >
           <Form.Item
-            label={'Block'}
+            label={'名称'}
             name="key"
             rules={[{ required: true, message: '请输入配置项的key!' }]}
           >
@@ -204,15 +218,15 @@ export default class NormalLoginForm extends React.Component {
           </Form.Item>
           <Form.Item
             label={'类型'}
-            name="isPublic"
+            name="is_public"
             rules={[{ required: true, message: '选择配置类型' }]}
           >
-            <Radio.Group>
-              <Radio key="true" value="true">
-                public
+            <Radio.Group disabled="disable">
+              <Radio key={0} value={0}>
+                私有
               </Radio>
-              <Radio key="false" value="false">
-                private
+              <Radio key={1} value={1}>
+                公有
               </Radio>
             </Radio.Group>
           </Form.Item>

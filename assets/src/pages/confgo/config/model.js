@@ -185,17 +185,17 @@ const Model = {
         }
       });
 
-      let list = [{
-        aid: aid,
-        app_name,
-        format,
-        language,
-        name,
-        configs: payload,
-        files: temp,
-      }];
-
-      console.log('list', list);
+      let list = [
+        {
+          aid: aid,
+          app_name,
+          format,
+          language,
+          name,
+          configs: payload,
+          files: temp,
+        },
+      ];
       return {
         ...state,
         appConfigList: list,
@@ -207,7 +207,7 @@ const Model = {
       // const data = parseConfigTree();
       return {
         ...state,
-        configList: parseConfigMap(configList),
+        configList: configList,
         configText: configText,
         commonText: commonText,
         file_path: file_path,
@@ -259,13 +259,6 @@ const formatData = (res, value, key) => {
     return res.code === 0 ? res[key] : value;
   }
   return res.code === 0 ? res.data : value;
-};
-
-//解析配置项map
-const parseConfigMap = (data) => {
-  return data.sort((a, b) => {
-    return a.key.localeCompare(b.key);
-  });
 };
 
 //提取一层子结构

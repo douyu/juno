@@ -110,11 +110,11 @@ func DelResource(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	if reqModel.Id == 0 {
+	if reqModel.ID == 0 {
 		return output.JSON(c, output.MsgErr, "id必须指定")
 	}
 
-	err = confgo.ResourceSrv.DelResource(reqModel.Id)
+	err = confgo.ResourceSrv.DelResource(reqModel.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -130,7 +130,7 @@ func UpdateResource(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	if reqModel.Id == 0 {
+	if reqModel.ID == 0 {
 		return output.JSON(c, output.MsgErr, "id必须指定")
 	}
 
@@ -143,7 +143,7 @@ func UpdateResource(c echo.Context) error {
 		}
 	}
 
-	err = confgo.ResourceSrv.UpdateResource(reqModel.Id, reqModel.Name, reqModel.Env, reqModel.Value, reqModel.ValueType, reqModel.Type,
+	err = confgo.ResourceSrv.UpdateResource(reqModel.ID, reqModel.Name, reqModel.Env, reqModel.Value, reqModel.ValueType, reqModel.Type,
 		reqModel.Desc, reqModel.IsShow, reqModel.IsCommon, user.Username)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -182,10 +182,10 @@ func ListDepResource(c echo.Context) (err error) {
 	if err = c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	if reqModel.Id == 0 {
+	if reqModel.ID == 0 {
 		return output.JSON(c, output.MsgErr, "id不能为空")
 	}
-	appList, err := confgo.ConfuSrv.ResourceAppList(reqModel.Id)
+	appList, err := confgo.ConfuSrv.ResourceAppList(reqModel.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}

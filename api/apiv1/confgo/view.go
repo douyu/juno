@@ -23,3 +23,9 @@ type RespStatics struct {
 	CmcCnt []ConfigStaticsInfo `json:"cmc_cnt"`
 	Total  int                 `json:"total"`
 }
+
+// ReqItemList config block list by env or zone code
+type ReqItemList struct {
+	Env      string `json:"env"`
+	ZoneCode string `json:"zone_code"`
+}
