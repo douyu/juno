@@ -112,6 +112,7 @@ export default class Configserver extends React.Component {
       selectComment: '',
       selectIsResource: false,
       selectResourceID: 0,
+      selectIsPublic: 0,
 
       showAddItem: false,
       showUpdateItem: false,
@@ -482,8 +483,8 @@ export default class Configserver extends React.Component {
 
   addItem = (v) => {
     const { caid } = this.state;
-    const { resource_id, key, value, comment } = v;
-    ConfuAddItem({ caid, key, value, comment, resource_id }).then((rs) => {
+    const { resource_id, key, value, comment, is_public } = v;
+    ConfuAddItem({ caid, key, value, comment, resource_id, is_public }).then((rs) => {
       if (rs.code === 0) {
         message.success('添加成功');
         this.getConfigList();
@@ -498,8 +499,8 @@ export default class Configserver extends React.Component {
 
   updateItem = (v) => {
     const { caid } = this.state;
-    const { id, key, value, comment, resource_id } = v;
-    ConfuUpdateItem({ id, caid, key, value, comment, resource_id }).then((rs) => {
+    const { id, key, value, comment, resource_id, is_public } = v;
+    ConfuUpdateItem({ id, caid, key, value, comment, resource_id, is_public }).then((rs) => {
       if (rs.code === 0) {
         message.success('更新成功');
         this.setState({
@@ -695,7 +696,6 @@ export default class Configserver extends React.Component {
       file_path = '',
       zoneCode,
     } = this.props;
-    console.log('zoneCode', zoneCode);
     const { users = [] } = app;
     const appInfo = appConfigList[0] || {};
     const {
@@ -710,6 +710,7 @@ export default class Configserver extends React.Component {
       selectComment,
       selectIsResource,
       selectResourceID,
+      selectIsPublic,
       fileDelModalVisible: showFileManage,
       fileDelConfirmLoading,
       result_list = [],
@@ -986,11 +987,22 @@ export default class Configserver extends React.Component {
       zone_codeMap[element.zone_code] = element.zone_name;
     });
 
+    const genHeader = (record) => (
+      <div>
+        <div className={'cube'}>
+          {record.is_public == 0 && <Tag color="#2db7f5">私有</Tag>}
+          {record.is_public == 1 && <Tag color="#f50">公有</Tag>}
+        </div>
+        <div className={'cube-title'}>
+          <h3>{record.key}</h3>
+        </div>
+      </div>
+    );
+
     const genExtra = (record) => (
       <div>
         {statusMap(record.key, record.status)}
         <Divider type="vertical" />
-
         {record.status != 4 && (
           <Tag
             color={'blue'}
@@ -1003,6 +1015,7 @@ export default class Configserver extends React.Component {
                 selectComment: record.comment,
                 selectIsResource: record.is_resource,
                 selectResourceID: record.resource_id,
+                selectIsPublic: record.is_public,
                 showUpdateItem: true,
               });
               that.getEnvResource();
@@ -1028,7 +1041,7 @@ export default class Configserver extends React.Component {
     configList.forEach((element) => {
       configItemList.push(
         <Panel
-          header={element.key}
+          header={genHeader(element)}
           key={element.key}
           className="site-collapse-custom-panel"
           extra={genExtra(element)}
@@ -1119,7 +1132,6 @@ export default class Configserver extends React.Component {
               <Row style={{ marginTop: '4px', marginLeft: '4px', marginRight: '4px' }}>
                 <Col span={4} style={{ textAlign: 'left' }}>
                   <Button
-                    type={'primary'}
                     style={{ float: 'left', marginRight: '6px' }}
                     onClick={(e) => {
                       //加载节点数据
@@ -1203,6 +1215,7 @@ export default class Configserver extends React.Component {
                     <Col style={{ marginTop: '-5px' }}>
                       <Button.Group>
                         <Button
+                          style={{ marginLeft: '10px' }}
                           type="primary"
                           onClick={() => {
                             that.setState({ showAddItem: true });
@@ -1491,6 +1504,7 @@ export default class Configserver extends React.Component {
                 is_resource: selectIsResource,
                 resource_id: selectResourceID,
                 resourceData: resourceData,
+                is_public: selectIsPublic,
               }}
               zone_codeMap={zone_codeMap}
             />

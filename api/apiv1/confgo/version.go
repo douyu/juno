@@ -68,7 +68,7 @@ func VersionChangeOrigin(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, "查询失败:"+err.Error())
 	}
 
-	typ, err := confgo.ConfuSrv.GetConfigTyp(reqModel.Caid)
+	typ, _, _, err := confgo.ConfuSrv.GetConfigTyp(reqModel.Caid)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "查询失败:"+err.Error())
 	}

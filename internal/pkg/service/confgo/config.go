@@ -9,18 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/parse"
-	"github.com/douyu/jupiter/pkg/conf"
-
-	"github.com/douyu/juno/internal/pkg/model/view"
-
 	"github.com/douyu/juno/internal/pkg/model"
 	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/internal/pkg/model/view"
 	"github.com/douyu/juno/internal/pkg/service/codec"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
+	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
-	log "github.com/sirupsen/logrus"
 )
 
 type cmc struct{}
@@ -29,26 +26,24 @@ type confu struct {
 	DB *gorm.DB
 }
 
-// 获取某个应用在某个环境的kv对
-func (cmc *confu) GetAppKVs(caid int, itemId int) ([]db.CmcConfig, error) {
+// GetAppKVs Get the kv pair of an application in an environment
+func (cmc *confu) GetAppKVs(caid int, itemID int) ([]db.CmcConfig, error) {
 	dbConn := cmc.DB.Table("cmc_config")
 	// var res = make(map[string]model.ConfigVal)
 	var res []db.CmcConfig
-	// 过滤删除的
-	dbConn = dbConn.Where("`caid` = ? AND `id` <>? AND `status` <> ?", caid, itemId, model.ItemStatusDel).Order("`id` asc", false)
+	// Filter deleted
+	dbConn = dbConn.Where("`caid` = ? AND `id` <>? AND `status` <> ?", caid, itemID, model.ItemStatusDel).Order("`id` asc", false)
 	err := dbConn.Find(&res).Error
 	if err != nil {
-		log.Warn("get cmc resources fail", "error", err)
 		return res, err
 	}
-
 	return res, nil
 }
 
-// 添加配置
-func (c *confu) Add(caid int, key, value string, resourceID int, opName string) (err error) {
-	tx := c.DB.Begin()
-	if err = c.AddWithTx(caid, key, value, resourceID, opName, tx); err != nil {
+// Add ..
+func (cmc *confu) Add(caid int, key, value string, resourceID int, opName, env, zoneCode string, isPublish int) (err error) {
+	tx := cmc.DB.Begin()
+	if err = cmc.AddWithTx(caid, key, value, resourceID, opName, env, zoneCode, isPublish, tx); err != nil {
 		tx.Rollback()
 		return
 	}
@@ -56,10 +51,10 @@ func (c *confu) Add(caid int, key, value string, resourceID int, opName string) 
 	return
 }
 
-// 更新配置
-func (c *confu) Update(id uint64, caid int, key, value string, resourceID int, opName string) (err error) {
-	tx := c.DB.Begin()
-	if err = c.UpdateWithTx(id, caid, key, value, resourceID, opName, tx); err != nil {
+// Update ..
+func (cmc *confu) Update(id uint64, caid int, key, value string, resourceID int, opName string) (err error) {
+	tx := cmc.DB.Begin()
+	if err = cmc.UpdateWithTx(id, caid, key, value, resourceID, opName, tx); err != nil {
 		tx.Rollback()
 		return
 	}
@@ -111,9 +106,8 @@ func (cmc *confu) GetAppKVlist(c *db.CmcConfig) ([]db.ConfigData, error) {
 		dbConn = dbConn.Where("`key` like ?", searchKey)
 	}
 	dbConn = dbConn.Where("`caid` = ? ", c.Caid)
-	err := dbConn.Find(&vals).Error
+	err := dbConn.Order("id asc").Find(&vals).Error
 	if err != nil {
-		log.Warn("get cmc resources fail", "error", err)
 		return res, err
 	}
 	for _, v := range vals {
@@ -123,6 +117,7 @@ func (cmc *confu) GetAppKVlist(c *db.CmcConfig) ([]db.ConfigData, error) {
 			ResourceID: v.ResourceID,
 			Prefix:     v.Prefix,
 			Status:     v.Status,
+			IsPublic:   v.IsPublic,
 		}
 		if v.IsResource == 1 && v.ResourceID != 0 { // 替换资源模版名称
 			val.IsResource = true
@@ -150,7 +145,6 @@ func (cmc *confu) GetAppConfigText(caid int) (string, error) {
 	var vals []db.CmcConfig
 	err = dbHandler.Find(&vals).Error
 	if err != nil {
-		log.Warn("get cmc resources fail", "error", err)
 		return "", err
 	}
 	var items []string
@@ -198,11 +192,11 @@ func (cmc *confu) GetAllConfigTextByApp(identify interface{}) (resp view.RespCon
 	return
 }
 
-// 操作历史记录
-func (c *confu) ChangeList(caid int, page, limit int) (result []db.CmcConfigLog, err error) {
+// ChangeList Operation history
+func (cmc *confu) ChangeList(caid int, page, limit int) (result []db.CmcConfigLog, err error) {
 	list := make([]db.CmcConfigLog, 0)
 	offset := (page - 1) * limit
-	sql := c.DB.Where("caid = ?", caid)
+	sql := cmc.DB.Where("caid = ?", caid)
 	if err = sql.Order("update_time desc").Offset(offset).Limit(limit).Find(&list).Error; err != nil {
 		return
 	}
@@ -210,9 +204,10 @@ func (c *confu) ChangeList(caid int, page, limit int) (result []db.CmcConfigLog,
 	return
 }
 
-func (c *confu) CmcAppDetail(id int) (result db.CmcAppView, err error) {
+// CmcAppDetail ..
+func (cmc *confu) CmcAppDetail(id int) (result db.CmcAppView, err error) {
 	result = db.CmcAppView{}
-	c.DB.Table("cmc_app as a").
+	cmc.DB.Table("cmc_app as a").
 		Select("*").
 		Joins("LEFT JOIN app as b ON a.aid = b.aid").
 		Where("a.id = ?", id).
@@ -220,8 +215,8 @@ func (c *confu) CmcAppDetail(id int) (result db.CmcAppView, err error) {
 	return result, nil
 }
 
-func (c *confu) GetConfigItem(caid int, key string, id uint64) (res db.CmcConfig, err error) {
-	err = c.DB.Table("cmc_config").
+func (cmc *confu) GetConfigItem(caid int, key string, id uint64) (res db.CmcConfig, err error) {
+	err = cmc.DB.Table("cmc_config").
 		Select("*").
 		Where("`caid` = ? and `key` = ? and `id` <> ?", caid, key, id).
 		Find(&res).Error
@@ -231,23 +226,24 @@ func (c *confu) GetConfigItem(caid int, key string, id uint64) (res db.CmcConfig
 	return
 }
 
-func (c *confu) GetConfigTyp(id int) (typ string, err error) {
+// GetConfigTyp Obtain configuration key data
+func (cmc *confu) GetConfigTyp(id int) (typ, env, zoneCode string, err error) {
 	result := db.CmcApp{}
-	err = c.DB.Table("cmc_app as a").
+	err = cmc.DB.Table("cmc_app as a").
 		Select("*").
 		Where("a.id = ?", id).
 		Find(&result).Error
 	if err != nil {
 		return
 	}
-	return string(result.Format), nil
+	return string(result.Format), result.Env, result.ZoneCode, nil
 }
 
 // UsingStatus Application configuration usage status
-func (c *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
+func (cmc *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
 
 	// Get file detail
-	cmcApp, err := c.CmcAppDetail(caid)
+	cmcApp, err := cmc.CmcAppDetail(caid)
 	if err != nil {
 		return result, err
 	}
@@ -259,13 +255,13 @@ func (c *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
 	deployList := deployInstanceList(cmcApp.AppName, cmcApp.Env, cmcApp.ZoneCode)
 
 	//  Obtain the configuration synchronization list on ETCD
-	etcdList, etcdListErr := etcdInstanceList(c.DB, cmcApp.AppName, cmcApp.FileName, cmcApp.Env, cmcApp.ZoneCode)
+	etcdList, etcdListErr := etcdInstanceList(cmc.DB, cmcApp.AppName, cmcApp.FileName, cmcApp.Env, cmcApp.ZoneCode)
 	if etcdListErr != nil {
 		etcdList = make([]db.EtcdInstance, 0)
 	}
 
 	// Get the latest version of configure
-	latestMd5, effectMD5, message, pubID := pubConfigLatestInfo(c.DB, caid)
+	latestMd5, effectMD5, message, pubID := pubConfigLatestInfo(cmc.DB, caid)
 
 	// Data aggregation
 	for index, deployItem := range deployList {
@@ -286,7 +282,7 @@ func (c *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
 					deployList[index].Params = etcdItem.Params
 					deployList[index].ZoneCode = etcdItem.ZoneCode
 				} else {
-					_, oldMessage, oldPubID := pubConfigInfoByMD5(c.DB, caid, etcdItem.MD5)
+					_, oldMessage, oldPubID := pubConfigInfoByMD5(cmc.DB, caid, etcdItem.MD5)
 					deployList[index].IsLatest = false
 					deployList[index].Message = oldMessage
 					deployList[index].PubID = int(oldPubID)
@@ -295,7 +291,7 @@ func (c *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
 				}
 			}
 		}
-		deployList[index].IsUse = usingInstanceList(c.DB, cmcApp.AppName, deployItem.HostName, cmcApp.FileName)
+		deployList[index].IsUse = usingInstanceList(cmc.DB, cmcApp.AppName, deployItem.HostName, cmcApp.FileName)
 	}
 
 	result = deployList
@@ -307,7 +303,7 @@ func (c *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
 			hostList = append(hostList, v.HostName)
 		}
 		hostInfo := make([]db.AppNodeInfo, 0)
-		if err = c.DB.Table("app_node").Where("host_name in (?) and app_name = ?", hostList, cmcApp.AppName).Find(&hostInfo).Error; err != nil && err != gorm.ErrRecordNotFound {
+		if err = cmc.DB.Table("app_node").Where("host_name in (?) and app_name = ?", hostList, cmcApp.AppName).Find(&hostInfo).Error; err != nil && err != gorm.ErrRecordNotFound {
 			return
 		}
 		hostInfoMap := make(map[string]db.AppNodeInfo)
@@ -324,10 +320,10 @@ func (c *confu) UsingStatus(caid int) (result []db.DeployInstance, err error) {
 }
 
 // StatusRefresh Refresh configuration access status
-func (p *confu) StatusRefresh(caid int) (list []db.CmcUseStatus, err error) {
+func (cmc *confu) StatusRefresh(caid int) (list []db.CmcUseStatus, err error) {
 	list = make([]db.CmcUseStatus, 0)
 	// Get file detail
-	cmcApp, _ := p.CmcAppDetail(caid)
+	cmcApp, _ := cmc.CmcAppDetail(caid)
 	if cmcApp.ID == 0 {
 		err = fmt.Errorf("app not exists error")
 		return
@@ -335,12 +331,12 @@ func (p *confu) StatusRefresh(caid int) (list []db.CmcUseStatus, err error) {
 	preNodes, _ := resource.Resource.GetAllAppNodeList(db.AppNode{
 		AppName: cmcApp.AppName,
 	})
-	list, err = grpcgovern.IGrpcGovern.GetBatchPmtInfo(caid, &cmcApp, p.assemblyNodeParams(preNodes, cmcApp.Env))
+	list, err = grpcgovern.IGrpcGovern.GetBatchPmtInfo(caid, &cmcApp, cmc.assemblyNodeParams(preNodes, cmcApp.Env))
 	return
 }
 
-// 批量查询节点数据组装
-func (c *confu) assemblyNodeParams(nodes []db.AppNode, env string) []db.AppNodeAgentView {
+// Batch query node data assembly
+func (cmc *confu) assemblyNodeParams(nodes []db.AppNode, env string) []db.AppNodeAgentView {
 	agentPort := conf.GetInt("confgo.agent.port")
 	fmt.Println("agentPort", agentPort)
 	res := make([]db.AppNodeAgentView, 0)
@@ -352,14 +348,14 @@ func (c *confu) assemblyNodeParams(nodes []db.AppNode, env string) []db.AppNodeA
 	return res
 }
 
-func (c *confu) UpdateNewStatus(list []db.CmcUseStatus) error {
+func (cmc *confu) UpdateNewStatus(list []db.CmcUseStatus) error {
 	for _, item := range list {
 		tempData := db.CmcUseStatus{}
-		if err := c.DB.Where("app_name = ? AND hostname = ? and caid = ?", item.AppName, item.Hostname, item.Caid).First(&tempData).Error; err != nil && err != gorm.ErrRecordNotFound {
+		if err := cmc.DB.Where("app_name = ? AND hostname = ? and caid = ?", item.AppName, item.Hostname, item.Caid).First(&tempData).Error; err != nil && err != gorm.ErrRecordNotFound {
 			return err
 		}
 		if tempData.ID == 0 { // create
-			if err := c.DB.Create(&item).Error; err != nil {
+			if err := cmc.DB.Create(&item).Error; err != nil {
 				return err
 			}
 		} else { // update
@@ -367,7 +363,7 @@ func (c *confu) UpdateNewStatus(list []db.CmcUseStatus) error {
 			tempData.Content = item.Content
 			tempData.IsUse = item.IsUse
 			tempData.Extra = item.Extra
-			if err := c.DB.Save(&tempData).Error; err != nil {
+			if err := cmc.DB.Save(&tempData).Error; err != nil {
 				return err
 			}
 		}
@@ -375,16 +371,16 @@ func (c *confu) UpdateNewStatus(list []db.CmcUseStatus) error {
 	return nil
 }
 
-func (c *confu) QueryConfigList(query map[string]interface{}) (result []db.CmcConfig) {
+func (cmc *confu) QueryConfigList(query map[string]interface{}) (result []db.CmcConfig) {
 	result = make([]db.CmcConfig, 0)
-	if err := c.DB.Where(query).Find(&result).Error; err != nil {
+	if err := cmc.DB.Where(query).Find(&result).Error; err != nil {
 		return
 	}
 	return
 }
 
-func (c *confu) ResourceAppList(id uint64) (result []db.CmcAppView, err error) {
-	configList := c.QueryConfigList(map[string]interface{}{
+func (cmc *confu) ResourceAppList(id uint64) (result []db.CmcAppView, err error) {
+	configList := cmc.QueryConfigList(map[string]interface{}{
 		"resource_id": id,
 	})
 	ids := make([]int, 0)
@@ -398,15 +394,15 @@ func (c *confu) ResourceAppList(id uint64) (result []db.CmcAppView, err error) {
 	return
 }
 
-// 发布成功后同步配置项状态
-func (c *confu) SyncItemsStatus(caid int) error {
-	tx := c.DB.Table("cmc_config").Begin()
-	// 真删除配置项
+// SyncItemsStatus Synchronize configuration item status after successful publication
+func (cmc *confu) SyncItemsStatus(caid int) error {
+	tx := cmc.DB.Table("cmc_config").Begin()
+	// Really delete configuration items
 	if err := tx.Where("caid = ? AND status = ?", caid, model.ItemStatusDel).Delete(db.CmcConfig{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	// 将其余配置项重置为发布
+	// Reset the remaining configuration items to release
 	if err := tx.Where("caid = ? ANd status <> ?", caid, model.ItemStatusDel).Updates(map[string]interface{}{"status": model.ItemStatusPub}).Error; err != nil {
 		tx.Rollback()
 		return err
@@ -429,7 +425,7 @@ type configItemDiff struct {
 }
 
 // AddWithTx ...
-func (c *confu) AddWithTx(caid int, key, value string, resourceID int, opName string, tx *gorm.DB) (err error) {
+func (cmc *confu) AddWithTx(caid int, key, value string, resourceID int, opName, env, zoneCode string, isPublish int, tx *gorm.DB) (err error) {
 
 	// Update config_cmc append config_cmc_log
 	now := time.Now().Unix()
@@ -440,7 +436,10 @@ func (c *confu) AddWithTx(caid int, key, value string, resourceID int, opName st
 		Value:      value,
 		Status:     model.ItemStatusNew,
 		UpdateTime: now,
+		IsPublic:   isPublish,
 		OpName:     opName,
+		Env:        env,
+		ZoneCode:   zoneCode,
 	}
 
 	// 注入资源字段
@@ -465,7 +464,7 @@ func (c *confu) AddWithTx(caid int, key, value string, resourceID int, opName st
 	return nil
 }
 
-func (c *confu) UpdateWithTx(id uint64, caid int, key, value string, resourceID int, opName string, tx *gorm.DB) (err error) {
+func (cmc *confu) UpdateWithTx(id uint64, caid int, key, value string, resourceID int, opName string, tx *gorm.DB) (err error) {
 	oldItem := db.CmcConfig{}
 	tx.Where("id = ?", id).First(&oldItem)
 	if oldItem.ID == 0 {
@@ -475,18 +474,18 @@ func (c *confu) UpdateWithTx(id uint64, caid int, key, value string, resourceID 
 		return nil
 	}
 
-	// 更新配置状态
+	// Update configuration status
 	now := time.Now().Unix()
 
-	// 获取旧值
+	// Get old value
 	oldValue := oldItem.Value
 
-	// 旧注释
-
+	// Old notes
 	oldItem.Status = model.ItemStatusUpdate
 	oldItem.Value = value
 	oldItem.OpName = opName
-	// 注入资源字段
+
+	// Inject resource field
 	if resourceID != 0 {
 		oldItem.ResourceID = resourceID
 		oldItem.IsResource = 1
@@ -513,22 +512,22 @@ func (c *confu) UpdateWithTx(id uint64, caid int, key, value string, resourceID 
 	return
 }
 
-// 删除配置
-func (c *confu) DeleteWithTx(id uint64, opName string, tx *gorm.DB) (err error) {
+// DeleteWithTx Delete configuration
+func (cmc *confu) DeleteWithTx(id uint64, opName string, tx *gorm.DB) (err error) {
 	// todo error
 	if id == 0 {
 		return fmt.Errorf("id is 0")
 	}
 
 	oldItem := db.CmcConfig{}
-	c.DB.Where("id = ?", id).First(&oldItem)
+	cmc.DB.Where("id = ?", id).First(&oldItem)
 	if oldItem.ID == 0 {
 		return fmt.Errorf("item is not exists")
 	}
 
 	now := time.Now().Unix()
 
-	// 新增状态下的配置可以直接删除
+	// The configuration in the newly added state can be deleted directly
 	if oldItem.Status == model.ItemStatusNew {
 		if err = tx.Where("id = ?", id).Delete(&oldItem).Error; err != nil {
 			tx.Rollback()
@@ -558,23 +557,22 @@ func (c *confu) DeleteWithTx(id uint64, opName string, tx *gorm.DB) (err error) 
 	return
 }
 
-// 删除配置
-func (c *confu) Del(id uint64, opName string) (err error) {
-	// todo error
+// Del Delete configuration
+func (cmc *confu) Del(id uint64, opName string) (err error) {
 	if id == 0 {
 		return fmt.Errorf("id is 0")
 	}
 
 	oldItem := db.CmcConfig{}
-	c.DB.Where("id = ?", id).First(&oldItem)
+	cmc.DB.Where("id = ?", id).First(&oldItem)
 	if oldItem.ID == 0 {
 		return fmt.Errorf("item is not exists")
 	}
 
-	tx := c.DB.Begin()
+	tx := cmc.DB.Begin()
 	now := time.Now().Unix()
 
-	// 新增状态下的配置可以直接删除
+	// The configuration in the newly added state can be deleted directly
 	if oldItem.Status == model.ItemStatusNew {
 		if err = tx.Where("id = ?", id).Delete(&oldItem).Error; err != nil {
 			tx.Rollback()
@@ -604,7 +602,7 @@ func (c *confu) Del(id uint64, opName string) (err error) {
 	return
 }
 
-// 辅助函数
+// JSONMarshal Auxiliary function
 func JSONMarshal(v interface{}, safeEncoding bool) string {
 	b, _ := json.Marshal(v)
 	if safeEncoding {
@@ -621,11 +619,11 @@ func findResourceByName(value string, valueType string) (resourceValue string, r
 		res := ResourceSrv.QueryResource(map[string]interface{}{
 			"name": name,
 		})
-		if res.Id == 0 {
+		if res.ID == 0 {
 			err = fmt.Errorf("not found resources")
 			return
 		}
-		return value, res.ValueType, int(res.Id), 1, nil
+		return value, res.ValueType, int(res.ID), 1, nil
 	}
 	return value, valueType, 0, 0, nil
 }
@@ -710,7 +708,7 @@ func usingInstanceList(gormdb *gorm.DB, appName string, hostname string, fileNam
 	return false
 }
 
-// 替换关联资源发布的时候替换，存一份对外的模版diff文档
+// FindResource Replace when the associated resource is published, save an external template diff file
 func FindResource(list []db.CmcResource, call func(val db.CmcResource) bool) (resource db.CmcResource) {
 	resource = db.CmcResource{}
 	for _, item := range list {
@@ -721,13 +719,14 @@ func FindResource(list []db.CmcResource, call func(val db.CmcResource) bool) (re
 	return
 }
 
-func GetConfig(configId int, itemId int) (text string, err error) {
-	typ, err := ConfuSrv.GetConfigTyp(configId)
+// GetConfig ..
+func GetConfig(configID int, itemID int) (text string, err error) {
+	typ, _, _, err := ConfuSrv.GetConfigTyp(configID)
 	if err != nil {
 		return
 	}
 	// 获取配置k-v列表
-	appConfigKv, err := ConfuSrv.GetAppKVs(configId, itemId)
+	appConfigKv, err := ConfuSrv.GetAppKVs(configID, itemID)
 	if err != nil {
 		return
 	}
@@ -738,13 +737,14 @@ func GetConfig(configId int, itemId int) (text string, err error) {
 	return text, nil
 }
 
-func GenConfig(configId int, itemId int, value string) (text string, err error) {
-	typ, err := ConfuSrv.GetConfigTyp(configId)
+// GenConfig ..
+func GenConfig(configID int, itemID int, value string) (text string, err error) {
+	typ, _, _, err := ConfuSrv.GetConfigTyp(configID)
 	if err != nil {
 		return
 	}
 	// 获取配置k-v列表
-	appConfigKv, err := ConfuSrv.GetAppKVs(configId, itemId)
+	appConfigKv, err := ConfuSrv.GetAppKVs(configID, itemID)
 	if err != nil {
 		return
 	}
@@ -755,6 +755,7 @@ func GenConfig(configId int, itemId int, value string) (text string, err error) 
 	return text, nil
 }
 
+// FormatByKvs ..
 func FormatByKvs(items []db.CmcConfig, format string, value string) (text, md5Str string, err error) {
 	// 获取资源列表
 	var sources []string
@@ -776,6 +777,7 @@ func FormatByKvs(items []db.CmcConfig, format string, value string) (text, md5St
 	return text, fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
+// PublishSign ..
 func PublishSign(text string, textMd5, format string) (signText, md5Str string, err error) {
 	var sign struct {
 		JunoAgentDate int64  `json:"juno_agent_date"`
@@ -784,10 +786,10 @@ func PublishSign(text string, textMd5, format string) (signText, md5Str string, 
 	sign.JunoAgentDate = time.Now().Unix()
 	sign.JunoAgentMD5 = textMd5
 
-	signJson, _ := json.Marshal(sign)
+	signJSON, _ := json.Marshal(sign)
 
 	tmp := make([]string, 0)
-	tmp = append(tmp, string(signJson))
+	tmp = append(tmp, string(signJSON))
 
 	signText, err = parse.GetParseManage(format).FusionWithTpl(text, tmp)
 	if err != nil {

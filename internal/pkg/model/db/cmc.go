@@ -60,28 +60,7 @@ func (t *CmcApp) TableName() string {
 	return "cmc_app"
 }
 
-// CmcConfig ...
-type CmcConfig struct {
-	ID         uint64           `gorm:"column:id" json:"id" form:"id"`
-	Caid       int              `gorm:"column:caid" json:"caid" form:"caid"`
-	Prefix     string           `gorm:"column:prefix" json:"prefix"`
-	Key        string           `gorm:"column:key" json:"key"`
-	Value      string           `gorm:"type:longtext" json:"value"`
-	ResourceID int              `gorm:"column:resource_id" json:"resource_id"`
-	IsResource int              `gorm:"column:is_resource" json:"is_resource"`
-	IsPublic   int              `gorm:"column:is_public" json:"is_public"` // Is it a public resource
-	IsWatch    int              `gorm:"column:is_watch" json:"is_watch"`
-	Status     model.ItemStatus `json:"status"`
-	UpdateTime int64            `json:"update_time"`
-	OpName     string           `json:"op_name"`
-	DiffKey    string           `json:"diff_key" gorm:"column:diff_key"`
-}
-
-// TableName ..
-func (c CmcConfig) TableName() string {
-	return "cmc_config"
-}
-
+// ConfigVal ..
 type ConfigVal struct {
 	ID         int              `json:"id"`
 	Value      string           `json:"value"`
@@ -92,22 +71,24 @@ type ConfigVal struct {
 	Status     model.ItemStatus `json:"status"`
 	Comment    string           `json:"comment"`
 	SourceTyp  int              `json:"source_typ"`
+	IsPublic   int              `json:"is_public"`
 }
 
+// ConfigData ..
 type ConfigData struct {
 	Key string `json:"key"`
 	ConfigVal
 }
 
-// CmcResource表cmc_resource的结构
+// CmcResourceItem ..
 type CmcResourceItem struct {
 	CmcResource
 	DepNum int `json:"dep_num"`
 }
 
-// CmcResource表cmc_resource的结构
+// CmcResource ..
 type CmcResource struct {
-	Id         uint64 `gorm:"column:id" json:"id"`
+	ID         uint64 `gorm:"column:id" json:"id"`
 	Name       string `gorm:"column:name" json:"name"`
 	ZoneCode   string `gorm:"column:idc_code" json:"idc_code"`
 	Env        string `gorm:"column:env" json:"env"`
@@ -127,6 +108,7 @@ func (r *CmcResource) TableName() string {
 	return "cmc_resource"
 }
 
+// ConfigDiffData ..
 type ConfigDiffData struct {
 	Key    string `json:"key"`
 	OldVal string `json:"old_val"`
@@ -134,16 +116,17 @@ type ConfigDiffData struct {
 	OpType string `json:"op_type"`
 }
 
+// DiffText ..
 type DiffText struct {
 	PreContent    string `json:"pre_content"`
 	Content       string `json:"content"`
 	CommonContent string `json:"common_content"`
 }
 
-// CmcPublishLog表cmc_publish_log的结构
+// CmcPublishLog ..
 type CmcPublishLog struct {
-	Id         int    `json:"id" gorm:"column:id"`                 // id类型?
-	HistoryId  int    `json:"history_id" gorm:"column:history_id"` // id类型?
+	ID         int    `json:"id" gorm:"column:id"`                 // id类型?
+	HistoryID  int    `json:"history_id" gorm:"column:history_id"` // id类型?
 	Type       int    `json:"type" gorm:"column:type"`
 	CreateTime int64  `json:"create_time" gorm:"column:create_time"`
 	DiffText   string `json:"diff_text" gorm:"type:longtext"`
@@ -165,8 +148,8 @@ type App struct {
 type CmcHistoryItem struct {
 	ID           int    `gorm:"column:id" json:"id"`
 	Caid         int    `json:"caid"`
-	KeyId        int    `gorm:"column:key_id" json:"key_id"`
-	CmcHistoryId int    `gorm:"column:cmc_history_id" json:"cmc_history_id"`
+	KeyID        int    `gorm:"column:key_id" json:"key_id"`
+	CmcHistoryID int    `gorm:"column:cmc_history_id" json:"cmc_history_id"`
 	Aid          int    `gorm:"column:aid" json:"aid"`
 	AppName      string `json:"app_name" gorm:"column:app_name"`
 	ZoneCode     string `gorm:"column:idc_code" json:"idc_code"`
@@ -175,6 +158,7 @@ type CmcHistoryItem struct {
 	Value        string `gorm:"type:longtext" json:"toml"`
 	CreateTime   int64  `gorm:"column:create_time" json:"create_time"`
 	OpName       string `json:"op_name"`
+	IsPublic     int    `json:"is_public"`
 }
 
 // TableName ..

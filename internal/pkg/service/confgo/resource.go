@@ -18,7 +18,7 @@ type resources struct {
 func (cmc *resources) UpdateResource(id uint64, name, env, value, valueType, typeStr, desc string, isShow int64, isCommon int64, opName string) error {
 	oldData := db.CmcResource{}
 	cmc.DB.Table("cmc_resource").Where("id = ?", id).First(&oldData)
-	if oldData.Id == 0 {
+	if oldData.ID == 0 {
 		return fmt.Errorf("资源%d不存在", id)
 	}
 	if oldData.Name != name {
@@ -153,9 +153,9 @@ func (cmc *resources) GetAdminResourceList(id, appId int, name, value, env, zone
 		return list, 0, err
 	}
 	for _, item := range tmp {
-		appList, _ := ConfuSrv.ResourceAppList(item.Id)
+		appList, _ := ConfuSrv.ResourceAppList(item.ID)
 		var ri = db.CmcResourceItem{}
-		ri.Id = item.Id
+		ri.ID = item.ID
 		ri.Name = item.Name
 		ri.ZoneCode = item.ZoneCode
 		ri.Env = item.Env

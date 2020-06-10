@@ -44,14 +44,15 @@ func (c *confgo) publishRecordHistoryItem(tx *gorm.DB, items []db.CmcConfig, his
 	for _, item := range items {
 		var historyItem = db.CmcHistoryItem{
 			Caid:         item.Caid,
-			KeyId:        int(item.ID),
-			CmcHistoryId: history.ID,
+			KeyID:        int(item.ID),
+			CmcHistoryID: history.ID,
 			Aid:          history.Aid,
 			AppName:      history.AppName,
 			ZoneCode:     history.ZoneCode,
 			Env:          history.Env,
 			Key:          item.Key,
 			Value:        item.Value,
+			IsPublic:    item.IsPublic,
 			CreateTime:   time.Now().Unix(),
 		}
 		err = tx.Save(&historyItem).Error
@@ -85,7 +86,7 @@ func (c *confgo) publishLogAdd(tx *gorm.DB, caid int, historyID int, commonVal s
 			CommonContent: commonVal,
 		}
 		publishLogData := db.CmcPublishLog{
-			HistoryId:  historyID,
+			HistoryID:  historyID,
 			Type:       1, // publish
 			CreateTime: time.Now().Unix(),
 			DiffText:   getValStr(diffText),
@@ -149,12 +150,12 @@ func (c *confgo) Rollback(configID int, nowID, historyID int, u *db.User) (err e
 	// Find differences between versions
 	oldTargetMap := make(map[string]interface{}, 0)
 	for _, item := range nowItems {
-		oldTargetMap[strconv.Itoa(item.KeyId)] = item
+		oldTargetMap[strconv.Itoa(item.KeyID)] = item
 	}
 
 	newTargetMap := make(map[string]interface{}, 0)
 	for _, item := range historyItems {
-		newTargetMap[strconv.Itoa(item.KeyId)] = item
+		newTargetMap[strconv.Itoa(item.KeyID)] = item
 	}
 
 	add := util.Diff(newTargetMap, oldTargetMap)
@@ -185,7 +186,11 @@ func (c *confgo) Rollback(configID int, nowID, historyID int, u *db.User) (err e
 
 func (c *confgo) convertConfigItem(in map[string]interface{}) (out []db.CmcHistoryItem) {
 	for _, v := range in {
-		out = append(out, v.(db.CmcHistoryItem))
+		tmp, ok := v.(db.CmcHistoryItem)
+		if !ok {
+			continue
+		}
+		out = append(out, tmp)
 	}
 	return out
 }
@@ -201,7 +206,7 @@ func (c *confgo) getVersionKVList(historyID int) (result []db.CmcHistoryItem, er
 
 func (c *confgo) addConfigKV(tx *gorm.DB, historyItems []db.CmcHistoryItem, u *db.User) (err error) {
 	for _, item := range historyItems {
-		if err = ConfuSrv.AddWithTx(item.Caid, item.Key, item.Value, 0, u.Nickname, tx); err != nil {
+		if err = ConfuSrv.AddWithTx(item.Caid, item.Key, item.Value, 0, u.Nickname, item.Env, item.ZoneCode, item.IsPublic, tx); err != nil {
 			return
 		}
 	}
@@ -210,7 +215,7 @@ func (c *confgo) addConfigKV(tx *gorm.DB, historyItems []db.CmcHistoryItem, u *d
 
 func (c *confgo) deleteConfigKV(tx *gorm.DB, historyItems []db.CmcHistoryItem, u *db.User) (err error) {
 	for _, item := range historyItems {
-		if err = ConfuSrv.DeleteWithTx(uint64(item.KeyId), u.Nickname, tx); err != nil {
+		if err = ConfuSrv.DeleteWithTx(uint64(item.KeyID), u.Nickname, tx); err != nil {
 			return
 		}
 	}
@@ -219,7 +224,7 @@ func (c *confgo) deleteConfigKV(tx *gorm.DB, historyItems []db.CmcHistoryItem, u
 
 func (c *confgo) updateConfigKV(tx *gorm.DB, historyItems []db.CmcHistoryItem, u *db.User) (err error) {
 	for _, item := range historyItems {
-		if err = ConfuSrv.UpdateWithTx(uint64(item.KeyId), item.Caid, "", item.Value, 0, u.Nickname, tx); err != nil {
+		if err = ConfuSrv.UpdateWithTx(uint64(item.KeyID), item.Caid, "", item.Value, 0, u.Nickname, tx); err != nil {
 			return
 		}
 	}

@@ -19,7 +19,7 @@ func (h *history) GetHistoryChange(historyID int) (result db.DiffText, err error
 	if err = h.DB.Where("history_id = ?", historyID).First(&publishLog).Error; err != nil {
 		return
 	}
-	if publishLog.Id == 0 {
+	if publishLog.ID == 0 {
 		err = fmt.Errorf("no data")
 		return
 	}
