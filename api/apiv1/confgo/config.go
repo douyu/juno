@@ -166,6 +166,7 @@ func ItemCreate(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+
 	if err := confgo.ConfuSrv.Add(caid, key, text, resourceID, u.Nickname, env, zoneCode, reqModel.IsPublic); err != nil {
 		return output.JSON(c, output.MsgErr, "add error"+err.Error())
 	}
@@ -205,7 +206,13 @@ func ItemCheck(c echo.Context) error {
 	if key == "" {
 		return output.JSON(c, output.MsgErr, "require key")
 	}
-
+	// if add public block, check key whether repeat
+	if reqModel.IsPublic == 1 {
+		var cc db.CmcConfig
+		if cc.IsPublicRepeat(id, key) {
+			return output.JSON(c, output.MsgErr, "公共配置名称已存在")
+		}
+	}
 	// todo 校验key是否存在
 	configItem, err := confgo.ConfuSrv.GetConfigItem(caid, key, id)
 	if err != gorm.ErrRecordNotFound && err != nil {
@@ -214,7 +221,7 @@ func ItemCheck(c echo.Context) error {
 	if configItem.ID != 0 {
 		return output.JSON(c, output.MsgErr, "键值已存在")
 	}
-	_, err = confgo.GenConfig(caid, int(id), value)
+	_, err = confgo.GenConfig(caid, int(id), value, key)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}

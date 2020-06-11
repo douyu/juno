@@ -4,10 +4,41 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/douyu/juno/internal/pkg/code"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/util"
 	"github.com/google/go-cmp/cmp"
 )
+
+func TestTomlParse_FormatStrict(t *testing.T) {
+	var parseToml parse.TomlParse
+
+	t.Run("fail", func(t *testing.T) {
+		res, got := parseToml.FormatStrict([]byte(`
+		123123123 = 123123
+		`))
+		fmt.Println(res)
+
+		diff := cmp.Diff(code.ErrTomlFormatStrict.Error(), got.Error())
+		if diff != "" {
+			t.Fatalf(diff)
+		}
+	})
+
+	t.Run("success", func(t *testing.T) {
+		res, got := parseToml.FormatStrict([]byte(`
+			
+		[people]
+mode = "live"
+
+		`))
+		fmt.Println(res)
+		bool := cmp.Equal(nil, got)
+		if !bool {
+			t.Fatalf("error")
+		}
+	})
+}
 
 func TestTomlParse_Fusion(t *testing.T) {
 	var (
@@ -82,5 +113,4 @@ func TestTomlParse_Fusion(t *testing.T) {
 			util.PPP("e", e)
 		})
 	}
-
 }
