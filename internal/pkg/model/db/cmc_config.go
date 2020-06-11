@@ -3,6 +3,7 @@ package db
 import (
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/model"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 // CmcConfig ...
@@ -40,4 +41,21 @@ func (c *CmcConfig) List(env, zoneCode string) (out []CmcConfig, err error) {
 	}
 	err = sql.Where("is_public=? and status <> ?", 1, model.ItemStatusDel).Find(&out).Error
 	return
+}
+
+// IsPublicRepeat check public repeat status
+func (c *CmcConfig) IsPublicRepeat(id uint64, key string) (res bool) {
+	var t CmcConfig
+	sql := invoker.JunoMysql
+	err := sql.Where("is_public = ? and `key`=? and id<>?", 1, key, id).First(&t).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false
+		}
+		return true
+	}
+	if t.ID != 0 {
+		return true
+	}
+	return false
 }

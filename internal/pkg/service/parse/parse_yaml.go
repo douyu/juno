@@ -74,6 +74,7 @@ func (tp *YamlParse) FusionWithTpl(source string, texts []string) (out string, e
 	return tp.Format(resp)
 }
 
+// Format ..
 func (tp *YamlParse) Format(source []byte) (out string, err error) {
 	// 	// 使用UnMarshal和Decode效果一样
 	var decodeRes interface{}
@@ -102,6 +103,11 @@ func (tp *YamlParse) Format(source []byte) (out string, err error) {
 	return out, nil
 }
 
+// FormatStrict ..
+func (tp *YamlParse) FormatStrict(source []byte) (out string, err error) {
+	return tp.Format(source)
+}
+
 // IsLegal ... 是否合法
 func (tp *YamlParse) IsLegal(source []byte) (res bool, err error) {
 	var decodeRes interface{}
@@ -114,7 +120,7 @@ func (tp *YamlParse) IsLegal(source []byte) (res bool, err error) {
 	return true, nil
 }
 
-// 解析成kv
+// ParseItem 解析成kv
 func (tp *YamlParse) ParseItem(source []byte) (res []*Item, err error) {
 	res = make([]*Item, 0)
 	resp := make(map[interface{}]interface{})
