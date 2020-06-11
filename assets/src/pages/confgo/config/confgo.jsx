@@ -483,8 +483,8 @@ export default class Configserver extends React.Component {
 
   addItem = (v) => {
     const { caid } = this.state;
-    const { resource_id, key, value, comment, is_public } = v;
-    ConfuAddItem({ caid, key, value, comment, resource_id, is_public }).then((rs) => {
+    const { resource_id, key, value, comment, is_public, is_resource } = v;
+    ConfuAddItem({ caid, key, value, comment, resource_id, is_public, is_resource }).then((rs) => {
       if (rs.code === 0) {
         message.success('添加成功');
         this.getConfigList();
@@ -492,7 +492,7 @@ export default class Configserver extends React.Component {
           showAddItem: false,
         });
       } else {
-        message.error('添加失败');
+        message.error(rs.msg);
       }
     });
   };
@@ -696,6 +696,8 @@ export default class Configserver extends React.Component {
       file_path = '',
       zoneCode,
     } = this.props;
+    console.log('render -> configText', configText);
+
     const { users = [] } = app;
     const appInfo = appConfigList[0] || {};
     const {
@@ -992,6 +994,7 @@ export default class Configserver extends React.Component {
         <div className={'cube'}>
           {record.is_public == 0 && <Tag color="#2db7f5">私有</Tag>}
           {record.is_public == 1 && <Tag color="#f50">公有</Tag>}
+          {record.is_public == 2 && <Tag color="#87d068">关联</Tag>}
         </div>
         <div className={'cube-title'}>
           <h3>{record.key}</h3>
@@ -1274,81 +1277,16 @@ export default class Configserver extends React.Component {
                       span={11}
                     >
                       <Button.Group>
-                        {this.state.readOnly ? (
-                          <span>
-                            <Button
-                              onClick={(e) => {
-                                copy(configText);
-                                message.success('已复制到剪切板');
-                              }}
-                            >
-                              复制
-                            </Button>
-                          </span>
-                        ) : (
-                          <span>
-                            <Button
-                              style={{ marginRight: '8px' }}
-                              onClick={(e) => {
-                                const { format } = that.state;
-                                const text = that.configInputText;
-                                if (format === 'toml') {
-                                  TomlContentFormat(text)
-                                    .then((rs) => {
-                                      const { code, msg, data } = rs;
-                                      if (code === 0) {
-                                        const editor = that.refs.editor.editor;
-                                        editor.setValue(data);
-                                        message.success('格式化完成');
-                                      } else {
-                                        message.success('格式化失败 ' + msg);
-                                      }
-                                    })
-                                    .catch((err) => {
-                                      message.success('格式化失败 ' + err.message);
-                                    });
-                                } else {
-                                  message.success('非toml文本暂不支持格式化失败');
-                                }
-                              }}
-                            >
-                              格式化
-                            </Button>
-                            <Button
-                              style={{
-                                backgroundColor: '#6495ED',
-                                color: '#fff',
-                                marginRight: '8px',
-                              }}
-                              onClick={() => {
-                                if (configText === that.configInputText) {
-                                  message.info('无变更');
-                                }
-                                return that.setState({ showPreview: true });
-                              }}
-                            >
-                              预览变更
-                            </Button>
-                            <Button
-                              onClick={(e) => {
-                                that.setState({ readOnly: true });
-                                const editor = that.refs.editor.editor;
-                                editor.setValue(configText);
-                              }}
-                            >
-                              取消修改
-                            </Button>
-                            <Button
-                              style={{
-                                backgroundColor: '#52c41a',
-                                color: '#fff',
-                              }}
-                              onClick={this.saveText}
-                            >
-                              保存
-                            </Button>
-                          </span>
-                        )}
+                        <span>
+                          <Button
+                            onClick={(e) => {
+                              copy(configText);
+                              message.success('已复制到剪切板');
+                            }}
+                          >
+                            复制
+                          </Button>
+                        </span>
                       </Button.Group>
                     </Col>
                   </Row>

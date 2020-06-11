@@ -72,10 +72,10 @@ export async function ConfuItems(body) {
 
 //添加配置 /confu/add
 export async function ConfuAddItem(body) {
-  const { caid, key, value, comment, resource_id, is_public } = body;
+  const { caid, key, value, comment, resource_id, is_public, is_resource} = body;
   return request(`/api/admin/confgo/item/create`, {
     method: 'POST',
-    data: { caid, key, value, comment, resource_id,is_public },
+    data: { caid, key, value, comment, resource_id, is_public, is_resource },
   });
 }
 

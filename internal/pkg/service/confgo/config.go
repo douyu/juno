@@ -121,8 +121,6 @@ func (cmc *confu) GetAppKVlist(c *db.CmcConfig) ([]db.ConfigData, error) {
 		}
 		if v.IsResource == 1 && v.ResourceID != 0 { // 替换资源模版名称
 			val.IsResource = true
-			res := ResourceSrv.FindResource(v.ResourceID)
-			val.Value = codec.TomlVarEncode(res.Name)
 		}
 		res = append(res, db.ConfigData{
 			Key:       v.Key,
@@ -738,10 +736,16 @@ func GetConfig(configID int, itemID int) (text string, err error) {
 }
 
 // GenConfig ..
-func GenConfig(configID int, itemID int, value string) (text string, err error) {
+func GenConfig(configID int, itemID int, value, key string) (text string, err error) {
 	typ, _, _, err := ConfuSrv.GetConfigTyp(configID)
 	if err != nil {
 		return
+	}
+	if key != "application" {
+		_, err = parse.GetParseManage(typ).FormatStrict([]byte(value))
+		if err != nil {
+			return
+		}
 	}
 	// 获取配置k-v列表
 	appConfigKv, err := ConfuSrv.GetAppKVs(configID, itemID)

@@ -228,6 +228,9 @@ export default class NormalLoginForm extends React.Component {
               <Radio key={1} value={1}>
                 公有
               </Radio>
+              <Radio key={2} value={2}>
+                关联
+              </Radio>
             </Radio.Group>
           </Form.Item>
           <Form.Item
@@ -251,69 +254,6 @@ export default class NormalLoginForm extends React.Component {
               />
             </div>
           </Form.Item>
-          {/* <Form.Item label={'是否关联资源'} name="is_resource" valuePropName="checked">
-            <Switch checkedChildren="是" unCheckedChildren="否" onChange={this.chooseResource} />,
-          </Form.Item> */}
-          {is_resource && (
-            <Form.Item label={'选择资源'}>
-              <div>
-                环境-机房：
-                <span>
-                  {env}-{this.props.zone_codeMap[zone_code]}
-                </span>
-              </div>
-              <div style={{ marginTop: '10px' }}>
-                资源类型：
-                <span>
-                  <Radio.Group
-                    value={this.state.type || resource_type}
-                    onChange={(e) => {
-                      this.setState({
-                        type: e.target.value,
-                      });
-                    }}
-                  >
-                    {TypeOptions.map((el) => (
-                      <Radio key={el.key} value={el.key}>
-                        {el.label}
-                      </Radio>
-                    ))}
-                  </Radio.Group>
-                </span>
-              </div>
-              <div style={{ marginTop: '10px' }}>
-                资源名称：
-                <span>
-                  <Input
-                    value={this.state.query}
-                    onChange={(e) => {
-                      this.setState({ query: e.target.value });
-                    }}
-                  />
-                </span>
-              </div>
-              <div style={{ marginTop: '10px' }}>
-                <Table
-                  columns={cols}
-                  dataSource={list
-                    .filter((v) => {
-                      if (this.state.type) {
-                        return v.type === this.state.type;
-                      } else {
-                        return v.type === resource_type;
-                      }
-                    })
-                    .filter((v) => {
-                      if (!this.state.query) {
-                        return true;
-                      }
-                      return v.name.indexOf(this.state.query) !== -1;
-                    })}
-                  size={'small'}
-                />
-              </div>
-            </Form.Item>
-          )}
           <Form.Item>
             <div style={{ textAlign: 'center' }}>
               <Button onClick={this.props.cancel} style={{ marginRight: '16px' }}>

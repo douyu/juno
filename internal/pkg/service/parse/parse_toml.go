@@ -3,13 +3,17 @@ package parse
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/douyu/juno/internal/pkg/code"
 )
 
+// TomlParse ..
 type TomlParse struct {
 }
 
+// NewTomlParse ..
 func NewTomlParse() Parse {
 	return &TomlParse{}
 }
@@ -44,7 +48,7 @@ func (tp *TomlParse) Fusion(sources []string) (out string, err error) {
 	//return buffer.String(), nil
 }
 
-// Fusion ...
+// FusionWithTpl ...
 func (tp *TomlParse) FusionWithTpl(source string, texts []string) (out string, err error) {
 	buffer := new(bytes.Buffer)
 	encode := toml.NewEncoder(buffer)
@@ -74,6 +78,7 @@ func (tp *TomlParse) FusionWithTpl(source string, texts []string) (out string, e
 	return buffer.String(), nil
 }
 
+// Format ..
 func (tp *TomlParse) Format(source []byte) (out string, err error) {
 	var decodeRes interface{}
 	_, err = toml.Decode(string(source), &decodeRes)
@@ -89,6 +94,28 @@ func (tp *TomlParse) Format(source []byte) (out string, err error) {
 	}
 	res := string(buffer.Bytes())
 	return res, nil
+}
+
+// FormatStrict ..
+func (tp *TomlParse) FormatStrict(source []byte) (out string, err error) {
+
+	var decodeRes interface{}
+	_, err = toml.Decode(string(source), &decodeRes)
+	if err != nil {
+		return
+	}
+
+	buffer := new(bytes.Buffer)
+	encode := toml.NewEncoder(buffer)
+	err = encode.Encode(decodeRes)
+	if err != nil {
+		return
+	}
+	res := string(buffer.Bytes())
+	if strings.HasPrefix(res, "[") {
+		return res, nil
+	}
+	return "", code.ErrTomlFormatStrict
 }
 
 // IsLegal ...

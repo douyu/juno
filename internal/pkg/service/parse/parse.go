@@ -1,6 +1,6 @@
 package parse
 
-// TargetText: toml、yaml、ini, Configuration files stored in the database
+// Parse toml、yaml、ini, Configuration files stored in the database
 // Different types of configurations have their own parser
 // Json -> typ, merge with the original configuration file, and then return
 type Parse interface {
@@ -13,6 +13,12 @@ type Parse interface {
 	// FusionWithTpl Config combine with json
 	FusionWithTpl(sources string, texts []string) (string, error)
 
-	// IsLegal whether the format meets the specifications
+	// Format
 	Format(source []byte) (string, error)
+
+	// IsLegal whether the format meets the specifications
+	IsLegal(source []byte) (bool, error)
+
+	// FormatStrict Custom strict analysis
+	FormatStrict(source []byte) (string, error)
 }
