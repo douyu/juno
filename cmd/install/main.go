@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/douyu/juno/cmd/install/mock"
-	"github.com/douyu/juno/pkg/invoker"
-	"github.com/douyu/juno/pkg/model/db"
-	"github.com/douyu/juno/pkg/service"
+	"github.com/douyu/juno/internal/pkg/invoker"
+	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/internal/pkg/service"
 	"github.com/douyu/jupiter"
 	"github.com/douyu/jupiter/pkg/flag"
 	_ "github.com/go-sql-driver/mysql"
@@ -102,7 +102,7 @@ func migrateDB() error {
 		&db.Option{},
 		&db.SystemConfig{},
 	}
-	gormdb.DropTable(models...)
+	gormdb.DropTableIfExists(models...)
 
 	// 删除原来的表
 	gormdb.SingularTable(true)

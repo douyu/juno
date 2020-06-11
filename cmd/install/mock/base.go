@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"strings"
 
-	"github.com/douyu/juno/router/apiv1/confgo"
-	"github.com/douyu/juno/router/apiv1/resource"
-	"github.com/douyu/juno/router/apiv1/user"
+	"github.com/douyu/juno/api/apiv1/confgo"
+	"github.com/douyu/juno/api/apiv1/resource"
+	"github.com/douyu/juno/api/apiv1/user"
 	"github.com/labstack/echo/v4"
 )
 

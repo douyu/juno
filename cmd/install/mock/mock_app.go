@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/labstack/echo/v4"
 )
 
@@ -90,7 +90,7 @@ func mockConfigByFile(configFile string, configContent string, urlFile string, u
 	}
 	fmt.Println(string(file))
 	param1 := map[string]interface{}{
-		"caid":  resp.Data.Id,
+		"caid":  resp.Data.ID,
 		"key":   "default",
 		"value": string(file),
 	}

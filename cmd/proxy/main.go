@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/douyu/juno/pkg/service/proxy"
+	"github.com/douyu/juno/internal/pkg/service/proxy"
 	"github.com/douyu/jupiter/pkg/conf"
 )
 

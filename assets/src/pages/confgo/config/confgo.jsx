@@ -16,6 +16,7 @@ import {
   Tooltip,
   Collapse,
   Popconfirm,
+  Divider,
   Tag,
   Modal,
   Alert,
@@ -60,9 +61,12 @@ import {
   HddOutlined,
   FileDoneOutlined,
   QuestionCircleOutlined,
+  CaretRightOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 
 import './style/code.less';
+import './style.less';
 
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -108,6 +112,7 @@ export default class Configserver extends React.Component {
       selectComment: '',
       selectIsResource: false,
       selectResourceID: 0,
+      selectIsPublic: 0,
 
       showAddItem: false,
       showUpdateItem: false,
@@ -478,8 +483,8 @@ export default class Configserver extends React.Component {
 
   addItem = (v) => {
     const { caid } = this.state;
-    const { resource_id, key, value, comment } = v;
-    ConfuAddItem({ caid, key, value, comment, resource_id }).then((rs) => {
+    const { resource_id, key, value, comment, is_public, is_resource } = v;
+    ConfuAddItem({ caid, key, value, comment, resource_id, is_public, is_resource }).then((rs) => {
       if (rs.code === 0) {
         message.success('添加成功');
         this.getConfigList();
@@ -487,15 +492,15 @@ export default class Configserver extends React.Component {
           showAddItem: false,
         });
       } else {
-        message.error('添加失败');
+        message.error(rs.msg);
       }
     });
   };
 
   updateItem = (v) => {
     const { caid } = this.state;
-    const { id, key, value, comment, resource_id } = v;
-    ConfuUpdateItem({ id, caid, key, value, comment, resource_id }).then((rs) => {
+    const { id, key, value, comment, resource_id, is_public } = v;
+    ConfuUpdateItem({ id, caid, key, value, comment, resource_id, is_public }).then((rs) => {
       if (rs.code === 0) {
         message.success('更新成功');
         this.setState({
@@ -691,7 +696,8 @@ export default class Configserver extends React.Component {
       file_path = '',
       zoneCode,
     } = this.props;
-    console.log('zoneCode', zoneCode);
+    console.log('render -> configText', configText);
+
     const { users = [] } = app;
     const appInfo = appConfigList[0] || {};
     const {
@@ -706,6 +712,7 @@ export default class Configserver extends React.Component {
       selectComment,
       selectIsResource,
       selectResourceID,
+      selectIsPublic,
       fileDelModalVisible: showFileManage,
       fileDelConfirmLoading,
       result_list = [],
@@ -719,213 +726,19 @@ export default class Configserver extends React.Component {
     };
     const statusMap = (t, status) => {
       const map = {
-        1: <span>{t}</span>,
-        2: (
-          <span>
-            {t}
-            {getOpSapn('new')}
-          </span>
-        ),
-        3: (
-          <span>
-            {t}
-            {getOpSapn('update')}
-          </span>
-        ),
-        4: (
-          <span>
-            {t}
-            {getOpSapn('del')}
-          </span>
-        ),
+        1: <span></span>,
+        2: <span>{getOpSapn('new')}</span>,
+        3: <span>{getOpSapn('update')}</span>,
+        4: <span>{getOpSapn('del')}</span>,
       };
       return map[status];
     };
-
-    const cols = [
-      {
-        key: 'key',
-        dataIndex: 'key',
-        title: '标识',
-        width: 120,
-        filterDropdown: (
-          <div className="custom-filter-dropdown">
-            <Input
-              ref={(ele) => (this.searchInputKey = ele)}
-              placeholder="查询标识"
-              value={this.state.searchKey}
-              onChange={(e) => {
-                that.setState({
-                  searchKey: e.target.value,
-                });
-              }}
-            />
-          </div>
-        ),
-        filterDropdownVisible: this.state.showKeyFilter,
-        onFilterDropdownVisibleChange: (visible) => {
-          this.setState(
-            {
-              showKeyFilter: visible,
-            },
-            () => this.searchInputKey && this.searchInputKey.focus(),
-          );
-        },
-        render(t, r) {
-          const { status } = r;
-          if (status === 5) {
-            return t;
-          }
-          return statusMap(t, status);
-        },
-      },
-      {
-        key: 'value',
-        dataIndex: 'value',
-        title: '值',
-        filterDropdown: (
-          <div className="custom-filter-dropdown">
-            <Input
-              ref={(ele) => (this.searchInputValue = ele)}
-              placeholder="查询值"
-              value={this.state.searchValue}
-              onChange={(e) => {
-                that.setState({
-                  searchValue: e.target.value,
-                });
-              }}
-            />
-          </div>
-        ),
-        filterDropdownVisible: this.state.showValueFilter,
-        onFilterDropdownVisibleChange: (visible) => {
-          this.setState(
-            {
-              showValueFilter: visible,
-            },
-            () => this.searchInputValue && this.searchInputValue.focus(),
-          );
-        },
-        render(t, r) {
-          if (!r.is_resource) {
-            let tmp = t;
-            if (t.length > 400) {
-              tmp = tmp.substring(0, 400) + '...';
-            }
-            return <span style={{ wordBreak: 'break-word' }}>{tmp}</span>;
-          }
-          const { relatedList = [] } = that.props;
-          const arr = t.split('');
-          const varName = arr.slice(2, arr.length - 2).join('');
-          const res = relatedList.find((v) => v.name === varName) || {};
-          const { value = '' } = res;
-          return (
-            <div>
-              <span style={{ marginRight: '6px', wordBreak: 'break-word' }}>{value}</span>
-              <span
-                style={{
-                  backgroundColor: '#52c47f',
-                  color: 'white',
-                  borderRadius: '5px',
-                  padding: '3px',
-                  wordBreak: 'break-word',
-                }}
-              >{`${t}`}</span>
-            </div>
-          );
-        },
-      },
-      {
-        key: 'op',
-        dataIndex: 'op',
-        title: '操作',
-        width: 120,
-        render(t, r) {
-          const { id, key, value, comment, is_resource, resource_id } = r;
-          let workerOp = null;
-          if (key.startsWith('jupiter.worker') && key.indexOf('pause') !== -1) {
-            if (value === 'true') {
-              workerOp = (
-                <Tag
-                  color={'green'}
-                  onClick={(e) => {
-                    that.updateItem({
-                      id,
-                      key,
-                      value: 'false',
-                      comment,
-                      is_resource,
-                      resource_id,
-                    });
-                    that.getConfigList();
-                  }}
-                >
-                  启动
-                </Tag>
-              );
-            } else {
-              workerOp = (
-                <Tag
-                  color={'orange'}
-                  onClick={(e) => {
-                    that.updateItem({
-                      id,
-                      key,
-                      value: 'true',
-                      comment,
-                      is_resource,
-                      resource_id,
-                    });
-                    that.getConfigList();
-                  }}
-                >
-                  暂停
-                </Tag>
-              );
-            }
-          }
-          return (
-            <div>
-              {workerOp}
-              {workerOp === null && (
-                <Tag
-                  color={'blue'}
-                  onClick={() => {
-                    that.setState({
-                      selectItemID: id,
-                      selectKey: key,
-                      selectValue: value,
-                      selectComment: comment,
-                      selectIsResource: is_resource,
-                      selectResourceID: resource_id,
-                      showUpdateItem: true,
-                    });
-                    that.getEnvResource();
-                  }}
-                >
-                  编辑
-                </Tag>
-              )}
-              &nbsp;
-              <Popconfirm
-                title="确定删除吗？"
-                onConfirm={() => {
-                  that.delItem({ id: id });
-                }}
-              >
-                <Tag color={'red'}>删除</Tag>
-              </Popconfirm>
-            </div>
-          );
-        },
-      },
-    ];
 
     const changListCols = [
       {
         key: 'key',
         dataIndex: 'key',
-        title: '标识',
+        title: 'Block',
         width: 120,
         render(t, r) {
           return <span style={{ wordBreak: 'break-word' }}>{t}</span>;
@@ -1001,22 +814,7 @@ export default class Configserver extends React.Component {
           </span>
         ),
         render(t) {
-          return t ? (
-            getOpSapn('new', '已接入')
-          ) : (
-            <div>
-              {getOpSapn('del', '未接入')}
-              <Tooltip title="查看接入文档">
-                <a
-                  style={{ marginLeft: '8px' }}
-                  href="http://doc.xxxx.com/ddse/preview/share/a7d0512dd8e8572737ba?sid=336&shareType=1"
-                  target={'_blank'}
-                >
-                  <Icon type="info-circle" />
-                </a>
-              </Tooltip>
-            </div>
-          );
+          return t ? getOpSapn('new', '已接入') : <div>{getOpSapn('del', '未接入')}</div>;
         },
       },
       {
@@ -1124,26 +922,9 @@ export default class Configserver extends React.Component {
             return t;
           }
           const params = paramsArr[1];
-          const formatParams = (arr) => {
-            return arr
-              .split(' ')
-              .filter((v) => v)
-              .filter((v) => v.indexOf('-host') === -1)
-              .map((v) => {
-                return v.split('=');
-              })
-              .reduce((a, b) => {
-                return a.concat(b);
-              })
-              .map((v) => {
-                const regex = new RegExp('/home/www/.config/juno-agent/(.*?)/config', 'ig');
-                return v.replace(regex, '${ConfuDir}');
-              })
-              .join(' ');
-          };
           return (
             <div>
-              <p style={{ margin: 0 }}>{formatParams(params)}</p>
+              <p style={{ margin: 0 }}>{params}</p>
             </div>
           );
         },
@@ -1207,6 +988,83 @@ export default class Configserver extends React.Component {
       idcArr.push(element.zone_code);
       zone_codeMap[element.zone_code] = element.zone_name;
     });
+
+    const genHeader = (record) => (
+      <div>
+        <div className={'cube'}>
+          {record.is_public == 0 && <Tag color="#2db7f5">私有</Tag>}
+          {record.is_public == 1 && <Tag color="#f50">公有</Tag>}
+          {record.is_public == 2 && <Tag color="#87d068">关联</Tag>}
+        </div>
+        <div className={'cube-title'}>
+          <h3>{record.key}</h3>
+        </div>
+      </div>
+    );
+
+    const genExtra = (record) => (
+      <div>
+        {statusMap(record.key, record.status)}
+        <Divider type="vertical" />
+        {record.status != 4 && (
+          <Tag
+            color={'blue'}
+            onClick={(event) => {
+              event.stopPropagation();
+              that.setState({
+                selectItemID: record.id,
+                selectKey: record.key,
+                selectValue: record.value,
+                selectComment: record.comment,
+                selectIsResource: record.is_resource,
+                selectResourceID: record.resource_id,
+                selectIsPublic: record.is_public,
+                showUpdateItem: true,
+              });
+              that.getEnvResource();
+            }}
+          >
+            编辑
+          </Tag>
+        )}
+        {record.status != 4 && (
+          <Popconfirm
+            title="确定删除吗？"
+            onConfirm={() => {
+              that.delItem({ id: record.id });
+            }}
+          >
+            <Tag color={'red'}>删除</Tag>
+          </Popconfirm>
+        )}
+      </div>
+    );
+
+    let configItemList = [];
+    configList.forEach((element) => {
+      configItemList.push(
+        <Panel
+          header={genHeader(element)}
+          key={element.key}
+          className="site-collapse-custom-panel"
+          extra={genExtra(element)}
+        >
+          <ReactCodeMirror
+            ref="editor"
+            value={element.value}
+            options={{
+              mode: 'text/x-toml',
+              lineNumbers: true,
+              autoMatchParens: true,
+              lineWrapping: false,
+              readOnly: this.state.readOnly,
+              scrollbarStyle: null,
+            }}
+          />
+        </Panel>,
+      );
+    });
+
     return (
       <Layout>
         <Sider width={250} style={{ backgroundColor: 'transparent' }}>
@@ -1277,7 +1135,6 @@ export default class Configserver extends React.Component {
               <Row style={{ marginTop: '4px', marginLeft: '4px', marginRight: '4px' }}>
                 <Col span={4} style={{ textAlign: 'left' }}>
                   <Button
-                    type={'primary'}
                     style={{ float: 'left', marginRight: '6px' }}
                     onClick={(e) => {
                       //加载节点数据
@@ -1339,9 +1196,9 @@ export default class Configserver extends React.Component {
               <Tabs
                 style={{
                   backgroundColor: '#fff',
-                  marginTop: '4px',
-                  marginLeft: '4px',
-                  marginRight: '4px',
+                  marginTop: '5px',
+                  marginLeft: '5px',
+                  marginRight: '5px',
                 }}
                 activeKey={this.state.tab}
                 onChange={this.changeTab}
@@ -1349,76 +1206,51 @@ export default class Configserver extends React.Component {
                 <TabPane
                   tab={
                     <span>
-                      <TableOutlined />
-                      配置编辑
+                      <div style={{ marginLeft: 10 }}>
+                        <TableOutlined />
+                        配置编辑
+                      </div>
                     </span>
                   }
                   key="table"
                 >
                   <Row>
-                    {/* <Col span={12}>
-                      <Radio.Group
-                        value={filterKey}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          that.setState({
-                            filterKey: val,
-                          });
-                        }}
-                        style={{ marginBottom: '8px', marginLeft: '8px' }}
-                      >
-                        <Radio.Button value={''}>全部</Radio.Button>
-                        <Radio.Button value={'x-custom'}>项目</Radio.Button>
-                        <Radio.Button value={'app'}>app</Radio.Button>
-                        <Radio.Button value={'jupiter.redix'}>redis</Radio.Button>
-                        <Radio.Button value={'jupiter.grpc'}>grpc</Radio.Button>
-                        <Radio.Button value={'jupiter.mysql'}>mysql</Radio.Button>
-                        <Radio.Button value={'jupiter.rocketmq'}>rocketmq</Radio.Button>
-                        <Radio.Button value={'jupiter.hrpc'}>http</Radio.Button>
-                        <Radio.Button value={'jupiter.worker'}>任务</Radio.Button>
-                      </Radio.Group>
-                    </Col> */}
-                    <Col style={{ marginLeft: '10px', marginTop: '-10px', marginBottom: '5px' }}>
+                    <Col style={{ marginTop: '-5px' }}>
                       <Button.Group>
                         <Button
+                          style={{ marginLeft: '10px' }}
                           type="primary"
                           onClick={() => {
                             that.setState({ showAddItem: true });
                             that.getEnvResource();
                           }}
                         >
-                          新增配置项
+                          添加 Block
                         </Button>
                       </Button.Group>
                     </Col>
                   </Row>
-
-                  <Table
-                    columns={cols}
-                    dataSource={configList
-                      .filter((v) => {
-                        if (filterKey === 'x-custom') {
-                          return (
-                            !v.key.startsWith('app') &&
-                            !v.key.startsWith('jupiter') &&
-                            !v.key.startsWith('server')
-                          );
-                        } else if (filterKey === 'app') {
-                          return v.key.startsWith(filterKey) || v.key.startsWith('server');
-                        }
-                        return v.key.startsWith(filterKey);
-                      })
-                      .filter(that.filterByKey)
-                      .filter(that.filterByValue)}
-                    pagination={false}
-                    size={'small'}
-                  />
+                  <Row gutter={24}>
+                    <Col span={24} style={{ marginTop: '10px' }}>
+                      <Collapse
+                        bordered={false}
+                        defaultActiveKey={['application']}
+                        expandIcon={({ isActive }) => (
+                          <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                        )}
+                        className="site-collapse-custom-collapse"
+                        expandIconPosition="right"
+                      >
+                        {configItemList}
+                      </Collapse>
+                    </Col>
+                  </Row>
                 </TabPane>
                 <TabPane
                   tab={
                     <span>
                       <FileOutlined />
-                      配置预览
+                      发布预览
                     </span>
                   }
                   key="text"
@@ -1445,89 +1277,16 @@ export default class Configserver extends React.Component {
                       span={11}
                     >
                       <Button.Group>
-                        {this.state.readOnly ? (
-                          <span>
-                            <Button
-                              onClick={(e) => {
-                                copy(configText);
-                                message.success('已复制到剪切板');
-                              }}
-                            >
-                              复制
-                            </Button>
-                            {/* <Button
-                              type={'primary'}
-                              onClick={() => {
-                                that.setState({ readOnly: false });
-                              }}
-                            >
-                              编辑
-                            </Button> */}
-                          </span>
-                        ) : (
-                          <span>
-                            <Button
-                              style={{ marginRight: '8px' }}
-                              onClick={(e) => {
-                                const { format } = that.state;
-                                const text = that.configInputText;
-                                if (format === 'toml') {
-                                  TomlContentFormat(text)
-                                    .then((rs) => {
-                                      const { code, msg, data } = rs;
-                                      if (code === 0) {
-                                        const editor = that.refs.editor.editor;
-                                        editor.setValue(data);
-                                        message.success('格式化完成');
-                                      } else {
-                                        message.success('格式化失败 ' + msg);
-                                      }
-                                    })
-                                    .catch((err) => {
-                                      message.success('格式化失败 ' + err.message);
-                                    });
-                                } else {
-                                  message.success('非toml文本暂不支持格式化失败');
-                                }
-                              }}
-                            >
-                              格式化
-                            </Button>
-                            <Button
-                              style={{
-                                backgroundColor: '#6495ED',
-                                color: '#fff',
-                                marginRight: '8px',
-                              }}
-                              onClick={() => {
-                                if (configText === that.configInputText) {
-                                  message.info('无变更');
-                                }
-                                return that.setState({ showPreview: true });
-                              }}
-                            >
-                              预览变更
-                            </Button>
-                            <Button
-                              onClick={(e) => {
-                                that.setState({ readOnly: true });
-                                const editor = that.refs.editor.editor;
-                                editor.setValue(configText);
-                              }}
-                            >
-                              取消修改
-                            </Button>
-                            <Button
-                              style={{
-                                backgroundColor: '#52c41a',
-                                color: '#fff',
-                              }}
-                              onClick={this.saveText}
-                            >
-                              保存
-                            </Button>
-                          </span>
-                        )}
+                        <span>
+                          <Button
+                            onClick={(e) => {
+                              copy(configText);
+                              message.success('已复制到剪切板');
+                            }}
+                          >
+                            复制
+                          </Button>
+                        </span>
                       </Button.Group>
                     </Col>
                   </Row>
@@ -1553,7 +1312,7 @@ export default class Configserver extends React.Component {
                     <span>
                       <FileDoneOutlined />
                       <Badge count={changeNum} overflowCount={9999} offset={[0, 18]}>
-                        更新记录
+                        变更历史
                       </Badge>
                     </span>
                   }
@@ -1571,7 +1330,7 @@ export default class Configserver extends React.Component {
                   tab={
                     <span>
                       <HddOutlined />
-                      运行实例
+                      实例列表
                     </span>
                   }
                   key="status"
@@ -1683,6 +1442,7 @@ export default class Configserver extends React.Component {
                 is_resource: selectIsResource,
                 resource_id: selectResourceID,
                 resourceData: resourceData,
+                is_public: selectIsPublic,
               }}
               zone_codeMap={zone_codeMap}
             />

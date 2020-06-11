@@ -24,21 +24,19 @@
 */vendor/
 */Godeps/
 
-/vendor/
-
 # End of https://www.gitignore.io/api/go
 .idea/
-default*
-*.DS_Store
-build/config/config-liaorj.toml
-
-assets/pprof_static/*
-
 bin/*
 go.sum
+*.DS_Store
 
+# develop config
+build/config/config-*
+
+# local pprof file
+assets/pprof_static/*
+
+# key folder
 /docker/*
 /pprof/*
 /release/*
-
-

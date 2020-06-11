@@ -121,7 +121,15 @@ export default class NormalLoginForm extends React.Component {
     const that = this;
     //todo  资源类型的配置直接从模版生成
     const { show, item = {}, env, zone_code } = this.props;
-    const { key, value, comment, is_resource = false, resource_id = 0, resourceData = {} } = item;
+    const {
+      key,
+      value,
+      comment,
+      is_resource = false,
+      resource_id = 0,
+      resourceData = {},
+      is_public = 0,
+    } = item;
     const { list = [] } = resourceData;
 
     const resource = list.find((v) => v.id === resource_id) || {};
@@ -178,7 +186,7 @@ export default class NormalLoginForm extends React.Component {
     };
     return (
       <Modal
-        title="更新配置"
+        title="更新 Block"
         visible={show}
         maskClosable={false}
         width={1200}
@@ -193,19 +201,42 @@ export default class NormalLoginForm extends React.Component {
           {...layout}
           onFinish={this.handleSubmit}
           className="login-form"
-          initialValues={{ key: key, value: value, is_resource: is_resource, comment: comment }}
+          initialValues={{
+            key: key,
+            value: value,
+            is_public: is_public,
+            is_resource: is_resource,
+            comment: comment,
+          }}
         >
           <Form.Item
-            label={'标识'}
+            label={'名称'}
             name="key"
             rules={[{ required: true, message: '请输入配置项的key!' }]}
           >
             <Input placeholder="" disabled="disable" />
           </Form.Item>
           <Form.Item
+            label={'类型'}
+            name="is_public"
+            rules={[{ required: true, message: '选择配置类型' }]}
+          >
+            <Radio.Group disabled="disable">
+              <Radio key={0} value={0}>
+                私有
+              </Radio>
+              <Radio key={1} value={1}>
+                公有
+              </Radio>
+              <Radio key={2} value={2}>
+                关联
+              </Radio>
+            </Radio.Group>
+          </Form.Item>
+          <Form.Item
             label={'值'}
             name="value"
-            rules={[{ required: true, message: '请输入配置项的value!' }]}
+            rules={[{ required: false, message: '请输入配置项的value!' }]}
           >
             <div className={'configEditor'}>
               <ReactCodeMirror
@@ -221,71 +252,8 @@ export default class NormalLoginForm extends React.Component {
                   this.configInputText = editor.getValue();
                 }}
               />
-            </div>{' '}
+            </div>
           </Form.Item>
-          {/* <Form.Item label={'是否关联资源'} name="is_resource" valuePropName="checked">
-            <Switch checkedChildren="是" unCheckedChildren="否" onChange={this.chooseResource} />,
-          </Form.Item> */}
-          {is_resource && (
-            <Form.Item label={'选择资源'}>
-              <div>
-                环境-机房：
-                <span>
-                  {env}-{this.props.zone_codeMap[zone_code]}
-                </span>
-              </div>
-              <div style={{ marginTop: '10px' }}>
-                资源类型：
-                <span>
-                  <Radio.Group
-                    value={this.state.type || resource_type}
-                    onChange={(e) => {
-                      this.setState({
-                        type: e.target.value,
-                      });
-                    }}
-                  >
-                    {TypeOptions.map((el) => (
-                      <Radio key={el.key} value={el.key}>
-                        {el.label}
-                      </Radio>
-                    ))}
-                  </Radio.Group>
-                </span>
-              </div>
-              <div style={{ marginTop: '10px' }}>
-                资源名称：
-                <span>
-                  <Input
-                    value={this.state.query}
-                    onChange={(e) => {
-                      this.setState({ query: e.target.value });
-                    }}
-                  />
-                </span>
-              </div>
-              <div style={{ marginTop: '10px' }}>
-                <Table
-                  columns={cols}
-                  dataSource={list
-                    .filter((v) => {
-                      if (this.state.type) {
-                        return v.type === this.state.type;
-                      } else {
-                        return v.type === resource_type;
-                      }
-                    })
-                    .filter((v) => {
-                      if (!this.state.query) {
-                        return true;
-                      }
-                      return v.name.indexOf(this.state.query) !== -1;
-                    })}
-                  size={'small'}
-                />
-              </div>
-            </Form.Item>
-          )}
           <Form.Item>
             <div style={{ textAlign: 'center' }}>
               <Button onClick={this.props.cancel} style={{ marginRight: '16px' }}>
