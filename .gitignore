@@ -25,11 +25,11 @@
 */Godeps/
 
 # End of https://www.gitignore.io/api/go
+.vscode/
 .idea/
 bin/*
 go.sum
 *.DS_Store
-
 # develop config
 build/config/config-*
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/dgsouyu/juno/api"
+	"github.com/douyu/juno/api"
 	"github.com/douyu/jupiter/pkg/conf"
 )
 
