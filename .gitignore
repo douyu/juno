@@ -41,4 +41,4 @@ assets/pprof_static/*
 /pprof/*
 /release/*
 
-
+.vscode/

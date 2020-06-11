@@ -10,7 +10,8 @@ require (
 	github.com/cncd/queue v0.0.0-20170406022548-63b1974bbcc9
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/coreos/etcd v3.3.20+incompatible
-	github.com/douyu/jupiter v0.0.0-20200605021304-25486432a0af
+	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
+	github.com/douyu/jupiter v0.0.0-20200608090547-7112ebe49b9f
 	github.com/go-resty/resty/v2 v2.2.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gomodule/redigo v2.0.0+incompatible
@@ -19,15 +20,16 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/jinzhu/gorm v1.9.12
-	github.com/kataras/go-errors v0.0.3 // indirect
 	github.com/labstack/echo-contrib v0.9.0
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/labstack/gommon v0.3.0
 	github.com/onsi/ginkgo v1.12.3
 	github.com/onsi/gomega v1.10.1
+	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/viper v1.6.3
+	github.com/stretchr/testify v1.6.1
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/unknwon/com v1.0.1
 	github.com/urfave/cli/v2 v2.2.0
@@ -39,6 +41,7 @@ require (
 	golang.org/x/tools v0.0.0-20200601175630-2caf76543d99 // indirect
 	google.golang.org/grpc v1.29.1
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
+	github.com/json-iterator/go v1.1.9
 	gopkg.in/yaml.v2 v2.3.0
 )
 
