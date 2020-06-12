@@ -3,6 +3,7 @@ package pprofHandle
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/douyu/juno/internal/pkg/service/resource"
 
@@ -21,7 +22,7 @@ func GetSysConfig(c echo.Context) error {
 	if reqModel.SysType == 0 {
 		// return output.JSON(c, output.MsgErr, "必须传SysType")
 	}
-	record, err := resource.Resource.GetSysConfig()
+	record, err := resource.Resource.GetSysConfig(0, "")
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -33,10 +34,63 @@ func SetSysConfig(c echo.Context) error {
 	if err := c.Bind(&reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	if reqModel.SysType == 0 || reqModel.SetInt == 0 {
-		return output.JSON(c, output.MsgErr, "必须传SysType和SetInt")
+	if reqModel.SysType == 0 {
+		return output.JSON(c, output.MsgErr, "必须传SysType")
 	}
-	err := resource.Resource.SetSysConfig(reqModel.SysType, reqModel.SetInt)
+
+	if reqModel.SysType == 1 && reqModel.SetInt == 0 {
+		return output.JSON(c, output.MsgErr, "SysType为1时必须传SetInt")
+	}
+
+	if reqModel.SysType == 2 && (reqModel.SetCate == "" || reqModel.SetStr == "") {
+		return output.JSON(c, output.MsgErr, "SysType为2时必须传SetCate和SetStr")
+	}
+	id := 0
+	if reqModel.Id > 0 {
+		id = reqModel.Id
+	}
+
+	item := db.SystemConfig{
+		Id:         id,
+		SysType:    reqModel.SysType,
+		SetCate:    reqModel.SetCate,
+		SetStr:     reqModel.SetStr,
+		SetInt:     reqModel.SetInt,
+		CreateTime: time.Now().Unix(),
+		UpdateTime: time.Now().Unix(),
+	}
+
+	if id == 0 { //创建
+		data, err := resource.Resource.GetSysConfig(reqModel.SysType, reqModel.SetCate)
+		if err != nil {
+			return output.JSON(c, output.MsgErr, err.Error())
+		}
+		if len(data) > 0 {
+			return output.JSON(c, output.MsgErr, "该类型下已有设置内容，不能新增，只能编辑或者删除")
+		}
+		err = resource.Resource.AddSysConfig(item)
+		if err != nil {
+			return output.JSON(c, output.MsgErr, err.Error())
+		}
+		return output.JSON(c, output.MsgOk, "success")
+	}
+	// 更新
+	err := resource.Resource.EditSysConfig(item)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	return output.JSON(c, output.MsgOk, "success")
+}
+
+func DelSysConfig(c echo.Context) error {
+	reqModel := db.ReqSysConfig{}
+	if err := c.Bind(&reqModel); err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	if reqModel.Id == 0 {
+		return output.JSON(c, output.MsgErr, "必须传Id")
+	}
+	err := resource.Resource.DelSysConfig(reqModel.Id)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
