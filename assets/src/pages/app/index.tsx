@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import Confgo from '../confgo/config/confgo';
 import PPofList from '../pprof/pprof';
+import Monitor from '../monitor/monitor';
 import { connect } from 'dva';
 import { Card, Row, Col, message, Alert, Tabs } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
@@ -235,6 +236,21 @@ export default class App extends React.Component<ConfgoBase, any> {
               param={''}
               idcList={this.state.idcList}
               appEnvZone={this.state.appEnvZone}
+              zoneList={this.state.zoneList}
+            />
+          </TabPane>
+          <TabPane tab="监控" key="monitor">
+            <Monitor
+              aid={aid}
+              env={env}
+              appName={appName}
+              appInfo={this.state.appInfo}
+              appNodeList={this.state.appNodeList}
+              appIdcList={''}
+              zoneCode={''}
+              param={''}
+              appEnvZone={appEnvZone}
+              idcList={this.state.idcList}
               zoneList={this.state.zoneList}
             />
           </TabPane>
