@@ -8,21 +8,21 @@
 export default {
   dev: {
     '/api/admin': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://192.168.56.101:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
   },
   test: {
     '/api/admin': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://192.168.56.101:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
   },
   pre: {
     '/api/admin': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://192.168.56.101:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },

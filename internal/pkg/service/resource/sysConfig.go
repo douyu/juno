@@ -1,15 +1,21 @@
 package resource
 
 import (
-	"time"
-
 	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"time"
 )
 
-func (r *resource) GetSysConfig() (info []db.SystemConfig, err error) {
+func (r *resource) GetSysConfig(sysType int, setCate string) (info []db.SystemConfig, err error) {
 	info = make([]db.SystemConfig, 0)
-	err = r.DB.Table("system_config").Find(&info).Error
+	dbConn := r.DB.Table("system_config")
+	if sysType > 0 {
+		dbConn = dbConn.Where("`sys_type` = ?", sysType)
+	}
+	if setCate != "" {
+		dbConn = dbConn.Where("`set_cate` = ?", setCate)
+	}
+	err = dbConn.Find(&info).Error
 	// 返回系统错误
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
@@ -17,34 +23,28 @@ func (r *resource) GetSysConfig() (info []db.SystemConfig, err error) {
 	return info, nil
 }
 
-func (r *resource) SetSysConfig(sysType, setInt int) (err error) {
-	info := db.SystemConfig{}
-	tx := r.DB.Table("system_config").Begin()
-	err = tx.Where("`sys_type` = ?", sysType).Find(&info).Error
-	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		tx.Rollback()
-		return
+func (r *resource) AddSysConfig(record db.SystemConfig) (err error) {
+	if err := r.DB.Table("system_config").Create(&record).Error; err != nil {
+		return err
 	}
-	// 已经存在该应用，报错
-	if info.Id == 0 {
-		item := db.SystemConfig{
-			SysType:    sysType,
-			SetInt:     setInt,
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
-		}
-		if err = tx.Create(&item).Error; err != nil {
-			tx.Rollback()
-			return
-		}
-	} else {
-		info.SetInt = setInt
-		if err = tx.Where("id = ?", info.Id).Save(info).Error; err != nil {
-			tx.Rollback()
-			return
-		}
+	return nil
+}
+
+func (r *resource) EditSysConfig(record db.SystemConfig) (err error) {
+	updateMap := make(map[string]interface{})
+	updateMap["set_int"] = record.SetInt
+	updateMap["set_str"] = record.SetStr
+	updateMap["update_time"] = time.Now().Unix()
+
+	if err := r.DB.Table("system_config").Where("`id` = ?", record.Id).Update(updateMap).Error; err != nil {
+		return err
 	}
-	tx.Commit()
-	return
+	return nil
+}
+
+func (r *resource) DelSysConfig(id int) (err error) {
+	if err := r.DB.Table("system_config").Where("`id` = ?", id).Delete(db.SystemConfig{}).Error; err != nil {
+		return err
+	}
+	return nil
 }
