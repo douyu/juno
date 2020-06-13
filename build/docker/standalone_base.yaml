@@ -1,0 +1,21 @@
+version: "2"
+services:
+  etcd:
+    container_name: etcd
+    image: bitnami/etcd:latest
+    env_file:
+      - ./env/etcd.env
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    restart: on-failure
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    env_file:
+      - ./env/mysql.env
+    depends_on:
+      - etcd
+    ports:
+      - "3306:3306"
+    restart: on-failure
