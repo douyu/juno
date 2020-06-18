@@ -1,10 +1,11 @@
 package grafana
 
 import (
-	"github.com/douyu/juno/internal/pkg/service/user"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"net/http/httputil"
+
+	"github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/labstack/echo/v4"
 )
 
 type (

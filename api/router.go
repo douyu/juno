@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/douyu/juno/api/apiv1/grafana"
 	"net/http"
 	"strings"
 	"time"
@@ -20,6 +19,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/packages/gitlab"
 	"github.com/douyu/juno/internal/pkg/packages/proxy"
 	"github.com/douyu/juno/internal/pkg/service"
+	"github.com/douyu/juno/internal/pkg/service/grafana"
 	userSrv "github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/internal/pkg/worker"
 	"github.com/douyu/jupiter"
