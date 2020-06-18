@@ -211,7 +211,7 @@ func (eng *Admin) serveHTTP() {
 		pprofGroup.GET("/dep/check", pprofHandle.CheckDep)
 		pprofGroup.GET("/dep/install", pprofHandle.InstallDep)
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
-		pprofGroup.GET("/config/update", pprofHandle.SetSysConfig)
+		pprofGroup.POST("/config/update", pprofHandle.SetSysConfig)
 		pprofGroup.GET("/config/delete", pprofHandle.DelSysConfig)
 	}
 
