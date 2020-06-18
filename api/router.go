@@ -19,6 +19,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/packages/gitlab"
 	"github.com/douyu/juno/internal/pkg/packages/proxy"
 	"github.com/douyu/juno/internal/pkg/service"
+	"github.com/douyu/juno/internal/pkg/service/grafana"
 	userSrv "github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/internal/pkg/worker"
 	"github.com/douyu/jupiter"
@@ -61,7 +62,9 @@ func (eng *Admin) serveHTTP() {
 	loginAuthWithJSON = middleware.LoginAuth("/api/authorize", middleware.RedirectTypeJson).Func()
 	loginAuthRedirect = middleware.LoginAuth("/api/authorize", middleware.RedirectTypeHttp).Func()
 
-	server.GET("/", static.File("assets/dist/index.html"), loginAuthRedirect)
+	sessionMW := session.Middleware(userSrv.NewSessionStore())
+
+	server.GET("/", static.File("assets/dist/index.html"), sessionMW, loginAuthRedirect)
 	server.Static("/ant/*", "assets/dist")
 	server.Static("/pprof/*", "assets/pprof_static")
 
@@ -72,13 +75,22 @@ func (eng *Admin) serveHTTP() {
 		return c.File("assets/dist")
 	}
 
+	groupGrafana := server.Group("/grafana", sessionMW, loginAuthRedirect)
+	{
+		AllMethods := []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete,
+			http.MethodHead, http.MethodTrace, http.MethodPut, http.MethodConnect, http.MethodOptions}
+		groupGrafana.Match(AllMethods, "", grafana.Proxy)
+		groupGrafana.Match(AllMethods, "/", grafana.Proxy)
+		groupGrafana.Match(AllMethods, "/*", grafana.Proxy)
+	}
+
 	// 提供api的接口
 	apiV1(server)
 
 	g := server.Group("/api/admin")
 
 	// use session
-	g.Use(session.Middleware(userSrv.NewSessionStore()))
+	g.Use(sessionMW)
 
 	g.GET("/api/app/filter/list", app.FilterList)
 
