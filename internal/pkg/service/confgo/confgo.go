@@ -52,7 +52,7 @@ func (c *confgo) publishRecordHistoryItem(tx *gorm.DB, items []db.CmcConfig, his
 			Env:          history.Env,
 			Key:          item.Key,
 			Value:        item.Value,
-			IsPublic:    item.IsPublic,
+			IsPublic:     item.IsPublic,
 			CreateTime:   time.Now().Unix(),
 		}
 		err = tx.Save(&historyItem).Error

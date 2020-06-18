@@ -1,9 +1,10 @@
 package resource
 
 import (
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
-	"time"
 )
 
 func (r *resource) GetSysConfig(sysType int, setCate string) (info []db.SystemConfig, err error) {
