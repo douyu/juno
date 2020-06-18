@@ -70,5 +70,26 @@ services:
       - juno
       - file-watch-demo
       - http-watch-demo
+      - juno-grafana
+      - juno-prometheus
     restart: on-failure
-
+  juno-prometheus:
+    container_name: juno-prometheus
+    image: mixmore/juno-prometheus:latest
+    ports:
+      - "9090:9090"
+    links:
+      - etcd
+    depends_on:
+      - etcd
+    restart: on-failure
+  juno-grafana:
+    container_name: juno-grafana
+    image: mixmore/juno-grafana:latest
+    ports:
+      - "3000:3000"
+    links:
+      - juno-prometheus
+    depends_on:
+      - juno-prometheus
+    restart: on-failure

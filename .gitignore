@@ -32,7 +32,7 @@ bin/*
 go.sum
 *.DS_Store
 # develop config
-build/config/config-*
+configs/config-*
 
 # local pprof file
 assets/pprof_static/*
