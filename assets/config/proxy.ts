@@ -12,6 +12,9 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
+    '/grafana': {
+      target: 'http://127.0.0.1:50000',
+    }
   },
   test: {
     '/api/admin': {
@@ -19,6 +22,9 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
+    '/grafana': {
+      target: 'http://127.0.0.1:50000',
+    }
   },
   pre: {
     '/api/admin': {
@@ -26,5 +32,8 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
+    '/grafana': {
+      target: 'http://127.0.0.1:50000',
+    }
   },
 };
