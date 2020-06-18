@@ -17,7 +17,7 @@ export default defineConfig({
     locale: false,
     logo: '/ant/favicon.png',
     navTheme: 'light',
-    layout: 'topmenu',
+    // layout: 'topmenu',
     autoHideHeader: true,
   },
   locale: {

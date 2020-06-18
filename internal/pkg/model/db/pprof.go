@@ -67,7 +67,7 @@ type ReqCheck struct {
 
 type ReqSysConfig struct {
 	Id      int    `gorm:"not null;"json:"id"`
-	SysType int    `json:"sys_type"`
+	SysType int    `json:"sysType"`
 	SetInt  int    `json:"setInt"`
 	SetCate string `gorm:"not null;column:set_cate" json:"setCate"`
 	SetStr  string `json:"setStr"`

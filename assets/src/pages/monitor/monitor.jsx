@@ -1,5 +1,5 @@
 import React from 'react';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import {
   Row,
   Card,
@@ -18,14 +18,15 @@ import {
   Icon,
   Alert,
   Tooltip,
-  Layout, List, Radio
+  Layout,
+  List,
+  Radio,
 } from 'antd';
 
 const RadioGroup = Radio.Group;
 import moment from 'moment';
-import {getSysConfig, installDep} from '@/pages/manage/services';
-import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons';
-
+import { getSysConfig, installDep } from '@/pages/manage/services';
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 
 export default class Monitor extends React.PureComponent {
   constructor(props) {
@@ -53,7 +54,7 @@ export default class Monitor extends React.PureComponent {
     if (nextProps.idcCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const {idcCode, appName, mode, env} = this.state;
+    const { idcCode, appName, mode, env } = this.state;
 
     // 内容一样就不在渲染
     if (
@@ -79,18 +80,17 @@ export default class Monitor extends React.PureComponent {
     );
   }
 
-
   getList = () => {
-    const {appName, zoneCode, env, monitorType} = this.state;
-    getSysConfig({sysType: 1}).then((res) => {
-      const {code, msg, data} = res;
+    const { appName, zoneCode, env, monitorType } = this.state;
+    getSysConfig({ sysType: 1 }).then((res) => {
+      const { code, msg, data } = res;
       if (code !== 0) {
         message.error(msg);
         return false;
       }
       let mapSys = new Map();
       let typeList = [];
-      data.map(v => {
+      data.map((v) => {
         if (v.sysType === 2) {
           mapSys.set(v.setCate, v.setStr);
           typeList.push(<Radio value={v.setCate}>{v.setCate}</Radio>);
@@ -101,70 +101,85 @@ export default class Monitor extends React.PureComponent {
         sysConfig: data,
         mapSys: mapSys,
         monitorHost: monitorHost,
-        typeList
+        typeList,
       });
       return true;
     });
   };
 
   monitorTypeTChange = (e) => {
-    const {mapSys} = this.state;
-    console.log(">>>>>>>>>> monitorTypeTChange", e.target.value);
+    const { mapSys } = this.state;
+    console.log('>>>>>>>>>> monitorTypeTChange', e.target.value);
     let monitorHost = mapSys.get(e.target.value);
     this.setState({
       monitorType: e.target.value,
       monitorHost: monitorHost,
-    })
+    });
   };
 
   renderGrafana = () => {
-    const {appName, zoneCode, env, monitorHost} = this.state;
-    console.log(">>>>>>>>>> renderGrafana", monitorHost);
-    if (monitorHost === "") {
+    const { appName, zoneCode, env, monitorHost } = this.state;
+    console.log('>>>>>>>>>> renderGrafana', monitorHost);
+    if (monitorHost === '' || monitorHost == undefined) {
       return (
-        <div style={{marginTop: 10}}>
-          <Alert
-            message="监控暂时不可用"
-            description="该模块监控正常更新中，联系相关开发人员。"
-            type="warning"
-            showIcon
-          />
+        <div style={{ marginTop: 10 }}>
+          <Alert message="请选择监控类型" description="" type="warning" showIcon />
         </div>
       );
     }
-    let url = monitorHost+'?var-datasource='+zoneCode+'&var-appname='+appName+'&var-env='+env+'&from=now-30m&to=now';
-    console.log(">>>>>>>>>> url", url);
+    let url =
+      monitorHost +
+      '?' +
+      '&var-appname=' +
+      appName +
+      '&var-env=' +
+      env +
+      // '&from=now-30m&to=now&kiosk';
+      '&from=now-30m&to=now';
+    console.log('>>>>>>>>>> url', url);
     // let url = 'ss1111111111111';
 
     return (
-      <iframe
-        src={url}
-        scrolling="no"
-        width="100%"
-        height={3000}
-        frameBorder={0}
-        style={{marginLeft: "-100px", overflow: "visible"}}
-      />
+      <div style={{ display: 'block', overflow: 'hidden' }}>
+        <iframe
+          src={url}
+          scrolling="no"
+          width="104%"
+          height={2000}
+          frameBorder={0}
+          style={{ marginLeft: '-65px', overflow: 'hidden' }}
+        />
+      </div>
     );
   };
 
-
   render() {
-    const {zoneCode, appName, env, typeList, monitorType = 0, sysConfig = [], mapSys, monitorHost} = this.state;
+    const {
+      zoneCode,
+      appName,
+      env,
+      typeList,
+      monitorType = 0,
+      sysConfig = [],
+      mapSys,
+      monitorHost,
+    } = this.state;
     console.log('render ', env, zoneCode, monitorHost, sysConfig, mapSys);
     if (!env) {
       return (
-        <div style={{marginTop: 10}}>
-          <Alert message="Warning" description="请选择环境." type="warning" showIcon/>
+        <div style={{ marginTop: 10 }}>
+          <Alert message="Warning" description="请选择环境." type="warning" showIcon />
         </div>
       );
     }
 
     return (
       <div>
-        <Card style={{marginLeft: '10px'}}>
-          <Row gutter={24} className="top" style={{marginTop: 16, marginBottom: 16}}>
-            <Col span={1} style={{fontWeight: 'bold'}}>类型</Col>
+        <Card style={{ marginLeft: '10px' }}>
+          <Row gutter={24} className="top" style={{ marginTop: 16, marginBottom: 16 }}>
+            <Col span={1} style={{ fontWeight: 'bold' }}>
+              类型
+            </Col>
             <Col span={22}>
               <RadioGroup value={monitorType} onChange={this.monitorTypeTChange}>
                 {typeList}

@@ -14,7 +14,10 @@ export async function getSysConfig(params) {
 }
 
 export async function setSysConfig(params) {
-  return request(`/api/admin/pprof/config/update?${stringify(params)}`);
+  return request(`/api/admin/pprof/config/update`, {
+    method: 'POST',
+    data: params,
+  });
 }
 
 export async function delSysConfig(params) {

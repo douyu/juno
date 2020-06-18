@@ -118,3 +118,40 @@ func mockCreateAdmin(url string, router *echo.Echo) {
 	body := PostForm(url, param, router)
 	fmt.Println(string(body))
 }
+
+func mockMonitorAPI(url string, router *echo.Echo) {
+	// 发起post请求，以表单形式传递参数
+	param := `{
+		"id": 0,
+	"sysType":2,
+	"setCate": "API",
+	"setStr": "http://localhost:3000/d/api"
+}`
+	body := PostForm(url, param, router)
+	fmt.Println(string(body))
+}
+
+func mockMonitorInstance(url string, router *echo.Echo) {
+	// 发起post请求，以表单形式传递参数
+	param := `{
+		"id": 0,
+		"sysType":2,
+	"setCate": "Instance",
+	"setStr": "http://localhost:3000/d/instance"
+}`
+	body := PostForm(url, param, router)
+	fmt.Println(string(body))
+}
+
+func mockMonitorOverview(url string, router *echo.Echo) {
+	// 发起post请求，以表单形式传递参数
+	param := `{
+	"id": 0,
+	"sysType":2,
+	"setCate": "Overview",
+	"setStr": "http://localhost:3000/d/overview"
+}`
+	body := PostForm(url, param, router)
+	fmt.Println(string(body))
+
+}
