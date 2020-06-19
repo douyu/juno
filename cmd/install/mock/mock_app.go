@@ -125,7 +125,7 @@ func mockMonitorAPI(url string, router *echo.Echo) {
 		"id": 0,
 	"sysType":2,
 	"setCate": "API",
-	"setStr": "http://localhost:3000/d/api"
+	"setStr": "http://jupiterconsole.douyu.com/grafana/d/api"
 }`
 	body := PostForm(url, param, router)
 	fmt.Println(string(body))
@@ -137,7 +137,7 @@ func mockMonitorInstance(url string, router *echo.Echo) {
 		"id": 0,
 		"sysType":2,
 	"setCate": "Instance",
-	"setStr": "http://localhost:3000/d/instance"
+	"setStr": "http://jupiterconsole.douyu.com/grafana/d/instance"
 }`
 	body := PostForm(url, param, router)
 	fmt.Println(string(body))
@@ -149,7 +149,7 @@ func mockMonitorOverview(url string, router *echo.Echo) {
 	"id": 0,
 	"sysType":2,
 	"setCate": "Overview",
-	"setStr": "http://localhost:3000/d/overview"
+	"setStr": "http://jupiterconsole.douyu.com/grafana/d/overview"
 }`
 	body := PostForm(url, param, router)
 	fmt.Println(string(body))

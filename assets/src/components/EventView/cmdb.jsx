@@ -50,6 +50,17 @@ export default class CMDBEventView extends React.Component {
       return this.renderNodeDeleteEvent();
     }
 
+    if (operation === 'cmdb_user_create') {
+      return this.renderUserCreateEvent();
+    }
+
+    if (operation === 'cmdb_user_update') {
+      return this.renderUserUpdateEvent();
+    }
+
+    if (operation === 'cmdb_user_delete') {
+      return this.renderUserDeleteEvent();
+    }
     return (
       <>
         <span>
@@ -87,6 +98,39 @@ export default class CMDBEventView extends React.Component {
           ''
         )}
       </>
+    );
+  }
+
+  renderUserCreateEvent() {
+    const { source, operation, metadata, user_name, app_name, zone_code } = this.props.data;
+    let data = JSON.parse(metadata);
+
+    return (
+      <div style={{ lineHeight: '30px' }}>
+        <Tag>{user_name}</Tag> 创建用户 <Tag>{data.username}</Tag> 权限为 <Tag>{data.access}</Tag>
+      </div>
+    );
+  }
+
+  renderUserUpdateEvent() {
+    const { source, operation, metadata, user_name, app_name, zone_code } = this.props.data;
+    let data = JSON.parse(metadata);
+
+    return (
+      <div style={{ lineHeight: '30px' }}>
+        <Tag>{user_name}</Tag> 将用户 <Tag>{data.username}</Tag> 权限更新为 <Tag>{data.access}</Tag>
+      </div>
+    );
+  }
+
+  renderUserDeleteEvent() {
+    const { source, operation, metadata, user_name, app_name, zone_code } = this.props.data;
+    let data = JSON.parse(metadata);
+
+    return (
+      <div style={{ lineHeight: '30px' }}>
+        <Tag>{user_name}</Tag> 删除用户 <Tag>{data.username}</Tag>
+      </div>
     );
   }
 
