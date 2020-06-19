@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import { stringify } from 'qs';
+import {stringify} from 'qs';
 
 export async function checkDep() {
   return request(`/api/admin/pprof/dep/check`);
@@ -13,13 +13,16 @@ export async function getSysConfig(params) {
   return request(`/api/admin/pprof/config/list?${stringify(params)}`);
 }
 
-export async function setSysConfig(params) {
-  return request(`/api/admin/pprof/config/update`, {
-    method: 'POST',
-    data: params,
-  });
+export async function loadSettings() {
+  return request(`/api/v1/system/setting/list`)
 }
 
-export async function delSysConfig(params) {
-  return request(`/api/admin/pprof/config/delete?${stringify(params)}`);
+export async function updateSetting(name, content) {
+  return request(`/api/v1/system/setting/update`, {
+    method: 'POST',
+    data: {
+      name,
+      content
+    }
+  })
 }

@@ -13,11 +13,13 @@ var System *system
 
 type system struct {
 	*gorm.DB
+	Setting *setting
 }
 
-func InitSystem(db *gorm.DB) *system {
-	return &system{
-		db,
+func InitSystem(db *gorm.DB) {
+	System = &system{
+		DB:      db,
+		Setting: newSetting(db),
 	}
 }
 
