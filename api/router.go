@@ -223,8 +223,6 @@ func (eng *Admin) serveHTTP() {
 		pprofGroup.GET("/dep/check", pprofHandle.CheckDep)
 		pprofGroup.GET("/dep/install", pprofHandle.InstallDep)
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
-		pprofGroup.POST("/config/update", pprofHandle.SetSysConfig)
-		pprofGroup.GET("/config/delete", pprofHandle.DelSysConfig)
 	}
 
 	eng.Serve(server)
@@ -332,6 +330,10 @@ func apiV1(server *xecho.Server) {
 		systemGroup.POST("/option/create", system.OptionCreate)
 		systemGroup.POST("/option/update", system.OptionUpdate)
 		systemGroup.POST("/option/delete", system.OptionDelete)
+
+		// 系统设置
+		systemGroup.GET("/setting/list", system.SettingList)
+		systemGroup.POST("/setting/update", system.SettingUpdate)
 	}
 
 	eventGroup := v1.Group("/event")
@@ -346,7 +348,7 @@ func apiV1(server *xecho.Server) {
 		pprofGroup.GET("/dep/check", pprofHandle.CheckDep)
 		pprofGroup.GET("/dep/install", pprofHandle.InstallDep)
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
-		pprofGroup.POST("/config/update", pprofHandle.SetSysConfig)
+		//pprofGroup.POST("/config/update", pprofHandle.SetSysConfig)
 	}
 
 }
