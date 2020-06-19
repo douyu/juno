@@ -59,3 +59,9 @@
   maxAge = 172800
   secret = "ldfgoqnf935nvav34"
   type = ""
+
+[grafana]
+		Flag = true
+		Host = "juno-grafana:3000"
+		Scheme = "http"
+		AuthHeaderName = "X-WEBAUTH-USER"
