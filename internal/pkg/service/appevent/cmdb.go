@@ -317,10 +317,9 @@ func (a *appEvent) ConfgoWatchFileSyncEvent(zoneCode, env, hostName, metaData st
 	a.PutEvent(appEvent)
 }
 
-func (a *appEvent) UserCreateEvent(userName, metaData string, user *db.User) {
+func (a *appEvent) UserCreateEvent(metaData string, user *db.User) {
 	// app事件
 	appEvent := db.AppEvent{
-		UserName:  userName,
 		Operation: event.EventCMDBUserCreate,
 		Source:    event.SourceCMDB,
 		Metadata:  metaData,
@@ -332,10 +331,9 @@ func (a *appEvent) UserCreateEvent(userName, metaData string, user *db.User) {
 	a.PutEvent(appEvent)
 }
 
-func (a *appEvent) UserUpdateEvent(userName, metaData string, user *db.User) {
+func (a *appEvent) UserUpdateEvent(metaData string, user *db.User) {
 	// app事件
 	appEvent := db.AppEvent{
-		UserName:  userName,
 		Operation: event.EventCMDBUserUpdate,
 		Source:    event.SourceCMDB,
 		Metadata:  metaData,
@@ -347,10 +345,9 @@ func (a *appEvent) UserUpdateEvent(userName, metaData string, user *db.User) {
 	a.PutEvent(appEvent)
 }
 
-func (a *appEvent) UserDeleteEvent(userName, metaData string, user *db.User) {
+func (a *appEvent) UserDeleteEvent(metaData string, user *db.User) {
 	// app事件
 	appEvent := db.AppEvent{
-		UserName:  userName,
 		Operation: event.EventCMDBUserDelete,
 		Source:    event.SourceCMDB,
 		Metadata:  metaData,
