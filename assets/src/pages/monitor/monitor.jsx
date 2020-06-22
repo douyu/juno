@@ -1,33 +1,18 @@
 import React from 'react';
-import { connect } from 'dva';
-import {
-  Row,
-  Card,
-  Menu,
-  Select,
-  Modal,
-  Button,
-  Popconfirm,
-  message,
-  Col,
-  Table,
-  Input,
-  Tag,
-  Checkbox,
-  Tabs,
-  Icon,
-  Alert,
-  Tooltip,
-  Layout,
-  List,
-  Radio,
-} from 'antd';
+import {connect} from 'dva';
+import {Alert, Card, Col, Radio, Row,} from 'antd';
 
 const RadioGroup = Radio.Group;
-import moment from 'moment';
-import { getSysConfig, installDep } from '@/pages/manage/services';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 
+const DashboardList = [
+  {key: 'api_dashboard_addr', label: 'API监控面板'},
+  {key: 'instance_dashboard_addr', label: 'Instance监控面板'},
+  {key: 'overview_dashboard_addr', label: '概览监控面板'},
+]
+
+@connect(({setting}) => ({
+  setting
+}))
 export default class Monitor extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -47,6 +32,11 @@ export default class Monitor extends React.PureComponent {
   componentDidMount() {
     console.log('>>>>> props', this.props);
     this.getList();
+
+    // 加载设置
+    this.props.dispatch({
+      type: 'setting/loadSettings',
+    })
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -54,7 +44,7 @@ export default class Monitor extends React.PureComponent {
     if (nextProps.idcCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const { idcCode, appName, mode, env } = this.state;
+    const {idcCode, appName, mode, env} = this.state;
 
     // 内容一样就不在渲染
     if (
@@ -81,54 +71,72 @@ export default class Monitor extends React.PureComponent {
   }
 
   getList = () => {
-    const { appName, zoneCode, env, monitorType } = this.state;
-    getSysConfig({ sysType: 1 }).then((res) => {
-      const { code, msg, data } = res;
-      if (code !== 0) {
-        message.error(msg);
-        return false;
-      }
-      let mapSys = new Map();
-      let typeList = [];
-      data.map((v) => {
-        if (v.sysType === 2) {
-          mapSys.set(v.setCate, v.setStr);
-          typeList.push(<Radio value={v.setCate}>{v.setCate}</Radio>);
-        }
-      });
-      let monitorHost = mapSys.get(monitorType);
-      this.setState({
-        sysConfig: data,
-        mapSys: mapSys,
-        monitorHost: monitorHost,
-        typeList,
-      });
-      return true;
-    });
+    const {appName, zoneCode, env, monitorType} = this.state;
+
+
+    // getSysConfig({ sysType: 1 }).then((res) => {
+    //   const { code, msg, data } = res;
+    //   if (code !== 0) {
+    //     message.error(msg);
+    //     return false;
+    //   }
+    //   let mapSys = new Map();
+    //   let typeList = [];
+    //   data.map((v) => {
+    //     if (v.sysType === 2) {
+    //       mapSys.set(v.setCate, v.setStr);
+    //       typeList.push(<Radio value={v.setCate}>{v.setCate}</Radio>);
+    //     }
+    //   });
+    //   let monitorHost = mapSys.get(monitorType);
+    //   this.setState({
+    //     sysConfig: data,
+    //     mapSys: mapSys,
+    //     monitorHost: monitorHost,
+    //     typeList,
+    //   });
+    //   return true;
+    // });
   };
 
   monitorTypeTChange = (e) => {
-    const { mapSys } = this.state;
+    const dashboardKey = e.target.value
     console.log('>>>>>>>>>> monitorTypeTChange', e.target.value);
-    let monitorHost = mapSys.get(e.target.value);
+    const {grafana} = this.props.setting.settings;
+
+    if (!grafana) {
+      return
+    }
+
+    let dashboardPath = grafana['api_dashboard_addr']
     this.setState({
-      monitorType: e.target.value,
-      monitorHost: monitorHost,
-    });
+      dashboardPath,
+      dashboardSelected: dashboardKey
+    })
+
+    // const {mapSys} = this.state;
+    // let monitorHost = mapSys.get(e.target.value);
+    // this.setState({
+    //   monitorType: e.target.value,
+    //   monitorHost: monitorHost,
+    // });
+
+
   };
 
   renderGrafana = () => {
-    const { appName, zoneCode, env, monitorHost } = this.state;
-    console.log('>>>>>>>>>> renderGrafana', monitorHost);
-    if (monitorHost === '' || monitorHost == undefined) {
+    const {appName, zoneCode, env, monitorHost} = this.state;
+    let dashboardPath = this.state.dashboardPath
+    console.log('>>>>>>>>>> renderGrafana', dashboardPath);
+    if (!dashboardPath) {
       return (
-        <div style={{ marginTop: 10 }}>
-          <Alert message="请选择监控类型" description="" type="warning" showIcon />
+        <div style={{marginTop: 10}}>
+          <Alert message="请选择监控类型" description="" type="warning" showIcon/>
         </div>
       );
     }
     let url =
-      monitorHost +
+      dashboardPath +
       '?' +
       '&var-appname=' +
       appName +
@@ -140,14 +148,14 @@ export default class Monitor extends React.PureComponent {
     // let url = 'ss1111111111111';
 
     return (
-      <div style={{ display: 'block', overflow: 'hidden' }}>
+      <div style={{display: 'block', overflow: 'hidden'}}>
         <iframe
           src={url}
           scrolling="no"
           width="104%"
           height={2000}
           frameBorder={0}
-          style={{ marginLeft: '-65px', overflow: 'hidden' }}
+          style={{marginLeft: '-65px', overflow: 'hidden'}}
         />
       </div>
     );
@@ -163,27 +171,46 @@ export default class Monitor extends React.PureComponent {
       sysConfig = [],
       mapSys,
       monitorHost,
+      dashboardSelected
     } = this.state;
+
+    const {grafana} = this.props.setting.settings;
+    let dashboardRadios = []
+    grafana && DashboardList.map(item => {
+      if (grafana[item.key]) {
+        dashboardRadios.push(<Radio key={item.key} value={item.key}>
+          {item.label}
+        </Radio>)
+      }
+    })
+
     console.log('render ', env, zoneCode, monitorHost, sysConfig, mapSys);
     if (!env) {
       return (
-        <div style={{ marginTop: 10 }}>
-          <Alert message="Warning" description="请选择环境." type="warning" showIcon />
+        <div style={{marginTop: 10}}>
+          <Alert message="Warning" description="请选择环境." type="warning" showIcon/>
         </div>
       );
     }
 
     return (
       <div>
-        <Card style={{ marginLeft: '10px' }}>
-          <Row gutter={24} className="top" style={{ marginTop: 16, marginBottom: 16 }}>
-            <Col span={1} style={{ fontWeight: 'bold' }}>
+        <Card style={{marginLeft: '10px'}}>
+          <Row gutter={24} className="top" style={{marginTop: 16, marginBottom: 16}}>
+            <Col style={{fontWeight: 'bold'}}>
               类型
             </Col>
             <Col span={22}>
-              <RadioGroup value={monitorType} onChange={this.monitorTypeTChange}>
-                {typeList}
-              </RadioGroup>
+              {
+                dashboardRadios.length > 0 ? (
+                  <RadioGroup value={dashboardSelected} onChange={this.monitorTypeTChange}>
+                    {dashboardRadios}
+                  </RadioGroup>
+                ) : (<span>
+                  请在设置界面设置监控面板地址
+                </span>)
+              }
+
             </Col>
           </Row>
           {this.renderGrafana()}
