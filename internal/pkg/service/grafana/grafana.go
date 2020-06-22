@@ -3,15 +3,15 @@ package grafana
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/douyu/juno/internal/pkg/model/view"
-	"github.com/douyu/juno/internal/pkg/service/system"
-	"github.com/labstack/gommon/log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 
+	"github.com/douyu/juno/internal/pkg/model/view"
+	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 type (
