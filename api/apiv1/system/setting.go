@@ -1,6 +1,8 @@
 package system
 
 import (
+	"fmt"
+
 	"github.com/douyu/juno/internal/pkg/model/view"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/system"
@@ -23,6 +25,18 @@ func SettingUpdate(c echo.Context) error {
 	err := c.Bind(&req)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "无效的参数:"+err.Error())
+	}
+
+	settingName := req.Name
+	config, ok := view.GetSettingFieldConfig(settingName)
+	if !ok {
+		// 没有配置该设置项
+		return output.JSON(c, output.MsgErr, "无效的设置项:"+string(req.Name))
+	}
+
+	// 校验参数
+	if err := config.Validate(req.Content); err != nil {
+		return output.JSON(c, output.MsgErr, fmt.Sprintf("参数校验失败: %s", err.Error()))
 	}
 
 	err = system.System.Setting.Set(req.Name, req.Content)

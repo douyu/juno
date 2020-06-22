@@ -7,6 +7,7 @@ import (
 
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/resource"
+	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/user"
 	"github.com/labstack/echo/v4"
 )
@@ -21,6 +22,8 @@ func MockData() {
 	urlConfigContentUpdate := "/config/content/update"
 	urlConfigGeneratorParse := "/config/parse"
 	urlUserCreate := "/user/create"
+	urlSystemUpdate := "/system/setting/update"
+
 	router.POST(urlAppPut, resource.AppPut)
 	router.POST(urlAppNodePut, resource.AppNodePut)
 	router.POST(urlConfigTplCreate, confgo.TplCreate)
@@ -28,12 +31,15 @@ func MockData() {
 	router.POST(urlConfigContentUpdate, confgo.ItemCreate)
 	router.POST(urlConfigGeneratorParse, confgo.ParseGenerator)
 	router.POST(urlUserCreate, user.Create)
+	router.POST(urlSystemUpdate, system.SettingUpdate)
+
 	mockApp(urlAppPut, router)
 	mockAppNode(urlAppNodePut, router)
 	mockTplCreate(urlConfigTplCreate, router)
 	mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
 	mockParse(urlConfigGeneratorParse, router)
 	mockCreateAdmin(urlUserCreate, router)
+	mockGrafanaSetting(urlSystemUpdate, router)
 }
 
 func PostForm(uri string, param string, router *echo.Echo) []byte {

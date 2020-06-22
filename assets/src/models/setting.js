@@ -131,6 +131,7 @@ function unMarshalSetting(name, value) {
   switch (name) {
     case 'grafana':
     case 'config_dep':
+    case 'gateway':
       return JSON.parse(value)
     default:
       return value

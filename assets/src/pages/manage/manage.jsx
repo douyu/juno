@@ -4,6 +4,7 @@ import {checkDep, getSysConfig, installDep} from './services';
 import SettingBlock from "@/pages/manage/SettingBlock";
 import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import {connect} from 'dva';
+import GatewaySetting from "@/pages/manage/GatewaySetting";
 
 const {TextArea} = Input;
 const RadioGroup = Radio.Group;
@@ -43,8 +44,8 @@ export default class SysManage extends React.Component {
     this.GetCheckDep();
     this.GetSysConfig();
     this.loadSettings().then(r => {
-      this.grafanaFormRef.current.resetFields()
-      this.configDepFormRef.current.resetFields()
+      this.grafanaFormRef.current && this.grafanaFormRef.current.resetFields()
+      this.configDepFormRef.current && this.configDepFormRef.current.resetFields()
     })
   }
 
@@ -281,6 +282,8 @@ export default class SysManage extends React.Component {
               </Form.Item>
             </Form>
           </SettingBlock>
+
+          <GatewaySetting/>
 
         </Card>
       </PageHeaderWrapper>

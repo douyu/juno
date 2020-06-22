@@ -55,6 +55,8 @@ func (eng *Admin) serveHTTP() {
 	server := xecho.StdConfig("http").Build()
 	server.Debug = true
 
+	server.Use(middleware.ProxyGatewayMW)
+
 	var loginAuthWithJSON echo.MiddlewareFunc // 登录授权,以JSON形式
 	var loginAuthRedirect echo.MiddlewareFunc // 登录授权,以Http跳转形式
 
@@ -350,7 +352,6 @@ func apiV1(server *xecho.Server) {
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
 		//pprofGroup.POST("/config/update", pprofHandle.SetSysConfig)
 	}
-
 }
 
 func (eng *Admin) startJobs() {
