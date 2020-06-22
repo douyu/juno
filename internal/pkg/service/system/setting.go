@@ -13,13 +13,18 @@ type (
 		db              *gorm.DB
 		settingCacheMtx sync.RWMutex
 		settingCache    map[view.SettingName]string
+		subscribers     map[view.SettingName][]SubscribeCallback // 设置修改事件订阅
+		subscribersMtx  sync.RWMutex
 	}
+
+	SubscribeCallback func(content string)
 )
 
 func newSetting(db *gorm.DB) *setting {
 	return &setting{
 		db:           db,
 		settingCache: map[view.SettingName]string{},
+		subscribers:  map[view.SettingName][]SubscribeCallback{},
 	}
 }
 
@@ -114,6 +119,8 @@ func (s *setting) Set(name view.SettingName, value string) (err error) {
 		s.settingCacheMtx.Unlock()
 	}
 
+	s.pubEvent(name, value)
+
 	return
 }
 
@@ -135,4 +142,38 @@ func (s *setting) get(name view.SettingName) (val string, err error) {
 
 	val = setting.Content
 	return
+}
+
+func (s *setting) pubEvent(name view.SettingName, value string) {
+	s.subscribersMtx.RLock()
+	defer s.subscribersMtx.RUnlock()
+
+	for _, callback := range s.subscribers[name] {
+		go callback(value)
+	}
+}
+
+func (s *setting) Subscribe(name view.SettingName, callback SubscribeCallback) {
+	if !view.CheckSettingNameValid(name) {
+		return
+	}
+
+	s.subscribersMtx.Lock()
+	defer s.subscribersMtx.Unlock()
+
+	if _, ok := s.subscribers[name]; !ok {
+		s.subscribers[name] = make([]SubscribeCallback, 0)
+	}
+
+	s.subscribers[name] = append(s.subscribers[name], callback)
+
+	// 订阅时发布
+	{
+		content, err := s.get(name)
+		if err != nil {
+			return
+		}
+
+		callback(content)
+	}
 }

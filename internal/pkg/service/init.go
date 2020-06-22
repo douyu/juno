@@ -6,6 +6,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	scmc "github.com/douyu/juno/internal/pkg/service/cmc"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
@@ -37,4 +38,6 @@ func Init() {
 	pprof.InitPprof(invoker.JunoMysql)
 
 	parse.Init()
+
+	gateway.Init()
 }
