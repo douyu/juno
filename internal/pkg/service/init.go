@@ -6,15 +6,13 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	scmc "github.com/douyu/juno/internal/pkg/service/cmc"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
-	"github.com/douyu/juno/internal/pkg/service/grafana"
+	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
-	"github.com/douyu/jupiter/pkg/conf"
-	"github.com/labstack/gommon/log"
 )
 
 // Init service初始化。
@@ -41,14 +39,5 @@ func Init() {
 
 	parse.Init()
 
-	// 初始化Grafana
-	{
-		var opt grafana.Option
-		err := conf.UnmarshalKey("grafana", &opt)
-		if err != nil {
-			log.Panic(err)
-		}
-
-		grafana.Init(opt)
-	}
+	gateway.Init()
 }
