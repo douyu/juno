@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/model"
-	"github.com/douyu/juno/internal/pkg/model/db"
-	"github.com/douyu/juno/internal/pkg/model/view"
 	"github.com/douyu/juno/internal/pkg/service/codec"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/model"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 )

@@ -1,6 +1,6 @@
 package resource
 
-import "github.com/douyu/juno/internal/pkg/model/db"
+import "github.com/douyu/juno/pkg/model/db"
 
 // 应用信息
 type ReqAppInfo struct {

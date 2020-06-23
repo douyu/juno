@@ -3,9 +3,9 @@ package confgo
 import (
 	"fmt"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 )

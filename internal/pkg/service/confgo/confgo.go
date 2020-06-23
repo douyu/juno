@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/model"
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/util"
+	"github.com/douyu/juno/pkg/model"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 

@@ -1,6 +1,6 @@
 package confgo
 
-import "github.com/douyu/juno/internal/pkg/model/db"
+import "github.com/douyu/juno/pkg/model/db"
 
 // ReqTplList ..
 type ReqTplList struct {

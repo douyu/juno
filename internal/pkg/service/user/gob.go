@@ -6,7 +6,7 @@ import (
 	"encoding/gob"
 	"io"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/unknwon/com"
 )
 

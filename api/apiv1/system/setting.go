@@ -3,9 +3,9 @@ package system
 import (
 	"fmt"
 
-	"github.com/douyu/juno/internal/pkg/model/view"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/system"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
 

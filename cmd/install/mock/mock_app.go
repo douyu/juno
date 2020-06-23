@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/labstack/echo/v4"
 )
 

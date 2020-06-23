@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
