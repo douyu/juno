@@ -1,15 +1,24 @@
 package db
 
+import "time"
+
 type SystemConfig struct {
-	Id         int    `gorm:"not null;"json:"id"`
-	SysType    int    `gorm:"not null;column:sys_type" json:"sysType" `
-	SetCate    string `gorm:"not null;column:set_cate" json:"setCate"`
-	SetStr     string `json:"setStr" gorm:"not null;column:set_str"`
-	SetInt     int    `json:"setInt" gorm:"not null;column:set_int"`
+	Name       string `gorm:"not null;column:name;type:varchar(50);primary_key" json:"name"`
+	Content    string `gorm:"not null;column:content;type:longtext" json:"content"`
 	CreateTime int64  `gorm:"not null;"json:"create_time"`
 	UpdateTime int64  `gorm:"not null;"json:"update_time"`
 }
 
 func (SystemConfig) TableName() string {
 	return "system_config"
+}
+
+func (s *SystemConfig) BeforeCreate() error {
+	s.CreateTime = time.Now().Unix()
+	return nil
+}
+
+func (s *SystemConfig) BeforeUpdate() error {
+	s.UpdateTime = time.Now().Unix()
+	return nil
 }
