@@ -2,7 +2,7 @@ package view
 
 import (
 	"github.com/douyu/juno/internal/pkg/handler/base"
-	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/db"
 )
 
 // ReqUserEvents 获取用户相关事件的入参

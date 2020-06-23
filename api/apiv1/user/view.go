@@ -1,6 +1,6 @@
 package user
 
-import "github.com/douyu/juno/internal/pkg/model/db"
+import "github.com/douyu/juno/pkg/model/db"
 
 type ReqUserList struct {
 	CurrentPage int `query:"currentPage"`

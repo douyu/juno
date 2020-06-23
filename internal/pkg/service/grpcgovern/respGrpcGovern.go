@@ -1,6 +1,6 @@
 package grpcgovern
 
-import govern "github.com/douyu/juno/internal/pkg/model/view/respGovern"
+import govern "github.com/douyu/juno/pkg/model/view/respGovern"
 
 type respHealthStats struct {
 	Code int                  `json:"code"`

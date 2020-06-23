@@ -1,8 +1,8 @@
 package appevent
 
 import (
-	"github.com/douyu/juno/internal/pkg/model/db"
-	"github.com/douyu/juno/internal/pkg/model/event"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/event"
 )
 
 func (a *appEvent) AppCreateEvent(aid int, appName, metaData string, user *db.User) {

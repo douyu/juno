@@ -5,8 +5,8 @@ import (
 
 	"github.com/douyu/juno/cmd/install/mock"
 	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/service"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter"
 	"github.com/douyu/jupiter/pkg/flag"
 	_ "github.com/go-sql-driver/mysql"

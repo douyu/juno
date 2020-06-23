@@ -5,12 +5,12 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/auth"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	user2 "github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/labstack/echo/v4"
 )
 
