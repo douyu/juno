@@ -1,6 +1,6 @@
 package view
 
-import "github.com/douyu/juno/internal/pkg/model/db"
+import "github.com/douyu/juno/pkg/model/db"
 
 // ReqToolList ...
 type ReqToolList struct {

@@ -7,8 +7,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/model"
-	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/pkg/model"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	log "github.com/sirupsen/logrus"
 )

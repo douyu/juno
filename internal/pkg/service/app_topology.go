@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/model/db"
-	"github.com/douyu/juno/internal/pkg/model/view"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 )
 
 // SrvRelation ...

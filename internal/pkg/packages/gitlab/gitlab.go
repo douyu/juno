@@ -14,12 +14,12 @@ import (
 	"github.com/douyu/jupiter/pkg/conf"
 
 	"github.com/douyu/juno/internal/pkg/library/util"
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/gitlab/client"
 	"github.com/douyu/juno/internal/pkg/packages/gitlab/model"
 	"github.com/douyu/juno/internal/pkg/packages/httputil"
 	"github.com/douyu/juno/internal/pkg/packages/oauth2"
 	"github.com/douyu/juno/internal/pkg/packages/remote"
+	"github.com/douyu/juno/pkg/model/db"
 )
 
 // DefaultScope ...

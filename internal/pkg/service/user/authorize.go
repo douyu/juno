@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/db"
 
 	"github.com/douyu/juno/internal/pkg/packages/gitlab"
 	"github.com/gorilla/securecookie"

@@ -1,10 +1,10 @@
 package analysis
 
 import (
-	"github.com/douyu/juno/internal/pkg/model/view"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
 

@@ -1,6 +1,6 @@
 package view
 
-import "github.com/douyu/juno/internal/pkg/model/db"
+import "github.com/douyu/juno/pkg/model/db"
 
 type RespIDCList struct {
 	RegionCode string `json:"regionCode" gorm:"column:region_code"`

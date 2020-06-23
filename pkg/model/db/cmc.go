@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/douyu/juno/internal/pkg/model"
+	"github.com/douyu/juno/pkg/model"
 )
 
 // CmcAppView ..

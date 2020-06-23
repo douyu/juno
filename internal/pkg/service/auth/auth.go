@@ -6,7 +6,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/packages/gitlab"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/db"
 )
 
 func GitlabAuth(uid int, appName string) (ok bool, err error) {

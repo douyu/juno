@@ -11,9 +11,9 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/model/db"
-	"github.com/douyu/juno/internal/pkg/model/event"
-	"github.com/douyu/juno/internal/pkg/model/view"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/event"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	log "github.com/sirupsen/logrus"
 )

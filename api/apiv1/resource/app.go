@@ -1,9 +1,9 @@
 package resource
 
 import (
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/labstack/echo/v4"
 )
 
