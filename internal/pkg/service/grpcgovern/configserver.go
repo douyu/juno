@@ -6,8 +6,8 @@ import (
 
 	"github.com/douyu/jupiter/pkg/conf"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/proxy"
+	"github.com/douyu/juno/pkg/model/db"
 )
 
 // V1ConfigServerPut 发送配置信息

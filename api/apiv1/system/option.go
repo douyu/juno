@@ -1,9 +1,10 @@
 package system
 
 import (
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/system"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
 
@@ -13,7 +14,7 @@ func OptionInfo(c echo.Context) error {
 		err  error
 		info db.Option
 	)
-	reqModel := ReqOptionInfo{}
+	reqModel := view.ReqOptionInfo{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -33,7 +34,7 @@ func OptionList(c echo.Context) error {
 	var (
 		err error
 	)
-	reqModel := ReqOptionList{}
+	reqModel := view.ReqOptionList{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -54,7 +55,7 @@ func OptionCreate(c echo.Context) error {
 	var (
 		err error
 	)
-	reqModel := ReqOptionCreate{}
+	reqModel := view.ReqOptionCreate{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -71,7 +72,7 @@ func OptionUpdate(c echo.Context) error {
 	var (
 		err error
 	)
-	reqModel := ReqOptionUpdate{}
+	reqModel := view.ReqOptionUpdate{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -88,7 +89,7 @@ func OptionDelete(c echo.Context) error {
 	var (
 		err error
 	)
-	reqModel := ReqOptionDelete{}
+	reqModel := view.ReqOptionDelete{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())

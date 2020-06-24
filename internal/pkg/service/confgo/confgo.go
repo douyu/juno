@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/model"
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/util"
+	"github.com/douyu/juno/pkg/model"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
@@ -52,7 +52,7 @@ func (c *confgo) publishRecordHistoryItem(tx *gorm.DB, items []db.CmcConfig, his
 			Env:          history.Env,
 			Key:          item.Key,
 			Value:        item.Value,
-			IsPublic:    item.IsPublic,
+			IsPublic:     item.IsPublic,
 			CreateTime:   time.Now().Unix(),
 		}
 		err = tx.Save(&historyItem).Error

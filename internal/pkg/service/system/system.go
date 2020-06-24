@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
-	"github.com/douyu/juno/internal/pkg/model/view"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
@@ -13,11 +13,13 @@ var System *system
 
 type system struct {
 	*gorm.DB
+	Setting *setting
 }
 
-func InitSystem(db *gorm.DB) *system {
-	return &system{
-		db,
+func InitSystem(db *gorm.DB) {
+	System = &system{
+		DB:      db,
+		Setting: newSetting(db),
 	}
 }
 

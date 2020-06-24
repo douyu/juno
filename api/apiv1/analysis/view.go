@@ -1,6 +1,6 @@
 package analysis
 
-import "github.com/douyu/juno/internal/pkg/model/db"
+import "github.com/douyu/juno/pkg/model/db"
 
 type ReqTopologyList struct {
 	db.AppTopology

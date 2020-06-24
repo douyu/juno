@@ -2,7 +2,7 @@ package db
 
 import (
 	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/model"
+	"github.com/douyu/juno/pkg/model"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 

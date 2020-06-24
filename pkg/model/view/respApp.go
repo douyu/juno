@@ -1,7 +1,7 @@
 package view
 
 import (
-	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/db"
 )
 
 // RespAppInfo ...

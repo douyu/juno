@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -59,7 +59,7 @@ func Create(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 	meta, _ := json.Marshal(reqModel)
-	appevent.AppEvent.UserCreateEvent(reqModel.Username, string(meta), user.Session.Read(c))
+	appevent.AppEvent.UserCreateEvent(string(meta), user.Session.Read(c))
 	return output.JSON(c, output.MsgOk, "success")
 }
 
@@ -73,6 +73,7 @@ func Update(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+
 	err = user.User.Update(reqModel.User.Uid, &db.User{
 		UpdateTime: time.Now().Unix(),
 		Access:     reqModel.Access,
@@ -80,8 +81,9 @@ func Update(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+	reqModel.Username = user.User.GetNameByUID(reqModel.User.Uid)
 	meta, _ := json.Marshal(reqModel)
-	appevent.AppEvent.UserUpdateEvent(reqModel.Username, string(meta), user.Session.Read(c))
+	appevent.AppEvent.UserUpdateEvent(string(meta), user.Session.Read(c))
 	return output.JSON(c, output.MsgOk, "success")
 }
 
@@ -95,15 +97,18 @@ func Delete(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+	reqModel.Username = user.User.GetNameByUID(reqModel.User.Uid)
+
 	err = user.User.Delete(reqModel.User)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 	meta, _ := json.Marshal(reqModel)
-	appevent.AppEvent.UserDeleteEvent(reqModel.Username, string(meta), user.Session.Read(c))
+	appevent.AppEvent.UserDeleteEvent(string(meta), user.Session.Read(c))
 	return output.JSON(c, output.MsgOk, "success")
 }
 
+// Info get userinfo
 func Info(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "", user.GetUser(c))
 }

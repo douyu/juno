@@ -5,7 +5,7 @@ import (
 
 	"github.com/douyu/jupiter/pkg/conf"
 
-	"github.com/douyu/juno/internal/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
