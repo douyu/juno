@@ -101,6 +101,8 @@ func migrateDB() error {
 		&db.UserRelation{},
 		&db.Option{},
 		&db.SystemConfig{},
+		&db.Configuration{},
+		&db.ConfigurationHistory{},
 	}
 	gormdb.DropTableIfExists(models...)
 

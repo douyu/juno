@@ -1,0 +1,31 @@
+@import "../../var";
+
+@editorW: 100%;
+
+.editorContainer {
+  width: @editorW;
+  height: @editorH;
+  position: relative;
+
+  .editor, .diffEditor, .loadingMask, .fileUnSelectedMask {
+    width: @editorW;
+    height: @editorH;
+  }
+
+  .diffEditor {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .loadingMask, .fileUnSelectedMask {
+    background-color: @editorBG;
+    color: @secondColor;
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-align: center;
+    padding-top: 300px;
+  }
+}
+
