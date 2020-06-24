@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/douyu/juno/api/apiv1/confgov2"
 	"net/http"
 	"strings"
 	"time"
@@ -161,6 +162,19 @@ func (eng *Admin) serveHTTP() {
 		confgoGroup.POST("/tpl/delete", confgo.TplDelete)
 
 		confgoGroup.POST("/app/restart", confgo.AppRestart)
+	}
+
+	configV2G := g.Group("/confgov2", loginAuthWithJSON)
+	{
+		g := configV2G
+		g.GET("/config/list", confgov2.List)        // 配置文件列表
+		g.GET("/config/detail", confgov2.Detail)    // 配置文件内容
+		g.POST("/config/create", confgov2.Create)   // 配置新建
+		g.POST("/config/update", confgov2.Update)   // 配置更新
+		g.POST("/config/publish", confgov2.Publish) // 配置发布
+		g.GET("/config/history", confgov2.History)  // 配置文件历史
+		g.POST("/config/delete", confgov2.Delete)   // 配置删除
+		g.GET("/config/diff", confgov2.Diff)        // 配置文件Diif，返回两个版本的配置内容
 	}
 
 	resourceGroup := g.Group("/resource", loginAuthWithJSON)

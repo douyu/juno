@@ -129,7 +129,7 @@ export default function AppHeader(props: AppHeaderInterface) {
 
   return (
     <>
-      <Row gutter={24} style={{ marginLeft: '1px', width: '100%' }}>
+      <Row gutter={24} style={{width: '100%' }}>
         <Col span={6}>
           <Select
             showSearch

@@ -6,6 +6,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	scmc "github.com/douyu/juno/internal/pkg/service/cmc"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/parse"
@@ -27,6 +28,8 @@ func Init() {
 	scmc.InitCmc(invoker.JunoMysql)
 
 	confgo.Init()
+
+	confgov2.Init(invoker.JunoMysql)
 
 	user.Init(invoker.JunoMysql)
 
