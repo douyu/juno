@@ -1,16 +1,16 @@
 package confgov2
 
 import (
-	"github.com/douyu/juno/internal/pkg/model/view"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/user"
+	view2 "github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
 
 //List 配置文件列表
 func List(c echo.Context) (err error) {
-	param := view.ReqListConfig{}
+	param := view2.ReqListConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
@@ -25,7 +25,7 @@ func List(c echo.Context) (err error) {
 }
 
 func Detail(c echo.Context) (err error) {
-	param := view.ReqDetailConfig{}
+	param := view2.ReqDetailConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
@@ -40,7 +40,7 @@ func Detail(c echo.Context) (err error) {
 }
 
 func Create(c echo.Context) (err error) {
-	param := view.ReqCreateConfig{}
+	param := view2.ReqCreateConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
@@ -55,7 +55,7 @@ func Create(c echo.Context) (err error) {
 }
 
 func Update(c echo.Context) (err error) {
-	param := view.ReqUpdateConfig{}
+	param := view2.ReqUpdateConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
@@ -76,7 +76,7 @@ func Update(c echo.Context) (err error) {
 }
 
 func Publish(c echo.Context) (err error) {
-	param := view.ReqPublishConfig{}
+	param := view2.ReqPublishConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
@@ -95,7 +95,7 @@ func Publish(c echo.Context) (err error) {
 }
 
 func History(c echo.Context) (err error) {
-	param := view.ReqHistoryConfig{}
+	param := view2.ReqHistoryConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
@@ -114,7 +114,7 @@ func History(c echo.Context) (err error) {
 }
 
 func Diff(c echo.Context) (err error) {
-	param := view.ReqDiffConfig{}
+	param := view2.ReqDiffConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
@@ -129,7 +129,7 @@ func Diff(c echo.Context) (err error) {
 }
 
 func Delete(c echo.Context) (err error) {
-	param := view.ReqDiffConfig{}
+	param := view2.ReqDiffConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())

@@ -2,9 +2,9 @@ package confgov2
 
 import (
 	"fmt"
-	"github.com/douyu/juno/internal/pkg/model/db"
-	"github.com/douyu/juno/internal/pkg/model/view"
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
+	db2 "github.com/douyu/juno/pkg/model/db"
+	view2 "github.com/douyu/juno/pkg/model/view"
 	"github.com/jinzhu/gorm"
 	"sync"
 )
@@ -13,16 +13,16 @@ var (
 	ErrConfigNotExists error = fmt.Errorf("配置不存在")
 )
 
-func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
-	resp = make(view.RespListConfig, 0)
-	list := make([]db.Configuration, 0)
+func List(param view2.ReqListConfig) (resp view2.RespListConfig, err error) {
+	resp = make(view2.RespListConfig, 0)
+	list := make([]db2.Configuration, 0)
 	err = mysql.Select("id, aid, name, format, env, zone, created_at, updated_at, published_at").
 		Where("aid = ?", param.AID).
 		Where("env = ?", param.Env).
 		Find(&list).Error
 
 	for _, item := range list {
-		resp = append(resp, view.RespListConfigItem{
+		resp = append(resp, view2.RespListConfigItem{
 			ID:          item.ID,
 			AID:         item.AID,
 			Name:        item.Name,
@@ -39,14 +39,14 @@ func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
 	return
 }
 
-func Detail(param view.ReqDetailConfig) (resp view.RespDetailtConfig, err error) {
-	configuration := db.Configuration{}
+func Detail(param view2.ReqDetailConfig) (resp view2.RespDetailtConfig, err error) {
+	configuration := db2.Configuration{}
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
 	if err != nil {
 		return
 	}
 
-	resp = view.RespDetailtConfig{
+	resp = view2.RespDetailtConfig{
 		ID:          configuration.ID,
 		AID:         configuration.AID,
 		Name:        configuration.Name,
@@ -62,13 +62,13 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailtConfig, err error)
 	return
 }
 
-func Create(param view.ReqCreateConfig) (err error) {
+func Create(param view2.ReqCreateConfig) (err error) {
 
 	tx := mysql.Begin()
 	{
 		// check if name exists
 		exists := 0
-		err = tx.Model(&db.Configuration{}).Where("aid = ?", param.AID).
+		err = tx.Model(&db2.Configuration{}).Where("aid = ?", param.AID).
 			Where("env = ?", param.Env).
 			Where("name = ?", param.FileName).
 			Where("format = ?", param.Format).
@@ -83,7 +83,7 @@ func Create(param view.ReqCreateConfig) (err error) {
 			return fmt.Errorf("已存在同名配置")
 		}
 
-		configuration := db.Configuration{
+		configuration := db2.Configuration{
 			AID:    param.AID,
 			Name:   param.FileName, // 不带后缀
 			Format: string(param.Format),
@@ -107,8 +107,8 @@ func Create(param view.ReqCreateConfig) (err error) {
 	return
 }
 
-func Update(uid int, param view.ReqUpdateConfig) (err error) {
-	configuration := db.Configuration{}
+func Update(uid int, param view2.ReqUpdateConfig) (err error) {
+	configuration := db2.Configuration{}
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -124,7 +124,7 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 		return fmt.Errorf("保存失败，本次无更新")
 	}
 
-	history := db.ConfigurationHistory{
+	history := db2.ConfigurationHistory{
 		UID:             uint(uid),
 		ConfigurationID: configuration.ID,
 		ChangeLog:       param.Message,
@@ -158,14 +158,14 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 	return
 }
 
-func Publish(param view.ReqPublishConfig) (err error) {
+func Publish(param view2.ReqPublishConfig) (err error) {
 	//TODO: 完成配置发布逻辑
 	return
 }
 
 //History 发布历史分页列表，Page从0开始
-func History(param view.ReqHistoryConfig) (resp view.RespHistoryConfig, err error) {
-	list := make([]db.ConfigurationHistory, 0)
+func History(param view2.ReqHistoryConfig) (resp view2.RespHistoryConfig, err error) {
+	list := make([]db2.ConfigurationHistory, 0)
 
 	if param.Size == 0 {
 		param.Size = 1
@@ -192,7 +192,7 @@ func History(param view.ReqHistoryConfig) (resp view.RespHistoryConfig, err erro
 	go func() {
 		wg.Done()
 
-		q := query.Model(&db.ConfigurationHistory{}).Count(&resp.Pagination.Total)
+		q := query.Model(&db2.ConfigurationHistory{}).Count(&resp.Pagination.Total)
 		if q.Error != nil {
 			errChan <- q.Error
 		}
@@ -214,7 +214,7 @@ func History(param view.ReqHistoryConfig) (resp view.RespHistoryConfig, err erro
 	}
 
 	for _, item := range list {
-		configItem := view.RespHistoryConfigItem{
+		configItem := view2.RespHistoryConfigItem{
 			ID:              item.ID,
 			UID:             item.UID,
 			ConfigurationID: item.ConfigurationID,
@@ -236,15 +236,15 @@ func History(param view.ReqHistoryConfig) (resp view.RespHistoryConfig, err erro
 	return
 }
 
-func Diff(id uint) (resp view.RespDiffConfig, err error) {
-	modifiedConfig := db.ConfigurationHistory{}
+func Diff(id uint) (resp view2.RespDiffConfig, err error) {
+	modifiedConfig := db2.ConfigurationHistory{}
 	err = mysql.Preload("Configuration").Preload("User").
 		Where("id = ?", id).First(&modifiedConfig).Error
 	if err != nil {
 		return
 	}
 
-	originConfig := db.ConfigurationHistory{}
+	originConfig := db2.ConfigurationHistory{}
 	err = mysql.Preload("Configuration").Preload("User").
 		Where("id < ?", id).Order("id desc").First(&originConfig).Error
 	if err != nil {
@@ -255,7 +255,7 @@ func Diff(id uint) (resp view.RespDiffConfig, err error) {
 			return
 		}
 	} else {
-		resp.Origin = &view.RespDetailtConfig{
+		resp.Origin = &view2.RespDetailtConfig{
 			ID:          originConfig.ID,
 			AID:         originConfig.Configuration.AID,
 			Name:        originConfig.Configuration.Name,
@@ -269,7 +269,7 @@ func Diff(id uint) (resp view.RespDiffConfig, err error) {
 		}
 	}
 
-	resp.Modified = view.RespDetailtConfig{
+	resp.Modified = view2.RespDetailtConfig{
 		ID:          modifiedConfig.ID,
 		AID:         modifiedConfig.Configuration.AID,
 		Name:        modifiedConfig.Configuration.Name,
@@ -286,6 +286,6 @@ func Diff(id uint) (resp view.RespDiffConfig, err error) {
 }
 
 func Delete(id uint) (err error) {
-	err = mysql.Delete(&db.Configuration{}, "id = ?", id).Error
+	err = mysql.Delete(&db2.Configuration{}, "id = ?", id).Error
 	return
 }

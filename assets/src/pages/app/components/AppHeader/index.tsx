@@ -3,6 +3,7 @@ import { Tooltip, Descriptions, Row, Col, Select, Tag, Drawer, Button } from 'an
 import { ConfgoBase } from '../../../confgo/config/view';
 const { Option } = Select;
 import styles from './style.less';
+import { SearchOutlined } from '@ant-design/icons';
 
 export interface AppHeaderInterface extends ConfgoBase {
   getAppInfoAction: (aid: number, appName: string) => void;
@@ -129,7 +130,7 @@ export default function AppHeader(props: AppHeaderInterface) {
 
   return (
     <>
-      <Row gutter={24} style={{width: '100%' }}>
+      <Row gutter={24} style={{ width: '100%' }}>
         <Col span={6}>
           <Select
             showSearch
@@ -164,12 +165,13 @@ export default function AppHeader(props: AppHeaderInterface) {
           </Select>
         </Col>
         <Col>
-          <div className={styles.cube}>HTTP: {http_port}</div>
+          {/* <div className={styles.cube}>HTTP: {http_port}</div>
           <div className={styles.cube}>gRPC: {rpc_port}</div>
-          <div className={styles.cube}>Govern: {govern_port}</div>
+          <div className={styles.cube}>Govern: {govern_port}</div> */}
           <div className={styles.cube}>
             <a type="primary" onClick={showDrawer}>
-              应用详情
+              <SearchOutlined />
+              详情
             </a>
           </div>
         </Col>

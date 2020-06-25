@@ -15,8 +15,7 @@ import { history } from 'umi';
 import styles from './style.less';
 import Detail from './components/Detail/index';
 import ZoneSelect from '@/components/ZoneSelect';
-import Config from './components/Config'
-
+import Config from './components/Config';
 
 const { TabPane } = Tabs;
 
@@ -199,96 +198,84 @@ export default class App extends React.Component<ConfgoBase, any> {
       disable = false;
     }
 
-    if (aid == undefined || isNaN(aid) || aid == 0) {
-      view = (
-        <Col span={24} style={{ marginTop: 20 }}>
-          <Alert
-            style={{ marginLeft: 10, marginRight: 20, marginBottom: 20 }}
-            message="优先选择应用"
-            description=""
-            type="info"
+    view = (
+      <Tabs
+        defaultActiveKey={this.state.tab}
+        onChange={this.callback}
+        style={{ width: '100%', marginTop: '-15px' }}
+        tabBarStyle={{ paddingLeft: '10px', marginBottom: 0 }}
+      >
+        <TabPane tab="详情" key="detail">
+          <Detail
+            aid={aid}
+            env={env}
+            appNodeList={this.state.appNodeList}
+            appEnvZone={appEnvZone}
           />
-        </Col>
-      );
-    } else {
-      view = (
-        <Tabs
-          defaultActiveKey={this.state.tab}
-          onChange={this.callback}
-          style={{ width: '100%', marginTop: '10px' }}
-          tabBarStyle={{paddingLeft: '10px', marginBottom: 0}}
-        >
-          <TabPane tab="详情" key="detail">
-            <Detail
-              aid={aid}
-              env={env}
-              appNodeList={this.state.appNodeList}
-              appEnvZone={appEnvZone}
-            />
-          </TabPane>
-          <TabPane tab="配置" key="confgo">
-            <Config
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appIdcList={''}
-              zoneCode={this.state.zoneCode}
-              param={''}
-              idcList={this.state.idcList}
-              appEnvZone={this.state.appEnvZone}
-              zoneList={this.state.zoneList}
-            />
-            <Confgo
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appIdcList={''}
-              zoneCode={this.state.zoneCode}
-              param={''}
-              idcList={this.state.idcList}
-              appEnvZone={this.state.appEnvZone}
-              zoneList={this.state.zoneList}
-            />
-          </TabPane>
-          <TabPane tab="监控" key="monitor">
-            <Monitor
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appNodeList={this.state.appNodeList}
-              appIdcList={''}
-              zoneCode={''}
-              param={''}
-              appEnvZone={appEnvZone}
-              idcList={this.state.idcList}
-              zoneList={this.state.zoneList}
-            />
-          </TabPane>
-          <TabPane tab="Pprof" key="pprof">
-            <PPofList
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appNodeList={this.state.appNodeList}
-              appIdcList={''}
-              zoneCode={''}
-              param={''}
-              appEnvZone={appEnvZone}
-              idcList={this.state.idcList}
-              zoneList={this.state.zoneList}
-            />
-          </TabPane>
-        </Tabs>
-      );
-    }
+        </TabPane>
+        <TabPane tab="配置" key="confgo">
+          <Config
+            aid={aid}
+            env={env}
+            appName={appName}
+            appInfo={this.state.appInfo}
+            appIdcList={''}
+            zoneCode={this.state.zoneCode}
+            param={''}
+            idcList={this.state.idcList}
+            appEnvZone={this.state.appEnvZone}
+            zoneList={this.state.zoneList}
+          />
+          <Confgo
+            aid={aid}
+            env={env}
+            appName={appName}
+            appInfo={this.state.appInfo}
+            appIdcList={''}
+            zoneCode={this.state.zoneCode}
+            param={''}
+            idcList={this.state.idcList}
+            appEnvZone={this.state.appEnvZone}
+            zoneList={this.state.zoneList}
+          />
+        </TabPane>
+        <TabPane tab="监控" key="monitor">
+          <Monitor
+            aid={aid}
+            env={env}
+            appName={appName}
+            appInfo={this.state.appInfo}
+            appNodeList={this.state.appNodeList}
+            appIdcList={''}
+            zoneCode={''}
+            param={''}
+            appEnvZone={appEnvZone}
+            idcList={this.state.idcList}
+            zoneList={this.state.zoneList}
+          />
+        </TabPane>
+        <TabPane tab="Pprof" key="pprof">
+          <PPofList
+            aid={aid}
+            env={env}
+            appName={appName}
+            appInfo={this.state.appInfo}
+            appNodeList={this.state.appNodeList}
+            appIdcList={''}
+            zoneCode={''}
+            param={''}
+            appEnvZone={appEnvZone}
+            idcList={this.state.idcList}
+            zoneList={this.state.zoneList}
+          />
+        </TabPane>
+      </Tabs>
+    );
+
     return (
       <PageHeaderWrapper>
-        <div style={{backgroundColor: '#fff'}}>
-          <div style={{padding: 10}}>
+        <div style={{ backgroundColor: '#fff' }}>
+          <div style={{ padding: 10 }}>
             <Row>
               <AppHeader
                 appInfo={this.state.appInfo}
@@ -303,7 +290,7 @@ export default class App extends React.Component<ConfgoBase, any> {
                 initDisable={disable}
               />
             </Row>
-            <Row style={{ marginTop: '10px'}}>
+            <Row style={{ marginTop: '10px' }}>
               <Col span={12}>
                 <ZoneSelect
                   appEnvZone={appEnvZone}
