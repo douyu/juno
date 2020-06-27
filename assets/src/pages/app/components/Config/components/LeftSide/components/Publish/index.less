@@ -1,0 +1,36 @@
+.publish {
+  padding: 10px;
+
+  .instanceList {
+    margin: 10px 0 0 0;
+    padding: 0;
+
+    li {
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #2a2d2e;
+      display: grid;
+      grid-template-columns: 50px auto;
+
+      &:nth-child(n+2) {
+        margin-top: 10px;
+      }
+
+      .icon {
+        font-size: 32px;
+      }
+
+      .instanceInfo {
+
+        p {
+          margin-bottom: 5px;
+        }
+
+        .infoTitle {
+          font-weight: bold;
+          padding-right: 10px;
+        }
+      }
+    }
+  }
+}
