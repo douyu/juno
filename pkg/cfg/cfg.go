@@ -1,12 +1,13 @@
 package cfg
 
 import (
+	"strings"
+
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/ecode"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
 	"net/url"
-	"strings"
 )
 
 var Cfg cfg
