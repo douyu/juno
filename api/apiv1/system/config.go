@@ -16,7 +16,7 @@ func Config(c echo.Context) error {
 	viewSetting := map[string]interface{}{
 		"appUrl":            cfg.Cfg.AppUrl,
 		"authProxyEnabled":  cfg.Cfg.AuthProxyEnabled,
-		"disableLoginForm":  cfg.Cfg.DisableLoginForm,
+		"disableLoginForm":  cfg.Cfg.Auth.DisableLoginForm,
 		"oauth":             enabledOAuths,
 	}
 	return output.JSON(c, output.MsgOk, "success", viewSetting)
