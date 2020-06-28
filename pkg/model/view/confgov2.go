@@ -39,7 +39,7 @@ type (
 	}
 
 	// 包含配置内容
-	RespDetailtConfig struct {
+	RespDetailConfig struct {
 		ID          uint       `json:"id"`
 		AID         uint       `json:"aid"`
 		Name        string     `json:"name"`
@@ -97,8 +97,8 @@ type (
 	}
 
 	RespDiffConfig struct {
-		Origin   *RespDetailtConfig `json:"origin,omitempty"`
-		Modified RespDetailtConfig  `json:"modified"`
+		Origin   *RespDetailConfig `json:"origin,omitempty"`
+		Modified RespDetailConfig  `json:"modified"`
 	}
 
 	ReqDeleteConfig struct {

@@ -4,13 +4,13 @@ import (
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/user"
-	view2 "github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
 
 //List 配置文件列表
 func List(c echo.Context) (err error) {
-	param := view2.ReqListConfig{}
+	param := view.ReqListConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
@@ -24,8 +24,9 @@ func List(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "", list)
 }
 
+// Detail ..
 func Detail(c echo.Context) (err error) {
-	param := view2.ReqDetailConfig{}
+	param := view.ReqDetailConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
@@ -39,8 +40,9 @@ func Detail(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "", detail)
 }
 
+// Create ..
 func Create(c echo.Context) (err error) {
-	param := view2.ReqCreateConfig{}
+	param := view.ReqCreateConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
@@ -54,8 +56,9 @@ func Create(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
+// Update ..
 func Update(c echo.Context) (err error) {
-	param := view2.ReqUpdateConfig{}
+	param := view.ReqUpdateConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
@@ -75,14 +78,15 @@ func Update(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "")
 }
 
+// Publish ..
 func Publish(c echo.Context) (err error) {
-	param := view2.ReqPublishConfig{}
+	param := view.ReqPublishConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
-	err = confgov2.Publish(param)
+	err = confgov2.Publish(param, user.GetUser(c))
 	if err != nil {
 		if err == confgov2.ErrConfigNotExists {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法发布")
@@ -91,17 +95,18 @@ func Publish(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	return output.JSON(c, output.MsgOk, "")
+	return output.JSON(c, output.MsgOk, "发布成功")
 }
 
+// History ..
 func History(c echo.Context) (err error) {
-	param := view2.ReqHistoryConfig{}
+	param := view.ReqHistoryConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
-	history, err := confgov2.History(param)
+	history, err := confgov2.History(param, user.GetUser(c).Uid)
 	if err != nil {
 		if err == confgov2.ErrConfigNotExists {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法更新")
@@ -109,32 +114,30 @@ func History(c echo.Context) (err error) {
 
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
 	return output.JSON(c, output.MsgOk, "", history)
 }
 
+// Diff ..
 func Diff(c echo.Context) (err error) {
-	param := view2.ReqDiffConfig{}
+	param := view.ReqDiffConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-
 	resp, err := confgov2.Diff(param.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
 	return output.JSON(c, output.MsgOk, "", resp)
 }
 
+// Delete ..
 func Delete(c echo.Context) (err error) {
-	param := view2.ReqDiffConfig{}
+	param := view.ReqDiffConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-
 	err = confgov2.Delete(param.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
