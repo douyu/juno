@@ -1,6 +1,8 @@
 package api
 
 import (
+	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"net/http"
 	"strings"
 	"time"
@@ -44,15 +46,19 @@ func New() *Admin {
 		eng.initInvoker,
 		eng.initProxy,
 	)
-	eng.serveHTTP()
 
 	gitlab.Init()
 	service.Init()
+	eng.serveHTTP()
 	return eng
 }
 
 func (eng *Admin) serveHTTP() {
-	server := xecho.StdConfig("http").Build()
+	serverConfig := xecho.DefaultConfig()
+	serverConfig.Host = cfg.Cfg.Server.Host
+	serverConfig.Port = cfg.Cfg.Server.Port
+
+	server := serverConfig.Build()
 	server.Debug = true
 
 	server.Use(middleware.ProxyGatewayMW)
@@ -99,18 +105,19 @@ func (eng *Admin) serveHTTP() {
 	// 获取应用信息,该应用机房信息
 	g.GET("/api/app/info", app.Info)
 	g.GET("/api/app/env", app.Env)
+	g.GET("/api/system",app.Info)
 
 	userGroup := g.Group("/user")
 	{
 		// user
 		userGroup.POST("/login", user.Login)
+		userGroup.GET("/login/:oauth", user.LoginOauth)
 		userGroup.GET("/logout", user.Logout)
 		userGroup.GET("/info", user.Info)
 		userGroup.POST("/create", user.Create, loginAuthWithJSON)
 		userGroup.POST("/update", user.Update, loginAuthWithJSON)
 		userGroup.GET("/list", user.List, loginAuthWithJSON)
 		userGroup.POST("/delete", user.Delete, loginAuthWithJSON)
-
 	}
 
 	confgoGroup := g.Group("/confgo", loginAuthWithJSON)
@@ -211,6 +218,7 @@ func (eng *Admin) serveHTTP() {
 		systemGroup.POST("/option/create", system.OptionCreate)
 		systemGroup.POST("/option/update", system.OptionUpdate)
 		systemGroup.POST("/option/delete", system.OptionDelete)
+		systemGroup.GET("/config",system.Config)
 	}
 
 	eventGroup := g.Group("/event", loginAuthWithJSON)
@@ -359,6 +367,7 @@ func (eng *Admin) startJobs() {
 }
 
 func (eng *Admin) initInvoker() error {
+	xlog.DefaultLogger = xlog.StdConfig("default").Build()
 	invoker.Init()
 	return nil
 }
