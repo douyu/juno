@@ -16,6 +16,8 @@ type User struct {
 	CreateTime    int64  `gorm:"not null;comment:'注释'"json:"createTime"`
 	UpdateTime    int64  `gorm:"not null;comment:'注释'"json:"updateTime"`
 	authenticated bool   `form:"-" db:"-" json:"-"`
+	Oauth         string `gorm:"not null;"json:"oauth"`   // 来源
+	OauthId       string    `gorm:"not null;"json:"oauthId"` // 来源id
 	Password      string `gorm:"not null;comment:'注释'"json:"password"`
 	// open source user data
 	CurrentAuthority string `json:"currentAuthority"`

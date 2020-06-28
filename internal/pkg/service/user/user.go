@@ -122,25 +122,46 @@ func (u *user) GetNameByUID(uid int) string {
 	return userData.Username
 }
 
+// 根据oauth获取用户
+func (u *user) CreateOrUpdateOauthUser(info *db.User) (err error) {
+	err = u.DB.Where("oauth = ? and oauth_id = ?", info.Oauth, info.OauthId).Find(&info).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		// system error
+		return
+	}
+	// not found
+	if gorm.IsRecordNotFoundError(err) {
+		err = u.Create(info)
+		if err != nil {
+			return
+		}
+	}
+
+	err = u.Update(info.Uid,info)
+	if err != nil {
+		return
+	}
+	return
+}
+
 // 设置APP信息
-func (u *user) Create(item db.User) (err error) {
-	var info db.User
-	err = u.DB.Where("username = ?", item.Username).Find(&info).Error
+func (u *user) Create(item *db.User) (err error) {
+	err = u.DB.Where("username = ?", item.Username).Find(item).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}
-	if info.Uid > 0 {
+	if item.Uid > 0 {
 		err = errors.New("user name is exist")
 		return
 	}
 
 	item.CreateTime = time.Now().Unix()
 	item.UpdateTime = time.Now().Unix()
-	err = u.DB.Create(&item).Error
+	err = u.DB.Create(item).Error
 
 	u.l.Lock()
-	u.data[item.Uid] = item
-	u.search[item.Username] = item
+	u.data[item.Uid] = *item
+	u.search[item.Username] = *item
 	u.l.Unlock()
 
 	return

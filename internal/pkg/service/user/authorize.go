@@ -53,7 +53,7 @@ func GitlabAuthCHeck(c echo.Context) (err error) {
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
 		}
-		User.Create(u)
+		User.Create(&u)
 	} else {
 		// create the user account
 		User.Update(u.Uid, &db.User{

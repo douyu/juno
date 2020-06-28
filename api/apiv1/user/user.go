@@ -54,7 +54,7 @@ func Create(c echo.Context) error {
 	}
 
 	reqModel.Password = string(hash)
-	err = user.User.Create(reqModel.User)
+	err = user.User.Create(&reqModel.User)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
