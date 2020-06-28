@@ -9,6 +9,10 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/auth/authconfig"
@@ -19,9 +23,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 )
 
 var (
@@ -183,7 +184,7 @@ func LoginOauth(c echo.Context) error {
 
 	mysqlUser := &db.User{
 		Username: userInfo.Name + "_" + name,
-		Nickname: userInfo.Login+ "_" + name,
+		Nickname: userInfo.Login + "_" + name,
 		Email:    userInfo.Email,
 		Oauth:    "oauth_" + name,
 		OauthId:  userInfo.Id,
@@ -201,7 +202,7 @@ func LoginOauth(c echo.Context) error {
 		return output.JSON(c, 12, "create or update oauth user error", err.Error())
 	}
 
-	toURULCookie, err :=c.Cookie("redirect_juno_to")
+	toURULCookie, err := c.Cookie("redirect_juno_to")
 	toURL := cfg.Cfg.AppSubUrl + "/"
 	if err != nil {
 		return c.Redirect(http.StatusFound, toURL)
@@ -212,7 +213,6 @@ func LoginOauth(c echo.Context) error {
 		return c.Redirect(http.StatusFound, toURL)
 	}
 	return c.Redirect(http.StatusFound, toURL)
-
 
 }
 

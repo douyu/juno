@@ -65,10 +65,10 @@ type DeleteAuthInfoCommand struct {
 
 type LoginUserQuery struct {
 	//ReqContext *ReqContext
-	Username   string
-	Password   string
+	Username string
+	Password string
 	//User       *User
-	IpAddress  string
+	IpAddress string
 }
 
 type GetUserByAuthInfoQuery struct {
