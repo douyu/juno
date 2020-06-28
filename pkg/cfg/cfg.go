@@ -15,7 +15,6 @@ type cfg struct {
 	AppUrl            string
 	AppSubUrl         string
 	AuthProxyEnabled  bool
-	DisableLoginForm  bool
 	DisableUserSignUp bool
 	App               App
 	Auth              Auth
@@ -27,7 +26,6 @@ func defaultConfig() cfg {
 	return cfg{
 		AppUrl:            "",
 		AuthProxyEnabled:  false,
-		DisableLoginForm:  false,
 		DisableUserSignUp: false,
 		Auth: Auth{
 			LoginCookieName:                  "juno_session",

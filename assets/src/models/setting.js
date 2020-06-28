@@ -1,3 +1,7 @@
+/**
+ * 系统设置model
+ */
+
 import {loadSettings, updateSetting} from "@/pages/manage/services";
 import {message} from "antd";
 
