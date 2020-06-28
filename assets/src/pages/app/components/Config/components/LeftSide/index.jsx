@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
 import styles from './index.less';
 import {Menu} from "./components/Menu";
-import {FileOutlined, OrderedListOutlined} from '@ant-design/icons'
+import {FileOutlined, CloudServerOutlined} from '@ant-design/icons'
 import Files from "./components/Files";
 import {connect} from 'dva'
 import ModalCreate from "@/pages/app/components/Config/components/ModalCreate";
+import Publish from "@/pages/app/components/Config/components/LeftSide/components/Publish";
 
 const MenuItems = [
   {
@@ -13,9 +14,9 @@ const MenuItems = [
     label: '配置编辑'
   },
   {
-    icon: <OrderedListOutlined/>,
-    key: 'version',
-    label: '历史版本'
+    icon: <CloudServerOutlined/>,
+    key: 'publish',
+    label: '版本发布'
   },
 ]
 
@@ -27,8 +28,8 @@ function LeftSide(props) {
     switch (activeMenuKey) {
       case "config-edit":
         return <Files/>
-      case 'version':
-        return <div>version</div>
+      case 'publish':
+        return <Publish/>
     }
   }
 
