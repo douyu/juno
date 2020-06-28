@@ -43,3 +43,4 @@ assets/pprof_static/*
 /docker/*
 /pprof/*
 /release/*
+package-lock.json
