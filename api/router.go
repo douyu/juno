@@ -105,7 +105,7 @@ func (eng *Admin) serveHTTP() {
 	// 获取应用信息,该应用机房信息
 	g.GET("/api/app/info", app.Info)
 	g.GET("/api/app/env", app.Env)
-	g.GET("/api/system",app.Info)
+	g.GET("/api/system", app.Info)
 
 	userGroup := g.Group("/user")
 	{
@@ -218,7 +218,7 @@ func (eng *Admin) serveHTTP() {
 		systemGroup.POST("/option/create", system.OptionCreate)
 		systemGroup.POST("/option/update", system.OptionUpdate)
 		systemGroup.POST("/option/delete", system.OptionDelete)
-		systemGroup.GET("/config",system.Config)
+		systemGroup.GET("/config", system.Config)
 	}
 
 	eventGroup := g.Group("/event", loginAuthWithJSON)

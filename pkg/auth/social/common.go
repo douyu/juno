@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"github.com/douyu/juno/pkg/util/errutil"
 	"github.com/douyu/jupiter/pkg/xlog"
+	"github.com/jmespath/go-jmespath"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"github.com/jmespath/go-jmespath"
 )
 
 var (
