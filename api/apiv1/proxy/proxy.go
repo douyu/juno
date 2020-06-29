@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"encoding/json"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
 	"github.com/douyu/juno/pb"
