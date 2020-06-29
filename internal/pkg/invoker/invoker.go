@@ -1,11 +1,12 @@
 package invoker
 
 import (
+	"time"
+
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"go.etcd.io/etcd/clientv3"
-	"time"
 )
 
 var (

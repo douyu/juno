@@ -3,6 +3,8 @@ package proxyengine
 import (
 	"context"
 	"errors"
+	"strconv"
+
 	apiproxy "github.com/douyu/juno/api/apiv1/proxy"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
 	"github.com/douyu/juno/internal/pkg/service/report"
@@ -14,7 +16,6 @@ import (
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
-	"strconv"
 )
 
 type Proxy struct {

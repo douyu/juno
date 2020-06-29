@@ -1,6 +1,9 @@
 package adminengine
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/app"
 	"github.com/douyu/juno/api/apiv1/confgo"
@@ -16,8 +19,6 @@ import (
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strings"
 )
 
 func apiAdmin(server *xecho.Server) {
