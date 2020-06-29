@@ -1,0 +1,63 @@
+
+[app]
+  appurl = ""
+  mode = "prod"
+  name = "juno"
+  token = "123456"
+  secretKey = "ASDFASDFASDF"
+
+  [app.registry]
+
+    [app.registry.etcd]
+      endpoints = ["127.0.0.1:2379"]
+      timeout = "2s"
+  [proxy.etcd]
+
+
+[confgo]
+  dir = "/tmp/www/server"
+  prefix = "juno-agent"
+
+  [confgo.agent]
+    port = 50010
+
+
+[jupiter.logger.default]
+    debug = true          # 是否在命令行输出
+    enableConsole = true  # 是否按命令行格式输出
+    level = "debug"
+
+
+
+#################################### Server ##############################
+[proxy.httpServer]
+    # The ip address to bind to, empty will bind to all interfaces
+    host = "0.0.0.0"
+    # The http port to use
+    port = 50000
+    # The public facing domain name used to access grafana from a browser
+    domain = "localhost"
+    # enable gzip
+    enableGzip = false
+
+[proxy.grpcServer]
+    # The ip address to bind to, empty will bind to all interfaces
+    host = "0.0.0.0"
+    # The http port to use
+    port = 50001
+    # The public facing domain name used to access grafana from a browser
+    domain = "localhost"
+    # enable gzip
+    enableGzip = false
+
+[proxy.heartbeat]
+    enable = true
+    debug = true
+    addr = "stream"
+    internal = "10s"
+    hostName = "JUNO_HOST" # 环境变量的名称，或者命令行参数的名称
+    regionCode = "REGION_CODE" # 环境变量的名称，或者命令行参数的名称
+    regionName = "REGION_NAME"
+    zoneCode = "ZONE_CODE"
+    zoneName = "ZONE_NAME"
+    env = "env"
