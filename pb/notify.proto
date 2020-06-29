@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package pb;
+
+service Proxy {
+    rpc Notify (stream NotifyReq) returns (stream NotifyResp);
+}
+
+//新增连接信息通知
+message NotifyReq
+{
+    uint32 msgId = 1;
+    bytes msg = 2 ;
+}
+
+message NotifyResp
+{
+    uint32 code = 1;
+    uint32 msgId = 2;
+    bytes msg = 3;
+}

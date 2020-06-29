@@ -22,16 +22,16 @@ type proxy struct {
 func NewHttpProxy() http.Handler {
 	p := &proxy{
 		bufferPool:     NewBufferPool(),
-		defaultBackend: conf.GetString("clientProxy.http.backend"),
+		defaultBackend: conf.GetString("proxy.http.backend"),
 	}
 
 	roundTripperFactory := &roundtrip.FactoryImpl{
 		Template: &http.Transport{
-			Dial:                (&net.Dialer{Timeout: conf.GetDuration("clientProxy.http.timeout")}).Dial,
-			DisableKeepAlives:   conf.GetBool("clientProxy.http.disableKeepAlives"),
-			MaxIdleConns:        conf.GetInt("clientProxy.http.maxIdleConns"),
+			Dial:                (&net.Dialer{Timeout: conf.GetDuration("proxy.http.timeout")}).Dial,
+			DisableKeepAlives:   conf.GetBool("proxy.http.disableKeepAlives"),
+			MaxIdleConns:        conf.GetInt("proxy.http.maxIdleConns"),
 			IdleConnTimeout:     90 * time.Second, // setting the value to golang default transport
-			MaxIdleConnsPerHost: conf.GetInt("clientProxy.http.maxIdelPerHost"),
+			MaxIdleConnsPerHost: conf.GetInt("proxy.http.maxIdelPerHost"),
 			DisableCompression:  true,
 		},
 	}
@@ -39,7 +39,7 @@ func NewHttpProxy() http.Handler {
 	prt := roundtrip.NewProxyRoundTripper(
 		roundTripperFactory,
 		http.DefaultTransport,
-		conf.GetDuration("clientProxy.http.timeout"),
+		conf.GetDuration("proxy.http.timeout"),
 	)
 
 	rp := &httputil.ReverseProxy{
