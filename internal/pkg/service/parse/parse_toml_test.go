@@ -6,7 +6,6 @@ import (
 
 	"github.com/douyu/juno/internal/pkg/code"
 	"github.com/douyu/juno/internal/pkg/service/parse"
-	"github.com/douyu/juno/internal/pkg/util"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -100,17 +99,13 @@ func TestTomlParse_Fusion(t *testing.T) {
 	for name, tc := range tests {
 		fmt.Println(name)
 		t.Run(name, func(t *testing.T) {
-			res, got := parseToml.Fusion(tc.input.texts)
-			util.PPP("res", string(res))
-			util.PPP("got", got)
+			_, got := parseToml.Fusion(tc.input.texts)
 			diff := cmp.Diff(tc.want, got)
 			if diff != "" {
 				t.Fatalf(diff)
 			}
 
-			b, e := parseToml.IsLegal(tc.input.source)
-			util.PPP("bool", b)
-			util.PPP("e", e)
+			parseToml.IsLegal(tc.input.source)
 		})
 	}
 }

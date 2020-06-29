@@ -9,8 +9,13 @@ BUILD_PATH:=$(BASE_PATH)/juno/build
 install:
 	@go run cmd/install/main.go --config=configs/install.toml
 
-run:
-	@go run cmd/admin/main.go --config=configs/admin.toml
+run.single-region-admin:
+	@go run cmd/admin/main.go --config=configs/single-region-admin.toml
+
+run.multiple-region-admin:
+	@go run cmd/admin/main.go --config=configs/multiple-region-admin.toml
+run.multiple-region-proxy:
+	@go run cmd/proxy/main.go --config=configs/multiple-region-proxy.toml
 
 docker:
 	@docker-compose -f ./build/docker/standalone.yaml up
