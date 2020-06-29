@@ -145,3 +145,19 @@ func Delete(c echo.Context) (err error) {
 
 	return output.JSON(c, output.MsgOk, "")
 }
+
+// InstanceList ..
+func InstanceList(c echo.Context) (err error) {
+	param := view.ReqCreateConfig{}
+	err = c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+
+	nodes, err := confgov2.Instances(param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error(), nodes)
+	}
+
+	return output.JSON(c, output.MsgOk, "success", nodes)
+}

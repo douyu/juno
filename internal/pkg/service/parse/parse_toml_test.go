@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/douyu/juno/internal/pkg/code"
+	"github.com/douyu/juno/pkg/code"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/util"
 	"github.com/google/go-cmp/cmp"

@@ -1,15 +1,18 @@
 // 配置编辑 Model
 
-import effects from "@/models/config/effects";
-import reducers from "@/models/config/reducers";
+import effects from '@/models/config/effects';
+import reducers from '@/models/config/reducers';
 
 const defaultState = {
-
   // 配置列表
   configList: [],
   configListLoading: false,
 
   zoneList: [],
+
+  // 实例列表
+  configInstanceList: [],
+  configInstanceListLoading: false,
 
   // 模态窗口状态
   visibleModalCreate: false,
@@ -18,8 +21,12 @@ const defaultState = {
 
   aid: 0,
   env: '',
+  zoneCode: '',
   appName: '',
 
+  // 配置发布
+  configPublishLoading:false,
+  
   // 当前正在编辑的配置文件
   currentConfig: null,
   configFileLoading: false,
@@ -38,12 +45,11 @@ const defaultState = {
   historyList: [],
   historyListPagination: {},
   historyListLoading: false,
-
-}
+};
 
 export default {
   namespace: 'config',
   state: defaultState,
   effects: effects,
-  reducers: reducers
-}
+  reducers: reducers,
+};

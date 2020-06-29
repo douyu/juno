@@ -172,6 +172,7 @@ func (eng *Admin) serveHTTP() {
 		g.GET("/config/history", confgov2.History)  // 配置文件历史
 		g.POST("/config/delete", confgov2.Delete)   // 配置删除
 		g.GET("/config/diff", confgov2.Diff)        // 配置文件Diif，返回两个版本的配置内容
+		g.GET("/config/instance/list", confgov2.InstanceList)        // 配置文件Diif，返回两个版本的配置内容
 	}
 
 	resourceGroup := g.Group("/resource", loginAuthWithJSON)
