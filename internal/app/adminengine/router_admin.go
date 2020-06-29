@@ -167,13 +167,13 @@ func apiAdmin(server *xecho.Server) {
 	}
 
 	systemGroup := g.Group("/system", loginAuthWithJSON)
+	g.GET("/system/config", system.Config) // 不走路由
 	{
 		systemGroup.GET("/option/info", system.OptionInfo)
 		systemGroup.GET("/option/list", system.OptionList)
 		systemGroup.POST("/option/create", system.OptionCreate)
 		systemGroup.POST("/option/update", system.OptionUpdate)
 		systemGroup.POST("/option/delete", system.OptionDelete)
-		systemGroup.GET("/config", system.Config)
 	}
 
 	eventGroup := g.Group("/event", loginAuthWithJSON)
