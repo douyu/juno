@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/douyu/juno/internal/pkg/library/util"
+	"github.com/douyu/juno/pkg/util"
 )
 
 type ActionType int32

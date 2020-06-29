@@ -4,7 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 
-	"github.com/douyu/juno/internal/pkg/library/util"
+	"github.com/douyu/juno/pkg/util"
 )
 
 // AppInfo ...
