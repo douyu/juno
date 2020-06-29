@@ -1,13 +1,16 @@
 package cfg
 
 import (
+	"fmt"
+	"net/url"
+	"os"
 	"strings"
 
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/ecode"
+	"github.com/douyu/jupiter/pkg/util/xtime"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
-	"net/url"
 )
 
 var Cfg cfg
@@ -20,6 +23,8 @@ type cfg struct {
 	App               App
 	Auth              Auth
 	Server            Server
+	Proxy             Proxy
+	Database          Database
 }
 
 // DefaultConfig ...
@@ -48,6 +53,24 @@ func defaultConfig() cfg {
 			StaticRootPath: "",
 			EnableGzip:     false,
 		},
+		Proxy: Proxy{
+			Stream: ProxyStream{
+				Enable:    false,
+				ProxyAddr: nil,
+			},
+			HeartBeat: HeartBeat{
+				Enable:     true,
+				Debug:      false,
+				Addr:       "stream",
+				Internal:   xtime.Duration("60s"),
+				HostName:   "",
+				RegionCode: "",
+				RegionName: "",
+				ZoneCode:   "",
+				ZoneName:   "",
+				Env:        "",
+			},
+		},
 	}
 }
 
@@ -65,7 +88,9 @@ func InitCfg() {
 	if err != nil {
 		xlog.Panic("parse root url err", zap.Error(err))
 	}
+	config.parseHeartBeat()
 	Cfg = config
+	fmt.Println("config.database", config.Database)
 }
 
 func parseAppUrlAndSubUrl(rootUrl string) (string, string, error) {
@@ -82,4 +107,28 @@ func parseAppUrlAndSubUrl(rootUrl string) (string, string, error) {
 	}
 	appSubUrl := strings.TrimSuffix(url.Path, "/")
 	return appUrl, appSubUrl, nil
+}
+
+func (c *cfg) parseHeartBeat() {
+	c.Proxy.HeartBeat.RegionCode = os.Getenv(c.Proxy.HeartBeat.RegionCode)
+	c.Proxy.HeartBeat.RegionName = os.Getenv(c.Proxy.HeartBeat.RegionName)
+	c.Proxy.HeartBeat.ZoneCode = os.Getenv(c.Proxy.HeartBeat.ZoneCode)
+	c.Proxy.HeartBeat.ZoneName = os.Getenv(c.Proxy.HeartBeat.ZoneName)
+	c.Proxy.HeartBeat.HostName = GetHostName(c.Proxy.HeartBeat.HostName)
+	env := os.Getenv(c.Proxy.HeartBeat.Env)
+	if env != "" {
+		c.Proxy.HeartBeat.Env = env
+	}
+}
+
+// GetHostName ...
+func GetHostName(hostName string) string {
+	if host := os.Getenv(hostName); host != "" {
+		return host
+	}
+	name, err := os.Hostname()
+	if err != nil {
+		return fmt.Sprintf("error:%s", err.Error())
+	}
+	return name
 }

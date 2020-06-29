@@ -14,6 +14,7 @@ require (
 	github.com/douyu/jupiter v0.0.0-20200605021304-25486432a0af
 	github.com/go-resty/resty/v2 v2.2.0
 	github.com/go-sql-driver/mysql v1.4.1
+	github.com/golang/protobuf v1.4.2
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-cmp v0.4.0
 	github.com/gorilla/securecookie v1.1.1
