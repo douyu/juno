@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/douyu/juno/internal/app/adminengine"
 	"github.com/douyu/jupiter/pkg/conf"
-	"log"
 )
 
 func main() {

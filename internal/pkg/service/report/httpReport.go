@@ -16,9 +16,10 @@ package report
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/go-resty/resty/v2"
-	"time"
 )
 
 // ErrCode code
