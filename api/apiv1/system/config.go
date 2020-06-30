@@ -14,11 +14,10 @@ func Config(c echo.Context) error {
 		enabledOAuths[key] = map[string]string{"name": oauth.Name}
 	}
 	viewSetting := map[string]interface{}{
-		"appUrl":            cfg.Cfg.AppUrl,
-		"authProxyEnabled":  cfg.Cfg.AuthProxyEnabled,
-		"disableLoginForm":  cfg.Cfg.DisableLoginForm,
-		"oauth":             enabledOAuths,
+		"appUrl":           cfg.Cfg.AppUrl,
+		"authProxyEnabled": cfg.Cfg.AuthProxyEnabled,
+		"disableLoginForm": cfg.Cfg.Auth.DisableLoginForm,
+		"oauth":            enabledOAuths,
 	}
 	return output.JSON(c, output.MsgOk, "success", viewSetting)
 }
-

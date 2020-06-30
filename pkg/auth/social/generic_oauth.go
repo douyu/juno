@@ -5,13 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/douyu/juno/pkg/util/errutil"
-	"go.uber.org/zap"
 	"net/http"
 	"net/mail"
 	"regexp"
 
-
+	"github.com/douyu/juno/pkg/util/errutil"
+	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 )
 
@@ -121,7 +120,7 @@ func (s *SocialGenericOAuth) UserInfo(client *http.Client, token *oauth2.Token) 
 		return nil, errors.New("User not a member of one of the required organizations")
 	}
 
-	s.log.Debug("User info result", zap.Any("result",userInfo))
+	s.log.Debug("User info result", zap.Any("result", userInfo))
 	return userInfo, nil
 }
 
@@ -169,31 +168,31 @@ func (s *SocialGenericOAuth) extractToken(data *UserInfoJson, token *oauth2.Toke
 
 	err = json.Unmarshal(data.rawJSON, data)
 	if err != nil {
-		s.log.Error("Error decoding id_token JSON", zap.String("raw_json", string(data.rawJSON)),zap.Error(err))
+		s.log.Error("Error decoding id_token JSON", zap.String("raw_json", string(data.rawJSON)), zap.Error(err))
 		data.rawJSON = []byte{}
 		return false
 	}
 
-	s.log.Debug("Received id_token",zap.Any("raw_json", string(data.rawJSON)) ,zap.Any("data", data) )
+	s.log.Debug("Received id_token", zap.Any("raw_json", string(data.rawJSON)), zap.Any("data", data))
 	return true
 }
 
 func (s *SocialGenericOAuth) extractAPI(data *UserInfoJson, client *http.Client) bool {
 	rawUserInfoResponse, err := HttpGet(client, s.apiUrl)
 	if err != nil {
-		s.log.Debug("Error getting user info response", zap.String("url", s.apiUrl),zap.Error(err))
+		s.log.Debug("Error getting user info response", zap.String("url", s.apiUrl), zap.Error(err))
 		return false
 	}
 	data.rawJSON = rawUserInfoResponse.Body
 
 	err = json.Unmarshal(data.rawJSON, data)
 	if err != nil {
-		s.log.Error("Error decoding user info response", zap.Any("raw_json", data.rawJSON),zap.Error(err))
+		s.log.Error("Error decoding user info response", zap.Any("raw_json", data.rawJSON), zap.Error(err))
 		data.rawJSON = []byte{}
 		return false
 	}
 
-	s.log.Debug("Received user info response", zap.String("raw_json", string(data.rawJSON)),zap.Any( "data", data))
+	s.log.Debug("Received user info response", zap.String("raw_json", string(data.rawJSON)), zap.Any("data", data))
 	return true
 }
 
@@ -274,7 +273,7 @@ func (s *SocialGenericOAuth) FetchPrivateEmail(client *http.Client) (string, err
 
 	response, err := HttpGet(client, fmt.Sprintf(s.apiUrl+"/emails"))
 	if err != nil {
-		s.log.Error("Error getting email address", zap.String("url", s.apiUrl+"/emails"),zap.Error(err) )
+		s.log.Error("Error getting email address", zap.String("url", s.apiUrl+"/emails"), zap.Error(err))
 		return "", errutil.Wrap("Error getting email address", err)
 	}
 
@@ -288,7 +287,7 @@ func (s *SocialGenericOAuth) FetchPrivateEmail(client *http.Client) (string, err
 
 		err = json.Unmarshal(response.Body, &data)
 		if err != nil {
-			s.log.Error("Error decoding email addresses response", zap.String("raw_json", string(response.Body)),zap.Error(err))
+			s.log.Error("Error decoding email addresses response", zap.String("raw_json", string(response.Body)), zap.Error(err))
 			return "", errutil.Wrap("Error decoding email addresses response", err)
 		}
 
@@ -317,7 +316,7 @@ func (s *SocialGenericOAuth) FetchTeamMemberships(client *http.Client) ([]int, b
 
 	response, err := HttpGet(client, fmt.Sprintf(s.apiUrl+"/teams"))
 	if err != nil {
-		s.log.Error("Error getting team memberships", zap.String("url", s.apiUrl+"/teams"),zap.Error(err) )
+		s.log.Error("Error getting team memberships", zap.String("url", s.apiUrl+"/teams"), zap.Error(err))
 		return nil, false
 	}
 
@@ -325,7 +324,7 @@ func (s *SocialGenericOAuth) FetchTeamMemberships(client *http.Client) ([]int, b
 
 	err = json.Unmarshal(response.Body, &records)
 	if err != nil {
-		s.log.Error("Error decoding team memberships response", zap.String("raw_json", string(response.Body)),zap.Error(err))
+		s.log.Error("Error decoding team memberships response", zap.String("raw_json", string(response.Body)), zap.Error(err))
 		return nil, false
 	}
 
@@ -354,7 +353,7 @@ func (s *SocialGenericOAuth) FetchOrganizations(client *http.Client) ([]string, 
 
 	err = json.Unmarshal(response.Body, &records)
 	if err != nil {
-		s.log.Error("Error decoding organization response", zap.String("response", string(response.Body)),zap.Error(err) )
+		s.log.Error("Error decoding organization response", zap.String("response", string(response.Body)), zap.Error(err))
 		return nil, false
 	}
 

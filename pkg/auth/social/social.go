@@ -2,15 +2,16 @@ package social
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/douyu/juno/pkg/auth/authconfig"
-	"github.com/douyu/jupiter/pkg/conf"
-	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/douyu/juno/pkg/cfg"
-	"github.com/spf13/cast"
-	"golang.org/x/oauth2"
 	"net/http"
 	"strings"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/douyu/juno/pkg/auth/authconfig"
+	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/jupiter/pkg/conf"
+	"github.com/douyu/jupiter/pkg/xlog"
+	"github.com/spf13/cast"
+	"golang.org/x/oauth2"
 )
 
 type BasicUserInfo struct {
@@ -50,11 +51,10 @@ func (e *Error) Error() string {
 	return e.s
 }
 
-
 var (
 	SocialBaseUrl = "/api/admin/user/login/"
 	SocialMap     = make(map[string]SocialConnector)
-	allOauthes    = []string{"github", "gitlab", "google", "generic_oauth" }
+	allOauthes    = []string{"github", "gitlab", "google", "generic_oauth"}
 )
 
 func newSocialBase(name string, config *oauth2.Config, info *authconfig.OAuthInfo) *SocialBase {
@@ -111,7 +111,7 @@ func NewOAuthService() {
 			Scopes:      info.Scopes,
 		}
 
-		spew.Dump("config",config)
+		spew.Dump("config", config)
 
 		// GitHub.
 		if name == "github" {

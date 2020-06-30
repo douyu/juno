@@ -5,9 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/douyu/jupiter/pkg/conf"
-
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/labstack/echo/v4"
 )
@@ -137,7 +136,7 @@ func (u *user) CreateOrUpdateOauthUser(info *db.User) (err error) {
 		}
 	}
 
-	err = u.Update(info.Uid,info)
+	err = u.Update(info.Uid, info)
 	if err != nil {
 		return
 	}

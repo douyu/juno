@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/pkg/model/db"
 )
