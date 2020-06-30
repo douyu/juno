@@ -145,7 +145,7 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 	var (
 		info db.Node
 	)
-	err = r.DB.Where("host_name = ?", reqInfo.Hostname).Find(&info).Error
+	err = r.DB.Where("host_name = ? and agent_type = ?", reqInfo.Hostname, reqInfo.AgentType).Find(&info).Error
 	// 返回系统错误
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
@@ -189,7 +189,7 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 
 	// 如果存在就更新
 	if info.Id > 0 {
-		err = tx.Model(nodeInfo).Where("host_name = ?", reqInfo.Hostname).UpdateColumns(&nodeInfo).Error
+		err = tx.Model(nodeInfo).Where("host_name = ?  and agent_type = ?", reqInfo.Hostname, reqInfo.AgentType).UpdateColumns(&nodeInfo).Error
 		if err != nil {
 			tx.Rollback()
 			return
@@ -209,7 +209,8 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 		var appInfo db.AppInfo
 		tx.Where("app_name = ?", reqInfo.AppName).Find(&appInfo)
 		var appNodeInfo db.AppNode
-		tx.Where("host_name = ? and app_name =?", reqInfo.Hostname, reqInfo.AppName).Find(&appNodeInfo)
+		// agent can update app info, proxy can't update app info
+		tx.Where("host_name = ? and app_name =? and agent_type = ?", reqInfo.Hostname, reqInfo.AppName, 1).Find(&appNodeInfo)
 		if appInfo.Aid > 0 && appNodeInfo.ID == 0 {
 			addMap := make(map[string]interface{}, 0)
 			addMap[reqInfo.Hostname] = reqInfo.Hostname

@@ -1,16 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/douyu/juno/internal/app/proxyengine"
-	"github.com/douyu/jupiter/pkg/conf"
+	"github.com/douyu/juno/pkg/cfg"
+	"log"
+	"strconv"
 )
 
 func main() {
 	app := proxyengine.New()
-	app.SetGovernor(fmt.Sprintf("0.0.0.0:%d", conf.GetInt("jupiter.server.govern.port")))
+	app.SetGovernor(cfg.Cfg.Proxy.GovernServer.Host + ":" + strconv.Itoa(cfg.Cfg.Proxy.GovernServer.Port))
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}

@@ -34,13 +34,20 @@
 
 
 #################################### Server ##############################
-[server]
-    # Protocol (http, https, h2, socket)
-    protocol = "http"
+[server.http]
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
-    port = 50001
+    port = 50002
+    # The public facing domain name used to access grafana from a browser
+    domain = "localhost"
+    # enable gzip
+    enableGzip = false
+[server.govern]
+    # The ip address to bind to, empty will bind to all interfaces
+    host = "0.0.0.0"
+    # The http port to use
+    port = 50003
     # The public facing domain name used to access grafana from a browser
     domain = "localhost"
     # enable gzip
