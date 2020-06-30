@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'dva';
 import styles from './index.less';
-import { Select } from 'antd';
+import { Select, Modal, message } from 'antd';
 import { DatabaseOutlined } from '@ant-design/icons';
 import OptionButton from '@/pages/app/components/Config/components/OptionButton';
 
@@ -15,19 +15,55 @@ function Publish(props: any) {
     configInstanceListLoading,
     configInstanceList,
     configPublish,
+    loadConfigHistorys,
+    historyList,
+    historyListLoading,
   } = props;
+
+  const [visible, setVisible] = useState(false);
+  const [configureID, setConfigureID] = useState(0);
+  const [version, setVerison] = useState('');
 
   useEffect(() => {
     loadConfigInstances(aid, env, zoneCode);
   }, [aid, env, zoneCode]);
 
-  let publish = () => {
-    configPublish(id, version)
+  let publishStart = () => {
+    console.log('configureID', configureID);
+    if (configureID == 0) {
+      message.error('请选择配置文件再进行发布');
+      return;
+    }
+    setVisible(true);
+    loadConfigHistorys(configureID);
+  };
+
+  let selectVersion = (val: string) => {
+    setVerison(val);
+  };
+
+  let handleCancel = () => {
+    setVisible(false);
+  };
+
+  let handleOk = () => {
+    console.log('configureID', configureID);
+    console.log('version', version);
+    configPublish(configureID, version);
+    setVisible(false);
+  };
+
+  let selectConfigFile = (val: number) => {
+    setConfigureID(val);
   };
 
   return (
     <div className={styles.publish}>
-      <Select style={{ width: '100%' }} loading={configInstanceListLoading}>
+      <Select
+        style={{ width: '100%' }}
+        loading={configInstanceListLoading}
+        onSelect={selectConfigFile}
+      >
         {configList.map((item: any, index: any) => {
           return (
             <Select.Option value={item.id} key={index}>
@@ -38,9 +74,7 @@ function Publish(props: any) {
       </Select>
 
       <div style={{ marginTop: '10px' }}>
-        <OptionButton>
-          <a onclick={publish}>发布</a>
-        </OptionButton>
+        <OptionButton onClick={publishStart}>发布</OptionButton>
       </div>
 
       <ul className={styles.instanceList}>
@@ -65,6 +99,19 @@ function Publish(props: any) {
             );
           })}
       </ul>
+
+      <Modal title="配置发布" visible={visible} onOk={handleOk} onCancel={handleCancel}>
+        <Select style={{ width: '100%' }} loading={historyListLoading} onSelect={selectVersion}>
+          {historyList != undefined &&
+            historyList.map((item: any, index: any) => {
+              return (
+                <Select.Option value={item.version} key={index}>
+                  {item.version}.{item.change_log}
+                </Select.Option>
+              );
+            })}
+        </Select>
+      </Modal>
     </div>
   );
 }
@@ -77,6 +124,8 @@ const mapStateToProps = ({ config }: any) => {
     configList: config.configList,
     configInstanceList: config.configInstanceList,
     zoneCode: config.zoneCode,
+    historyList: config.historyList,
+    historyListLoading: config.historyListLoading,
   };
 };
 
@@ -92,13 +141,22 @@ const mapDispatchToProps = (dispatch: any) => {
         },
       }),
 
-    configPublish: (aid: any, env: any, zoneCode: any) =>
+    loadConfigHistorys: (id: number) =>
       dispatch({
-        type: 'config/publish',
+        type: 'config/loadHistory',
         payload: {
-          aid,
-          env,
-          zoneCode,
+          id,
+          page: 0,
+          size: 10000,
+        },
+      }),
+
+    configPublish: (id: number, version: string) =>
+      dispatch({
+        type: 'config/configPublish',
+        payload: {
+          id,
+          version,
         },
       }),
   };

@@ -103,6 +103,7 @@ func migrateDB() error {
 		&db.SystemConfig{},
 		&db.Configuration{},
 		&db.ConfigurationHistory{},
+		&db.ConfigurationPublish{},
 	}
 	gormdb.DropTableIfExists(models...)
 

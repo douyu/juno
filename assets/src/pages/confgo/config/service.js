@@ -57,7 +57,15 @@ export async function ConfuAddfile(body) {
   const { aid, appName, env, zone_code, file_name, create, file_typ } = body;
   return request(`/api/admin/confgo/config/create`, {
     method: 'POST',
-    data: { aid: aid, app_name: appName, env, zone_code, file_name, format: file_typ, create },
+    data: {
+      aid: parseInt(aid),
+      app_name: appName,
+      env,
+      zone_code,
+      file_name,
+      format: file_typ,
+      create,
+    },
   });
 }
 
@@ -72,7 +80,7 @@ export async function ConfuItems(body) {
 
 //添加配置 /confu/add
 export async function ConfuAddItem(body) {
-  const { caid, key, value, comment, resource_id, is_public, is_resource} = body;
+  const { caid, key, value, comment, resource_id, is_public, is_resource } = body;
   return request(`/api/admin/confgo/item/create`, {
     method: 'POST',
     data: { caid, key, value, comment, resource_id, is_public, is_resource },
@@ -92,10 +100,10 @@ export async function getAdminResource(params) {
 
 //更新配置 /confu/update
 export async function ConfuUpdateItem(body) {
-  const { id, caid, key, value, comment, resource_id,is_public } = body;
+  const { id, caid, key, value, comment, resource_id, is_public } = body;
   return request(`/api/admin/confgo/item/update`, {
     method: 'POST',
-    data: { id, caid, key, value, comment, resource_id,is_public },
+    data: { id, caid, key, value, comment, resource_id, is_public },
   });
 }
 

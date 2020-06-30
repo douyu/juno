@@ -189,12 +189,12 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 
 	// Get configuration
 	var configuration db.Configuration
-	query := mysql.Where("configuration_id=?", param.ID).Find(&configuration)
+	query := mysql.Where("id=?", param.ID).Find(&configuration)
 	if query.Error != nil {
 		return query.Error
 	}
 
-	aid := configuration.AID
+	aid := int(configuration.AID)
 	env := configuration.Env
 	zoneCode := configuration.Zone
 	filename := configuration.FileName()
@@ -212,7 +212,7 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 	// Get nodes data
 	var instanceList []string
 	nodes, _ := resource.Resource.GetAllAppNodeList(db.AppNode{
-		Aid:      int(aid),
+		Aid:      aid,
 		Env:      env,
 		ZoneCode: zoneCode,
 	})
@@ -223,10 +223,9 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 		instanceList = append(instanceList, node.HostName)
 	}
 
-	// TODO: Configure resource replacement operations
+	// TODO Configure resource replacement operations
 
 	// Obtain application management port
-
 	appInfo, err := resource.Resource.GetApp(aid)
 	if err != nil {
 		return

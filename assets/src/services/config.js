@@ -11,9 +11,11 @@ export async function srvLoadConfigInstances(aid, env, zoneCode) {
 }
 
 export async function srvConfigPublish(id, version) {
+  console.log('id', id);
+  console.log('version', version);
   return request(`/api/admin/confgov2/config/publish`, {
     method: 'post',
-    data: { id: id, version: verson },
+    data: { id: id, version: version },
   });
 }
 

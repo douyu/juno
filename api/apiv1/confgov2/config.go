@@ -85,7 +85,6 @@ func Publish(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
-
 	err = confgov2.Publish(param, user.GetUser(c))
 	if err != nil {
 		if err == confgov2.ErrConfigNotExists {
