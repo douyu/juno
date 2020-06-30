@@ -32,12 +32,12 @@ type grpcProxy struct {
 }
 
 func NewEtcdGrpcProxy() *grpcProxy {
-	grpcProxyListenAddr := conf.GetString("clientProxy.etcd.listenAddr")
+	grpcProxyListenAddr := conf.GetString("proxy.etcd.listenAddr")
 	if grpcProxyListenAddr == "" {
 		grpcProxyListenAddr = "127.0.0.1:23790"
 	}
 
-	grpcProxyEndpoints := conf.GetStringSlice("clientProxy.etcd.endpoints")
+	grpcProxyEndpoints := conf.GetStringSlice("proxy.etcd.endpoints")
 	if len(grpcProxyEndpoints) == 0 {
 		grpcProxyEndpoints = []string{"127.0.0.1:2379"}
 	}
@@ -45,10 +45,10 @@ func NewEtcdGrpcProxy() *grpcProxy {
 	obj := &grpcProxy{
 		grpcProxyListenAddr: grpcProxyListenAddr,
 		grpcProxyEndpoints:  grpcProxyEndpoints,
-		grpcProxyCert:       conf.GetString("clientProxy.etcd.tls.cert"),
-		grpcProxyKey:        conf.GetString("clientProxy.etcd.tls.key"),
-		grpcProxyCA:         conf.GetString("clientProxy.etcd.tls.cacert"),
-		grpcProxyNamespace:  conf.GetString("clientProxy.etcd.namespace"),
+		grpcProxyCert:       conf.GetString("proxy.etcd.tls.cert"),
+		grpcProxyKey:        conf.GetString("proxy.etcd.tls.key"),
+		grpcProxyCA:         conf.GetString("proxy.etcd.tls.cacert"),
+		grpcProxyNamespace:  conf.GetString("proxy.etcd.namespace"),
 	}
 	return obj
 }

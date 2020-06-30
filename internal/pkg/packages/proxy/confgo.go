@@ -15,7 +15,7 @@ import (
 
 	"github.com/douyu/juno/pkg/model/db"
 
-	"github.com/douyu/juno/internal/pkg/packages/proxy/invoker"
+	"github.com/douyu/juno/internal/pkg/invoker"
 	"go.etcd.io/etcd/clientv3"
 )
 

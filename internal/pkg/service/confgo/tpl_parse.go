@@ -6,11 +6,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/douyu/juno/internal/pkg/library/util"
 	"github.com/douyu/juno/internal/pkg/service/codec"
-	util2 "github.com/douyu/juno/internal/pkg/util"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/spf13/viper"
 )
@@ -115,14 +114,11 @@ func ParseConfig(tx *gorm.DB, value view.RespOneConfig) (output []*CmcTpl, err e
 	for key, tplId := range needParseKeyMap {
 		c := InitCmcTpl(tx, value)
 		tpl, err := c.GetTpl(tplId)
-		util2.PPP("tpl", tpl)
-		util2.PPP("err", err)
 
 		if err != nil {
 			continue
 		}
 		err = c.ParseTpl(tpl)
-		util2.PPP("err2", err)
 
 		if err != nil {
 			continue

@@ -12,8 +12,8 @@ type (
 	setting struct {
 		db              *gorm.DB
 		settingCacheMtx sync.RWMutex
-		settingCache    map[view.SettingName]string
-		subscribers     map[view.SettingName][]SubscribeCallback // 设置修改事件订阅
+		settingCache    map[string]string
+		subscribers     map[string][]SubscribeCallback // 设置修改事件订阅
 		subscribersMtx  sync.RWMutex
 	}
 
@@ -23,14 +23,14 @@ type (
 func newSetting(db *gorm.DB) *setting {
 	return &setting{
 		db:           db,
-		settingCache: map[view.SettingName]string{},
-		subscribers:  map[view.SettingName][]SubscribeCallback{},
+		settingCache: map[string]string{},
+		subscribers:  map[string][]SubscribeCallback{},
 	}
 }
 
 //GetAll 从数据库获取所有设置
-func (s *setting) GetAll() (settings map[view.SettingName]string, err error) {
-	settings = make(map[view.SettingName]string)
+func (s *setting) GetAll() (settings map[string]string, err error) {
+	settings = make(map[string]string)
 
 	settingRecords := make([]db.SystemConfig, 0)
 	err = s.db.Find(&settingRecords).Error
@@ -40,8 +40,8 @@ func (s *setting) GetAll() (settings map[view.SettingName]string, err error) {
 
 	for _, item := range settingRecords {
 		// 判断配置名称是否有效
-		if view.CheckSettingNameValid(view.SettingName(item.Name)) {
-			settings[view.SettingName(item.Name)] = item.Content
+		if view.CheckSettingNameValid(string(item.Name)) {
+			settings[string(item.Name)] = item.Content
 		}
 	}
 
@@ -56,7 +56,7 @@ func (s *setting) GetAll() (settings map[view.SettingName]string, err error) {
 }
 
 //Get 带缓存的设置获取
-func (s *setting) Get(name view.SettingName) (val string, err error) {
+func (s *setting) Get(name string) (val string, err error) {
 	// 先从内存中查
 	{
 		s.settingCacheMtx.RLock()
@@ -84,7 +84,7 @@ func (s *setting) Get(name view.SettingName) (val string, err error) {
 }
 
 //Set 设置系统设置
-func (s *setting) Set(name view.SettingName, value string) (err error) {
+func (s *setting) Set(name string, value string) (err error) {
 	tx := s.db.Begin()
 
 	setting := db.SystemConfig{}
@@ -125,7 +125,7 @@ func (s *setting) Set(name view.SettingName, value string) (err error) {
 }
 
 // 从数据库获取
-func (s *setting) get(name view.SettingName) (val string, err error) {
+func (s *setting) get(name string) (val string, err error) {
 	setting := db.SystemConfig{}
 	err = s.db.Where("name = ?", name).First(&setting).Error
 	if err != nil {
@@ -144,7 +144,7 @@ func (s *setting) get(name view.SettingName) (val string, err error) {
 	return
 }
 
-func (s *setting) pubEvent(name view.SettingName, value string) {
+func (s *setting) pubEvent(name string, value string) {
 	s.subscribersMtx.RLock()
 	defer s.subscribersMtx.RUnlock()
 
@@ -153,7 +153,7 @@ func (s *setting) pubEvent(name view.SettingName, value string) {
 	}
 }
 
-func (s *setting) Subscribe(name view.SettingName, callback SubscribeCallback) {
+func (s *setting) Subscribe(name string, callback SubscribeCallback) {
 	if !view.CheckSettingNameValid(name) {
 		return
 	}

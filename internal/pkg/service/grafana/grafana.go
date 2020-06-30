@@ -3,6 +3,7 @@ package grafana
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/douyu/juno/pkg/cfg"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -31,7 +32,7 @@ func getOption() (opt Option, err error) {
 		AuthHeaderName: "",
 	}
 
-	settingContent, err := system.System.Setting.Get(view.GrafanaSettingName)
+	settingContent, err := system.System.Setting.Get(cfg.Cfg.GrafanaProxy.Name)
 	if err != nil {
 		log.Error("get grafana setting failed:" + err.Error())
 		return

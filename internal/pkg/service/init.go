@@ -14,6 +14,7 @@ import (
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/juno/pkg/auth/social"
 )
 
 // Init service初始化。
@@ -26,6 +27,8 @@ func Init() {
 	sresource.InitResource(invoker.JunoMysql)
 	// 初始化配置
 	scmc.InitCmc(invoker.JunoMysql)
+
+	social.NewOAuthService()
 
 	confgo.Init()
 

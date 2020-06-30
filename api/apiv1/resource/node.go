@@ -6,8 +6,9 @@ import (
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/resource"
-	"github.com/douyu/juno/internal/pkg/util"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/labstack/echo/v4"
 )
 
@@ -127,22 +128,12 @@ func NodeHeartBeat(c echo.Context) error {
 	var (
 		err error
 	)
-	reqModel := ReqNodeHeartBeat{}
+	reqModel := view.ReqNodeHeartBeat{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-	err = resource.Resource.NodeHeartBeat(
-		reqModel.Hostname,
-		reqModel.IP,
-		reqModel.AgentVersion,
-		reqModel.RegionCode,
-		reqModel.RegionName,
-		reqModel.ZoneCode,
-		reqModel.ZoneName,
-		reqModel.Env,
-		reqModel.AppName,
-		&db.User{})
+	err = resource.Resource.NodeHeartBeat(reqModel, &db.User{})
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}

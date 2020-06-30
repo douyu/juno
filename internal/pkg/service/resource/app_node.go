@@ -10,7 +10,7 @@ import (
 
 	"github.com/douyu/juno/pkg/model/view"
 
-	"github.com/douyu/juno/internal/pkg/util"
+	"github.com/douyu/juno/pkg/util"
 
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/pkg/model/db"

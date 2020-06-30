@@ -3,6 +3,7 @@ package gateway
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/douyu/juno/pkg/cfg"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -21,22 +22,24 @@ var (
 )
 
 func Init() {
-	proxyItems = make(map[string]view.SettingGatewayItem)
+	if cfg.Cfg.Gateway.Enable {
+		proxyItems = make(map[string]view.SettingGatewayItem)
 
-	system.System.Setting.Subscribe(view.GatewaySettingName, func(content string) {
-		settings := make(view.SettingGateway, 0)
-		err := json.Unmarshal([]byte(content), &settings)
-		if err != nil {
-			log.Error("invalid gateway setting:" + err.Error())
-			return
-		}
+		system.System.Setting.Subscribe(cfg.Cfg.Gateway.Name, func(content string) {
+			settings := make(view.SettingGateway, 0)
+			err := json.Unmarshal([]byte(content), &settings)
+			if err != nil {
+				log.Error("invalid gateway setting:" + err.Error())
+				return
+			}
 
-		proxyItemsMtx.Lock()
-		defer proxyItemsMtx.Unlock()
-		for _, item := range settings {
-			proxyItems[item.Domain] = item
-		}
-	})
+			proxyItemsMtx.Lock()
+			defer proxyItemsMtx.Unlock()
+			for _, item := range settings {
+				proxyItems[item.Domain] = item
+			}
+		})
+	}
 }
 
 //IsDomainToProxy 判断该域名是否在被代理的名单上
