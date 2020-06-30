@@ -141,9 +141,7 @@ func (u *user) Update(uid int, user *db.User) (err error) {
 		return
 	}
 	user.UpdateTime = time.Now().Unix()
-
 	err = u.DB.Model(db.User{}).Where("uid = ?", uid).UpdateColumns(&user).Error
-
 	return
 }
 
