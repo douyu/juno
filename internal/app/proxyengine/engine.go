@@ -8,8 +8,8 @@ import (
 	apiproxy "github.com/douyu/juno/api/apiv1/proxy"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
 	"github.com/douyu/juno/internal/pkg/service/report"
-	"github.com/douyu/juno/pb"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/server/xgrpc"
@@ -33,8 +33,9 @@ func New() *Proxy {
 	)
 
 	if err != nil {
-		panic(err)
+		xlog.Panic("start up error", zap.Error(err))
 	}
+
 	return eng
 }
 
@@ -102,7 +103,6 @@ func apiV1(server *xecho.Server) {
 type ProxyGrpc struct{}
 
 // GetFromContext 根据一个grpc的context获取出Session.
-// 本质上是根据ctx创建一个md, 然后获取token, 再调用SessionManager.Get
 func getFromContext(ctx context.Context) (uint32, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
 	gids := md["gid"]

@@ -1,21 +1,21 @@
 package adminengine
 
 import (
-	"time"
-
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/middleware"
 	"github.com/douyu/juno/internal/pkg/packages/proxy"
 	"github.com/douyu/juno/internal/pkg/service"
 	"github.com/douyu/juno/internal/pkg/service/notify"
-	"github.com/douyu/juno/pb"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
+	"go.uber.org/zap"
+	"time"
 )
 
 // Admin ...
@@ -29,15 +29,15 @@ func New() *Admin {
 	eng := &Admin{
 		grpcGovernClient: resty.New().SetDebug(false).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8"),
 	}
-
-	if err := eng.Startup(
+	err := eng.Startup(
 		eng.initConfig,
 		eng.initInvoker,
 		eng.initNotify,
 		eng.initProxy,
 		eng.serveHTTP,
-	); err != nil {
-		xlog.Panic("startup", xlog.FieldErr(err))
+	)
+	if err != nil {
+		xlog.Panic("start up error", zap.Error(err))
 	}
 	return eng
 }
@@ -65,8 +65,8 @@ func (eng *Admin) initNotify() (err error) {
 
 func (eng *Admin) serveHTTP() (err error) {
 	serverConfig := xecho.DefaultConfig()
-	serverConfig.Host = cfg.Cfg.Server.Host
-	serverConfig.Port = cfg.Cfg.Server.Port
+	serverConfig.Host = cfg.Cfg.Server.Http.Host
+	serverConfig.Port = cfg.Cfg.Server.Http.Port
 
 	server := serverConfig.Build()
 	server.Debug = true

@@ -19,9 +19,9 @@ import (
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/service/proxy"
-	"github.com/douyu/juno/pb"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
+	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter/pkg/xlog"
 )
 

@@ -4,14 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
-	"net/http/httptest"
-	"strconv"
-	"sync"
-	"time"
-
-	"github.com/douyu/juno/pb"
 	"github.com/douyu/juno/pkg/constx"
+	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
@@ -19,6 +13,11 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"io/ioutil"
+	"net/http/httptest"
+	"strconv"
+	"sync"
+	"time"
 )
 
 var StreamStore *streamStore

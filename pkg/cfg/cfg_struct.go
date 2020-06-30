@@ -16,7 +16,7 @@ type Auth struct {
 	ApiKeyMaxSecondsToLive           int
 }
 
-type Server struct {
+type ServerSchema struct {
 	Host           string
 	Port           int
 	Domain         string
@@ -29,12 +29,35 @@ type App struct {
 	SecretKey string
 }
 
+// Admin Server
+type Server struct {
+	Http   ServerSchema
+	Govern ServerSchema
+}
+
 // Proxy
 type Proxy struct {
-	Stream     ProxyStream
-	HttpServer Server
-	GrpcServer Server
-	HeartBeat  HeartBeat
+	Stream       ProxyStream
+	HttpServer   ServerSchema
+	GrpcServer   ServerSchema
+	GovernServer ServerSchema
+	HeartBeat    HeartBeat
+	Etcd         Etcd
+}
+
+type GrafanaProxy struct {
+	Enable bool
+	Name   string
+}
+
+type Gateway struct {
+	Enable bool
+	Name   string
+}
+
+type Etcd struct {
+	Enable    bool
+	Endpoints []string
 }
 
 type ProxyStream struct {

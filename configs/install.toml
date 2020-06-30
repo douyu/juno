@@ -1,14 +1,12 @@
-[app]
-  mode = "local"
-
-[jupiter]
-
-  [jupiter.mysql]
-
-    [jupiter.mysql.juno]
-      connMaxLifetime = "300s"
-      debug = true
-      dsn = "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
-      level = "panic"
-      maxIdleConns = 50
-      maxOpenConns = 100
+[database]
+    enable = true
+    connMaxLifetime = "300s"
+    debug = true
+    dsn = "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+    level = "panic"
+    maxIdleConns = 50
+    maxOpenConns = 100
+[jupiter.logger.default]
+    debug = true          # 是否在命令行输出
+    enableConsole = true  # 是否按命令行格式输出
+    level = "debug"

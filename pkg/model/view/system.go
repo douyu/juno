@@ -3,20 +3,19 @@ package view
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/douyu/juno/pkg/cfg"
 
 	"github.com/douyu/juno/pkg/model/db"
 )
 
 const (
-	GrafanaSettingName   SettingName = "grafana"
-	ConfigDepSettingName SettingName = "config_dep"
-	GatewaySettingName   SettingName = "gateway"
+	ConfigDepSettingName string = "config_dep"
 )
 
 var (
 	// 对各项配置进行设置，设置项写到此处才能生效
-	SettingFieldConfigs = map[SettingName]SettingFieldConfig{
-		GrafanaSettingName: {
+	SettingFieldConfigs = map[string]SettingFieldConfig{
+		cfg.Cfg.GrafanaProxy.Name: {
 			Default: `{"host":"","header_name":"","api_dashboard_addr":"","instance_dashboard_addr":"","overview_dashboard_addr":""}`,
 			Validate: func(value string) error {
 				return nil
@@ -28,7 +27,7 @@ var (
 				return nil
 			},
 		},
-		GatewaySettingName: {
+		cfg.Cfg.Gateway.Name: {
 			Default: "[]",
 			Validate: func(value string) error {
 				field := SettingGateway{}
@@ -89,8 +88,8 @@ type (
 
 	// 更新设置
 	ReqUpdateSettings struct {
-		Name    SettingName `json:"name"`
-		Content string      `json:"content"`
+		Name    string `json:"name"`
+		Content string `json:"content"`
 	}
 
 	SettingGrafana struct {
@@ -120,12 +119,12 @@ type (
 	}
 )
 
-func CheckSettingNameValid(settingName SettingName) bool {
+func CheckSettingNameValid(settingName string) bool {
 	_, ok := SettingFieldConfigs[settingName]
 	return ok
 }
 
-func GetSettingFieldConfig(name SettingName) (SettingFieldConfig, bool) {
+func GetSettingFieldConfig(name string) (SettingFieldConfig, bool) {
 	config, ok := SettingFieldConfigs[name]
 	return config, ok
 }
