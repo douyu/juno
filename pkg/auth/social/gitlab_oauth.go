@@ -3,9 +3,10 @@ package social
 import (
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap"
 	"net/http"
 	"regexp"
+
+	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 )
 

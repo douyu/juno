@@ -2,14 +2,15 @@ package cfg
 
 import (
 	"fmt"
+	"net/url"
+	"os"
+	"strings"
+
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/ecode"
 	"github.com/douyu/jupiter/pkg/util/xtime"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
-	"net/url"
-	"os"
-	"strings"
 )
 
 var Cfg cfg
@@ -18,7 +19,6 @@ type cfg struct {
 	AppUrl            string
 	AppSubUrl         string
 	AuthProxyEnabled  bool
-	DisableLoginForm  bool
 	DisableUserSignUp bool
 	App               App
 	Auth              Auth
@@ -32,7 +32,6 @@ func defaultConfig() cfg {
 	return cfg{
 		AppUrl:            "",
 		AuthProxyEnabled:  false,
-		DisableLoginForm:  false,
 		DisableUserSignUp: false,
 		Auth: Auth{
 			LoginCookieName:                  "juno_session",
