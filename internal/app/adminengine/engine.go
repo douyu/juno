@@ -29,13 +29,16 @@ func New() *Admin {
 	eng := &Admin{
 		grpcGovernClient: resty.New().SetDebug(false).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8"),
 	}
-	_ = eng.Startup(
+
+	if err := eng.Startup(
 		eng.initConfig,
 		eng.initInvoker,
 		eng.initNotify,
 		eng.initProxy,
 		eng.serveHTTP,
-	)
+	); err != nil {
+		xlog.Panic("startup", xlog.FieldErr(err))
+	}
 	return eng
 }
 

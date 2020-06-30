@@ -6,10 +6,10 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/achun/testing-want v0.0.0-20140905044750-a28b0fa31c65 // indirect
 	github.com/achun/tom-toml v0.2.0
-	github.com/alibaba/sentinel-golang v0.2.0
+	github.com/alibaba/sentinel-golang v0.4.0
 	github.com/cncd/queue v0.0.0-20170406022548-63b1974bbcc9
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
-	github.com/coreos/etcd v3.3.20+incompatible
+	github.com/coreos/etcd v3.3.22+incompatible
 	github.com/davecgh/go-spew v1.1.1
 	github.com/douyu/jupiter v0.0.0-20200605021304-25486432a0af
 	github.com/go-resty/resty/v2 v2.2.0
