@@ -6,10 +6,10 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/achun/testing-want v0.0.0-20140905044750-a28b0fa31c65 // indirect
 	github.com/achun/tom-toml v0.2.0
-	github.com/alibaba/sentinel-golang v0.2.0
+	github.com/alibaba/sentinel-golang v0.4.0
 	github.com/cncd/queue v0.0.0-20170406022548-63b1974bbcc9
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
-	github.com/coreos/etcd v3.3.20+incompatible
+	github.com/coreos/etcd v3.3.22+incompatible
 	github.com/davecgh/go-spew v1.1.1
 	github.com/douyu/jupiter v0.0.0-20200605021304-25486432a0af
 	github.com/go-macaron/session v0.0.0-20200329073812-7d919ce6a8d2 // indirect
@@ -33,9 +33,9 @@ require (
 	github.com/onsi/gomega v1.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.5.0
-	github.com/spf13/cast v1.3.0
+	github.com/spf13/cast v1.3.1
 	github.com/spf13/viper v1.6.3
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf // indirect
 	github.com/unknwon/com v1.0.1
