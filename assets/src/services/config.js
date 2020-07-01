@@ -20,6 +20,7 @@ export async function srvConfigPublish(id, version) {
 }
 
 export async function createConfig(payload) {
+  payload.aid = parseInt(payload.aid);
   return request(`/api/admin/confgov2/config/create`, {
     method: 'post',
     data: payload,

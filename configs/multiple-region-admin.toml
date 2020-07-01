@@ -68,6 +68,7 @@
 
 #################################### Proxy ##############################
 [proxy]
+  name = "xxxx"
   [proxy.stream]
     enable = false
     proxyAddr = ["127.0.0.1:50001"]

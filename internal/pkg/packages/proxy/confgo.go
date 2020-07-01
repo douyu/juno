@@ -301,14 +301,6 @@ func (c *confgo) getEffectMD5(url string) (res string) {
 func (c *confgo) PutConfigV2(appName, port, env, fileName, format, val string, instanceList []string, enableGlobal bool, md5 string) (commonVal string, err error) {
 	// Inject global configuration
 	var globalVal string
-	if enableGlobal {
-		globalVal, err = getGlobalConfig()
-		if err != nil {
-			fmt.Println("getGlobalConfig error", "err", err.Error())
-		} else {
-			val = mergeGlobalConfig(globalVal, val)
-		}
-	}
 
 	data := configData{
 		Content: val,
@@ -351,30 +343,4 @@ func (c *confgo) PutConfigV2(appName, port, env, fileName, format, val string, i
 		return globalVal, nil
 	}
 	return "", nil
-}
-
-// Only the toml file type is currently supported
-func getGlobalConfig() (value string, err error) {
-	key := "/global-config"
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-	resp, err := invoker.ConfgoEtcd.Get(ctx, key)
-	cancel()
-	if err != nil {
-		return
-	}
-	if len(resp.Kvs) == 0 {
-		err = fmt.Errorf("no data")
-		return
-	}
-	globalConfigData := configData{}
-	buf := resp.Kvs[0].Value
-	if err = json.Unmarshal(buf, &globalConfigData); err != nil {
-		return
-	}
-	value = globalConfigData.Content
-	return
-}
-
-func mergeGlobalConfig(globalVal string, val string) string {
-	return fmt.Sprintf("%s\n%s\n", val, globalVal)
 }
