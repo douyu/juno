@@ -28,6 +28,7 @@ type cfg struct {
 	Gateway           Gateway
 	Proxy             Proxy
 	Database          Database
+	Pprof             Pprof
 }
 
 // DefaultConfig ...
@@ -87,6 +88,9 @@ func defaultConfig() cfg {
 				ZoneName:   "",
 				Env:        "",
 			},
+		},
+		Pprof: Pprof{
+			Path: ".",
 		},
 	}
 }

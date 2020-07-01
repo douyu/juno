@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/douyu/juno/pkg/cfg"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -45,13 +46,13 @@ const tempFilePath = "/tmp"
 
 func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 	// 检测 Golang环境，如果没有退出返回错误
-	if res, err := CheckShell("pprof/checkGo.sh"); err != nil {
+	if res, err := CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkGo.sh"); err != nil {
 		fmt.Println("checkGo err", res)
 		return fmt.Errorf("checkGo err:%v", err)
 	}
 
 	// 检测 Graphviz环境，如果没有自动安装
-	if res, err := CheckShell("pprof/graphviz.sh"); err != nil {
+	if res, err := CheckShell(cfg.Cfg.Pprof.Path + "/pprof/graphviz.sh"); err != nil {
 		fmt.Println("CheckGraphviz err", res)
 		return fmt.Errorf("CheckGraphviz install err:%v", err)
 	}
