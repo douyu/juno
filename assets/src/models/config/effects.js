@@ -108,6 +108,7 @@ export default {
       type: '_apply',
       payload: {
         configFileLoading: true,
+        visibleEditorMaskLayer: false
       },
     });
 
@@ -223,6 +224,7 @@ export default {
       type: '_apply',
       payload: {
         configFileLoading: true,
+        visibleEditorMaskLayer: false
       },
     });
 
@@ -297,6 +299,26 @@ export default {
       payload: {
         resourceCheckResult: r.data,
         resourceCheckLoading: false
+      }
+    })
+  },
+
+  * showEditorMaskLayer({payload}, {put}) {
+    const {child, visible} = payload
+    yield put({
+      type: '_apply',
+      payload: {
+        visibleEditorMaskLayer: visible,
+        editorMaskLayerChild: child
+      }
+    })
+  },
+
+  * setCurrentInstance({payload}, {call, put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        currentInstance: payload
       }
     })
   }

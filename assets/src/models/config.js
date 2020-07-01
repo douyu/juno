@@ -14,6 +14,10 @@ const defaultState = {
   configInstanceList: [],
   configInstanceListLoading: false,
 
+  // 编辑器遮罩层
+  visibleEditorMaskLayer: false,
+  editorMaskLayerChild: null,
+
   // 模态窗口状态
   visibleModalCreate: false,
   visibleModalSave: false,
@@ -51,6 +55,8 @@ const defaultState = {
   resourceCheckResult: [],
   resourceCheckLoading: false,
 
+  // 当前选择的实例
+  currentInstance: null
 }
 
 export default {

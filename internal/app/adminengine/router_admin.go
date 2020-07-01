@@ -128,17 +128,17 @@ func apiAdmin(server *xecho.Server) {
 
 	configV2G := g.Group("/confgov2", loginAuthWithJSON)
 	{
-		g := configV2G
-		g.GET("/config/list", confgov2.List)        // 配置文件列表
-		g.GET("/config/detail", confgov2.Detail)    // 配置文件内容
-		g.POST("/config/create", confgov2.Create)   // 配置新建
-		g.POST("/config/update", confgov2.Update)   // 配置更新
-		g.POST("/config/publish", confgov2.Publish) // 配置发布
-		g.GET("/config/history", confgov2.History)  // 配置文件历史
-		g.POST("/config/delete", confgov2.Delete)   // 配置删除
-		g.GET("/config/diff", confgov2.Diff)        // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/list", confgov2.List)                  // 配置文件列表
+		configV2G.GET("/config/detail", confgov2.Detail)              // 配置文件内容
+		configV2G.POST("/config/create", confgov2.Create)             // 配置新建
+		configV2G.POST("/config/update", confgov2.Update)             // 配置更新
+		configV2G.POST("/config/publish", confgov2.Publish)           // 配置发布
+		configV2G.GET("/config/history", confgov2.History)            // 配置文件历史
+		configV2G.POST("/config/delete", confgov2.Delete)             // 配置删除
+		configV2G.GET("/config/diff", confgov2.Diff)                  // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/instance/list", confgov2.InstanceList) // 配置文件Diif，返回两个版本的配置内容
 
-		resourceG := g.Group("/resource")
+		resourceG := configV2G.Group("/resource")
 		resourceG.GET("/list", configresource.List)
 		resourceG.POST("/create", configresource.Create)
 		resourceG.GET("/detail", configresource.Detail)
@@ -146,7 +146,6 @@ func apiAdmin(server *xecho.Server) {
 		resourceG.POST("/createVersion", configresource.CreateVersion)
 		resourceG.POST("/batchCheckVersion", configresource.BatchCheckVersion)
 		resourceG.GET("/tags", configresource.Tags)
-		g.GET("/config/instance/list", confgov2.InstanceList) // 配置文件Diif，返回两个版本的配置内容
 	}
 
 	resourceGroup := g.Group("/resource", loginAuthWithJSON)

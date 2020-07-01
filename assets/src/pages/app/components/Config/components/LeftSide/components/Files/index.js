@@ -125,7 +125,8 @@ const mapDispatch = (dispatch) => {
         aid,
         env
       }
-    })
+    }),
+    dispatch: dispatch
   }
 }
 

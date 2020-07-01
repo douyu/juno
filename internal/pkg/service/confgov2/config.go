@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
@@ -167,17 +168,36 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 }
 
 // Instances ..
-func Instances(param view.ReqInstanceList) (nodes []db.AppNode, err error) {
-	nodes = make([]db.AppNode, 0)
+func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceList, err error) {
 	aid := param.AID
 	env := param.Env
 	zoneCode := param.Zone
 	// Get nodes data
-	nodes, err = resource.Resource.GetAllAppNodeList(db.AppNode{
+	nodes, err := resource.Resource.GetAllAppNodeList(db.AppNode{
 		Aid:      int(aid),
 		Env:      env,
 		ZoneCode: zoneCode,
 	})
+
+	for _, node := range nodes {
+		resp = append(resp, view.RespConfigInstanceItem{
+			Env:                  node.Env,
+			IP:                   node.IP,
+			HostName:             node.HostName,
+			DeviceID:             node.DeviceID,
+			RegionCode:           node.RegionCode,
+			RegionName:           node.RegionName,
+			ZoneCode:             node.ZoneCode,
+			ZoneName:             node.ZoneName,
+			ConfigFilePath:       "/path/to/configFile.toml",
+			ConfigFileUsed:       true,
+			ConfigFileSynced:     true,
+			ConfigFileTakeEffect: false,
+			SyncAt:               time.Now(),
+		})
+
+	}
+
 	return
 }
 
