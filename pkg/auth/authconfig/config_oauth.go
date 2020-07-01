@@ -4,8 +4,9 @@ type OAuthInfo struct {
 	ClientId           string
 	ClientSecret       string
 	Scopes             []string
-	AuthUrl, TokenUrl  string
-	Enabled            bool
+	AuthUrl            string
+	TokenUrl           string
+	Enable             bool
 	EmailAttributeName string
 	EmailAttributePath string
 	RoleAttributePath  string
