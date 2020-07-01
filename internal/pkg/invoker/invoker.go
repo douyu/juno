@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"go.etcd.io/etcd/clientv3"
 )
@@ -25,11 +24,14 @@ func Init() {
 	}
 
 	var err error
-	ConfgoEtcd, err = clientv3.New(clientv3.Config{
-		Endpoints:   conf.GetStringSlice("proxy.etcdv3.confgo.endpoints"),
-		DialTimeout: 2 * time.Second,
-	})
-	if err != nil {
-		panic(err.Error())
+	if cfg.Cfg.Proxy.Etcd.Enable {
+		ConfgoEtcd, err = clientv3.New(clientv3.Config{
+			Endpoints:   cfg.Cfg.Proxy.Etcd.Endpoints,
+			DialTimeout: 2 * time.Second,
+		})
+		if err != nil {
+			panic(err.Error())
+		}
 	}
+
 }

@@ -15,6 +15,7 @@ import (
 
 var Cfg cfg
 
+//
 type cfg struct {
 	AppUrl            string
 	AppSubUrl         string
@@ -23,6 +24,8 @@ type cfg struct {
 	App               App
 	Auth              Auth
 	Server            Server
+	GrafanaProxy      GrafanaProxy
+	Gateway           Gateway
 	Proxy             Proxy
 	Database          Database
 }
@@ -46,12 +49,26 @@ func defaultConfig() cfg {
 			ApiKeyMaxSecondsToLive:           -1,
 		},
 		Server: Server{
-			Host:           "0.0.0.0",
-			Port:           50000,
-			Domain:         "",
-			RootUrl:        "http://localhost:50000/",
-			StaticRootPath: "",
-			EnableGzip:     false,
+			Http: ServerSchema{
+				Host:           "0.0.0.0",
+				Port:           50000,
+				Domain:         "",
+				RootUrl:        "http://localhost:50000/",
+				StaticRootPath: "",
+				EnableGzip:     false,
+			},
+			Govern: ServerSchema{
+				Host: "0.0.0.0",
+				Port: 50001,
+			},
+		},
+		GrafanaProxy: GrafanaProxy{
+			Enable: false,
+			Name:   "grafana",
+		},
+		Gateway: Gateway{
+			Enable: false,
+			Name:   "gateway",
 		},
 		Proxy: Proxy{
 			Stream: ProxyStream{
@@ -84,7 +101,7 @@ func InitCfg() {
 		xlog.Panic("parse cfg error", xlog.FieldErrKind(ecode.ErrKindUnmarshalConfigErr), xlog.FieldErr(err), xlog.FieldKey("system cfg"), xlog.FieldValueAny(config))
 	}
 
-	config.AppUrl, config.AppSubUrl, err = parseAppUrlAndSubUrl(config.Server.RootUrl)
+	config.AppUrl, config.AppSubUrl, err = parseAppUrlAndSubUrl(config.Server.Http.RootUrl)
 	if err != nil {
 		xlog.Panic("parse root url err", zap.Error(err))
 	}

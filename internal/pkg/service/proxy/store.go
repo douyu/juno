@@ -1,6 +1,6 @@
 package proxy
 
-import "github.com/douyu/juno/pb"
+import "github.com/douyu/juno/pkg/pb"
 
 var StreamStore *store
 

@@ -5,9 +5,9 @@ import (
 
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
-	"github.com/douyu/juno/pb"
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/pb"
 	"github.com/labstack/echo/v4"
 )
 

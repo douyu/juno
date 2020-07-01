@@ -50,6 +50,16 @@
     # enable gzip
     enableGzip = false
 
+[proxy.governServer]
+    # The ip address to bind to, empty will bind to all interfaces
+    host = "0.0.0.0"
+    # The http port to use
+    port = 50001
+    # The public facing domain name used to access grafana from a browser
+    domain = "localhost"
+    # enable gzip
+    enableGzip = false
+
 [proxy.heartbeat]
     enable = true
     debug = true

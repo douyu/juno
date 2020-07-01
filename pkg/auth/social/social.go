@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/douyu/juno/pkg/auth/authconfig"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/conf"
@@ -80,7 +79,7 @@ func NewOAuthService() {
 			AuthUrl:            conf.GetString(key + "authUrl"),
 			TokenUrl:           conf.GetString(key + "tokenUrl"),
 			ApiUrl:             conf.GetString(key + "apiUrl"),
-			Enabled:            conf.GetBool(key + "enabled"),
+			Enable:             conf.GetBool(key + "enable"),
 			EmailAttributeName: conf.GetString(key + "emailAttributeName"),
 			EmailAttributePath: conf.GetString(key + "emailAttributePath"),
 			RoleAttributePath:  conf.GetString(key + "roleAttributePath"),
@@ -94,7 +93,7 @@ func NewOAuthService() {
 			TlsSkipVerify:      conf.GetBool(key + "tlsSkipVerifyInsecure"),
 		}
 
-		if !info.Enabled {
+		if !info.Enable {
 			continue
 		}
 
@@ -110,8 +109,6 @@ func NewOAuthService() {
 			RedirectURL: strings.TrimSuffix(cfg.Cfg.AppUrl, "/") + SocialBaseUrl + name,
 			Scopes:      info.Scopes,
 		}
-
-		spew.Dump("config", config)
 
 		// GitHub.
 		if name == "github" {

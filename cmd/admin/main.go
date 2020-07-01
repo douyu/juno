@@ -1,16 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/douyu/juno/internal/app/adminengine"
-	"github.com/douyu/jupiter/pkg/conf"
+	"github.com/douyu/juno/pkg/cfg"
+	"log"
+	"strconv"
 )
 
 func main() {
 	app := adminengine.New()
-	app.SetGovernor(fmt.Sprintf("0.0.0.0:%d", conf.GetInt("jupiter.server.govern.port")))
+	app.SetGovernor(cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port))
 	if err := app.Run(); err != nil {
 		log.Fatal(err)
 	}

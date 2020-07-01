@@ -22,7 +22,6 @@ func MockData() {
 	urlConfigContentUpdate := "/config/content/update"
 	urlConfigGeneratorParse := "/config/parse"
 	urlUserCreate := "/user/create"
-	urlSystemUpdate := "/system/setting/update"
 
 	router.POST(urlAppPut, resource.AppPut)
 	router.POST(urlAppNodePut, resource.AppNodePut)
@@ -31,7 +30,6 @@ func MockData() {
 	router.POST(urlConfigContentUpdate, confgo.ItemCreate)
 	router.POST(urlConfigGeneratorParse, confgo.ParseGenerator)
 	router.POST(urlUserCreate, user.Create)
-	router.POST(urlSystemUpdate, system.SettingUpdate)
 
 	mockApp(urlAppPut, router)
 	mockAppNode(urlAppNodePut, router)
@@ -39,6 +37,12 @@ func MockData() {
 	mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
 	mockParse(urlConfigGeneratorParse, router)
 	mockCreateAdmin(urlUserCreate, router)
+}
+
+func MustMockData() {
+	router := echo.New()
+	urlSystemUpdate := "/system/setting/update"
+	router.POST(urlSystemUpdate, system.SettingUpdate)
 	mockGrafanaSetting(urlSystemUpdate, router)
 }
 

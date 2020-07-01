@@ -60,6 +60,7 @@ func CreateConfigFile(c echo.Context) error {
 	if err := confgo.CmcAppSrv.DB.Table("app").Where("aid = ?", reqModel.Aid).First(&app).Error; err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+
 	u := user.GetUser(c)
 	// todo language="go" format="toml"
 	aid, appName, fileName, env, zoneCode := reqModel.Aid, reqModel.AppName, reqModel.FileName, reqModel.Env, reqModel.ZoneCode
@@ -67,11 +68,14 @@ func CreateConfigFile(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+
 	if err := confgo.ConfuSrv.Add(info.ID, "application", "", 0, u.Nickname, env, zoneCode, 0); err != nil {
 		return output.JSON(c, output.MsgErr, "add error"+err.Error())
 	}
+
 	meta, _ := json.Marshal(reqModel)
 	appevent.AppEvent.ConfgoFileCreateEvent(aid, appName, env, zoneCode, string(meta), u)
+
 	return output.JSON(c, output.MsgOk, "配置文件添加成功", info)
 }
 
