@@ -62,14 +62,18 @@
     maxIdleConns = 50
     maxOpenConns = 100
 
+[grafanaProxy]
+    enable = true
+    name = "grafana"
+
 #################################### Proxy ##############################
 [proxy]
   [proxy.stream]
-    enable = true
+    enable = false
     proxyAddr = ["127.0.0.1:50001"]
 
   [proxy.etcd]
-    enable = true
+    enable = false
     endpoints = ["127.0.0.1:2379"]
 
   [proxy.http]
@@ -119,7 +123,7 @@
 
 #################################### Github Auth #########################
 [auth.github]
-    enabled = true
+    enable = true
     allowSignUp = true
     clientId = "a6633e5544e60bd2574e"
     clientSecret = "7c6f51d97fc93d5d575ebd13115b20f397807549"

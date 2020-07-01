@@ -3,8 +3,6 @@ package view
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/douyu/juno/pkg/cfg"
-
 	"github.com/douyu/juno/pkg/model/db"
 )
 
@@ -13,9 +11,10 @@ const (
 )
 
 var (
+	// todo can't global config
 	// 对各项配置进行设置，设置项写到此处才能生效
 	SettingFieldConfigs = map[string]SettingFieldConfig{
-		cfg.Cfg.GrafanaProxy.Name: {
+		"grafana": {
 			Default: `{"host":"","header_name":"","api_dashboard_addr":"","instance_dashboard_addr":"","overview_dashboard_addr":""}`,
 			Validate: func(value string) error {
 				return nil
@@ -27,7 +26,7 @@ var (
 				return nil
 			},
 		},
-		cfg.Cfg.Gateway.Name: {
+		"gateway": {
 			Default: "[]",
 			Validate: func(value string) error {
 				field := SettingGateway{}
