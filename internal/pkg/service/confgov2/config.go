@@ -1,12 +1,19 @@
 package confgov2
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
-	
+
+	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
+	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/code"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/jinzhu/gorm"
 )
 
@@ -159,13 +166,95 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 	return
 }
 
-func Publish(param view.ReqPublishConfig) (err error) {
-	//TODO: 完成配置发布逻辑
+// Instances ..
+func Instances(param view.ReqInstanceList) (nodes []db.AppNode, err error) {
+	nodes = make([]db.AppNode, 0)
+	aid := param.AID
+	env := param.Env
+	zoneCode := param.Zone
+	// Get nodes data
+	nodes, err = resource.Resource.GetAllAppNodeList(db.AppNode{
+		Aid:      int(aid),
+		Env:      env,
+		ZoneCode: zoneCode,
+	})
 	return
 }
 
-//History 发布历史分页列表，Page从0开始
-func History(param view.ReqHistoryConfig) (resp view.RespHistoryConfig, err error) {
+// Publish ..
+func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
+	// Complete configuration release logic
+
+	// Get configuration
+	var configuration db.Configuration
+	query := mysql.Where("id=?", param.ID).Find(&configuration)
+	if query.Error != nil {
+		return query.Error
+	}
+
+	aid := int(configuration.AID)
+	env := configuration.Env
+	zoneCode := configuration.Zone
+	filename := configuration.FileName()
+
+	// Get publish version
+	var confHistory db.ConfigurationHistory
+	query = mysql.Where("configuration_id=? and version =?", param.ID, param.Version).Find(&confHistory)
+	if query.Error != nil {
+		return query.Error
+	}
+
+	content := confHistory.Content
+	version := confHistory.Version
+
+	// Get nodes data
+	var instanceList []string
+	nodes, _ := resource.Resource.GetAllAppNodeList(db.AppNode{
+		Aid:      aid,
+		Env:      env,
+		ZoneCode: zoneCode,
+	})
+	if len(nodes) == 0 {
+		return code.ErrorNoInstances
+	}
+	for _, node := range nodes {
+		instanceList = append(instanceList, node.HostName)
+	}
+
+	// TODO Configure resource replacement operations
+
+	// Obtain application management port
+	appInfo, err := resource.Resource.GetApp(aid)
+	if err != nil {
+		return
+	}
+
+	// Save the configuration in etcd
+	_, err = confgo.PublishSrv.Publish(env, zoneCode, appInfo.GovernPort, appInfo.AppName, filename, content, instanceList, version)
+	if err != nil {
+		return
+	}
+
+	// Publish record
+	instanceListJSON, _ := json.Marshal(instanceList)
+
+	var cp db.ConfigurationPublish
+	cp.ApplyInstance = string(instanceListJSON)
+	cp.ConfigurationID = configuration.ID
+	cp.ConfigurationHistoryID = confHistory.ID
+	cp.UID = uint(user.Uid)
+	cp.FilePath = strings.Join([]string{conf.GetString("confgo.dir"), appInfo.AppName, "config", configuration.FileName()}, "/")
+	if err = mysql.Save(&cp).Error; err != nil {
+		return
+	}
+
+	meta, _ := json.Marshal(cp)
+	appevent.AppEvent.ConfgoFilePublishEvent(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), user)
+	return
+}
+
+// History 发布历史分页列表，Page从0开始
+func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig, err error) {
 	list := make([]db.ConfigurationHistory, 0)
 
 	if param.Size == 0 {
@@ -217,7 +306,7 @@ func History(param view.ReqHistoryConfig) (resp view.RespHistoryConfig, err erro
 	for _, item := range list {
 		configItem := view.RespHistoryConfigItem{
 			ID:              item.ID,
-			UID:             item.UID,
+			UID:             uint(uid),
 			ConfigurationID: item.ConfigurationID,
 			Version:         item.Version,
 			CreatedAt:       item.CreatedAt,
@@ -286,6 +375,7 @@ func Diff(id uint) (resp view.RespDiffConfig, err error) {
 	return
 }
 
+// Delete ..
 func Delete(id uint) (err error) {
 	err = mysql.Delete(&db.Configuration{}, "id = ?", id).Error
 	return

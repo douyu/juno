@@ -24,6 +24,7 @@ func List(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "", list)
 }
 
+// Detail ..
 func Detail(c echo.Context) (err error) {
 	param := view.ReqDetailConfig{}
 	err = c.Bind(&param)
@@ -39,6 +40,7 @@ func Detail(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "", detail)
 }
 
+// Create ..
 func Create(c echo.Context) (err error) {
 	param := view.ReqCreateConfig{}
 	err = c.Bind(&param)
@@ -54,6 +56,7 @@ func Create(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
+// Update ..
 func Update(c echo.Context) (err error) {
 	param := view.ReqUpdateConfig{}
 	err = c.Bind(&param)
@@ -75,14 +78,14 @@ func Update(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "")
 }
 
+// Publish ..
 func Publish(c echo.Context) (err error) {
 	param := view.ReqPublishConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
-
-	err = confgov2.Publish(param)
+	err = confgov2.Publish(param, user.GetUser(c))
 	if err != nil {
 		if err == confgov2.ErrConfigNotExists {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法发布")
@@ -91,9 +94,10 @@ func Publish(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	return output.JSON(c, output.MsgOk, "")
+	return output.JSON(c, output.MsgOk, "发布成功")
 }
 
+// History ..
 func History(c echo.Context) (err error) {
 	param := view.ReqHistoryConfig{}
 	err = c.Bind(&param)
@@ -101,7 +105,7 @@ func History(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
-	history, err := confgov2.History(param)
+	history, err := confgov2.History(param, user.GetUser(c).Uid)
 	if err != nil {
 		if err == confgov2.ErrConfigNotExists {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法更新")
@@ -109,36 +113,50 @@ func History(c echo.Context) (err error) {
 
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
 	return output.JSON(c, output.MsgOk, "", history)
 }
 
+// Diff ..
 func Diff(c echo.Context) (err error) {
 	param := view.ReqDiffConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-
 	resp, err := confgov2.Diff(param.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
 	return output.JSON(c, output.MsgOk, "", resp)
 }
 
+// Delete ..
 func Delete(c echo.Context) (err error) {
 	param := view.ReqDiffConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-
 	err = confgov2.Delete(param.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
 	return output.JSON(c, output.MsgOk, "")
+}
+
+// InstanceList ..
+func InstanceList(c echo.Context) (err error) {
+	param := view.ReqInstanceList{}
+	err = c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+
+	nodes, err := confgov2.Instances(param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error(), nodes)
+	}
+
+	return output.JSON(c, output.MsgOk, "success", nodes)
 }

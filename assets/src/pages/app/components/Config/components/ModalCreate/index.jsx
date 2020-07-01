@@ -65,8 +65,9 @@ function ModalCreate(props) {
         <Radio.Group onChange={ev => {
           setFormat(ev.target.value)
         }}>
-          <Radio.Button key={"toml"} value={"toml"}>Toml</Radio.Button>
-          <Radio.Button key={"yaml"} value={"yaml"}>Yaml</Radio.Button>
+          <Radio.Button key={"toml"} value={"toml"}>toml</Radio.Button>
+          <Radio.Button key={"yaml"} value={"yaml"}>yaml</Radio.Button>
+          <Radio.Button key={"ini"} value={"ini"}>ini</Radio.Button>
         </Radio.Group>
       </Form.Item>
       <Form.Item

@@ -105,6 +105,12 @@ type (
 		ID uint `json:"id"`
 	}
 
+	ReqInstanceList struct {
+		AID      uint         `json:"aid"`
+		Env      string       `json:"env"`
+		Zone     string       `json:"zone"`
+	}
+
 	ConfigFormat string
 )
 

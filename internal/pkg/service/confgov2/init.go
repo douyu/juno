@@ -6,6 +6,7 @@ var (
 	mysql *gorm.DB
 )
 
+// Init ..
 func Init(d *gorm.DB) {
 	mysql = d
 }

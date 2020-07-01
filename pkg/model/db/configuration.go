@@ -3,11 +3,12 @@
 package db
 
 import (
+	"fmt"
 	"time"
 )
 
 type (
-	// 应用配置
+	// Configuration Application configuration
 	Configuration struct {
 		ID          uint       `gorm:"column:id;primary_key" json:"id"`
 		AID         uint       `gorm:"column:aid" json:"aid"`
@@ -22,7 +23,7 @@ type (
 		PublishedAt *time.Time `gorm:"column:published_at" json:"published_at"` // 未发布/发布时间
 	}
 
-	// 应用配置发布历史版本
+	// ConfigurationHistory Application configuration release history version
 	ConfigurationHistory struct {
 		ID              uint      `gorm:"column:id;primary_key" json:"id"`
 		UID             uint      `gorm:"column:uid" json:"uid"` // 操作用户ID
@@ -35,12 +36,39 @@ type (
 		User          *User          `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
 		Configuration *Configuration `json:"-" gorm:"foreignKey:ConfigurationID;"`
 	}
+
+	// ConfigurationPublish Publish record
+	ConfigurationPublish struct {
+		ID                     int       `gorm:"column:id" json:"id"`
+		UID                    uint      `gorm:"column:uid" json:"uid"` // 操作用户ID
+		ConfigurationID        uint      `gorm:"column:configuration_id" json:"configuration_id"`
+		ConfigurationHistoryID uint      `gorm:"column:configuration_history_id" json:"configuration_history_id"`
+		ApplyInstance          string    `gorm:"column:apply_instance" json:"apply_instance"`
+		FilePath               string    `gorm:"column:file_path" json:"file_path"`
+		CreatedAt              time.Time `gorm:"column:created_at" json:"created_at"`
+
+		User                 *User                 `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
+		Configuration        *Configuration        `json:"-" gorm:"foreignKey:ConfigurationID;"`
+		ConfigurationHistory *ConfigurationHistory `json:"-" gorm:"foreignKey:ConfigurationHistoryID;association_foreignkey:configuration_history_id"`
+	}
 )
 
+// TableName ..
 func (Configuration) TableName() string {
 	return "configuration"
 }
 
+// FileName ..
+func (c Configuration) FileName() string {
+	return fmt.Sprintf("%s.%s", c.Name, c.Format)
+}
+
+// TableName ..
 func (ConfigurationHistory) TableName() string {
 	return "configuration_history"
+}
+
+// TableName ..
+func (ConfigurationPublish) TableName() string {
+	return "configuration_publish"
 }
