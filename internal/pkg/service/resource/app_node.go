@@ -136,17 +136,16 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 		}
 		// 设置节点
 		err = r.PutNode(tx, db.Node{
-			HostName:      item.HostName,
-			Ip:            item.IP,
-			CreateTime:    time.Now().Unix(),
-			UpdateTime:    time.Now().Unix(),
-			HeartbeatTime: 0,
-			NodeType:      1, // 接口增加的
-			RegionCode:    item.RegionCode,
-			RegionName:    item.RegionName,
-			ZoneCode:      item.ZoneCode,
-			ZoneName:      item.ZoneName,
-			Env:           item.Env,
+			HostName:   item.HostName,
+			Ip:         item.IP,
+			CreateTime: time.Now().Unix(),
+			UpdateTime: time.Now().Unix(),
+			NodeType:   1, // 接口增加的
+			RegionCode: item.RegionCode,
+			RegionName: item.RegionName,
+			ZoneCode:   item.ZoneCode,
+			ZoneName:   item.ZoneName,
+			Env:        item.Env,
 		})
 		if err != nil {
 			return
