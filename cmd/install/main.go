@@ -12,7 +12,6 @@ import (
 	"github.com/douyu/jupiter/pkg/xlog"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"go.uber.org/zap"
 )
 
 // Admin indicates the user is a system administrator.
@@ -46,14 +45,14 @@ func main() {
 	})
 
 	eng := &Admin{}
-	err := eng.Startup(
+	_ = eng.Startup(
 		eng.initConfig,
 		eng.initInvoker,
 		eng.migrateDB,
 	)
-	if err != nil {
-		xlog.Error("start up error", zap.Error(err))
-	}
+	//if err != nil {
+	//	xlog.Error("start up error", zap.Error(err))
+	//}
 
 }
 
@@ -148,6 +147,7 @@ func cmdInstall(gormdb *gorm.DB) {
 		}
 		gormdb.SingularTable(true)
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
+		mock.MustMockData()
 		fmt.Println("create table ok")
 	}
 }
