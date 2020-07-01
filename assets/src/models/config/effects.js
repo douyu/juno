@@ -8,6 +8,8 @@ import {
   saveConfig
 } from "@/services/config";
 import {message} from "antd";
+import {parseConfigResource} from "@/utils/config";
+import {batchCheckVersion} from "@/services/config_resource";
 
 export default {
   * loadConfigInfo({payload}, {call, put}) {
@@ -225,5 +227,44 @@ export default {
     }
 
     return res
+  },
+  * showModalInsertResource({payload}, {call, put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        visibleModalInsertResource: payload
+      }
+    })
+  },
+  * checkResource({payload}, {call, put}) {
+    const {content, zone, env} = payload
+    let reqPayload = parseConfigResource(content).map(item => {
+      return {
+        ...item,
+        zone,
+        env
+      }
+    })
+
+    yield put({
+      type: '_apply',
+      payload: {
+        resourceCheckLoading: true
+      }
+    })
+
+    const r = yield call(batchCheckVersion, reqPayload)
+    if (r.code !== 0) {
+      message.error("资源版本检查失败:" + r.msg)
+      return
+    }
+
+    yield put({
+      type: '_apply',
+      payload: {
+        resourceCheckResult: r.data,
+        resourceCheckLoading: false
+      }
+    })
   }
 }

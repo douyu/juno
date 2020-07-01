@@ -19,7 +19,7 @@ function ModalCreate(props) {
     const {aid, env} = props
     const data = {
       ...fields,
-      aid,
+      aid: parseInt(aid),
       env
     }
 

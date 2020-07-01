@@ -1,6 +1,7 @@
 package adminengine
 
 import (
+	"github.com/douyu/juno/api/apiv1/confgov2/configresource"
 	"net/http"
 	"strings"
 
@@ -138,6 +139,15 @@ func apiAdmin(server *xecho.Server) {
 		g.GET("/config/history", confgov2.History)  // 配置文件历史
 		g.POST("/config/delete", confgov2.Delete)   // 配置删除
 		g.GET("/config/diff", confgov2.Diff)        // 配置文件Diif，返回两个版本的配置内容
+
+		resourceG := g.Group("/resource")
+		resourceG.GET("/list", configresource.List)
+		resourceG.POST("/create", configresource.Create)
+		resourceG.GET("/detail", configresource.Detail)
+		resourceG.GET("/getByName", configresource.GetByName)
+		resourceG.POST("/createVersion", configresource.CreateVersion)
+		resourceG.POST("/batchCheckVersion", configresource.BatchCheckVersion)
+		resourceG.GET("/tags", configresource.Tags)
 	}
 
 	resourceGroup := g.Group("/resource", loginAuthWithJSON)
@@ -153,6 +163,7 @@ func apiAdmin(server *xecho.Server) {
 		resourceGroup.POST("/zone/create", resource.ZoneCreate)
 		resourceGroup.POST("/zone/update", resource.ZoneUpdate)
 		resourceGroup.POST("/zone/delete", resource.ZoneDelete)
+		resourceGroup.GET("/zone/zone_env", resource.ZoneEnv)
 
 		resourceGroup.GET("/node/info", resource.NodeInfo)
 		resourceGroup.GET("/node/list", resource.NodeList)

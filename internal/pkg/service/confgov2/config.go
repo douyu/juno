@@ -40,14 +40,14 @@ func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
 	return
 }
 
-func Detail(param view.ReqDetailConfig) (resp view.RespDetailtConfig, err error) {
+func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) {
 	configuration := db.Configuration{}
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
 	if err != nil {
 		return
 	}
 
-	resp = view.RespDetailtConfig{
+	resp = view.RespDetailConfig{
 		ID:          configuration.ID,
 		AID:         configuration.AID,
 		Name:        configuration.Name,
@@ -256,7 +256,7 @@ func Diff(id uint) (resp view.RespDiffConfig, err error) {
 			return
 		}
 	} else {
-		resp.Origin = &view.RespDetailtConfig{
+		resp.Origin = &view.RespDetailConfig{
 			ID:          originConfig.ID,
 			AID:         originConfig.Configuration.AID,
 			Name:        originConfig.Configuration.Name,
@@ -270,7 +270,7 @@ func Diff(id uint) (resp view.RespDiffConfig, err error) {
 		}
 	}
 
-	resp.Modified = view.RespDetailtConfig{
+	resp.Modified = view.RespDetailConfig{
 		ID:          modifiedConfig.ID,
 		AID:         modifiedConfig.Configuration.AID,
 		Name:        modifiedConfig.Configuration.Name,

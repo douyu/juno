@@ -323,3 +323,9 @@ func NodeStatics(c echo.Context) error {
 
 	return output.JSON(c, output.MsgOk, "success", resp)
 }
+
+// 根据Node数据表聚合数据获取Zone和Env关联列表
+func NodeEnvZone(c echo.Context) (err error) {
+
+    return
+}

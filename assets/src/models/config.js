@@ -15,6 +15,7 @@ const defaultState = {
   visibleModalCreate: false,
   visibleModalSave: false,
   visibleModalHistory: false, // 历史版本窗口
+  visibleModalInsertResource: false,
 
   aid: 0,
   env: '',
@@ -38,6 +39,10 @@ const defaultState = {
   historyList: [],
   historyListPagination: {},
   historyListLoading: false,
+
+  // 当前依赖的资源版本检查结果
+  resourceCheckResult: [],
+  resourceCheckLoading: false,
 
 }
 

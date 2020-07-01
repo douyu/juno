@@ -126,3 +126,13 @@ func ZoneDelete(c echo.Context) error {
 	}
 	return output.JSON(c, output.MsgOk, "success")
 }
+
+// 获取可用区、环境的关联列表
+func ZoneEnv(c echo.Context) (err error) {
+	resp, err := resource.Resource.ZoneEnv()
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+
+	return output.JSON(c, output.MsgOk, "", resp)
+}

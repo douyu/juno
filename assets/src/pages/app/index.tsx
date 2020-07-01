@@ -239,18 +239,6 @@ export default class App extends React.Component<ConfgoBase, any> {
               appEnvZone={this.state.appEnvZone}
               zoneList={this.state.zoneList}
             />
-            <Confgo
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appIdcList={''}
-              zoneCode={this.state.zoneCode}
-              param={''}
-              idcList={this.state.idcList}
-              appEnvZone={this.state.appEnvZone}
-              zoneList={this.state.zoneList}
-            />
           </TabPane>
           <TabPane tab="监控" key="monitor">
             <Monitor
