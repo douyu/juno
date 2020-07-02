@@ -14,10 +14,15 @@ const defaultState = {
   configInstanceList: [],
   configInstanceListLoading: false,
 
+  // 编辑器遮罩层
+  visibleEditorMaskLayer: false,
+  editorMaskLayerChild: null,
+
   // 模态窗口状态
   visibleModalCreate: false,
   visibleModalSave: false,
   visibleModalHistory: false, // 历史版本窗口
+  visibleModalInsertResource: false,
 
   aid: 0,
   env: '',
@@ -25,8 +30,8 @@ const defaultState = {
   appName: '',
 
   // 配置发布
-  configPublishLoading:false,
-  
+  configPublishLoading: false,
+
   // 当前正在编辑的配置文件
   currentConfig: null,
   configFileLoading: false,
@@ -45,7 +50,14 @@ const defaultState = {
   historyList: [],
   historyListPagination: {},
   historyListLoading: false,
-};
+
+  // 当前依赖的资源版本检查结果
+  resourceCheckResult: [],
+  resourceCheckLoading: false,
+
+  // 当前选择的实例
+  currentInstance: null
+}
 
 export default {
   namespace: 'config',

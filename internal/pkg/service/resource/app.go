@@ -33,26 +33,26 @@ func (r *resource) GetApp(identify interface{}) (resp db.AppInfo, err error) {
 }
 
 // 设置APP信息
-func (a *resource) PutApp(item db.AppInfo, user *db.User) (err error) {
+func (r *resource) PutApp(item db.AppInfo, user *db.User) (err error) {
 	var count int
 	now := time.Now().Unix()
 
 	// 验证是否数据有修改
 	md5Str := item.MD5String()
-	a.DB.Table("app_change_map").Where("app_name = ? AND md5 = ?", item.AppName, md5Str).Count(&count)
+	r.DB.Table("app_change_map").Where("app_name = ? AND md5 = ?", item.AppName, md5Str).Count(&count)
 
 	// app未更新，直接返回
 	if count > 0 {
 		return
 	}
 
-	err = a.DB.Table("app_change_map").Where("app_name = ?", item.AppName).Delete(&db.AppChangeMap{}).Error
+	err = r.DB.Table("app_change_map").Where("app_name = ?", item.AppName).Delete(&db.AppChangeMap{}).Error
 	if err != nil {
 		log.Error("mysql query error", err.Error())
 		return
 	}
 
-	a.DB.Create(&db.AppChangeMap{
+	r.DB.Create(&db.AppChangeMap{
 		AppName:   item.AppName,
 		Md5:       md5Str,
 		UpdatedAt: time.Now().Unix(),
@@ -61,9 +61,9 @@ func (a *resource) PutApp(item db.AppInfo, user *db.User) (err error) {
 	item.UpdateTime = now
 	item.CreatedBy = user.Uid
 	// 更新应用信息
-	a.updateAppInfo(&item, user)
+	r.updateAppInfo(&item, user)
 	// 更新负责人
-	a.updateAppUser(item.AppName, item.Users)
+	r.updateAppUser(item.AppName, item.Users)
 	return
 }
 
@@ -169,9 +169,9 @@ func (r *resource) GetAppCnt() (cnt int) {
 }
 
 // 获取所有应用列表按lang约束
-func (a *resource) FilterListInLangs(langs []string) ([]view.RespAppInfo, error) {
+func (r *resource) FilterListInLangs(langs []string) ([]view.RespAppInfo, error) {
 	list := make([]view.RespAppInfo, 0)
-	query := a.Table("app")
+	query := r.Table("app")
 	if len(langs) > 0 {
 		query = query.Where("lang IN (?)", langs)
 	}
@@ -182,74 +182,74 @@ func (a *resource) FilterListInLangs(langs []string) ([]view.RespAppInfo, error)
 }
 
 // SimpleAppList 获取应用及对应的负责人信息，主要用于访问gitlab交互
-func (a *resource) SimpleAppList(lang string) (resp []db.AppInfo) {
+func (r *resource) SimpleAppList(lang string) (resp []db.AppInfo) {
 	invoker.JunoMysql.Where("lang = ?", lang).Find(&resp)
 	return
 }
 
 // 根据应用名,获取机房信息
-func (a *resource) GetAppIDCList(appName string) (idcs []db.AppNode, err error) {
+func (r *resource) GetAppIDCList(appName string) (idcs []db.AppNode, err error) {
 	idcs = make([]db.AppNode, 0)
-	if err = a.Where("app_name = ?", appName).Group("env, zone_code").Find(&idcs).Error; err != nil {
+	if err = r.Where("app_name = ?", appName).Group("env, zone_code").Find(&idcs).Error; err != nil {
 		return idcs, err
 	}
 	return idcs, nil
 }
 
 // 根据应用名,获取机房信息
-func (a *resource) GetIDCList() (idcs []db.AppNode, err error) {
+func (r *resource) GetIDCList() (idcs []db.AppNode, err error) {
 	idcs = make([]db.AppNode, 0)
-	if err = a.Group("env, zone_code").Select("env, zone_code").Find(&idcs).Error; err != nil {
+	if err = r.Group("env, zone_code").Select("env, zone_code").Find(&idcs).Error; err != nil {
 		return idcs, err
 	}
 	return idcs, nil
 }
 
 // 根据应用名,获取机房信息
-func (a *resource) GetAppIDCListOld(appName string) (idcs []db.AppNode, err error) {
+func (r *resource) GetAppIDCListOld(appName string) (idcs []db.AppNode, err error) {
 	idcs = make([]db.AppNode, 0)
-	if err = a.Where("app_name = ?", appName).Group("zone_code").Find(&idcs).Error; err != nil {
+	if err = r.Where("app_name = ?", appName).Group("zone_code").Find(&idcs).Error; err != nil {
 		return idcs, err
 	}
 	return idcs, nil
 }
 
 // 获取jupiter版本信息
-func (a *resource) GetMinervaVersion(appName string) (string, error) {
+func (r *resource) GetMinervaVersion(appName string) (string, error) {
 	appInfo := db.AppInfo{}
-	if err := a.DB.Where("app_name = ?", appName).First(&appInfo).Error; err != nil {
+	if err := r.DB.Where("app_name = ?", appName).First(&appInfo).Error; err != nil {
 		return "", err
 	}
 	if appInfo.Aid == 0 {
 		return "", errors.New("appInfo.Aid为0")
 	}
 	appPackage := db.AppPackage{}
-	if err := a.DB.Where("aid = ? and name = 'github.com/labstack/echo/v4'", appInfo.Aid).First(&appPackage).Error; err != nil {
+	if err := r.DB.Where("aid = ? and name = 'github.com/labstack/echo/v4'", appInfo.Aid).First(&appPackage).Error; err != nil {
 		return "", err
 	}
 	return appPackage.Version, nil
 }
 
-func (a *resource) updateAppInfo(info *db.AppInfo, user *db.User) {
+func (r *resource) updateAppInfo(info *db.AppInfo, user *db.User) {
 	var count int
-	a.DB.Model(db.AppInfo{}).Where("app_name = ?", info.AppName).Count(&count)
+	r.DB.Model(db.AppInfo{}).Where("app_name = ?", info.AppName).Count(&count)
 	if count == 0 { // 新增
-		a.DB.Create(info)
-		if err := a.appUpEvent(info, user); err != nil {
+		r.DB.Create(info)
+		if err := r.appUpEvent(info, user); err != nil {
 			log.Error("put appUpEvent failed", err.Error())
 		}
 	} else { // 更新
-		a.DB.Model(db.AppInfo{}).Where("app_name = ?", info.AppName).Save(info)
-		if err := a.appUpdateEvent(info, user); err != nil {
+		r.DB.Model(db.AppInfo{}).Where("app_name = ?", info.AppName).Save(info)
+		if err := r.appUpdateEvent(info, user); err != nil {
 			log.Error("put appUpdateEvent failed", err.Error())
 		}
 	}
 }
 
-func (a *resource) updateAppUser(appName string, userNames []string) {
-	a.DB.Where("app_name = ? ", appName).Delete(&db.AppUserRelation{})
+func (r *resource) updateAppUser(appName string, userNames []string) {
+	r.DB.Where("app_name = ? ", appName).Delete(&db.AppUserRelation{})
 	for _, name := range userNames {
-		a.DB.Create(&db.AppUserRelation{
+		r.DB.Create(&db.AppUserRelation{
 			AppName:   appName,
 			UserName:  name,
 			UpdatedAt: time.Now().Unix(),
@@ -258,42 +258,42 @@ func (a *resource) updateAppUser(appName string, userNames []string) {
 }
 
 // 保存用户访问的应用
-func (a *resource) SaveVisitedApp(appName, userName string) {
+func (r *resource) SaveVisitedApp(appName, userName string) {
 	var userVisitedApp db.UserVisitedApp
-	err := a.DB.Where("app_name = ? and user_name = ?", appName, userName).First(&userVisitedApp).Error
+	err := r.DB.Where("app_name = ? and user_name = ?", appName, userName).First(&userVisitedApp).Error
 	if err == gorm.ErrRecordNotFound {
 		userVisitedAppNew := db.UserVisitedApp{
 			AppName:     appName,
 			UserName:    userName,
 			VisitedTime: time.Now().Unix(),
 		}
-		a.DB.Create(&userVisitedAppNew)
+		r.DB.Create(&userVisitedAppNew)
 		return
 	}
-	a.DB.Table("user_visited_app").Where("app_name = ? and user_name = ?", appName, userName).Update(map[string]interface{}{
+	r.DB.Table("user_visited_app").Where("app_name = ? and user_name = ?", appName, userName).Update(map[string]interface{}{
 		"visited_time": time.Now().Unix(),
 	})
 }
 
-func (a *resource) GetVisitedApp(userName string) []db.UserVisitedApp {
+func (r *resource) GetVisitedApp(userName string) []db.UserVisitedApp {
 	var userVisitedApp []db.UserVisitedApp
-	a.DB.Order("visited_time desc").Where("user_name = ?", userName).Find(&userVisitedApp)
+	r.DB.Order("visited_time desc").Where("user_name = ?", userName).Find(&userVisitedApp)
 	return userVisitedApp
 }
 
 // Delete 删除对应aid的App，action为对应的删除行为
-func (a *resource) Delete(appName string, action db.AppLogAction) (err error) {
+func (r *resource) Delete(appName string, action db.AppLogAction) (err error) {
 	app := db.AppInfo{}
 
 	// 先找到
-	query := a.DB.Table("app").Where("app_name = ?", appName).First(&app)
+	query := r.DB.Table("app").Where("app_name = ?", appName).First(&app)
 
 	err = query.Error
 	if err != nil {
 		return
 	}
 
-	tx := a.DB.Begin()
+	tx := r.DB.Begin()
 
 	queryLog := tx.Table("app_log").Create(&db.AppLog{
 		Aid:        app.Aid,
@@ -338,15 +338,15 @@ func (a *resource) Delete(appName string, action db.AppLogAction) (err error) {
 	return
 }
 
-func (a *resource) removeAppDown(appDownList []db.AppInfo, user *db.User) error {
+func (r *resource) removeAppDown(appDownList []db.AppInfo, user *db.User) error {
 	for _, item := range appDownList {
-		err := a.Delete(item.AppName, db.AppLogActionDelete)
+		err := r.Delete(item.AppName, db.AppLogActionDelete)
 		if err != nil {
 			log.Error("removeAppDown: app.Delete failed", err.Error())
 			continue
 		}
 
-		if err := a.appDownEvent(&item, user); err != nil {
+		if err := r.appDownEvent(&item, user); err != nil {
 			log.Error("removeAppDown: ", err.Error())
 			// 考虑到事件流不能影响业务逻辑，此处不rollback
 		}
@@ -354,7 +354,7 @@ func (a *resource) removeAppDown(appDownList []db.AppInfo, user *db.User) error 
 	return nil
 }
 
-func (a *resource) appDownEvent(app *db.AppInfo, user *db.User) error {
+func (r *resource) appDownEvent(app *db.AppInfo, user *db.User) error {
 	metaData, err := json.Marshal(app)
 	appEvent := &db.AppEvent{
 		AppName:   app.AppName,
@@ -372,7 +372,7 @@ func (a *resource) appDownEvent(app *db.AppInfo, user *db.User) error {
 	return err
 }
 
-func (a *resource) appUpEvent(app *db.AppInfo, user *db.User) error {
+func (r *resource) appUpEvent(app *db.AppInfo, user *db.User) error {
 	metaData, err := json.Marshal(app)
 	ev := &db.AppEvent{
 		AppName:   app.AppName,
@@ -392,7 +392,7 @@ func (a *resource) appUpEvent(app *db.AppInfo, user *db.User) error {
 	return err
 }
 
-func (a *resource) appUpdateEvent(app *db.AppInfo, user *db.User) error {
+func (r *resource) appUpdateEvent(app *db.AppInfo, user *db.User) error {
 	metaData, err := json.Marshal(app)
 	ev := &db.AppEvent{
 		AppName:   app.AppName,
@@ -412,19 +412,19 @@ func (a *resource) appUpdateEvent(app *db.AppInfo, user *db.User) error {
 	return err
 }
 
-func (a *resource) Count() (count int, err error) {
-	err = a.DB.Table("app").Where("biz_domain = ?", "项目A").Count(&count).Error
+func (r *resource) Count() (count int, err error) {
+	err = r.DB.Table("app").Where("biz_domain = ?", "项目A").Count(&count).Error
 	return
 }
 
-func (a *resource) WhereAID(aid uint) (app *db.AppInfo, err error) {
+func (r *resource) WhereAID(aid uint) (app *db.AppInfo, err error) {
 	app = &db.AppInfo{}
-	err = a.DB.Where("aid = ?", aid).First(app).Error
+	err = r.DB.Where("aid = ?", aid).First(app).Error
 	return app, err
 }
 
 // WhereNickname 根据负责人和应用名进行查询
-func (a *resource) WhereNickname(username, qs string, page, pageSize uint) (apps []db.AppInfo, total uint, err error) {
+func (r *resource) WhereNickname(username, qs string, page, pageSize uint) (apps []db.AppInfo, total uint, err error) {
 	if pageSize == 0 {
 		return
 	}
@@ -434,7 +434,7 @@ func (a *resource) WhereNickname(username, qs string, page, pageSize uint) (apps
 
 	errChan := make(chan error, 2)
 
-	query := a.DB.Table("app").Where("users like ?", "%"+username+"%")
+	query := r.DB.Table("app").Where("users like ?", "%"+username+"%")
 	// Where("biz_domain = ?", BizDomainA)
 
 	if qs != "" {

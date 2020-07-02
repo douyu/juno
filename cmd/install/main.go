@@ -145,6 +145,9 @@ func cmdInstall(gormdb *gorm.DB) {
 			&db.UserRelation{},
 			&db.Option{},
 			&db.SystemConfig{},
+			&db.Configuration{},
+			&db.ConfigurationPublish{},
+			&db.ConfigurationHistory{},
 		}
 		gormdb.SingularTable(true)
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)

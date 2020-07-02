@@ -4,8 +4,11 @@ import styles from './index.less';
 import {connect} from 'dva'
 import {Spin} from "antd";
 import {EditOutlined} from '@ant-design/icons'
+import {createDiffEditor, createEditor} from "@/pages/app/components/Config/components/Editor/editor";
+import ModalInsertResource from "@/pages/app/components/Config/components/ModalInsertResource";
+import {loadResourceByNameVersion, loadResourceDetail} from "@/services/config_resource";
 
-import initLanguage from './language';
+let editor = null
 
 function Editor(props) {
   const {
@@ -13,71 +16,76 @@ function Editor(props) {
     diffOriginConfig, diffModifiedConfig,
   } = props
 
-  const [editor, setEditor] = useState(null)
   const [diffEditor, setDiffEditor] = useState(null)
+  const [insertModalCB, setInsertModalCB] = useState(null)
   const editorRef = useRef(null)
   const diffEditorRef = useRef(null)
 
-  const createEditor = () => {
-    if (editor) return
-
-    let editorInstance = monaco.editor.create(
-      editorRef.current,
-      {
-        theme: 'vs-dark',
-        language: 'dy/conf',
-        value: "[app]\n\tname = juno\n\taid = 12345",
-        automaticLayout: true
-      }
-    )
-    initLanguage(editorInstance)
-
-    props.dispatch({
-      type: 'config/setEditor',
-      payload: editorInstance
-    })
-
-    editorInstance.onDidChangeModelContent(ev => {
-      props.dispatch({
-        type: 'config/setCurrentContent',
-        payload: editorInstance.getValue()
-      })
-    })
-
-    editorInstance.setValue(currentContent)
-
-    setEditor(editorInstance)
-  }
-
-  const createDiffEditor = () => {
-    let editorInstance = monaco.editor.createDiffEditor(
-      diffEditorRef.current,
-      {
-        theme: 'vs-dark',
-        language: 'dy/conf',
-        automaticLayout: true,
-        enableSplitViewResizing: false
-      }
-    )
-
-    const originModel = monaco.editor.createModel(diffOriginConfig ? diffOriginConfig.content : '')
-    const modifiedModel = monaco.editor.createModel(diffModifiedConfig.content)
-
-    editorInstance.setModel({
-      original: originModel,
-      modified: modifiedModel
-    })
-
-    setDiffEditor(editorInstance)
-  }
+  const showModalInsertResource = visible => props.dispatch({
+    type: 'config/showModalInsertResource',
+    payload: visible
+  })
 
   useEffect(() => {
     if (mode === 'code') {
-      createEditor()
+      if (editor) {
+        editor.dispose()
+        let model = editor.getModel()
+        if (model) model.dispose()
+      }
+
+      let editorInstance = createEditor(editorRef, {
+        onInsertResource: (callback) => {
+          showModalInsertResource(true)
+          setInsertModalCB({callback})
+        },
+        onLoadResourceDetail: (resource) => {
+          return new Promise((resolve, reject) => {
+            if (!currentConfig) {
+              console.log("currentConfig", currentConfig)
+              reject()
+              return
+            }
+
+            if (!resource || !resource.length) {
+              reject()
+              return
+            }
+
+            const name = resource.split('@')[0]
+            loadResourceByNameVersion(currentConfig.env, currentConfig.zone, name).then(r => {
+              if (r.code !== 0) {
+                console.error("loadResourceByNameVersion failed:", r)
+                reject()
+                return
+              }
+
+              resolve(r.data)
+            })
+
+          })
+        }
+      })
+
+      editor = editorInstance
+      editorInstance.setValue(currentContent)
+      editorInstance.onDidChangeModelContent(ev => {
+        props.dispatch({
+          type: 'config/setCurrentContent',
+          payload: editorInstance.getValue()
+        })
+      })
+
     } else if (mode === 'diff') {
-      createDiffEditor()
+      // createDiffEditor()
+
+      let editorInstance = createDiffEditor(diffEditorRef,
+        diffOriginConfig ? diffOriginConfig.content : '', diffModifiedConfig.content)
+
+      setDiffEditor(editorInstance)
     }
-  }, [mode])
+
+  }, [mode, currentConfig])
 
   useEffect(() => {
     console.log(currentConfig)
@@ -116,6 +124,11 @@ function Editor(props) {
       <div>请先选择文件</div>
     </div>}
 
+    <ModalInsertResource onOk={({resource}) => {
+      insertModalCB && loadResourceDetail(resource).then(r => {
+        insertModalCB.callback(r.data)
+      })
+    }}/>
   </div>;
 }
 
