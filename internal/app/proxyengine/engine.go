@@ -63,7 +63,7 @@ func (eng *Proxy) initConfig() (err error) {
 
 func (eng *Proxy) initServerProxy() (err error) {
 	proxy.InitStreamStore()
-	
+
 	err = eng.Schedule(proxy.NewProxyGrpcWorker())
 	if err != nil {
 		return

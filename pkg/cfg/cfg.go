@@ -44,6 +44,7 @@ type cfg struct {
 	ServerProxy       ServerProxy
 	Database          Database
 	Configure         Configure
+	Pprof             Pprof
 }
 
 // DefaultConfig ...
@@ -128,6 +129,9 @@ func defaultConfig() cfg {
 				ZoneName:   "",
 				Env:        "",
 			},
+		},
+		Pprof: Pprof{
+			Path: ".",
 		},
 	}
 }

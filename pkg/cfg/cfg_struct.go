@@ -113,6 +113,10 @@ type HeartBeat struct {
 	Env        string        `json:"env"`
 }
 
+type Pprof struct {
+	Path string
+}
+
 type Database struct {
 	Enable bool
 	// DSN地址: mysql://root:secret@tcp(127.0.0.1:3307)/mysql?timeout=20s&readTimeout=20s

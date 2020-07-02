@@ -133,30 +133,69 @@ export default class Base extends React.Component<HomeProps, any> {
         },
       },
       {
-        title: '心跳时间',
-        dataIndex: 'heartbeat_time',
-        key: 'heartbeat_time',
-        render: (heartbeat_time) => {
+        title: 'agent心跳时间',
+        dataIndex: 'agent_heartbeat_time',
+        key: 'agent_heartbeat_time',
+        render: (agent_heartbeat_time) => {
           var timestamp = Date.parse(new Date())/1000;
-          if (heartbeat_time === 0) {
+          if (agent_heartbeat_time === 0) {
             return (
               <span>
                 <Tag color="red">未上报心跳</Tag>
               </span>
             );
-          } else if (timestamp - heartbeat_time > 120) {
+          } else if (timestamp - agent_heartbeat_time > 120) {
             return (
               <span>
-                <Tag color="red">心跳超时</Tag>({moment(heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
+                <Tag color="red">心跳超时</Tag>({moment(agent_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
               </span>
             );
-          }else {
+          }else if  (timestamp - agent_heartbeat_time < 120)  {
             return (
               <span>
-                <Tag color="green">心跳正常</Tag>({moment(heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
+                <Tag color="green">心跳正常</Tag>({moment(agent_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
               </span>
             );
 
+          }
+        },
+      },
+      {
+        title: 'Proxy情况',
+        key: 'proxy_type',
+        render: (record) => {
+          if (record.proxy_type === 1) {
+            return (
+              <span>
+                <Tag color="green">已部署proxy</Tag>
+              </span>
+            );
+          }
+        },
+      },
+      {
+        title: 'proxy心跳时间',
+        key: 'proxy_heartbeat_time',
+        render: (record) => {
+          var timestamp = Date.parse(new Date())/1000;
+          if (record.proxy_type === 1 && record.proxy_heartbeat_time === 0) {
+            return (
+              <span>
+                <Tag color="red">未上报心跳</Tag>
+              </span>
+            );
+          } else if (record.proxy_type === 1 && (timestamp - record.proxy_heartbeat_time > 120)) {
+            return (
+              <span>
+                <Tag color="red">心跳超时</Tag>({moment(record.proxy_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
+              </span>
+            );
+          }else if  (record.proxy_type === 1 && (timestamp - record.proxy_heartbeat_time < 120)) {
+            return (
+              <span>
+                <Tag color="green">心跳正常</Tag>({moment(record.proxy_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
+              </span>
+            );
           }
         },
       },

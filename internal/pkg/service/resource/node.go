@@ -145,22 +145,36 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 	var (
 		info db.Node
 	)
-	err = r.DB.Where("host_name = ? and agent_type = ?", reqInfo.Hostname, reqInfo.AgentType).Find(&info).Error
-	// 返回系统错误
+	err = r.DB.Where("host_name = ?", reqInfo.Hostname).Find(&info).Error
+	// return system error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}
 
-	nodeInfo := db.Node{
-		HostName:      reqInfo.Hostname,
-		Ip:            reqInfo.IP,
-		HeartbeatTime: time.Now().Unix(),
-		AgentType:     reqInfo.AgentType,
-		AgentVersion:  reqInfo.AgentVersion,
+	if reqInfo.AgentType != 1 && reqInfo.ProxyType != 1 {
+		err = errors.New("heartbeat type error")
+		return
 	}
 
+	var nodeInfo db.Node
+	if reqInfo.ProxyType == 1 {
+		nodeInfo = db.Node{
+			HostName:           reqInfo.Hostname,
+			Ip:                 reqInfo.IP,
+			ProxyHeartbeatTime: time.Now().Unix(),
+			ProxyType:          reqInfo.ProxyType,
+			ProxyVersion:       reqInfo.ProxyVersion,
+		}
+	} else {
+		nodeInfo = db.Node{
+			HostName:           reqInfo.Hostname,
+			Ip:                 reqInfo.IP,
+			AgentHeartbeatTime: time.Now().Unix(),
+			AgentType:          reqInfo.AgentType,
+			AgentVersion:       reqInfo.AgentVersion,
+		}
+	}
 	isPutZone := false
-
 	// 如果不为空，就选择使用agent上报的数据，否则就使用后台数据
 	if reqInfo.RegionCode != "" && reqInfo.ZoneCode != "" {
 		nodeInfo.RegionCode = reqInfo.RegionCode
@@ -189,7 +203,7 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 
 	// 如果存在就更新
 	if info.Id > 0 {
-		err = tx.Model(nodeInfo).Where("host_name = ?  and agent_type = ?", reqInfo.Hostname, reqInfo.AgentType).UpdateColumns(&nodeInfo).Error
+		err = tx.Model(nodeInfo).Where("host_name = ?", reqInfo.Hostname).UpdateColumns(&nodeInfo).Error
 		if err != nil {
 			tx.Rollback()
 			return
@@ -210,7 +224,7 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 		tx.Where("app_name = ?", reqInfo.AppName).Find(&appInfo)
 		var appNodeInfo db.AppNode
 		// agent can update app info, proxy can't update app info
-		tx.Where("host_name = ? and app_name =? and agent_type = ?", reqInfo.Hostname, reqInfo.AppName, 1).Find(&appNodeInfo)
+		tx.Where("host_name = ? and app_name =? ", reqInfo.Hostname, reqInfo.AppName).Find(&appNodeInfo)
 		if appInfo.Aid > 0 && appNodeInfo.ID == 0 {
 			addMap := make(map[string]interface{}, 0)
 			addMap[reqInfo.Hostname] = reqInfo.Hostname

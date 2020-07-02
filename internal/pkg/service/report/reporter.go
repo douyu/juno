@@ -47,13 +47,13 @@ type Report struct {
 type AgentReportRequest struct {
 	Hostname     string `json:"hostname"`
 	IP           string `json:"ip"`
-	AgentVersion string `json:"agent_version"`
+	ProxyVersion string `json:"proxy_version"`
 	RegionCode   string `json:"region_code"`
 	RegionName   string `json:"region_name"`
 	ZoneCode     string `json:"zone_code"`
 	ZoneName     string `json:"zone_name"`
 	Env          string `json:"env"`
-	AgentType    int    `json:"agent_type"`
+	ProxyType    int    `json:"proxy_type"`
 }
 
 // ReportAgentStatus report agent status
@@ -65,8 +65,8 @@ func (r *Report) ReportAgentStatus() error {
 	req := AgentReportRequest{
 		Hostname:     r.config.HostName,
 		IP:           appIP,
-		AgentVersion: "0.1",
-		AgentType:    2,
+		ProxyVersion: "0.1",
+		ProxyType:    1,
 		RegionCode:   r.config.RegionCode,
 		RegionName:   r.config.RegionName,
 		ZoneCode:     r.config.ZoneCode,
@@ -83,10 +83,12 @@ func (r *Report) ReportAgentStatus() error {
 						MsgId: constx.MsgNodeHeartBeatResp,
 						Msg:   msgByte,
 					})
+					xlog.Debug("report stream info", xlog.Any("response", string(msgByte)))
+
 				}
 			} else {
 				response := r.Reporter.Report(req)
-				xlog.Debug("report info", xlog.Any("response", response))
+				xlog.Debug("report http info", xlog.Any("response", response))
 			}
 			time.Sleep(time.Duration(r.config.Internal))
 		}
