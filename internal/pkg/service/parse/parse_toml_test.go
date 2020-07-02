@@ -1,11 +1,11 @@
 package parse_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/douyu/juno/internal/pkg/service/parse"
-	"github.com/douyu/juno/pkg/code"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -18,7 +18,7 @@ func TestTomlParse_FormatStrict(t *testing.T) {
 		`))
 		fmt.Println(res)
 
-		diff := cmp.Diff(code.ErrTomlFormatStrict.Error(), got.Error())
+		diff := cmp.Diff(errors.New("非application block，需要以 [xxx] 开头进行编辑，不能直接输入 key=value"), got.Error())
 		if diff != "" {
 			t.Fatalf(diff)
 		}

@@ -3,10 +3,10 @@ package parse
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/douyu/juno/pkg/code"
 )
 
 // TomlParse ..
@@ -115,7 +115,7 @@ func (tp *TomlParse) FormatStrict(source []byte) (out string, err error) {
 	if strings.HasPrefix(res, "[") {
 		return res, nil
 	}
-	return "", code.ErrTomlFormatStrict
+	return "", errors.New("非application block，需要以 [xxx] 开头进行编辑，不能直接输入 key=value")
 }
 
 // IsLegal ...

@@ -51,7 +51,8 @@ type Server struct {
 
 // Proxy
 type ClientProxy struct {
-	Name         string
+	Env 		 string
+	ZoneCode     string
 	Stream       ProxyStream
 	HttpServer   ServerSchema
 	GrpcServer   ServerSchema

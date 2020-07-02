@@ -35,7 +35,7 @@ func Init() {
 		if err != nil {
 			continue
 		}
-		ClientProxy.EtcdMap[cp.Name] = client
+		ClientProxy.EtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
 	}
 	return
 }
@@ -44,8 +44,12 @@ func Init() {
 func (c *clientproxy) Conn(env, zoneCode string) (*clientv3.Client, error) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
-	if conn, ok := c.EtcdMap[fmt.Sprintf("%s.%s", env, zoneCode)]; ok {
+	if conn, ok := c.EtcdMap[GenClientProxyName(env, zoneCode)]; ok {
 		return conn, nil
 	}
 	return nil, fmt.Errorf(errorconst.ParamCannotFindClientProxy.Code().String() + errorconst.ParamCannotFindClientProxy.Name())
+}
+
+func GenClientProxyName(env, zoneCode string)string{
+	return fmt.Sprintf("%s.%s", env, zoneCode)
 }
