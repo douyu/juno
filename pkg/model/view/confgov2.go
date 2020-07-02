@@ -119,6 +119,30 @@ type (
 		ID uint `json:"id"`
 	}
 
+	ReqConfigInstanceList struct {
+		AID  uint   `json:"aid"`
+		Env  string `json:"env"`
+		Zone string `json:"zone"`
+	}
+
+	RespConfigInstanceList []RespConfigInstanceItem
+
+	RespConfigInstanceItem struct {
+		Env                  string    `json:"env"`
+		IP                   string    `json:"ip"`
+		HostName             string    `json:"host_name"`
+		DeviceID             int       `json:"device_id"`
+		RegionCode           string    `json:"region_code"`
+		RegionName           string    `json:"region_name"`
+		ZoneCode             string    `json:"zone_code"`
+		ZoneName             string    `json:"zone_name"`
+		ConfigFilePath       string    `json:"config_file_path"`
+		ConfigFileUsed       bool      `json:"config_file_used"`
+		ConfigFileSynced     bool      `json:"config_file_synced"`
+		ConfigFileTakeEffect bool      `json:"config_file_take_effect"`
+		SyncAt               time.Time `json:"sync_at"`
+	}
+
 	// ConfigFormat ..
 	ConfigFormat string
 

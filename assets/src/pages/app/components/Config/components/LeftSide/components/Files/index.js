@@ -31,6 +31,11 @@ function Files(props) {
           onClick={() => props.loadConfig(cfg.id)}
         >{cfg.name}.{cfg.format}</div>
         <div>
+          {currentConfig && currentConfig.content !== currentContent && <span className={styles.notSavedTip}>
+            未保存
+          </span>}
+        </div>
+        <div>
           <Popconfirm
             title={"谨慎操作，删除后无法找回.确定删除?"}
             onConfirm={() => {
@@ -120,7 +125,8 @@ const mapDispatch = (dispatch) => {
         aid,
         env
       }
-    })
+    }),
+    dispatch: dispatch
   }
 }
 

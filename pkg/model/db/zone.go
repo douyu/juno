@@ -1,6 +1,6 @@
 package db
 
-// Zone ...
+// ZoneCode ...
 type Zone struct {
 	Id         int    `gorm:"not null;comment:'注释'"json:"id"`
 	Env        string `json:"env"gorm:"not null"`
