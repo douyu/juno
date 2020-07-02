@@ -1,3 +1,17 @@
+// Copyright 2020 Douyu
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package adminengine
 
 import (
@@ -7,6 +21,7 @@ import (
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/app"
 	"github.com/douyu/juno/api/apiv1/confgo"
+	"github.com/douyu/juno/api/apiv1/confgov2"
 	"github.com/douyu/juno/api/apiv1/event"
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
@@ -25,12 +40,14 @@ func apiAdmin(server *xecho.Server) {
 	var loginAuthWithJSON echo.MiddlewareFunc // 登录授权,以JSON形式
 	var loginAuthRedirect echo.MiddlewareFunc // 登录授权,以Http跳转形式
 
-	// 如果是local环境, 走Debug模式
+	// If it is a local environment, go to Debug mode
 	loginAuthWithJSON = middleware.LoginAuth("/api/authorize", middleware.RedirectTypeJson).Func()
 	loginAuthRedirect = middleware.LoginAuth("/api/authorize", middleware.RedirectTypeHttp).Func()
 
+	// session init
 	sessionMW := session.Middleware(userSrv.NewSessionStore())
 
+	// static file
 	server.GET("/", static.File("assets/dist/index.html"), sessionMW, loginAuthRedirect)
 	server.Static("/ant/*", "assets/dist")
 	server.Static("/pprof/*", "assets/pprof_static")
@@ -42,6 +59,7 @@ func apiAdmin(server *xecho.Server) {
 		return c.File("assets/dist")
 	}
 
+	// grafana proxy
 	groupGrafana := server.Group("/grafana", sessionMW, loginAuthRedirect)
 	{
 		AllMethods := []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete,
@@ -52,14 +70,9 @@ func apiAdmin(server *xecho.Server) {
 	}
 
 	g := server.Group("/api/admin")
-
-	// use session
-	g.Use(sessionMW)
-
+	g.Use(sessionMW) // use session
 	g.GET("/api/app/filter/list", app.FilterList)
-
-	// 获取应用信息,该应用机房信息
-	g.GET("/api/app/info", app.Info)
+	g.GET("/api/app/info", app.Info) // Get application information, the application room information
 	g.GET("/api/app/env", app.Env)
 	g.GET("/api/system", app.Info)
 
@@ -124,6 +137,20 @@ func apiAdmin(server *xecho.Server) {
 		confgoGroup.POST("/tpl/delete", confgo.TplDelete)
 
 		confgoGroup.POST("/app/restart", confgo.AppRestart)
+	}
+
+	configV2G := g.Group("/confgov2", loginAuthWithJSON)
+	{
+		g := configV2G
+		g.GET("/config/list", confgov2.List)                  // 配置文件列表
+		g.GET("/config/detail", confgov2.Detail)              // 配置文件内容
+		g.POST("/config/create", confgov2.Create)             // 配置新建
+		g.POST("/config/update", confgov2.Update)             // 配置更新
+		g.POST("/config/publish", confgov2.Publish)           // 配置发布
+		g.GET("/config/history", confgov2.History)            // 配置文件历史
+		g.POST("/config/delete", confgov2.Delete)             // 配置删除
+		g.GET("/config/diff", confgov2.Diff)                  // 配置文件Diif，返回两个版本的配置内容
+		g.GET("/config/instance/list", confgov2.InstanceList) // 配置文件Diif，返回两个版本的配置内容
 	}
 
 	resourceGroup := g.Group("/resource", loginAuthWithJSON)

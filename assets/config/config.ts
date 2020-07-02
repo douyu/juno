@@ -1,10 +1,10 @@
 // https://umijs.org/config/
-import { defineConfig } from 'umi';
+import {defineConfig} from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
 
-const { REACT_APP_ENV } = process.env;
+const {REACT_APP_ENV} = process.env;
 export default defineConfig({
   hash: true,
   antd: {},
@@ -177,6 +177,7 @@ export default defineConfig({
   theme: {
     'nav-theme': defaultSettings.navTheme,
     'primary-color': defaultSettings.primaryColor,
+    'border-radius-base': '8px',
   },
   ignoreMomentLocale: true,
   proxy: proxy[REACT_APP_ENV || 'dev'],

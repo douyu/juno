@@ -2,16 +2,16 @@ package pprofHandle
 
 import (
 	"fmt"
-	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/jupiter/pkg/xlog"
-	"go.uber.org/zap"
 	"strings"
 
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 // GetSysConfig

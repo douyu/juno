@@ -125,10 +125,10 @@ const Detail: React.FC<{}> = (props) => {
   };
 
   return (
-    <div style={{ marginLeft: '5px' }}>
+    <div style={{ marginTop: '5px' }}>
       <Row>
-        <Col span={12}>
-          <div style={{ float: 'left' }}>
+        <Col span={23}>
+          <div style={{ float: 'right' }}>
             <Button
               type="primary"
               className={styles.lay}

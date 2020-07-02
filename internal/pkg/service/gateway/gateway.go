@@ -3,7 +3,6 @@ package gateway
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/douyu/juno/pkg/cfg"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/service/system"
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"

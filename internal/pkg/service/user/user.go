@@ -2,10 +2,11 @@ package user
 
 import (
 	"errors"
+	"time"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/labstack/echo/v4"
-	"time"
 )
 
 // User 指定Menu结构体对应的表名

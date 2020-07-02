@@ -1,3 +1,17 @@
+// Copyright 2020 Douyu
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package proxy
 
 import (
@@ -11,11 +25,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/douyu/jupiter/pkg/conf"
-
-	"github.com/douyu/juno/pkg/model/db"
-
 	"github.com/douyu/juno/internal/pkg/invoker"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/jupiter/pkg/conf"
 	"go.etcd.io/etcd/clientv3"
 )
 
@@ -301,14 +313,6 @@ func (c *confgo) getEffectMD5(url string) (res string) {
 func (c *confgo) PutConfigV2(appName, port, env, fileName, format, val string, instanceList []string, enableGlobal bool, md5 string) (commonVal string, err error) {
 	// Inject global configuration
 	var globalVal string
-	if enableGlobal {
-		globalVal, err = getGlobalConfig()
-		if err != nil {
-			fmt.Println("getGlobalConfig error", "err", err.Error())
-		} else {
-			val = mergeGlobalConfig(globalVal, val)
-		}
-	}
 
 	data := configData{
 		Content: val,
@@ -351,30 +355,4 @@ func (c *confgo) PutConfigV2(appName, port, env, fileName, format, val string, i
 		return globalVal, nil
 	}
 	return "", nil
-}
-
-// Only the toml file type is currently supported
-func getGlobalConfig() (value string, err error) {
-	key := "/global-config"
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-	resp, err := invoker.ConfgoEtcd.Get(ctx, key)
-	cancel()
-	if err != nil {
-		return
-	}
-	if len(resp.Kvs) == 0 {
-		err = fmt.Errorf("no data")
-		return
-	}
-	globalConfigData := configData{}
-	buf := resp.Kvs[0].Value
-	if err = json.Unmarshal(buf, &globalConfigData); err != nil {
-		return
-	}
-	value = globalConfigData.Content
-	return
-}
-
-func mergeGlobalConfig(globalVal string, val string) string {
-	return fmt.Sprintf("%s\n%s\n", val, globalVal)
 }
