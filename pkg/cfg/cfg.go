@@ -92,7 +92,8 @@ func defaultConfig() cfg {
 		},
 		ClientProxy: []ClientProxy{
 			{
-				Name: "",
+				Env: "dev",
+				ZoneCode: "test",
 				Stream: ProxyStream{
 					Enable:    false,
 					ProxyAddr: nil,

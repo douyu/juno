@@ -44,7 +44,7 @@ export default class Monitor extends React.PureComponent {
     if (nextProps.idcCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const {idcCode, appName, mode, env} = this.state;
+    const { idcCode, appName, mode, env } = this.state;
 
     // 内容一样就不在渲染
     if (
@@ -187,8 +187,8 @@ export default class Monitor extends React.PureComponent {
     console.log('render ', env, zoneCode, monitorHost, sysConfig, mapSys);
     if (!env) {
       return (
-        <div style={{marginTop: 10}}>
-          <Alert message="Warning" description="请选择环境." type="warning" showIcon/>
+        <div style={{ marginTop: 10 }}>
+          <Alert message="Warning" description="请选择环境." type="warning" showIcon />
         </div>
       );
     }

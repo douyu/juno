@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/douyu/juno/pkg/errorconst"
 	"strings"
 	"sync"
 	"time"
@@ -13,7 +14,6 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/juno/pkg/code"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/conf"
@@ -282,7 +282,7 @@ func getPublishInstance(aid int, env string, zoneCode string) (instanceList []st
 		ZoneCode: zoneCode,
 	})
 	if len(nodes) == 0 {
-		return instanceList, code.ErrorNoInstances
+		return instanceList, fmt.Errorf(errorconst.ParamNoInstances.Code().String()+errorconst.ParamNoInstances.Name())
 	}
 	for _, node := range nodes {
 		instanceList = append(instanceList, node.HostName)
