@@ -1,3 +1,17 @@
+// Copyright 2020 Douyu
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cfg
 
 import (
@@ -13,12 +27,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// Cfg ..
 var Cfg cfg
 
-//
 type cfg struct {
-	AppUrl            string
-	AppSubUrl         string
+	AppURL            string
+	AppSubURL         string
 	AuthProxyEnabled  bool
 	DisableUserSignUp bool
 	App               App
@@ -26,14 +40,17 @@ type cfg struct {
 	Server            Server
 	GrafanaProxy      GrafanaProxy
 	Gateway           Gateway
-	Proxy             Proxy
+	ClientProxy       []ClientProxy
+	ServerProxy       ServerProxy
 	Database          Database
+	Configure         Configure
+	Pprof             Pprof
 }
 
 // DefaultConfig ...
 func defaultConfig() cfg {
 	return cfg{
-		AppUrl:            "",
+		AppURL:            "",
 		AuthProxyEnabled:  false,
 		DisableUserSignUp: false,
 		Auth: Auth{
@@ -70,7 +87,32 @@ func defaultConfig() cfg {
 			Enable: false,
 			Name:   "gateway",
 		},
-		Proxy: Proxy{
+		Configure: Configure{
+			Dir: "",
+		},
+		ClientProxy: []ClientProxy{
+			{
+				Name: "",
+				Stream: ProxyStream{
+					Enable:    false,
+					ProxyAddr: nil,
+				},
+				HeartBeat: HeartBeat{
+					Enable:     true,
+					Debug:      false,
+					Addr:       "stream",
+					Internal:   xtime.Duration("60s"),
+					HostName:   "",
+					RegionCode: "",
+					RegionName: "",
+					ZoneCode:   "",
+					ZoneName:   "",
+					Env:        "",
+				},
+			},
+		},
+		ServerProxy: ServerProxy{
+			Name: "",
 			Stream: ProxyStream{
 				Enable:    false,
 				ProxyAddr: nil,
@@ -88,10 +130,13 @@ func defaultConfig() cfg {
 				Env:        "",
 			},
 		},
+		Pprof: Pprof{
+			Path: ".",
+		},
 	}
 }
 
-// StdConfig ...
+// InitCfg ...
 func InitCfg() {
 	var (
 		err    error
@@ -101,7 +146,7 @@ func InitCfg() {
 		xlog.Panic("parse cfg error", xlog.FieldErrKind(ecode.ErrKindUnmarshalConfigErr), xlog.FieldErr(err), xlog.FieldKey("system cfg"), xlog.FieldValueAny(config))
 	}
 
-	config.AppUrl, config.AppSubUrl, err = parseAppUrlAndSubUrl(config.Server.Http.RootUrl)
+	config.AppURL, config.AppSubURL, err = parseAppAndSubURL(config.Server.Http.RootUrl)
 	if err != nil {
 		xlog.Panic("parse root url err", zap.Error(err))
 	}
@@ -110,31 +155,32 @@ func InitCfg() {
 	fmt.Println("config.database", config.Database)
 }
 
-func parseAppUrlAndSubUrl(rootUrl string) (string, string, error) {
-	appUrl := rootUrl
-	if appUrl[len(appUrl)-1] != '/' {
-		appUrl += "/"
+func parseAppAndSubURL(rootURL string) (string, string, error) {
+	appURL := rootURL
+	if appURL[len(appURL)-1] != '/' {
+		appURL += "/"
 	}
 
 	// Check if has app suburl.
-	url, err := url.Parse(appUrl)
+	url, err := url.Parse(appURL)
 	if err != nil {
-		xlog.Fatal("invalid root url", zap.String("appUrl", appUrl), zap.Error(err))
+		xlog.Fatal("invalid root url", zap.String("appUrl", appURL), zap.Error(err))
 		return "", "", nil
 	}
-	appSubUrl := strings.TrimSuffix(url.Path, "/")
-	return appUrl, appSubUrl, nil
+	appSubURL := strings.TrimSuffix(url.Path, "/")
+	return appURL, appSubURL, nil
 }
 
 func (c *cfg) parseHeartBeat() {
-	c.Proxy.HeartBeat.RegionCode = os.Getenv(c.Proxy.HeartBeat.RegionCode)
-	c.Proxy.HeartBeat.RegionName = os.Getenv(c.Proxy.HeartBeat.RegionName)
-	c.Proxy.HeartBeat.ZoneCode = os.Getenv(c.Proxy.HeartBeat.ZoneCode)
-	c.Proxy.HeartBeat.ZoneName = os.Getenv(c.Proxy.HeartBeat.ZoneName)
-	c.Proxy.HeartBeat.HostName = GetHostName(c.Proxy.HeartBeat.HostName)
-	env := os.Getenv(c.Proxy.HeartBeat.Env)
+	c.ServerProxy.Name = os.Getenv(c.ServerProxy.HeartBeat.Env) + "_" + os.Getenv(c.ServerProxy.HeartBeat.ZoneCode)
+	c.ServerProxy.HeartBeat.RegionCode = os.Getenv(c.ServerProxy.HeartBeat.RegionCode)
+	c.ServerProxy.HeartBeat.RegionName = os.Getenv(c.ServerProxy.HeartBeat.RegionName)
+	c.ServerProxy.HeartBeat.ZoneCode = os.Getenv(c.ServerProxy.HeartBeat.ZoneCode)
+	c.ServerProxy.HeartBeat.ZoneName = os.Getenv(c.ServerProxy.HeartBeat.ZoneName)
+	c.ServerProxy.HeartBeat.HostName = GetHostName(c.ServerProxy.HeartBeat.HostName)
+	env := os.Getenv(c.ServerProxy.HeartBeat.Env)
 	if env != "" {
-		c.Proxy.HeartBeat.Env = env
+		c.ServerProxy.HeartBeat.Env = env
 	}
 }
 

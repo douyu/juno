@@ -11,8 +11,6 @@
     [app.registry.etcd]
       endpoints = ["127.0.0.1:2379"]
       timeout = "2s"
-  [proxy.etcd]
-
 
 [confgo]
   dir = "/tmp/www/server"
@@ -30,37 +28,25 @@
 
 
 #################################### Server ##############################
-[proxy.httpServer]
+[serverProxy.httpServer]
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
     port = 50000
-    # The public facing domain name used to access grafana from a browser
-    domain = "localhost"
-    # enable gzip
-    enableGzip = false
 
-[proxy.grpcServer]
+[serverProxy.grpcServer]
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
     port = 50001
-    # The public facing domain name used to access grafana from a browser
-    domain = "localhost"
-    # enable gzip
-    enableGzip = false
 
-[proxy.governServer]
+[serverProxy.governServer]
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
-    port = 50001
-    # The public facing domain name used to access grafana from a browser
-    domain = "localhost"
-    # enable gzip
-    enableGzip = false
+    port = 50002
 
-[proxy.heartbeat]
+[serverProxy.heartbeat]
     enable = true
     debug = true
     addr = "stream"
@@ -71,3 +57,13 @@
     zoneCode = "ZONE_CODE"
     zoneName = "ZONE_NAME"
     env = "env"
+
+[serverProxy.etcd]
+    enable = true
+    listenAddr = "127.0.0.1:52379"
+    endpoints = ["127.0.0.1:2379"]
+    namespace = ""
+    [serverProxy.etcd.tls]
+      cert = ""
+      key = ""
+      cacert = ""

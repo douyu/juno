@@ -106,7 +106,7 @@ func NewOAuthService() {
 				AuthURL:  info.AuthUrl,
 				TokenURL: info.TokenUrl,
 			},
-			RedirectURL: strings.TrimSuffix(cfg.Cfg.AppUrl, "/") + SocialBaseUrl + name,
+			RedirectURL: strings.TrimSuffix(cfg.Cfg.AppURL, "/") + SocialBaseUrl + name,
 			Scopes:      info.Scopes,
 		}
 

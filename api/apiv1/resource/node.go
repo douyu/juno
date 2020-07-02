@@ -291,7 +291,7 @@ func NodeStatics(c echo.Context) error {
 			item1.Value++
 			continue
 		}
-		if now-v.HeartbeatTime > 120 {
+		if now-v.AgentHeartbeatTime > 120 {
 			item3.Value++
 		} else {
 			item2.Value++
