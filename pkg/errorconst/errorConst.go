@@ -15,6 +15,8 @@
 package errorconst
 
 import (
+	"fmt"
+
 	"google.golang.org/grpc/codes"
 )
 
@@ -25,18 +27,21 @@ const (
 	ResultOK myErrorConst = 0 //返回成功
 	// ParamCannotFindClientProxy ..
 	ParamCannotFindClientProxy myErrorConst = 10001
-	// ErrTomlFormatStrict ..
-	ParamTomlFormatStrict myErrorConst = 10002
+	// ParamConfigNotExists
+	ParamConfigNotExists myErrorConst = 10002
 	// ErrorNoInstances ..
 	ParamNoInstances myErrorConst = 10003
+	// ParamConfigCallbackKvIsZero ..
+	ParamConfigCallbackKvIsZero myErrorConst = 10004
 )
 
 // errNameMap 错误名称映射map，维护错误码的同时需维护此map
 var errNameMap = map[myErrorConst]string{
-	ResultOK:                   "返回成功",
-	ParamCannotFindClientProxy: "对应环境.机房没有部署Juno-Proxy服务",
-	ParamTomlFormatStrict: "非application block，需要以 [xxx] 开头进行编辑，不能直接输入 key=value",
-	ParamNoInstances: "当前条件下没有实例可进行操作",
+	ResultOK:                    "返回成功",
+	ParamCannotFindClientProxy:  "对应环境.机房没有部署Juno-Proxy服务",
+	ParamConfigNotExists:        "配置不存在",
+	ParamNoInstances:            "当前条件下没有实例可进行操作",
+	ParamConfigCallbackKvIsZero: "配置发布同步状态回调数据为空",
 }
 
 // Code 返回codes.Code类型
@@ -47,4 +52,8 @@ func (m myErrorConst) Code() codes.Code {
 // Name 返回错误名称
 func (m myErrorConst) Name() (name string) {
 	return errNameMap[m]
+}
+
+func (m myErrorConst) Error() error {
+	return fmt.Errorf(m.Code().String() + m.Name())
 }

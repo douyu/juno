@@ -4,6 +4,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
@@ -68,10 +69,9 @@ func Update(c echo.Context) (err error) {
 
 	err = confgov2.Update(u.Uid, param)
 	if err != nil {
-		if err == confgov2.ErrConfigNotExists {
+		if err == errorconst.ParamConfigNotExists.Error() {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法更新")
 		}
-
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
@@ -87,7 +87,7 @@ func Publish(c echo.Context) (err error) {
 	}
 	err = confgov2.Publish(param, user.GetUser(c))
 	if err != nil {
-		if err == confgov2.ErrConfigNotExists {
+		if err == errorconst.ParamConfigNotExists.Error() {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法发布")
 		}
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -105,7 +105,7 @@ func History(c echo.Context) (err error) {
 
 	history, err := confgov2.History(param, user.GetUser(c).Uid)
 	if err != nil {
-		if err == confgov2.ErrConfigNotExists {
+		if err == errorconst.ParamConfigNotExists.Error() {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法更新")
 		}
 

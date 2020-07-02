@@ -77,7 +77,6 @@ func (eng *Admin) initNotify() (err error) {
 			notify.StreamStore.AddRouter(resource.NodeHeartBeat)
 		}
 	}
-
 	return nil
 }
 
