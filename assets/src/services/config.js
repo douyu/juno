@@ -6,8 +6,15 @@ export async function loadConfigs(aid, env) {
   return request(`/api/admin/confgov2/config/list?${stringify({ aid, env })}`);
 }
 
-export async function srvLoadConfigInstances(aid, env, zoneCode) {
-  return request(`/api/admin/confgov2/config/instance/list?${stringify({ aid, env, zoneCode })}`);
+export async function srvLoadConfigInstances(aid, env, zoneCode, configurationID) {
+  return request(
+    `/api/admin/confgov2/config/instance/list?${stringify({
+      aid,
+      env,
+      zone_code: zoneCode,
+      configuration_id: configurationID,
+    })}`,
+  );
 }
 
 export async function srvConfigPublish(id, version) {

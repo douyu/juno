@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/api/apiv1/confgo"
-	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/user"
