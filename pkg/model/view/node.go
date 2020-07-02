@@ -1,5 +1,6 @@
 package view
 
+// ReqNodeHeartBeat ..
 type ReqNodeHeartBeat struct {
 	Hostname     string `json:"hostname"`
 	IP           string `json:"ip"`

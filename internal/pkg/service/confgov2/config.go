@@ -1,15 +1,18 @@
 package confgov2
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/douyu/juno/internal/pkg/service/appevent"
+	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
-	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/code"
 	"github.com/douyu/juno/pkg/model/db"
 	db2 "github.com/douyu/juno/pkg/model/db"
@@ -211,18 +214,9 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 
 	// Get nodes data
 	var instanceList []string
-	nodes, _ := resource.Resource.GetAllAppNodeList(db.AppNode{
-		Aid:      aid,
-		Env:      env,
-		ZoneCode: zoneCode,
-	})
-	if len(nodes) == 0 {
-		return code.ErrorNoInstances
+	if instanceList, err = getPublishInstance(aid, env, zoneCode); err != nil {
+		return
 	}
-	for _, node := range nodes {
-		instanceList = append(instanceList, node.HostName)
-	}
-
 	// TODO Configure resource replacement operations
 
 	// Obtain application management port
@@ -232,8 +226,17 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 	}
 
 	// Save the configuration in etcd
-	_, err = confgo.PublishSrv.Publish(env, zoneCode, appInfo.GovernPort, appInfo.AppName, filename, content, instanceList, version)
-	if err != nil {
+	if err = publishEtcd(view.ReqConfigPublish{
+		AppName:      appInfo.AppName,
+		ZoneCode:     zoneCode,
+		Port:         appInfo.GovernPort,
+		FileName:     filename,
+		Format:       configuration.Format,
+		Content:      content,
+		InstanceList: instanceList,
+		Env:          env,
+		Version:      version,
+	}); err != nil {
 		return
 	}
 
@@ -253,6 +256,55 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 	meta, _ := json.Marshal(cp)
 	appevent.AppEvent.ConfgoFilePublishEvent(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), user)
 	return
+}
+
+func getPublishInstance(aid int, env string, zoneCode string) (instanceList []string, err error) {
+	nodes, _ := resource.Resource.GetAllAppNodeList(db.AppNode{
+		Aid:      aid,
+		Env:      env,
+		ZoneCode: zoneCode,
+	})
+	if len(nodes) == 0 {
+		return instanceList, code.ErrorNoInstances
+	}
+	for _, node := range nodes {
+		instanceList = append(instanceList, node.HostName)
+	}
+	return instanceList, nil
+}
+
+func publishEtcd(req view.ReqConfigPublish) (err error) {
+	data := view.ConfigurationPublishData{
+		Content: req.Content,
+		Metadata: view.Metadata{
+			Timestamp: time.Now().Unix(),
+			Format:    req.Format,
+			Version:   req.Version,
+			Path:      strings.Join([]string{cfg.Cfg.Configure.Dir, req.AppName, "config", req.FileName}, "/"),
+		},
+	}
+	var buf []byte
+	if buf, err = json.Marshal(data); err != nil {
+		return
+	}
+	fmt.Println("req.InstanceList", req.InstanceList)
+	for _, hostName := range req.InstanceList {
+		key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", cfg.Cfg.Configure.Prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
+		// The migration is complete, only write independent ETCD of the configuration center
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+		conn, errConn := clientproxy.ClientProxy.Conn(req.Env, req.ZoneCode)
+		if errConn != nil {
+			return errConn
+		}
+		fmt.Println("key", key)
+		fmt.Println("buf", buf)
+		_, err = conn.Put(ctx, key, string(buf))
+		if err != nil {
+			return
+		}
+	}
+	return nil
 }
 
 // History 发布历史分页列表，Page从0开始

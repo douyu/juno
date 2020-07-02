@@ -12,21 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package report
+package cfg
 
-import (
-	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/jupiter/pkg/xlog"
-)
+import "testing"
 
-// Build new a instance
-func Build() *Report {
-	report := &Report{
-		config:   cfg.Cfg.ServerProxy.HeartBeat,
-		Reporter: NewHTTPReport(cfg.Cfg.ServerProxy.HeartBeat),
+func TestInitCfg(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		// TODO: Add test cases.
 	}
-	if cfg.Cfg.ServerProxy.HeartBeat.Enable {
-		xlog.Info("plugin", xlog.String("reportAgentStatus", "start"))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			InitCfg()
+		})
 	}
-	return report
 }

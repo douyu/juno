@@ -163,7 +163,7 @@ func LoginOauth(c echo.Context) error {
 	if err != nil {
 		if _, ok := err.(*social.Error); ok {
 			// todo
-			return c.Redirect(http.StatusFound, cfg.Cfg.AppSubUrl+"/login")
+			return c.Redirect(http.StatusFound, cfg.Cfg.AppSubURL+"/login")
 		} else {
 			return output.JSON(c, 10, fmt.Sprintf("login.OAuthLogin(get info from %s)", name), err.Error())
 		}
@@ -173,13 +173,13 @@ func LoginOauth(c echo.Context) error {
 
 	// validate that we got at least an email address
 	if userInfo.Email == "" {
-		return c.Redirect(http.StatusFound, cfg.Cfg.AppSubUrl+"/login")
+		return c.Redirect(http.StatusFound, cfg.Cfg.AppSubURL+"/login")
 	}
 
 	// validate that the email is allowed to login to juno
 	if !connect.IsEmailAllowed(userInfo.Email) {
 		//hs.redirectWithError(ctx, login.ErrEmailNotAllowed)
-		return c.Redirect(http.StatusFound, cfg.Cfg.AppSubUrl+"/login")
+		return c.Redirect(http.StatusFound, cfg.Cfg.AppSubURL+"/login")
 	}
 
 	mysqlUser := &db.User{
@@ -203,7 +203,7 @@ func LoginOauth(c echo.Context) error {
 	}
 
 	toURULCookie, err := c.Cookie("redirect_juno_to")
-	toURL := cfg.Cfg.AppSubUrl + "/"
+	toURL := cfg.Cfg.AppSubURL + "/"
 	if err != nil {
 		return c.Redirect(http.StatusFound, toURL)
 	}

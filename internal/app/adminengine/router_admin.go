@@ -1,3 +1,17 @@
+// Copyright 2020 Douyu
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package adminengine
 
 import (
@@ -128,15 +142,15 @@ func apiAdmin(server *xecho.Server) {
 	configV2G := g.Group("/confgov2", loginAuthWithJSON)
 	{
 		g := configV2G
-		g.GET("/config/list", confgov2.List)        // 配置文件列表
-		g.GET("/config/detail", confgov2.Detail)    // 配置文件内容
-		g.POST("/config/create", confgov2.Create)   // 配置新建
-		g.POST("/config/update", confgov2.Update)   // 配置更新
-		g.POST("/config/publish", confgov2.Publish) // 配置发布
-		g.GET("/config/history", confgov2.History)  // 配置文件历史
-		g.POST("/config/delete", confgov2.Delete)   // 配置删除
-		g.GET("/config/diff", confgov2.Diff)        // 配置文件Diif，返回两个版本的配置内容
-		g.GET("/config/instance/list", confgov2.InstanceList)        // 配置文件Diif，返回两个版本的配置内容
+		g.GET("/config/list", confgov2.List)                  // 配置文件列表
+		g.GET("/config/detail", confgov2.Detail)              // 配置文件内容
+		g.POST("/config/create", confgov2.Create)             // 配置新建
+		g.POST("/config/update", confgov2.Update)             // 配置更新
+		g.POST("/config/publish", confgov2.Publish)           // 配置发布
+		g.GET("/config/history", confgov2.History)            // 配置文件历史
+		g.POST("/config/delete", confgov2.Delete)             // 配置删除
+		g.GET("/config/diff", confgov2.Diff)                  // 配置文件Diif，返回两个版本的配置内容
+		g.GET("/config/instance/list", confgov2.InstanceList) // 配置文件Diif，返回两个版本的配置内容
 	}
 
 	resourceGroup := g.Group("/resource", loginAuthWithJSON)

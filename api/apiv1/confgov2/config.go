@@ -90,10 +90,8 @@ func Publish(c echo.Context) (err error) {
 		if err == confgov2.ErrConfigNotExists {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法发布")
 		}
-
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
 	return output.JSON(c, output.MsgOk, "发布成功")
 }
 

@@ -4,6 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
+	"net/http/httptest"
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -13,11 +19,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"io/ioutil"
-	"net/http/httptest"
-	"strconv"
-	"sync"
-	"time"
 )
 
 var StreamStore *streamStore
@@ -32,6 +33,7 @@ func InitStreamStore(clientMap map[string]pb.ProxyClient) {
 	obj := &streamStore{
 		store: make(map[string]*proxyStream, 0),
 	}
+
 	for key, client := range clientMap {
 		obj.store[key] = initProxyStream(client)
 	}

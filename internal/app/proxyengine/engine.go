@@ -1,3 +1,17 @@
+// Copyright 2020 Douyu
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package proxyengine
 
 import (
@@ -18,15 +32,17 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// Proxy ..
 type Proxy struct {
 	jupiter.Application
 }
 
+// New ..
 func New() *Proxy {
 	eng := &Proxy{}
 	err := eng.Startup(
 		eng.initConfig,
-		eng.initProxy,
+		eng.initServerProxy,
 		eng.serveHTTP,
 		eng.serveGRPC,
 		eng.initHeartBeat,
@@ -45,9 +61,9 @@ func (eng *Proxy) initConfig() (err error) {
 	return
 }
 
-func (eng *Proxy) initProxy() (err error) {
+func (eng *Proxy) initServerProxy() (err error) {
 	proxy.InitStreamStore()
-
+	
 	err = eng.Schedule(proxy.NewProxyGrpcWorker())
 	if err != nil {
 		return
@@ -67,8 +83,8 @@ func (eng *Proxy) initHeartBeat() (err error) {
 
 func (eng *Proxy) serveHTTP() (err error) {
 	serverConfig := xecho.DefaultConfig()
-	serverConfig.Host = cfg.Cfg.Proxy.HttpServer.Host
-	serverConfig.Port = cfg.Cfg.Proxy.HttpServer.Port
+	serverConfig.Host = cfg.Cfg.ServerProxy.HttpServer.Host
+	serverConfig.Port = cfg.Cfg.ServerProxy.HttpServer.Port
 
 	server := serverConfig.Build()
 	server.Debug = true
@@ -83,8 +99,8 @@ func (eng *Proxy) serveHTTP() (err error) {
 
 func (eng *Proxy) serveGRPC() (err error) {
 	serverConfig := xgrpc.DefaultConfig()
-	serverConfig.Host = cfg.Cfg.Proxy.GrpcServer.Host
-	serverConfig.Port = cfg.Cfg.Proxy.GrpcServer.Port
+	serverConfig.Host = cfg.Cfg.ServerProxy.GrpcServer.Host
+	serverConfig.Port = cfg.Cfg.ServerProxy.GrpcServer.Port
 
 	server := serverConfig.Build()
 
@@ -100,6 +116,7 @@ func apiV1(server *xecho.Server) {
 	server.POST("/api/v1/resource/node/heartbeat", apiproxy.NodeHeartBeat)
 }
 
+// ProxyGrpc ..
 type ProxyGrpc struct{}
 
 // GetFromContext 根据一个grpc的context获取出Session.
@@ -114,6 +131,7 @@ func getFromContext(ctx context.Context) (uint32, error) {
 	return uint32(gid), nil
 }
 
+// Notify ..
 func (*ProxyGrpc) Notify(stream pb.Proxy_NotifyServer) error {
 	_, err := getFromContext(stream.Context())
 	if err != nil {

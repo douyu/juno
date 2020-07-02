@@ -47,6 +47,7 @@ func GetIP() string {
 	return ip
 }
 
+// ReturnHostName ..
 func ReturnHostName() string {
 	return hostName
 }
