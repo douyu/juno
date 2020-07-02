@@ -66,8 +66,9 @@
 
 #################################### Proxy ##############################
 [[clientProxy]]
-  name = "live.cn-wuhan-guanggu-f1"
-  
+  env = "live"
+  zoneCode="cn-wuhan-guanggu-f1"
+
   [clientProxy.stream]
     enable = true
     proxyAddr = ["127.0.0.1:50001"]
