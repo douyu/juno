@@ -1,0 +1,69 @@
+
+[app]
+  appurl = ""
+  mode = "prod"
+  name = "juno"
+  token = "123456"
+  secretKey = "ASDFASDFASDF"
+
+  [app.registry]
+
+    [app.registry.etcd]
+      endpoints = ["127.0.0.1:2379"]
+      timeout = "2s"
+
+[confgo]
+  dir = "/tmp/www/server"
+  prefix = "juno-agent"
+
+  [confgo.agent]
+    port = 50010
+
+
+[jupiter.logger.default]
+    debug = true          # 是否在命令行输出
+    enableConsole = true  # 是否按命令行格式输出
+    level = "debug"
+
+
+
+#################################### Server ##############################
+[serverProxy.httpServer]
+    # The ip address to bind to, empty will bind to all interfaces
+    host = "0.0.0.0"
+    # The http port to use
+    port = 50000
+
+[serverProxy.grpcServer]
+    # The ip address to bind to, empty will bind to all interfaces
+    host = "0.0.0.0"
+    # The http port to use
+    port = 50001
+
+[serverProxy.governServer]
+    # The ip address to bind to, empty will bind to all interfaces
+    host = "0.0.0.0"
+    # The http port to use
+    port = 50002
+
+[serverProxy.heartbeat]
+    enable = true
+    debug = true
+    addr = "stream"
+    internal = "10s"
+    hostName = "JUNO_HOST" # 环境变量的名称，或者命令行参数的名称
+    regionCode = "REGION_CODE" # 环境变量的名称，或者命令行参数的名称
+    regionName = "REGION_NAME"
+    zoneCode = "ZONE_CODE"
+    zoneName = "ZONE_NAME"
+    env = "env"
+
+[serverProxy.etcd]
+    enable = true
+    listenAddr = "127.0.0.1:52379"
+    endpoints = ["127.0.0.1:2379"]
+    namespace = ""
+    [serverProxy.etcd.tls]
+      cert = ""
+      key = ""
+      cacert = ""

@@ -15,7 +15,7 @@ import { history } from 'umi';
 import styles from './style.less';
 import Detail from './components/Detail/index';
 import ZoneSelect from '@/components/ZoneSelect';
-
+import Config from './components/Config';
 
 const { TabPane } = Tabs;
 
@@ -214,8 +214,8 @@ export default class App extends React.Component<ConfgoBase, any> {
         <Tabs
           defaultActiveKey={this.state.tab}
           onChange={this.callback}
-          type="card"
           style={{ width: '100%', marginTop: '10px' }}
+          tabBarStyle={{ paddingLeft: '10px', marginBottom: 0 }}
         >
           <TabPane tab="详情" key="detail">
             <Detail
@@ -226,7 +226,7 @@ export default class App extends React.Component<ConfgoBase, any> {
             />
           </TabPane>
           <TabPane tab="配置" key="confgo">
-            <Confgo
+            <Config
               aid={aid}
               env={env}
               appName={appName}
@@ -274,33 +274,36 @@ export default class App extends React.Component<ConfgoBase, any> {
     }
     return (
       <PageHeaderWrapper>
-        <Card>
-          <Row>
-            <AppHeader
-              appInfo={this.state.appInfo}
-              appIdcList={this.state.appIdcList}
-              appList={this.state.appList}
-              appName={this.state.appName}
-              getAppInfoAction={this.getAppInfo}
-              setEnvAction={this.setEnv}
-              env={env}
-              zone_code={''}
-              idcList={this.state.idcList}
-              initDisable={disable}
-            />
-          </Row>
-          <Row style={{ marginTop: '10px', marginLeft: '6px' }}>
-            <Col span={12}>
-              <ZoneSelect
-                appEnvZone={appEnvZone}
+        <div style={{ backgroundColor: '#fff' }}>
+          <div style={{ padding: 10 }}>
+            <Row>
+              <AppHeader
+                appInfo={this.state.appInfo}
+                appIdcList={this.state.appIdcList}
+                appList={this.state.appList}
+                appName={this.state.appName}
+                getAppInfoAction={this.getAppInfo}
+                setEnvAction={this.setEnv}
                 env={env}
-                onChange={this.changeZone}
-                defalutZone={this.state.zoneCode}
+                zone_code={''}
+                idcList={this.state.idcList}
+                initDisable={disable}
               />
-            </Col>
-          </Row>
+            </Row>
+            <Row style={{ marginTop: '10px' }}>
+              <Col span={12}>
+                <ZoneSelect
+                  appEnvZone={appEnvZone}
+                  env={env}
+                  onChange={this.changeZone}
+                  defalutZone={this.state.zoneCode}
+                />
+              </Col>
+            </Row>
+          </div>
+
           <Row>{view}</Row>
-        </Card>
+        </div>
       </PageHeaderWrapper>
     );
   }

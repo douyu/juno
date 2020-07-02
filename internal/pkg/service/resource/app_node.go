@@ -10,7 +10,7 @@ import (
 
 	"github.com/douyu/juno/pkg/model/view"
 
-	"github.com/douyu/juno/internal/pkg/util"
+	"github.com/douyu/juno/pkg/util"
 
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/pkg/model/db"
@@ -53,9 +53,9 @@ func (r *resource) GetAppNodeList(where db.AppNode, currentPage, pageSize int, s
 // 设置应用的节点信息
 // 如果不存在就会创建，如果存在就会更新
 // 这里面会设置应用的节点，并且根据节点自动创建idc信息
-func (a *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.User) (err error) {
+func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.User) (err error) {
 	var info db.AppInfo
-	info, err = a.GetApp(identify)
+	info, err = r.GetApp(identify)
 	if err != nil {
 		return
 	}
@@ -66,13 +66,13 @@ func (a *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 		AppName: info.AppName,
 		MD5:     md5Str,
 	}
-	a.DB.Where("app_name = ? AND md5 = ?", info.AppName, md5Str).First(&data)
+	r.DB.Where("app_name = ? AND md5 = ?", info.AppName, md5Str).First(&data)
 	// 数据未改变，不做创建和更新操作
 	if data.ID > 0 {
 		return
 	}
 	//部署组被更新, 更新app_node表
-	tx := a.DB.Begin()
+	tx := r.DB.Begin()
 	err = tx.Where("app_name = ?", info.AppName).Delete(&data).Error //删除现有记录
 	if err != nil {
 		tx.Rollback()
@@ -90,7 +90,7 @@ func (a *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 		list[key] = value
 	}
 
-	err = a.UpdateNodes(info.Aid, info.AppName, list, tx, user) //批量更新服务的部署节点信息
+	err = r.UpdateNodes(info.Aid, info.AppName, list, tx, user) //批量更新服务的部署节点信息
 	if err != nil {
 		tx.Rollback()
 		return
@@ -136,17 +136,16 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 		}
 		// 设置节点
 		err = r.PutNode(tx, db.Node{
-			HostName:      item.HostName,
-			Ip:            item.IP,
-			CreateTime:    time.Now().Unix(),
-			UpdateTime:    time.Now().Unix(),
-			HeartbeatTime: 0,
-			NodeType:      1, // 接口增加的
-			RegionCode:    item.RegionCode,
-			RegionName:    item.RegionName,
-			ZoneCode:      item.ZoneCode,
-			ZoneName:      item.ZoneName,
-			Env:           item.Env,
+			HostName:   item.HostName,
+			Ip:         item.IP,
+			CreateTime: time.Now().Unix(),
+			UpdateTime: time.Now().Unix(),
+			NodeType:   1, // 接口增加的
+			RegionCode: item.RegionCode,
+			RegionName: item.RegionName,
+			ZoneCode:   item.ZoneCode,
+			ZoneName:   item.ZoneName,
+			Env:        item.Env,
 		})
 		if err != nil {
 			return

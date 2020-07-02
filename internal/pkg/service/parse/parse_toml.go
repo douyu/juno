@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/douyu/juno/internal/pkg/code"
+	"github.com/douyu/juno/pkg/code"
 )
 
 // TomlParse ..

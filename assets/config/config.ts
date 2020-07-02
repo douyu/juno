@@ -1,10 +1,10 @@
 // https://umijs.org/config/
-import { defineConfig } from 'umi';
+import {defineConfig} from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
 
-const { REACT_APP_ENV } = process.env;
+const {REACT_APP_ENV} = process.env;
 export default defineConfig({
   hash: true,
   antd: {},
@@ -133,6 +133,11 @@ export default defineConfig({
       icon: 'FileProtectOutlined',
       routes: [
         {
+          name: '资源',
+          path: '/confgo/resource',
+          component: './confgo/resource/index'
+        },
+        {
           name: '配置依赖解析模板',
           path: '/confgo/tpl/list',
           component: './confgo/tpl/list',
@@ -177,6 +182,7 @@ export default defineConfig({
   theme: {
     'nav-theme': defaultSettings.navTheme,
     'primary-color': defaultSettings.primaryColor,
+    'border-radius-base': '8px',
   },
   ignoreMomentLocale: true,
   proxy: proxy[REACT_APP_ENV || 'dev'],

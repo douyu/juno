@@ -16,7 +16,7 @@ const ZoneSelect: React.FC<{}> = (props) => {
     }
   });
   return (
-    <div className={styles.lay}>
+    <div>
       <Radio.Group defaultValue={defalutZone} buttonStyle="solid" onChange={onChange}>
         {data}
       </Radio.Group>

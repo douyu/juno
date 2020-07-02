@@ -6,6 +6,8 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	scmc "github.com/douyu/juno/internal/pkg/service/cmc"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/internal/pkg/service/confgov2"
+	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/parse"
@@ -13,6 +15,7 @@ import (
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/juno/pkg/auth/social"
 )
 
 // Init service初始化。
@@ -26,7 +29,11 @@ func Init() {
 	// 初始化配置
 	scmc.InitCmc(invoker.JunoMysql)
 
+	social.NewOAuthService()
+
 	confgo.Init()
+
+	confgov2.Init(invoker.JunoMysql)
 
 	user.Init(invoker.JunoMysql)
 
@@ -40,4 +47,6 @@ func Init() {
 	parse.Init()
 
 	gateway.Init()
+
+	configresource.Init(invoker.JunoMysql)
 }

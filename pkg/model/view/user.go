@@ -1,7 +1,7 @@
 package view
 
 import (
-	"github.com/douyu/juno/internal/pkg/handler/base"
+	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/pkg/model/db"
 )
 
@@ -14,8 +14,8 @@ type ReqUserEvents struct {
 
 // RespUserEvents 用户相关事件的出参
 type RespUserEvents struct {
-	Events     []db.AppEvent   `json:"events"`
-	Pagination base.Pagination `json:"pagination"`
+	Events     []db.AppEvent     `json:"events"`
+	Pagination output.Pagination `json:"pagination"`
 }
 
 // ReqUserApps 用户应用的请求

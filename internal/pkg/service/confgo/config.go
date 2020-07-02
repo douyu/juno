@@ -42,7 +42,9 @@ func (cmc *confu) GetAppKVs(caid int, itemID int) ([]db.CmcConfig, error) {
 
 // Add ..
 func (cmc *confu) Add(caid int, key, value string, resourceID int, opName, env, zoneCode string, isPublish int) (err error) {
+
 	tx := cmc.DB.Begin()
+
 	if err = cmc.AddWithTx(caid, key, value, resourceID, opName, env, zoneCode, isPublish, tx); err != nil {
 		tx.Rollback()
 		return

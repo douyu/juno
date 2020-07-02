@@ -13,7 +13,7 @@ type HttpWorker struct {
 
 func NewProxyHttpWorker() *HttpWorker {
 	server := &http.Server{
-		Addr:    conf.GetString("clientProxy.http.listenAddr"),
+		Addr:    conf.GetString("proxy.http.listenAddr"),
 		Handler: NewHttpProxy()}
 	return &HttpWorker{
 		server: server,
@@ -21,7 +21,7 @@ func NewProxyHttpWorker() *HttpWorker {
 }
 
 func (worker *HttpWorker) Run() error {
-	log.Infof("listening for http proxy client requests on %s", conf.GetString("clientProxy.http.listenAddr"))
+	log.Infof("listening for http proxy client requests on %s", conf.GetString("proxy.http.listenAddr"))
 	return worker.server.ListenAndServe()
 }
 

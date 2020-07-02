@@ -140,48 +140,58 @@ func (r *resource) DeleteNode(item db.Node, user *db.User) (err error) {
 }
 
 // 设置APP信息
-func (r *resource) NodeHeartBeat(
-	hostName string,
-	ip string,
-	agentVersion string,
-	regionCode, regionName, zoneCode, zoneName, env, appName string,
+func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 	user *db.User) (err error) {
 	var (
 		info db.Node
 	)
-	err = r.DB.Where("host_name = ?", hostName).Find(&info).Error
-	// 返回系统错误
+	err = r.DB.Where("host_name = ?", reqInfo.Hostname).Find(&info).Error
+	// return system error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}
 
-	nodeInfo := db.Node{
-		HostName:      hostName,
-		Ip:            ip,
-		HeartbeatTime: time.Now().Unix(),
-		AgentType:     1,
-		AgentVersion:  agentVersion,
+	if reqInfo.AgentType != 1 && reqInfo.ProxyType != 1 {
+		err = errors.New("heartbeat type error")
+		return
 	}
 
+	var nodeInfo db.Node
+	if reqInfo.ProxyType == 1 {
+		nodeInfo = db.Node{
+			HostName:           reqInfo.Hostname,
+			Ip:                 reqInfo.IP,
+			ProxyHeartbeatTime: time.Now().Unix(),
+			ProxyType:          reqInfo.ProxyType,
+			ProxyVersion:       reqInfo.ProxyVersion,
+		}
+	} else {
+		nodeInfo = db.Node{
+			HostName:           reqInfo.Hostname,
+			Ip:                 reqInfo.IP,
+			AgentHeartbeatTime: time.Now().Unix(),
+			AgentType:          reqInfo.AgentType,
+			AgentVersion:       reqInfo.AgentVersion,
+		}
+	}
 	isPutZone := false
-
 	// 如果不为空，就选择使用agent上报的数据，否则就使用后台数据
-	if regionCode != "" && zoneCode != "" {
-		nodeInfo.RegionCode = regionCode
-		nodeInfo.RegionName = regionName
-		nodeInfo.ZoneCode = zoneCode
-		nodeInfo.ZoneName = zoneName
-		nodeInfo.Env = env
+	if reqInfo.RegionCode != "" && reqInfo.ZoneCode != "" {
+		nodeInfo.RegionCode = reqInfo.RegionCode
+		nodeInfo.RegionName = reqInfo.RegionName
+		nodeInfo.ZoneCode = reqInfo.ZoneCode
+		nodeInfo.ZoneName = reqInfo.ZoneName
+		nodeInfo.Env = reqInfo.Env
 		isPutZone = true
 	}
 	tx := r.DB.Begin()
 	if isPutZone {
 		err = r.PutZone(tx, db.Zone{
-			Env:        env,
-			RegionCode: regionCode,
-			RegionName: regionName,
-			ZoneCode:   zoneCode,
-			ZoneName:   zoneName,
+			Env:        reqInfo.Env,
+			RegionCode: reqInfo.RegionCode,
+			RegionName: reqInfo.RegionName,
+			ZoneCode:   reqInfo.ZoneCode,
+			ZoneName:   reqInfo.ZoneName,
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
 		})
@@ -193,7 +203,7 @@ func (r *resource) NodeHeartBeat(
 
 	// 如果存在就更新
 	if info.Id > 0 {
-		err = tx.Model(nodeInfo).Where("host_name = ?", hostName).UpdateColumns(&nodeInfo).Error
+		err = tx.Model(nodeInfo).Where("host_name = ?", reqInfo.Hostname).UpdateColumns(&nodeInfo).Error
 		if err != nil {
 			tx.Rollback()
 			return
@@ -209,14 +219,15 @@ func (r *resource) NodeHeartBeat(
 	}
 
 	// 如果存在app name，就对app和node进行关联
-	if isPutZone && appName != "" {
+	if isPutZone && reqInfo.AppName != "" {
 		var appInfo db.AppInfo
-		tx.Where("app_name = ?", appName).Find(&appInfo)
+		tx.Where("app_name = ?", reqInfo.AppName).Find(&appInfo)
 		var appNodeInfo db.AppNode
-		tx.Where("host_name = ? and app_name =?", hostName, appName).Find(&appNodeInfo)
+		// agent can update app info, proxy can't update app info
+		tx.Where("host_name = ? and app_name =? ", reqInfo.Hostname, reqInfo.AppName).Find(&appNodeInfo)
 		if appInfo.Aid > 0 && appNodeInfo.ID == 0 {
 			addMap := make(map[string]interface{}, 0)
-			addMap[hostName] = hostName
+			addMap[reqInfo.Hostname] = reqInfo.Hostname
 			err = r.AppNodeTransferPut(tx, addMap, nil, appInfo, nil)
 			if err != nil {
 				tx.Rollback()

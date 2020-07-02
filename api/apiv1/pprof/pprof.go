@@ -7,8 +7,11 @@ import (
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 // GetSysConfig
@@ -40,22 +43,22 @@ func CheckDep(c echo.Context) error {
 	}
 	resp := RespCheck{}
 
-	if res, err := pprof.CheckShell("pprof/checkGo.sh"); err != nil {
-		fmt.Println("checkGo err", res)
+	if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkGo.sh"); err != nil {
+		xlog.Error("checkGo err", zap.Any("res", res))
 		//return fmt.Errorf("checkGo err:%v", err)
 		//return output.JSON(c, output.MsgErr, err.Error())
 	} else {
 		resp.Golang = 1
 	}
-	if res, err := pprof.CheckShell("pprof/checkGoTorch.sh"); err != nil {
-		fmt.Println("checkGoTorch err", res)
+	if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkGoTorch.sh"); err != nil {
+		xlog.Error("checkGoTorch err", zap.Any("res", res))
 		//return fmt.Errorf("checkGo err:%v", err)
 		//return output.JSON(c, output.MsgErr, err.Error())
 	} else {
 		resp.GoTorch = 1
 	}
-	if res, err := pprof.CheckShell("pprof/checkGraphviz.sh"); err != nil {
-		fmt.Println("checkGraphviz err", res)
+	if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkGraphviz.sh"); err != nil {
+		xlog.Error("checkGraphviz err", zap.Any("res", res))
 		//return fmt.Errorf("checkGo err:%v", err)
 		//return output.JSON(c, output.MsgErr, err.Error())
 	} else {
@@ -105,13 +108,13 @@ func InstallDep(c echo.Context) error {
 
 	switch reqModel.InstallType {
 	case 1:
-		if res, err := pprof.CheckShell("pprof/graphviz.sh"); err != nil {
+		if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/graphviz.sh"); err != nil {
 			fmt.Println("graphviz err", res)
 			//return fmt.Errorf("checkGo err:%v", err)
 			return output.JSON(c, output.MsgErr, err.Error())
 		}
 	case 2:
-		if res, err := pprof.CheckShell("pprof/installGoTorch.sh"); err != nil {
+		if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/installGoTorch.sh"); err != nil {
 			fmt.Println("installGoTorch err", res)
 			//return fmt.Errorf("checkGo err:%v", err)
 			return output.JSON(c, output.MsgErr, err.Error())

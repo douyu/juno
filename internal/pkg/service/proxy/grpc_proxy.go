@@ -1,12 +1,24 @@
+// Copyright 2020 Douyu
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package proxy
 
 import (
 	"net"
 	"time"
 
-	"github.com/douyu/jupiter/pkg/conf"
-	"golang.org/x/sync/errgroup"
-
+	"github.com/cockroachdb/cmux"
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/clientv3/namespace"
 	"github.com/coreos/etcd/etcdserver/api/v3election/v3electionpb"
@@ -14,9 +26,9 @@ import (
 	pb "github.com/coreos/etcd/etcdserver/etcdserverpb"
 	"github.com/coreos/etcd/pkg/transport"
 	"github.com/coreos/etcd/proxy/grpcproxy"
-
-	"github.com/cockroachdb/cmux"
+	"github.com/douyu/juno/pkg/cfg"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 
@@ -27,17 +39,17 @@ type grpcProxy struct {
 	grpcProxyKey        string
 	grpcProxyCA         string
 	grpcProxyNamespace  string
-
-	grpcServer *grpc.Server
+	grpcServer          *grpc.Server
 }
 
+// NewEtcdGrpcProxy ..
 func NewEtcdGrpcProxy() *grpcProxy {
-	grpcProxyListenAddr := conf.GetString("clientProxy.etcd.listenAddr")
+	grpcProxyListenAddr := cfg.Cfg.ServerProxy.Etcd.ListenAddr
 	if grpcProxyListenAddr == "" {
 		grpcProxyListenAddr = "127.0.0.1:23790"
 	}
 
-	grpcProxyEndpoints := conf.GetStringSlice("clientProxy.etcd.endpoints")
+	grpcProxyEndpoints := cfg.Cfg.ServerProxy.Etcd.Endpoints
 	if len(grpcProxyEndpoints) == 0 {
 		grpcProxyEndpoints = []string{"127.0.0.1:2379"}
 	}
@@ -45,10 +57,10 @@ func NewEtcdGrpcProxy() *grpcProxy {
 	obj := &grpcProxy{
 		grpcProxyListenAddr: grpcProxyListenAddr,
 		grpcProxyEndpoints:  grpcProxyEndpoints,
-		grpcProxyCert:       conf.GetString("clientProxy.etcd.tls.cert"),
-		grpcProxyKey:        conf.GetString("clientProxy.etcd.tls.key"),
-		grpcProxyCA:         conf.GetString("clientProxy.etcd.tls.cacert"),
-		grpcProxyNamespace:  conf.GetString("clientProxy.etcd.namespace"),
+		grpcProxyCert:       cfg.Cfg.ServerProxy.Etcd.TLS.Cert,
+		grpcProxyKey:        cfg.Cfg.ServerProxy.Etcd.TLS.Key,
+		grpcProxyCA:         cfg.Cfg.ServerProxy.Etcd.TLS.CaCert,
+		grpcProxyNamespace:  cfg.Cfg.ServerProxy.Etcd.Namespace,
 	}
 	return obj
 }
