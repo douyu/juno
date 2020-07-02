@@ -33,10 +33,10 @@ export default {
     });
   },
   * loadConfigInstances({payload}, {call, put}) {
-    const {aid, env, zoneCode} = payload;
+    const {aid, env, zoneCode, configurationID} = payload;
     yield put({type: '_apply', payload: {configInstanceListLoading: true}});
 
-    const res = yield call(srvLoadConfigInstances, aid, env, zoneCode);
+    const res = yield call(srvLoadConfigInstances, aid, env, zoneCode, configurationID);
     yield put({type: '_apply', payload: {configInstanceListLoading: false}});
 
     if (res.code !== 0) {
