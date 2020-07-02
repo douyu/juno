@@ -133,6 +133,11 @@ export default defineConfig({
       icon: 'FileProtectOutlined',
       routes: [
         {
+          name: '资源',
+          path: '/confgo/resource',
+          component: './confgo/resource/index'
+        },
+        {
           name: '配置依赖解析模板',
           path: '/confgo/tpl/list',
           component: './confgo/tpl/list',

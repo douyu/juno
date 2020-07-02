@@ -5,6 +5,7 @@ import Editor from "./components/Editor/index";
 import {connect} from 'dva';
 import ModalSave from "@/pages/app/components/Config/components/ModalSave";
 import ModalHistory from "@/pages/app/components/Config/components/ModalHistory";
+import EditorMaskLayer from "@/pages/app/components/Config/components/EditorMaskLayer";
 
 function ConfigEdit(props) {
   const {aid, env, zoneList, appName} = props;
@@ -37,7 +38,12 @@ function ConfigEdit(props) {
   return (
     <div className={styles.container}>
       <LeftSide/>
-      <Editor/>
+
+      <div className={styles.main}>
+        <EditorMaskLayer/>
+
+        <Editor/>
+      </div>
 
       <ModalSave/>
 

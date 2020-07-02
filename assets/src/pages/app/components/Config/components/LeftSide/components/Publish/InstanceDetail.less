@@ -1,0 +1,40 @@
+@import "../../../../var";
+
+.instanceDetail {
+  color: @secondColor;
+
+  .topHeader {
+    display: grid;
+    grid-template-columns: 70px auto;
+    border-bottom: 2px solid #545454;
+  }
+
+  .instanceInfoList {
+    margin-top: 40px;
+
+    > li {
+      display: grid;
+      grid-template-columns: 300px auto;
+
+      .instanceInfoName {
+        padding: 10px;
+        text-align: right;
+
+        .instanceInfoTitle {
+          font-weight: bold;
+        }
+
+        .instanceInfoHelp {
+          font-size: 12px;
+        }
+      }
+
+      .instanceInfoContent {
+        border-left: 1px solid #545454;
+        padding: 10px
+      }
+    }
+  }
+}
+
+

@@ -189,3 +189,29 @@ func (r *resource) GetSelectData() (respRegion, respZone, respEnv []view.SelectD
 
 	return
 }
+
+func (r *resource) ZoneEnv() (resp view.RespEnvZone, err error) {
+	resp = make(view.RespEnvZone)
+
+	zones := make([]db.Zone, 0)
+	err = r.DB.Find(&zones).Error
+	if err != nil {
+		return
+	}
+
+	for _, zone := range zones {
+		if _, ok := resp[zone.Env]; ok {
+			resp[zone.Env] = append(resp[zone.Env], view.RespEnvZoneItem{
+				zone.ZoneCode,
+				zone.ZoneName,
+			})
+		} else {
+			resp[zone.Env] = []view.RespEnvZoneItem{{
+				zone.ZoneCode,
+				zone.ZoneName,
+			}}
+		}
+	}
+
+	return
+}
