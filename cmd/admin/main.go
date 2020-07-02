@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/douyu/juno/internal/app/adminengine"
-	"github.com/douyu/juno/pkg/cfg"
 	"log"
 	"strconv"
+
+	"github.com/douyu/juno/internal/app/adminengine"
+	"github.com/douyu/juno/pkg/cfg"
 )
 
 func main() {

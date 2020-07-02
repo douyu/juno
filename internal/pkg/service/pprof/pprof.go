@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/douyu/juno/pkg/cfg"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"

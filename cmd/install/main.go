@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/douyu/juno/cmd/install/mock"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service"

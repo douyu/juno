@@ -254,7 +254,7 @@ export default class Base extends React.Component<HomeProps, any> {
 
     return (
       <PageHeaderWrapper>
-        <Card>
+        <div>
           <Row gutter={4} style={{ marginTop: '4px' }}>
             <Col span={12}>
               <Row gutter={4} style={{ marginTop: '4px' }}>
@@ -346,7 +346,7 @@ export default class Base extends React.Component<HomeProps, any> {
               </Row>
             </Col>
           </Row>
-        </Card>
+        </div>
       </PageHeaderWrapper>
     );
   }

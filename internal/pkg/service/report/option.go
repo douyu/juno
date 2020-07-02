@@ -22,10 +22,10 @@ import (
 // Build new a instance
 func Build() *Report {
 	report := &Report{
-		config:   cfg.Cfg.Proxy.HeartBeat,
-		Reporter: NewHTTPReport(cfg.Cfg.Proxy.HeartBeat),
+		config:   cfg.Cfg.ServerProxy.HeartBeat,
+		Reporter: NewHTTPReport(cfg.Cfg.ServerProxy.HeartBeat),
 	}
-	if cfg.Cfg.Proxy.HeartBeat.Enable {
+	if cfg.Cfg.ServerProxy.HeartBeat.Enable {
 		xlog.Info("plugin", xlog.String("reportAgentStatus", "start"))
 	}
 	return report
