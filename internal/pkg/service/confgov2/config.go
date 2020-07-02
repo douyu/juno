@@ -15,9 +15,7 @@ import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/code"
 	"github.com/douyu/juno/pkg/model/db"
-	db2 "github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	view2 "github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/jinzhu/gorm"
 )
@@ -52,14 +50,14 @@ func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
 	return
 }
 
-func Detail(param view2.ReqDetailConfig) (resp view2.RespDetailConfig, err error) {
-	configuration := db2.Configuration{}
+func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) {
+	configuration := db.Configuration{}
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
 	if err != nil {
 		return
 	}
 
-	resp = view2.RespDetailConfig{
+	resp = view.RespDetailConfig{
 		ID:          configuration.ID,
 		AID:         configuration.AID,
 		Name:        configuration.Name,
@@ -172,17 +170,36 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 }
 
 // Instances ..
-func Instances(param view.ReqCreateConfig) (nodes []db.AppNode, err error) {
-	nodes = make([]db.AppNode, 0)
+func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceList, err error) {
 	aid := param.AID
 	env := param.Env
 	zoneCode := param.Zone
 	// Get nodes data
-	nodes, err = resource.Resource.GetAllAppNodeList(db.AppNode{
+	nodes, err := resource.Resource.GetAllAppNodeList(db.AppNode{
 		Aid:      int(aid),
 		Env:      env,
 		ZoneCode: zoneCode,
 	})
+
+	for _, node := range nodes {
+		resp = append(resp, view.RespConfigInstanceItem{
+			Env:                  node.Env,
+			IP:                   node.IP,
+			HostName:             node.HostName,
+			DeviceID:             node.DeviceID,
+			RegionCode:           node.RegionCode,
+			RegionName:           node.RegionName,
+			ZoneCode:             node.ZoneCode,
+			ZoneName:             node.ZoneName,
+			ConfigFilePath:       "/path/to/configFile.toml",
+			ConfigFileUsed:       true,
+			ConfigFileSynced:     true,
+			ConfigFileTakeEffect: false,
+			SyncAt:               time.Now(),
+		})
+
+	}
+
 	return
 }
 
@@ -308,8 +325,8 @@ func publishEtcd(req view.ReqConfigPublish) (err error) {
 }
 
 // History 发布历史分页列表，Page从0开始
-func History(param view2.ReqHistoryConfig, uid int) (resp view2.RespHistoryConfig, err error) {
-	list := make([]db2.ConfigurationHistory, 0)
+func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig, err error) {
+	list := make([]db.ConfigurationHistory, 0)
 
 	if param.Size == 0 {
 		param.Size = 1
