@@ -397,6 +397,7 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 	return
 }
 
+// Diff ..
 func Diff(id uint) (resp view.RespDiffConfig, err error) {
 	modifiedConfig := db.ConfigurationHistory{}
 	err = mysql.Preload("Configuration").Preload("User").

@@ -15,8 +15,7 @@ import { history } from 'umi';
 import styles from './style.less';
 import Detail from './components/Detail/index';
 import ZoneSelect from '@/components/ZoneSelect';
-import Config from './components/Config'
-
+import Config from './components/Config';
 
 const { TabPane } = Tabs;
 
@@ -216,7 +215,7 @@ export default class App extends React.Component<ConfgoBase, any> {
           defaultActiveKey={this.state.tab}
           onChange={this.callback}
           style={{ width: '100%', marginTop: '10px' }}
-          tabBarStyle={{paddingLeft: '10px', marginBottom: 0}}
+          tabBarStyle={{ paddingLeft: '10px', marginBottom: 0 }}
         >
           <TabPane tab="详情" key="detail">
             <Detail
@@ -275,8 +274,8 @@ export default class App extends React.Component<ConfgoBase, any> {
     }
     return (
       <PageHeaderWrapper>
-        <div style={{backgroundColor: '#fff'}}>
-          <div style={{padding: 10}}>
+        <div style={{ backgroundColor: '#fff' }}>
+          <div style={{ padding: 10 }}>
             <Row>
               <AppHeader
                 appInfo={this.state.appInfo}
@@ -291,7 +290,7 @@ export default class App extends React.Component<ConfgoBase, any> {
                 initDisable={disable}
               />
             </Row>
-            <Row style={{ marginTop: '10px'}}>
+            <Row style={{ marginTop: '10px' }}>
               <Col span={12}>
                 <ZoneSelect
                   appEnvZone={appEnvZone}
