@@ -37,6 +37,8 @@ func Init() {
 		}
 		ClientProxy.EtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
 	}
+
+	go ClientProxy.reload()
 	return
 }
 
@@ -47,9 +49,37 @@ func (c *clientproxy) Conn(env, zoneCode string) (*clientv3.Client, error) {
 	if conn, ok := c.EtcdMap[GenClientProxyName(env, zoneCode)]; ok {
 		return conn, nil
 	}
+	// reload one time and try again
 	return nil, fmt.Errorf(errorconst.ParamCannotFindClientProxy.Code().String() + errorconst.ParamCannotFindClientProxy.Name())
 }
 
-func GenClientProxyName(env, zoneCode string)string{
+// GenClientProxyName ..
+func GenClientProxyName(env, zoneCode string) string {
 	return fmt.Sprintf("%s.%s", env, zoneCode)
+}
+
+func (c *clientproxy) reload() {
+	for {
+		time.Sleep(time.Minute)
+		c.lock.Lock()
+		defer c.lock.Unlock()
+		for _, cp := range cfg.Cfg.ClientProxy {
+			if !cp.Etcd.Enable {
+				continue
+			}
+			if _, ok := ClientProxy.EtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)]; ok {
+				continue
+			}
+			client, err := clientv3.New(clientv3.Config{
+				Endpoints:   cp.Etcd.Endpoints,
+				DialTimeout: time.Duration(cp.Etcd.Timeout) * time.Second,
+			})
+			if err != nil {
+				continue
+			}
+			ClientProxy.EtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
+		}
+		return
+	}
+
 }
