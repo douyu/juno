@@ -204,16 +204,20 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 	var syncFlag bool = false
 
 	for _, node := range nodes {
-		var status db.ConfigurationStatus
-		status, err = getConfigurationStatus(param.ConfigurationID, node.HostName)
-		if err != nil {
-			return
-		}
+		path := ""
+		used := uint(0)
+		synced := uint(0)
+		takeEffect := uint(0)
 
-		path := status.ConfigurationPublish.FilePath
-		used := status.Used
-		synced := status.Synced
-		takeEffect := status.TakeEffect
+		var status db.ConfigurationStatus
+		var statusErr error
+		status, statusErr = getConfigurationStatus(param.ConfigurationID, node.HostName)
+		if statusErr == nil {
+			path = status.ConfigurationPublish.FilePath
+			used = status.Used
+			synced = status.Synced
+			takeEffect = status.TakeEffect
+		}
 
 		// value update
 		if used == 0 {
@@ -244,6 +248,7 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 	if !syncFlag {
 		return
 	}
+	
 	newSyncDataMap, err := configurationSyncedAndTakeEffect(app.AppName, env, zoneCode, configuration.Name, configuration.Format)
 	if err != nil {
 		return
@@ -285,11 +290,11 @@ func configurationSyncedAndTakeEffect(appName, env, zoneCode, filename, format s
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	key := fmt.Sprintf("/%s/callback/%s/%s", cfg.Cfg.Configure.Prefix, appName, fileName)
 	conn, err := clientproxy.ClientProxy.Conn(env, zoneCode)
+	defer cancel()
 	if err != nil {
 		return
 	}
 	resp, err := conn.Get(ctx, key, clientv3.WithPrefix())
-	defer cancel()
 	if err != nil {
 		return
 	}
