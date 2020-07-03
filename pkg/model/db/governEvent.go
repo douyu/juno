@@ -11,18 +11,14 @@ type ListProviderEventsReq struct {
 }
 
 type ProviderRegisterEvent struct {
-	Model
-	AppName string       `json:"appName"`
-	Schema  string       `json:"schema"`
-	Address string       `json:"address"`
-	Type    RegisterType `json:"type"`
-}
-
-type Model struct {
-	ID        uint       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
-	DeletedAt *time.Time `sql:"index" json:"deletedAt"`
+	ID        uint         `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time    `json:"createdAt"`
+	UpdatedAt time.Time    `json:"updatedAt"`
+	DeletedAt *time.Time   `sql:"index" json:"deletedAt"`
+	AppName   string       `json:"appName"`
+	Schema    string       `json:"schema"`
+	Address   string       `json:"address"`
+	Type      RegisterType `json:"type"`
 }
 
 type ListProviderEvents struct {

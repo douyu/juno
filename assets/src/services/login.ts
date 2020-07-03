@@ -22,5 +22,5 @@ export async function getFakeCaptcha(mobile: string) {
 }
 
 export async function outLogin() {
-  return request('/api/admin/user/logout');
+  return request('/api/admin/public/user/logout');
 }

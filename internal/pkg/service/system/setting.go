@@ -83,7 +83,30 @@ func (s *setting) Get(name string) (val string, err error) {
 	return
 }
 
-//Set 设置系统设置
+// Create setting
+func (s *setting) Create(name string, value string) (err error) {
+	setting := db.SystemConfig{}
+	err = s.db.Where("name = ?", name).First(&setting).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return
+	}
+
+	setting.Name = string(name)
+	setting.Content = value
+
+	if err != nil && gorm.IsRecordNotFoundError(err) {
+		err = s.db.Create(&setting).Error
+		{
+			s.settingCacheMtx.Lock()
+			s.settingCache[name] = value
+			s.settingCacheMtx.Unlock()
+		}
+		s.pubEvent(name, value)
+	}
+	return
+}
+
+// Set 设置系统设置
 func (s *setting) Set(name string, value string) (err error) {
 	tx := s.db.Begin()
 
