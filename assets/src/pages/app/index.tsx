@@ -158,7 +158,7 @@ export default class App extends React.Component<ConfgoBase, any> {
           appNodeList: res.data.list,
         });
       } else {
-        message.error(res.message);
+        message.error(res.msg);
       }
     });
   };
@@ -176,7 +176,7 @@ export default class App extends React.Component<ConfgoBase, any> {
             appNodeList: res.data.list,
           });
         } else {
-          message.error(res.message);
+          message.error(res.msg);
         }
       });
     } else {

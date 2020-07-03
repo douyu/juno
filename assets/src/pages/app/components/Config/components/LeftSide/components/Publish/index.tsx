@@ -35,11 +35,18 @@ function Publish(props: any) {
     if (!configFile) {
       if (configList && configList.length > 0) {
         setConfigFile(configList[0]);
-        loadConfigInstances(configList[0].aid, configList[0].env, configList[0].zone, configList[0].id);
+        loadConfigInstances(
+          configList[0].aid,
+          configList[0].env,
+          configList[0].zone,
+          configList[0].id,
+        );
       }
       return;
     }
-
+    if (historyList && historyList.length > 0) {
+      setVersion(historyList[0].version);
+    }
   }, [configFile]);
 
   let publishStart = () => {
@@ -67,8 +74,12 @@ function Publish(props: any) {
 
   let selectConfigFile = (val: any, target: any) => {
     setConfigFile(target.props.config);
-    loadConfigInstances(target.props.config.aid, target.props.config.env, target.props.config.zone, target.props.config.id);
-
+    loadConfigInstances(
+      target.props.config.aid,
+      target.props.config.env,
+      target.props.config.zone,
+      target.props.config.id,
+    );
   };
 
   return (
@@ -156,7 +167,12 @@ function Publish(props: any) {
       )}
 
       <Modal title="配置发布" visible={visible} onOk={handleOk} onCancel={handleCancel}>
-        <Select style={{ width: '100%' }} loading={historyListLoading} onSelect={selectVersion}>
+        <Select
+          style={{ width: '100%' }}
+          loading={historyListLoading}
+          onSelect={selectVersion}
+          value={version}
+        >
           {historyList != undefined &&
             historyList.map((item: any, index: any) => {
               return (
