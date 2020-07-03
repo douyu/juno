@@ -5,7 +5,7 @@ export async function query() {
 }
 
 export async function queryCurrent() {
-  return request<API.CurrentUser>('/api/admin/user/info');
+  return request<API.CurrentUser>('/api/admin/public/user/info');
 }
 
 export async function queryNotices(): Promise<any> {

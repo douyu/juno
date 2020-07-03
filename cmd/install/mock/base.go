@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/api/apiv1/confgo"
-	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/user"
@@ -42,9 +41,9 @@ func MockData() {
 
 func MustMockData() {
 	router := echo.New()
-	urlSystemUpdate := "/system/setting/update"
-	router.POST(urlSystemUpdate, system.SettingUpdate)
-	mockGrafanaSetting(urlSystemUpdate, router)
+	urlSystemCreate := "/system/setting/create"
+	router.POST(urlSystemCreate, system.SettingCreate)
+	mockGrafanaSetting(urlSystemCreate, router)
 }
 
 func PostForm(uri string, param string, router *echo.Echo) []byte {

@@ -4,6 +4,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
+	"github.com/douyu/juno/internal/pkg/service/casbin"
 	scmc "github.com/douyu/juno/internal/pkg/service/cmc"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
@@ -19,7 +20,7 @@ import (
 )
 
 // Init service初始化。
-func Init() {
+func Init() (err error) {
 
 	// 事件最先初始化，最低层
 	appevent.InitAppEvent()
@@ -49,4 +50,12 @@ func Init() {
 	gateway.Init()
 
 	configresource.Init(invoker.JunoMysql)
+
+	casbinAdapter := &casbin.CasbinAdapter{}
+	_, _, err = casbin.InitCasbin(casbinAdapter)
+	if err != nil {
+		return
+	}
+	return
+
 }

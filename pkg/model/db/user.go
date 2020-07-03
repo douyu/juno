@@ -24,6 +24,8 @@ type User struct {
 	Access           string `json:"access"`
 }
 
+type UserList []User
+
 func (u *User) TransformUserInfo() UserInfo {
 	return UserInfo{
 		Oaid:          u.Oaid,
@@ -43,6 +45,13 @@ func (u *User) TransformUserInfo() UserInfo {
 		Access:        u.Access,
 	}
 
+}
+
+func (u *User) IsLogin() bool {
+	if u.Uid > 0 {
+		return true
+	}
+	return false
 }
 
 // UserInfo ...
