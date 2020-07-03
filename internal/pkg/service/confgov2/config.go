@@ -248,7 +248,6 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 	if !syncFlag {
 		return
 	}
-	
 	newSyncDataMap, err := configurationSyncedAndTakeEffect(app.AppName, env, zoneCode, configuration.Name, configuration.Format)
 	if err != nil {
 		return
