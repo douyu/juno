@@ -15,6 +15,8 @@
 package adminengine
 
 import (
+	"github.com/douyu/juno/internal/pkg/service/casbin"
+	"github.com/douyu/juno/pkg/cfg"
 	"net/http"
 	"strings"
 
@@ -29,7 +31,7 @@ import (
 	"github.com/douyu/juno/api/apiv1/static"
 	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/user"
-	"github.com/douyu/juno/internal/pkg/middleware"
+	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/service/grafana"
 	userSrv "github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/jupiter/pkg/server/xecho"
@@ -42,11 +44,21 @@ func apiAdmin(server *xecho.Server) {
 	var loginAuthRedirect echo.MiddlewareFunc // 登录授权,以Http跳转形式
 
 	// If it is a local environment, go to Debug mode
-	loginAuthWithJSON = middleware.LoginAuth("/api/authorize", middleware.RedirectTypeJson).Func()
-	loginAuthRedirect = middleware.LoginAuth("/api/authorize", middleware.RedirectTypeHttp).Func()
+	loginAuthWithJSON = middleware.LoginAuth("/user/login", middleware.RedirectTypeJson).Func()
+	loginAuthRedirect = middleware.LoginAuth("/user/login", middleware.RedirectTypeHttp).Func()
 
 	// session init
 	sessionMW := session.Middleware(userSrv.NewSessionStore())
+
+	var casbinMW echo.MiddlewareFunc
+	// casbin init
+	if cfg.Cfg.Casbin.Enable {
+		casbinMW = middleware.CasbinMiddleware(middleware.CasbinConfig{
+			Skipper:  middleware.AllowPathPrefixSkipper("/api/admin/public", "/api/admin/user/login"),
+			Enforcer: casbin.Casbin,
+		})
+
+	}
 
 	// static file
 	server.GET("/", static.File("assets/dist/index.html"), sessionMW, loginAuthRedirect)
@@ -72,18 +84,27 @@ func apiAdmin(server *xecho.Server) {
 
 	g := server.Group("/api/admin")
 	g.Use(sessionMW) // use session
+	if cfg.Cfg.Casbin.Enable {
+		g.Use(casbinMW) // use casbin
+	}
 	g.GET("/api/app/filter/list", app.FilterList)
 	g.GET("/api/app/info", app.Info) // Get application information, the application room information
 	g.GET("/api/app/env", app.Env)
 	g.GET("/api/system", app.Info)
+
+	publicGroup := g.Group("/public")
+	{
+		// public
+		publicGroup.GET("/system/config", system.Config)
+		publicGroup.GET("/user/logout", user.Logout, loginAuthWithJSON)
+		publicGroup.GET("/user/info", user.Info, loginAuthWithJSON)
+	}
 
 	userGroup := g.Group("/user")
 	{
 		// user
 		userGroup.POST("/login", user.Login)
 		userGroup.GET("/login/:oauth", user.LoginOauth)
-		userGroup.GET("/logout", user.Logout)
-		userGroup.GET("/info", user.Info)
 		userGroup.POST("/create", user.Create, loginAuthWithJSON)
 		userGroup.POST("/update", user.Update, loginAuthWithJSON)
 		userGroup.GET("/list", user.List, loginAuthWithJSON)
@@ -205,7 +226,7 @@ func apiAdmin(server *xecho.Server) {
 	}
 
 	systemGroup := g.Group("/system", loginAuthWithJSON)
-	g.GET("/system/config", system.Config) // 不走路由
+
 	{
 		systemGroup.GET("/option/info", system.OptionInfo)
 		systemGroup.GET("/option/list", system.OptionList)

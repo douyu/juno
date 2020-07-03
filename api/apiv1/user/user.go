@@ -110,7 +110,11 @@ func Delete(c echo.Context) error {
 
 // Info get userinfo
 func Info(c echo.Context) error {
-	return output.JSON(c, output.MsgOk, "", user.GetUser(c))
+	u := user.GetUser(c)
+	if !u.IsLogin() {
+		return output.JSON(c, output.MsgErr, "err")
+	}
+	return output.JSON(c, output.MsgOk, "", u)
 }
 
 type login struct {
@@ -123,8 +127,6 @@ func Login(c echo.Context) error {
 	var data login
 	_ = c.Bind(&data)
 	// TODO 三种登录方式：账号密码、header头、gitlab oauth2
-	// TODO 账号密码验证
-	// TODO gitlab oauth
 	u := user.User.GetUserByName(data.Username)
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(data.Password))
 	if err != nil {

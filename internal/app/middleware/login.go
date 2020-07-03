@@ -9,8 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var DefaultAuth = Auth{}
-
 type Auth struct {
 	Authenticator func(echo.Context) error
 	Unauthorized  func(echo.Context) error
@@ -40,7 +38,7 @@ func LoginAuth(loginURL string, redirectType RedirectType) *Auth {
 	return &Auth{
 		Authenticator: func(context echo.Context) error {
 			u := user.GetUser(context)
-			if u == nil {
+			if !u.IsLogin() {
 				return errors.New("no session")
 			}
 			err := user.Session.Save(context, u)
@@ -51,7 +49,7 @@ func LoginAuth(loginURL string, redirectType RedirectType) *Auth {
 			return nil
 		},
 		Unauthorized: func(context echo.Context) error {
-			auth := context.Request().Header.Get("dy_auth")
+			auth := context.Request().Header.Get("juno_auth")
 			if auth != "" {
 				return nil
 			}

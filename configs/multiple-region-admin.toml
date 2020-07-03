@@ -139,3 +139,10 @@
     allowedDomains = []
     teamIds = []
     allowedOrganizations = []
+    
+[casbin]
+    enable = false
+    debug = true
+    model = "./configs/model.conf"
+    autoLoad = true
+    autoLoadInternal = 60

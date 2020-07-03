@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 
 	"github.com/douyu/juno/cmd/install/mock"
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -46,14 +47,14 @@ func main() {
 	})
 
 	eng := &Admin{}
-	_ = eng.Startup(
+	err := eng.Startup(
 		eng.initConfig,
 		eng.initInvoker,
 		eng.migrateDB,
 	)
-	//if err != nil {
-	//	xlog.Error("start up error", zap.Error(err))
-	//}
+	if err != nil {
+		xlog.Error("start up error", zap.Error(err))
+	}
 
 }
 
@@ -63,10 +64,10 @@ func (eng *Admin) initConfig() (err error) {
 	return
 }
 
-func (eng *Admin) initInvoker() error {
+func (eng *Admin) initInvoker() (err error) {
 	invoker.Init()
-	service.Init()
-	return nil
+	err = service.Init()
+	return
 }
 
 // func migrateDB(cli *cli.Context) error {
@@ -152,6 +153,10 @@ func cmdInstall(gormdb *gorm.DB) {
 			&db.ConfigResource{},
 			&db.ConfigResourceTag{},
 			&db.ConfigResourceValue{},
+			&db.CasbinPolicyAuth{},
+			&db.CasbinPolicyGroup{},
+			&db.CasbinGroup{},
+			&db.Url{},
 		}
 		gormdb.SingularTable(true)
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
