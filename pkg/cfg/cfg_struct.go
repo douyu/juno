@@ -49,26 +49,28 @@ type Server struct {
 	Govern ServerSchema
 }
 
-// Proxy
+// ClientProxy ..
 type ClientProxy struct {
 	Env          string
 	ZoneCode     string
 	Stream       ProxyStream
-	HttpServer   ServerSchema
+	HTTPServer   ServerSchema
 	GrpcServer   ServerSchema
 	GovernServer ServerSchema
 	HeartBeat    HeartBeat
 	Etcd         Etcd
 }
 
+// ServerProxy ..
 type ServerProxy struct {
 	Name         string
 	Stream       ProxyStream
-	HttpServer   ServerSchema
+	HTTPServer   ServerSchema
 	GrpcServer   ServerSchema
 	GovernServer ServerSchema
 	HeartBeat    HeartBeat
 	Etcd         Etcd
+	Prometheus   HTTPProxy
 }
 
 type GrafanaProxy struct {
@@ -151,11 +153,22 @@ type Configure struct {
 	} `json:"agent"`
 }
 
-// Casbin
+// Casbin ..
 type Casbin struct {
 	Enable           bool
 	Debug            bool
 	Model            string
 	AutoLoad         bool
 	AutoLoadInternal int
+}
+
+// HTTPProxy ..
+type HTTPProxy struct {
+	Enable            bool
+	ListenAddr        string
+	Backend           string
+	DisableKeepAlives bool
+	MaxIdleConns      int
+	MaxIdelPerHost    int
+	Timeout           int
 }

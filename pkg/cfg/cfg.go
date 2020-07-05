@@ -131,6 +131,15 @@ func defaultConfig() cfg {
 				ZoneName:   "",
 				Env:        "",
 			},
+			Prometheus: HTTPProxy{
+				Enable:            true,
+				ListenAddr:        "127.0.0.1:59090",
+				Backend:           "127.0.0.1:9090",
+				DisableKeepAlives: true,
+				MaxIdleConns:      30,
+				MaxIdelPerHost:    60,
+				Timeout:           3,
+			},
 		},
 		Pprof: Pprof{
 			Path: ".",
@@ -161,7 +170,6 @@ func InitCfg() {
 	}
 	config.parseHeartBeat()
 	Cfg = config
-	fmt.Println("config.database", config.Database)
 }
 
 func parseAppAndSubURL(rootURL string) (string, string, error) {

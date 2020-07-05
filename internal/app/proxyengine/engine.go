@@ -47,11 +47,9 @@ func New() *Proxy {
 		eng.serveGRPC,
 		eng.initHeartBeat,
 	)
-
 	if err != nil {
 		xlog.Panic("start up error", zap.Error(err))
 	}
-
 	return eng
 }
 
@@ -63,7 +61,6 @@ func (eng *Proxy) initConfig() (err error) {
 
 func (eng *Proxy) initServerProxy() (err error) {
 	proxy.InitStreamStore()
-
 	err = eng.Schedule(proxy.NewProxyGrpcWorker())
 	if err != nil {
 		return
@@ -83,8 +80,8 @@ func (eng *Proxy) initHeartBeat() (err error) {
 
 func (eng *Proxy) serveHTTP() (err error) {
 	serverConfig := xecho.DefaultConfig()
-	serverConfig.Host = cfg.Cfg.ServerProxy.HttpServer.Host
-	serverConfig.Port = cfg.Cfg.ServerProxy.HttpServer.Port
+	serverConfig.Host = cfg.Cfg.ServerProxy.HTTPServer.Host
+	serverConfig.Port = cfg.Cfg.ServerProxy.HTTPServer.Port
 
 	server := serverConfig.Build()
 	server.Debug = true
