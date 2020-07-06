@@ -2,11 +2,15 @@ package configresource
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
+	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 var (
@@ -324,9 +328,10 @@ func CreateVersion(param view.ReqCreateConfigResourceVersion) (err error) {
 	return
 }
 
+// Tags ..
 func Tags() (tags []string, err error) {
 	tagList := make([]db.ConfigResourceTag, 0)
-	err = mysql.Group("value").Find(&tagList).Error
+	err = mysql.Select("value").Group("value").Find(&tagList).Error
 	if err != nil {
 		return nil, err
 	}
@@ -382,4 +387,38 @@ func BatchCheckVersion(param view.ReqBatchCheckResourceVersion) (resp view.RespB
 
 func GetVersionByResourceValue(value string) (version string) {
 	return util.Md5Str(value)
+}
+
+// FillConfigResource .. check
+func FillConfigResource(content string) string {
+	fmt.Println("before:", content)
+	for _, source := range GetAllConfigResource(content) {
+		sourceArr := strings.Split(source, "@")
+		if len(sourceArr) != 2 {
+			continue
+		}
+		id := strings.Replace(sourceArr[1], "}}", "", -1)
+		crv, err := GetConfigResourceValueByIDWithoutCheck(id)
+		if err != nil {
+			continue
+		}
+		content = strings.Replace(content, source, crv.Value, 1)
+	}
+	fmt.Println("after:", content)
+	return content
+}
+
+// GetAllConfigResource ..
+func GetAllConfigResource(content string) (res []string) {
+	reg := regexp.MustCompile(`{{[\w\W]*\@[0-9]*}}`)
+	return reg.FindAllString(content, -1)
+}
+
+// GetConfigResourceValueByIDWithoutCheck ..
+func GetConfigResourceValueByIDWithoutCheck(id string) (resp db.ConfigResourceValue, err error) {
+	err = mysql.Where("id = ?", id).First(&resp).Error
+	if err != nil {
+		return resp, errorconst.ConfigResourceValueNotExist.Error()
+	}
+	return resp, nil
 }

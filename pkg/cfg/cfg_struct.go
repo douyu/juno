@@ -49,26 +49,25 @@ type Server struct {
 	Govern ServerSchema
 }
 
-// Proxy
+// ClientProxy ..
 type ClientProxy struct {
-	Env          string
-	ZoneCode     string
-	Stream       ProxyStream
-	HttpServer   ServerSchema
-	GrpcServer   ServerSchema
-	GovernServer ServerSchema
-	HeartBeat    HeartBeat
-	Etcd         Etcd
+	Env      string
+	ZoneCode string
+	Stream   ProxyStream
+	HTTP     HTTPProxy
+	Etcd     Etcd
 }
 
+// ServerProxy ..
 type ServerProxy struct {
 	Name         string
 	Stream       ProxyStream
-	HttpServer   ServerSchema
+	HTTPServer   ServerSchema
 	GrpcServer   ServerSchema
 	GovernServer ServerSchema
 	HeartBeat    HeartBeat
 	Etcd         Etcd
+	Prometheus   HTTPProxy
 }
 
 type GrafanaProxy struct {
@@ -88,11 +87,14 @@ type Etcd struct {
 	Endpoints  []string `json:"endpoints"`
 	Namespace  string   `json:"namespace"`
 	Timeout    int      `json:"timeout"`
-	TLS        struct {
-		Cert   string `json:"cert"`
-		Key    string `json:"key"`
-		CaCert string `json:"cacert"`
-	} `json:"tls"`
+	TLS        TLS      `json:"tls"`
+}
+
+// TLS ..
+type TLS struct {
+	Cert   string `json:"cert"`
+	Key    string `json:"key"`
+	CaCert string `json:"cacert"`
 }
 
 type ProxyStream struct {
@@ -151,11 +153,22 @@ type Configure struct {
 	} `json:"agent"`
 }
 
-// Casbin
+// Casbin ..
 type Casbin struct {
 	Enable           bool
 	Debug            bool
 	Model            string
 	AutoLoad         bool
 	AutoLoadInternal int
+}
+
+// HTTPProxy ..
+type HTTPProxy struct {
+	Enable            bool
+	ListenAddr        string
+	Backend           string
+	DisableKeepAlives bool
+	MaxIdleConns      int
+	MaxIdelPerHost    int
+	Timeout           int
 }

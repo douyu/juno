@@ -7,9 +7,8 @@ import (
 	"net/http/httputil"
 	"time"
 
-	"github.com/douyu/jupiter/pkg/conf"
-
 	"github.com/douyu/juno/internal/pkg/packages/roundtrip"
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/labstack/gommon/log"
 	"github.com/urfave/negroni"
 )
@@ -19,19 +18,20 @@ type proxy struct {
 	bufferPool     httputil.BufferPool
 }
 
-func NewHttpProxy() http.Handler {
+// NewHTTPProxy ..
+func NewHTTPProxy() http.Handler {
 	p := &proxy{
 		bufferPool:     NewBufferPool(),
-		defaultBackend: conf.GetString("proxy.http.backend"),
+		defaultBackend: cfg.Cfg.ServerProxy.Prometheus.Backend,
 	}
 
 	roundTripperFactory := &roundtrip.FactoryImpl{
 		Template: &http.Transport{
-			Dial:                (&net.Dialer{Timeout: conf.GetDuration("proxy.http.timeout")}).Dial,
-			DisableKeepAlives:   conf.GetBool("proxy.http.disableKeepAlives"),
-			MaxIdleConns:        conf.GetInt("proxy.http.maxIdleConns"),
+			Dial:                (&net.Dialer{Timeout: time.Duration(cfg.Cfg.ServerProxy.Prometheus.Timeout) * time.Second}).Dial,
+			DisableKeepAlives:   cfg.Cfg.ServerProxy.Prometheus.DisableKeepAlives,
+			MaxIdleConns:        cfg.Cfg.ServerProxy.Prometheus.MaxIdleConns,
 			IdleConnTimeout:     90 * time.Second, // setting the value to golang default transport
-			MaxIdleConnsPerHost: conf.GetInt("proxy.http.maxIdelPerHost"),
+			MaxIdleConnsPerHost: cfg.Cfg.ServerProxy.Prometheus.MaxIdelPerHost,
 			DisableCompression:  true,
 		},
 	}
@@ -39,7 +39,7 @@ func NewHttpProxy() http.Handler {
 	prt := roundtrip.NewProxyRoundTripper(
 		roundTripperFactory,
 		http.DefaultTransport,
-		conf.GetDuration("proxy.http.timeout"),
+		time.Duration(cfg.Cfg.ServerProxy.Prometheus.Timeout)*time.Second,
 	)
 
 	rp := &httputil.ReverseProxy{
