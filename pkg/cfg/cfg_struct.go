@@ -51,14 +51,11 @@ type Server struct {
 
 // ClientProxy ..
 type ClientProxy struct {
-	Env          string
-	ZoneCode     string
-	Stream       ProxyStream
-	HTTPServer   ServerSchema
-	GrpcServer   ServerSchema
-	GovernServer ServerSchema
-	HeartBeat    HeartBeat
-	Etcd         Etcd
+	Env      string
+	ZoneCode string
+	Stream   ProxyStream
+	HTTP     HTTPProxy
+	Etcd     Etcd
 }
 
 // ServerProxy ..
@@ -90,11 +87,14 @@ type Etcd struct {
 	Endpoints  []string `json:"endpoints"`
 	Namespace  string   `json:"namespace"`
 	Timeout    int      `json:"timeout"`
-	TLS        struct {
-		Cert   string `json:"cert"`
-		Key    string `json:"key"`
-		CaCert string `json:"cacert"`
-	} `json:"tls"`
+	TLS        TLS      `json:"tls"`
+}
+
+// TLS ..
+type TLS struct {
+	Cert   string `json:"cert"`
+	Key    string `json:"key"`
+	CaCert string `json:"cacert"`
 }
 
 type ProxyStream struct {

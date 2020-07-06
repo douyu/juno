@@ -19,6 +19,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/ecode"
@@ -66,6 +67,14 @@ func defaultConfig() cfg {
 			OauthStateCookieMaxAge:           60,
 			ApiKeyMaxSecondsToLive:           -1,
 		},
+		Database: Database{
+			Enable:          true,
+			ConnMaxLifetime: time.Duration(time.Second * 300),
+			Debug:           true,
+			DSN:             "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s",
+			MaxIdleConns:    50,
+			MaxOpenConns:    100,
+		},
 		Server: Server{
 			Http: ServerSchema{
 				Host:           "0.0.0.0",
@@ -99,17 +108,24 @@ func defaultConfig() cfg {
 					Enable:    false,
 					ProxyAddr: nil,
 				},
-				HeartBeat: HeartBeat{
+				Etcd: Etcd{
 					Enable:     true,
-					Debug:      false,
-					Addr:       "stream",
-					Internal:   xtime.Duration("60s"),
-					HostName:   "",
-					RegionCode: "",
-					RegionName: "",
-					ZoneCode:   "",
-					ZoneName:   "",
-					Env:        "",
+					ListenAddr: "127.0.0.1:52370",
+					Endpoints:  []string{"127.0.0.1:2370"},
+					Namespace:  "",
+					Timeout:    3, // 3 second
+					TLS: TLS{
+						Cert:   "",
+						Key:    "",
+						CaCert: "",
+					},
+				},
+				HTTP: HTTPProxy{
+					ListenAddr:        "127.0.0.1:50000",
+					DisableKeepAlives: true,
+					MaxIdleConns:      30,
+					MaxIdelPerHost:    60,
+					Timeout:           3,
 				},
 			},
 		},

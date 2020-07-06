@@ -3,6 +3,7 @@ module github.com/douyu/juno
 go 1.14
 
 require (
+	git.dz11.com/vega/resty v1.1.1
 	github.com/BurntSushi/toml v0.3.1
 	github.com/LyricTian/gin-admin/v6 v6.4.3
 	github.com/achun/testing-want v0.0.0-20140905044750-a28b0fa31c65 // indirect

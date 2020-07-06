@@ -7,6 +7,7 @@ import (
 
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
+	"github.com/go-resty/resty/v2"
 	"go.etcd.io/etcd/clientv3"
 )
 
@@ -14,16 +15,31 @@ import (
 var ClientProxy *clientproxy
 
 type clientproxy struct {
-	EtcdMap map[string]*clientv3.Client
-	lock    sync.RWMutex
+	ServerProxyEtcdMap map[string]*clientv3.Client
+	ServerProxyHTTPMap map[string]*resty.Client
+	lock               sync.RWMutex
 }
 
 // Init ...
 func Init() {
 	ClientProxy = &clientproxy{
-		EtcdMap: make(map[string]*clientv3.Client, 0),
-		lock:    sync.RWMutex{},
+		ServerProxyEtcdMap: make(map[string]*clientv3.Client, 0),
+		ServerProxyHTTPMap: make(map[string]*resty.Client, 0),
+		lock:               sync.RWMutex{},
 	}
+	// init etcd
+	ClientProxy.initServerProxyEtcdMap()
+
+	// init proxy http server
+	ClientProxy.initServerProxyHTTPMap()
+
+	go ClientProxy.reload()
+	return
+}
+
+func (c *clientproxy) initServerProxyEtcdMap() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	for _, cp := range cfg.Cfg.ClientProxy {
 		if !cp.Etcd.Enable {
 			continue
@@ -35,22 +51,44 @@ func Init() {
 		if err != nil {
 			continue
 		}
-		ClientProxy.EtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
+		c.ServerProxyEtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
 	}
-
-	go ClientProxy.reload()
 	return
 }
 
-// Conn ..
-func (c *clientproxy) Conn(env, zoneCode string) (*clientv3.Client, error) {
+func (c *clientproxy) initServerProxyHTTPMap() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	for _, cp := range cfg.Cfg.ClientProxy {
+		if !cp.HTTP.Enable {
+			continue
+		}
+		client := resty.New().SetDebug(false).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8")
+		c.ServerProxyHTTPMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
+	}
+	return
+}
+
+// ServerProxyETCDConn ..
+func (c *clientproxy) ServerProxyETCDConn(env, zoneCode string) (*clientv3.Client, error) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
-	if conn, ok := c.EtcdMap[GenClientProxyName(env, zoneCode)]; ok {
+	if conn, ok := c.ServerProxyEtcdMap[GenClientProxyName(env, zoneCode)]; ok {
 		return conn, nil
 	}
 	// reload one time and try again
-	return nil, fmt.Errorf(errorconst.ParamCannotFindClientProxy.Code().String() + errorconst.ParamCannotFindClientProxy.Name())
+	return nil, fmt.Errorf(errorconst.CannotFindClient.Code().String() + errorconst.CannotFindClient.Name())
+}
+
+// ServerProxyHTTPConn ..
+func (c *clientproxy) ServerProxyHTTPConn(env, zoneCode string) (*resty.Client, error) {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+	if conn, ok := c.ServerProxyHTTPMap[GenClientProxyName(env, zoneCode)]; ok {
+		return conn, nil
+	}
+	// reload one time and try again
+	return nil, fmt.Errorf(errorconst.CannotFindClient.Code().String() + errorconst.CannotFindClient.Name())
 }
 
 // GenClientProxyName ..
@@ -67,7 +105,7 @@ func (c *clientproxy) reload() {
 			if !cp.Etcd.Enable {
 				continue
 			}
-			if _, ok := ClientProxy.EtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)]; ok {
+			if _, ok := ClientProxy.ServerProxyEtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)]; ok {
 				continue
 			}
 			client, err := clientv3.New(clientv3.Config{
@@ -77,7 +115,7 @@ func (c *clientproxy) reload() {
 			if err != nil {
 				continue
 			}
-			ClientProxy.EtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
+			ClientProxy.ServerProxyEtcdMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
 		}
 		return
 	}

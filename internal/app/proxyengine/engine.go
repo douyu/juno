@@ -111,6 +111,10 @@ func (eng *Proxy) serveGRPC() (err error) {
 
 func apiV1(server *xecho.Server) {
 	server.POST("/api/v1/resource/node/heartbeat", apiproxy.NodeHeartBeat)
+
+	// work for juno -> agent
+	server.GET("/api/v1/proxy/get", apiproxy.HTTPProxyGET)
+	server.POST("/api/v1/proxy/post", apiproxy.HTTPProxyPOST)
 }
 
 // ProxyGrpc ..
