@@ -79,7 +79,7 @@
     timeout = 3
 
   [clientProxy.http]
-    listenAddr = "127.0.0.0:8888"
+    listenAddr = "127.0.0.0:50000"
     disableKeepAlives = true
     maxIdelPerHost = 1
     maxIdleConns = 10

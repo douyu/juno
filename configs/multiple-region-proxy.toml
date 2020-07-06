@@ -67,3 +67,12 @@
       cert = ""
       key = ""
       cacert = ""
+
+[serverProxy.prometheus]
+    enable = true
+    listenAddr = "127.0.0.1:59090"
+    backend = "127.0.0.1:9090"
+    disableKeepAlives = true
+    maxIdleConns = 100
+    maxIdelPerHost = 200
+    timeout = 3

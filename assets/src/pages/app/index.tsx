@@ -158,7 +158,7 @@ export default class App extends React.Component<ConfgoBase, any> {
           appNodeList: res.data.list,
         });
       } else {
-        message.error(res.message);
+        message.error(res.msg);
       }
     });
   };
@@ -176,7 +176,7 @@ export default class App extends React.Component<ConfgoBase, any> {
             appNodeList: res.data.list,
           });
         } else {
-          message.error(res.message);
+          message.error(res.msg);
         }
       });
     } else {
@@ -290,7 +290,7 @@ export default class App extends React.Component<ConfgoBase, any> {
                 initDisable={disable}
               />
             </Row>
-            <Row style={{ marginTop: '10px' }}>
+            <Row>
               <Col span={12}>
                 <ZoneSelect
                   appEnvZone={appEnvZone}

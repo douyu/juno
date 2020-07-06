@@ -3,6 +3,7 @@ import { Tooltip, Descriptions, Row, Col, Select, Tag, Drawer, Button } from 'an
 import { ConfgoBase } from '../../../confgo/config/view';
 const { Option } = Select;
 import styles from './style.less';
+import { DesktopOutlined } from '@ant-design/icons';
 
 export interface AppHeaderInterface extends ConfgoBase {
   getAppInfoAction: (aid: number, appName: string) => void;
@@ -129,8 +130,8 @@ export default function AppHeader(props: AppHeaderInterface) {
 
   return (
     <>
-      <Row gutter={24} style={{width: '100%' }}>
-        <Col span={6}>
+      <Row gutter={24} style={{ width: '100%' }}>
+        <Col span={8}>
           <Select
             showSearch
             size="large"
@@ -164,38 +165,57 @@ export default function AppHeader(props: AppHeaderInterface) {
           </Select>
         </Col>
         <Col>
-          <div className={styles.cube}>HTTP: {http_port}</div>
+          {/* <div className={styles.cube}>HTTP: {http_port}</div>
           <div className={styles.cube}>gRPC: {rpc_port}</div>
-          <div className={styles.cube}>Govern: {govern_port}</div>
+          <div className={styles.cube}>Govern: {govern_port}</div> */}
           <div className={styles.cube}>
             <a type="primary" onClick={showDrawer}>
-              应用详情
+              <DesktopOutlined />
             </a>
           </div>
         </Col>
       </Row>
       <Row>
         <Drawer
-          title="应用详情"
-          placement="top"
+          title="详情"
+          placement="right"
           closable={false}
           onClose={onClose}
           visible={visible}
+          width="300px"
         >
           <Descriptions size="small" column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }}>
             <Descriptions.Item label="应用">{name}</Descriptions.Item>
-            <Descriptions.Item label="HTTP">{http_port}</Descriptions.Item>
-            <Descriptions.Item label="gRPC">{rpc_port}</Descriptions.Item>
-            <Descriptions.Item label="Govern">{govern_port}</Descriptions.Item>
+          </Descriptions>
+
+          <Descriptions size="small" column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }}>
             <Descriptions.Item label="项目域">{biz_domain}</Descriptions.Item>
+          </Descriptions>
+
+          <Descriptions size="small" column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }}>
             <Descriptions.Item label="项目">
               <Tooltip title={name}>
                 <span>{app_name}</span>
               </Tooltip>
             </Descriptions.Item>
+          </Descriptions>
+
+          <Descriptions size="small" column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }}>
             <Descriptions.Item label="负责人" span={2}>
               <span>{userInfo}</span>
             </Descriptions.Item>
+          </Descriptions>
+
+          <Descriptions size="small" column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }}>
+            <Descriptions.Item label="HTTP">{http_port}</Descriptions.Item>
+          </Descriptions>
+
+          <Descriptions size="small" column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }}>
+            <Descriptions.Item label="gRPC">{rpc_port}</Descriptions.Item>
+          </Descriptions>
+
+          <Descriptions size="small" column={{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }}>
+            <Descriptions.Item label="Govern">{govern_port}</Descriptions.Item>
           </Descriptions>
         </Drawer>
       </Row>

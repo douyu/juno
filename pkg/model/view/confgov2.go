@@ -128,20 +128,22 @@ type (
 
 	RespConfigInstanceList []RespConfigInstanceItem
 
+	// RespConfigInstanceItem ..
 	RespConfigInstanceItem struct {
-		Env                  string    `json:"env"`
-		IP                   string    `json:"ip"`
-		HostName             string    `json:"host_name"`
-		DeviceID             int       `json:"device_id"`
-		RegionCode           string    `json:"region_code"`
-		RegionName           string    `json:"region_name"`
-		ZoneCode             string    `json:"zone_code"`
-		ZoneName             string    `json:"zone_name"`
-		ConfigFilePath       string    `json:"config_file_path"`
-		ConfigFileUsed       uint      `json:"config_file_used"`
-		ConfigFileSynced     uint      `json:"config_file_synced"`
-		ConfigFileTakeEffect uint      `json:"config_file_take_effect"`
-		SyncAt               time.Time `json:"sync_at"`
+		ConfigurationStatusID uint      `json:"configuration_status_id"`
+		Env                   string    `json:"env"`
+		IP                    string    `json:"ip"`
+		HostName              string    `json:"host_name"`
+		DeviceID              int       `json:"device_id"`
+		RegionCode            string    `json:"region_code"`
+		RegionName            string    `json:"region_name"`
+		ZoneCode              string    `json:"zone_code"`
+		ZoneName              string    `json:"zone_name"`
+		ConfigFilePath        string    `json:"config_file_path"`
+		ConfigFileUsed        uint      `json:"config_file_used"` // 1 supervisor 2 systemd
+		ConfigFileSynced      uint      `json:"config_file_synced"`
+		ConfigFileTakeEffect  uint      `json:"config_file_take_effect"`
+		SyncAt                time.Time `json:"sync_at"`
 	}
 
 	// ConfigFormat ..
@@ -188,6 +190,17 @@ type (
 		// attach key
 		ZoneCode      string `json:"zone_code"`
 		EffectVersion string `json:"effect_version"`
+	}
+
+	// JunoAgent ..
+	JunoAgent struct {
+		HostName string `json:"host_name"`
+		IPPort   string `json:"ip"`
+	}
+
+	// UsedStatusResp ..
+	UsedStatusResp struct {
+		IsUsed int `json:"is_used"`
 	}
 )
 
