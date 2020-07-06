@@ -13,6 +13,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
+	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -20,6 +21,17 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/jinzhu/gorm"
 	"go.etcd.io/etcd/clientv3"
+)
+
+const (
+	// ServerProxyHTTPGetURL ..
+	ServerProxyHTTPGetURL = "/api/v1/proxy/get"
+	// ServerProxyHTTPPostURL ..
+	ServerProxyHTTPPostURL = "/api/v1/proxy/post"
+	// QueryAgentUsingConfiguration ..
+	QueryAgentUsingConfiguration = "http://%s:%s/debug/config"
+	// QueryAgentUsedStatus ..
+	QueryAgentUsedStatus = "http://%s/api/v1/conf/command_line/status"
 )
 
 func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
@@ -117,6 +129,7 @@ func Create(param view.ReqCreateConfig) (err error) {
 	return
 }
 
+// Update ..
 func Update(uid int, param view.ReqUpdateConfig) (err error) {
 	configuration := db.Configuration{}
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
@@ -126,10 +139,11 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 		}
 		return err
 	}
-
+	newContent := configresource.FillConfigResource(param.Content)
+	oldContent := configresource.FillConfigResource(configuration.Content)
 	// 计算本次版本号
-	version := util.Md5Str(param.Content)
-	if util.Md5Str(configuration.Content) == version {
+	version := util.Md5Str(newContent)
+	if util.Md5Str(oldContent) == version {
 		return fmt.Errorf("保存失败，本次无更新")
 	}
 
@@ -202,9 +216,17 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 	}
 
 	var syncFlag bool = false
+	notSyncNodes := make(map[string]db.AppNode, 0)
+
+	var takeEffectFlag bool = false
+	notTakeEffectNodes := make(map[string]db.AppNode, 0)
+
+	var usedFlag bool = false
+	var notUsedNodes []db.AppNode
+
+	filePath := ""
 
 	for _, node := range nodes {
-		path := ""
 		used := uint(0)
 		synced := uint(0)
 		takeEffect := uint(0)
@@ -213,7 +235,7 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 		var statusErr error
 		status, statusErr = getConfigurationStatus(param.ConfigurationID, node.HostName)
 		if statusErr == nil {
-			path = status.ConfigurationPublish.FilePath
+			filePath = status.ConfigurationPublish.FilePath
 			used = status.Used
 			synced = status.Synced
 			takeEffect = status.TakeEffect
@@ -222,51 +244,168 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 		// value update
 		if used == 0 {
 			// Perform another synchronization check
-			used = configurationUsed(status.ConfigurationID)
+			usedFlag = true
+			notUsedNodes = append(notUsedNodes, node)
 		}
-		if synced == 0 || takeEffect == 0 {
+		if synced == 0 {
 			// Perform another synchronization check
 			syncFlag = true
+			notSyncNodes[node.HostName] = node
+		}
+		if takeEffect == 0 {
+			// Perform another synchronization check
+			takeEffectFlag = true
+			notTakeEffectNodes[node.HostName] = node
 		}
 		resp = append(resp, view.RespConfigInstanceItem{
-			Env:                  node.Env,
-			IP:                   node.IP,
-			HostName:             node.HostName,
-			DeviceID:             node.DeviceID,
-			RegionCode:           node.RegionCode,
-			RegionName:           node.RegionName,
-			ZoneCode:             node.ZoneCode,
-			ZoneName:             node.ZoneName,
-			ConfigFilePath:       path,
-			ConfigFileUsed:       used,
-			ConfigFileSynced:     synced,
-			ConfigFileTakeEffect: takeEffect,
-			SyncAt:               time.Now(),
+			ConfigurationStatusID: status.ID,
+			Env:                   node.Env,
+			IP:                    node.IP,
+			HostName:              node.HostName,
+			DeviceID:              node.DeviceID,
+			RegionCode:            node.RegionCode,
+			RegionName:            node.RegionName,
+			ZoneCode:              node.ZoneCode,
+			ZoneName:              node.ZoneName,
+			ConfigFilePath:        filePath,
+			ConfigFileUsed:        used,
+			ConfigFileSynced:      synced,
+			ConfigFileTakeEffect:  takeEffect,
+			SyncAt:                time.Now(),
 		})
 	}
-	// do more sync
-	if !syncFlag {
-		return
+
+	// sync used status
+	if usedFlag {
+		resp, err = syncUsedStatus(notUsedNodes, resp, env, zoneCode, filePath)
 	}
-	newSyncDataMap, err := configurationSyncedAndTakeEffect(app.AppName, env, zoneCode, configuration.Name, configuration.Format)
+
+	// sync publish status
+	if syncFlag {
+		resp, err = syncPublishStatus(app.AppName, env, zoneCode, configuration, notSyncNodes, resp)
+	}
+
+	// sync take effect status
+	if takeEffectFlag {
+		resp, err = syncTakeEffectStatus(app.AppName, app.GovernPort, env, zoneCode, configuration, notTakeEffectNodes, resp)
+	}
+	return
+}
+
+func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env, zoneCode, filePath string) ([]view.RespConfigInstanceItem, error) {
+	// get junoAgentList
+	junoAgentList := assemblyJunoAgent(nodes)
+	if len(junoAgentList) > 400 || len(junoAgentList) <= 0 {
+		return resp, errorconst.JunoAgentQueryOverSize.Error()
+	}
+	// use map
+	usedMap := make(map[string]int, 0)
+	var wg sync.WaitGroup
+	wg.Add(len(junoAgentList))
+	for _, agent := range junoAgentList {
+		go func(agent view.JunoAgent) {
+			usedMap[agent.HostName] = getUsedStatus(env, zoneCode, filePath, agent.IPPort)
+			// func getUsedStatus(env, zoneCode, filePath string, ip string) int {
+
+			wg.Done()
+		}(agent)
+	}
+	wg.Wait()
+	for k, v := range resp {
+		if resp[k].ConfigFileUsed != 0 {
+			continue
+		}
+		if newState, ok := usedMap[resp[k].HostName]; ok {
+			resp[k].ConfigFileUsed = uint(newState)
+			mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("used", newState)
+		}
+	}
+	return resp, nil
+}
+
+func syncPublishStatus(appName, env string, zoneCode string, configuration db.Configuration, notSyncFlag map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
+	newSyncDataMap, err := configurationSynced(appName, env, zoneCode, configuration.Name, configuration.Format, notSyncFlag)
 	if err != nil {
-		return
+		return resp, err
 	}
 	var version = configuration.Version
-	for k := range resp {
-		if resp[k].ConfigFileSynced == 1 && resp[k].ConfigFileTakeEffect == 1 {
+	for k, v := range resp {
+		if resp[k].ConfigFileSynced == 1 {
 			continue
 		}
 		if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
 			if newState.Version == version {
 				resp[k].ConfigFileSynced = 1
-			}
-			if newState.EffectVersion == version {
-				resp[k].ConfigFileTakeEffect = 1
+				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("synced", 1)
 			}
 		}
 	}
-	return
+	return resp, nil
+}
+
+func syncTakeEffectStatus(appName, governPort, env string, zoneCode string, configuration db.Configuration, notTakeEffectNodes map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
+	newSyncDataMap, err := configurationTakeEffect(appName, governPort, env, zoneCode, configuration.Name, configuration.Format, notTakeEffectNodes)
+	if err != nil {
+		return resp, err
+	}
+	var version = configuration.Version
+	for k, v := range resp {
+		if resp[k].ConfigFileTakeEffect == 1 {
+			continue
+		}
+		if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
+			if newState.EffectVersion == version {
+				resp[k].ConfigFileTakeEffect = 1
+				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("take_effect", 1)
+			}
+		}
+	}
+	return resp, nil
+}
+
+func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
+	// query proxy for used status
+	conn, err := clientproxy.ClientProxy.ServerProxyHTTPConn(env, zoneCode)
+	if err != nil {
+		return 0
+	}
+	req := view.ReqHTTPProxy{}
+	req.URL = fmt.Sprintf(QueryAgentUsedStatus, ipPort)
+	req.Params = map[string]interface{}{
+		"config": filePath,
+	}
+	resp, err := conn.R().SetBody(req).Post(ServerProxyHTTPPostURL)
+	if err != nil {
+		return 0
+	}
+	configurationUsedStatus := new(struct {
+		Code int `json:"code"`
+		Data struct {
+			Supervisor bool `json:"supervisor"`
+			Systemd    bool `json:"systemd"`
+		} `json:"data"`
+		Msg string `json:"msg"`
+	})
+	if err = json.Unmarshal(resp.Body(), configurationUsedStatus); err != nil {
+		return 0
+	}
+
+	if configurationUsedStatus.Data.Supervisor {
+		return 1
+	}
+
+	if configurationUsedStatus.Data.Systemd {
+		return 2
+	}
+	return 0
+}
+
+func assemblyJunoAgent(nodes []db.AppNode) []view.JunoAgent {
+	res := make([]view.JunoAgent, 0)
+	for _, node := range nodes {
+		res = append(res, view.JunoAgent{HostName: node.HostName, IPPort: node.IP + fmt.Sprintf(":%d", cfg.Cfg.Configure.Agent.Port)})
+	}
+	return res
 }
 
 func getConfigurationStatus(configurationID uint, hostName string) (res db.ConfigurationStatus, err error) {
@@ -278,17 +417,12 @@ func getConfigurationStatus(configurationID uint, hostName string) (res db.Confi
 	return
 }
 
-func configurationUsed(configurationID uint) uint {
-	// TODO supervisor systemd status
-	return 0
-}
-
-func configurationSyncedAndTakeEffect(appName, env, zoneCode, filename, format string) (list map[string]view.ConfigurationStatus, err error) {
+func configurationSynced(appName, env, zoneCode, filename, format string, notSyncFlag map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
 	list = make(map[string]view.ConfigurationStatus, 0)
 	fileName := fmt.Sprintf("%s.%s", filename, format)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	key := fmt.Sprintf("/%s/callback/%s/%s", cfg.Cfg.Configure.Prefix, appName, fileName)
-	conn, err := clientproxy.ClientProxy.Conn(env, zoneCode)
+	conn, err := clientproxy.ClientProxy.ServerProxyETCDConn(env, zoneCode)
 	defer cancel()
 	if err != nil {
 		return
@@ -301,13 +435,36 @@ func configurationSyncedAndTakeEffect(appName, env, zoneCode, filename, format s
 		err = errorconst.ParamConfigCallbackKvIsZero.Error()
 		return
 	}
+	// publish status, synced status
 	for _, item := range resp.Kvs {
 		row := view.ConfigurationStatus{}
 		if err := json.Unmarshal(item.Value, &row); err != nil {
 			continue
 		}
-		// TODO 这里需要使用 http_proxy
-		row.EffectVersion = getEffectVersion(fmt.Sprintf("http://%s:%s/debug/config", row.IP, row.HealthPort))
+		if _, ok := notSyncFlag[row.Hostname]; !ok {
+			continue
+		}
+		list[row.Hostname] = row
+	}
+	return
+}
+
+func configurationTakeEffect(appName, env, zoneCode, filename, format, governPort string, notTakeEffectNodes map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
+	list = make(map[string]view.ConfigurationStatus, 0)
+	// take effect status
+	conn, err := clientproxy.ClientProxy.ServerProxyHTTPConn(env, zoneCode)
+	if err != nil {
+		return
+	}
+	// publish status, synced status
+	for _, node := range notTakeEffectNodes {
+		row := view.ConfigurationStatus{}
+		agentQuestResp, agentQuestError := conn.SetQueryParams(map[string]string{"url": fmt.Sprintf(QueryAgentUsingConfiguration, node.IP, governPort)}).R().Get(ServerProxyHTTPGetURL)
+		if agentQuestError != nil {
+			err = agentQuestError
+			continue
+		}
+		row.EffectVersion = string(agentQuestResp.Body())
 		list[row.Hostname] = row
 	}
 	return
@@ -355,6 +512,8 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 	content := confHistory.Content
 	version := confHistory.Version
 
+	// resource filter
+	content = configresource.FillConfigResource(content)
 	// Get nodes data
 	var instanceList []string
 	if instanceList, err = getPublishInstance(aid, env, zoneCode); err != nil {
@@ -455,7 +614,7 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
-	conn, errConn := clientproxy.ClientProxy.Conn(req.Env, req.ZoneCode)
+	conn, errConn := clientproxy.ClientProxy.ServerProxyETCDConn(req.Env, req.ZoneCode)
 	if errConn != nil {
 		return errConn
 	}

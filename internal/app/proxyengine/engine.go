@@ -47,11 +47,9 @@ func New() *Proxy {
 		eng.serveGRPC,
 		eng.initHeartBeat,
 	)
-
 	if err != nil {
 		xlog.Panic("start up error", zap.Error(err))
 	}
-
 	return eng
 }
 
@@ -63,7 +61,6 @@ func (eng *Proxy) initConfig() (err error) {
 
 func (eng *Proxy) initServerProxy() (err error) {
 	proxy.InitStreamStore()
-
 	err = eng.Schedule(proxy.NewProxyGrpcWorker())
 	if err != nil {
 		return
@@ -83,8 +80,8 @@ func (eng *Proxy) initHeartBeat() (err error) {
 
 func (eng *Proxy) serveHTTP() (err error) {
 	serverConfig := xecho.DefaultConfig()
-	serverConfig.Host = cfg.Cfg.ServerProxy.HttpServer.Host
-	serverConfig.Port = cfg.Cfg.ServerProxy.HttpServer.Port
+	serverConfig.Host = cfg.Cfg.ServerProxy.HTTPServer.Host
+	serverConfig.Port = cfg.Cfg.ServerProxy.HTTPServer.Port
 
 	server := serverConfig.Build()
 	server.Debug = true
@@ -114,6 +111,10 @@ func (eng *Proxy) serveGRPC() (err error) {
 
 func apiV1(server *xecho.Server) {
 	server.POST("/api/v1/resource/node/heartbeat", apiproxy.NodeHeartBeat)
+
+	// work for juno -> agent
+	server.GET("/api/v1/proxy/get", apiproxy.HTTPProxyGET)
+	server.POST("/api/v1/proxy/post", apiproxy.HTTPProxyPOST)
 }
 
 // ProxyGrpc ..

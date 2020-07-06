@@ -18,7 +18,8 @@ import {
   Icon,
   Alert,
   Tooltip,
-  Layout, List,
+  Layout,
+  List,
 } from 'antd';
 import PprofIframe from './components/PprofIframe';
 import moment from 'moment';
@@ -218,7 +219,7 @@ export default class PPofList extends React.PureComponent {
   handleCheckLog = (e) => {
     console.log('click', e);
     const {} = this.state;
-    installDep({ installType: e * 1 }).then(rs => {
+    installDep({ installType: e * 1 }).then((rs) => {
       const { code, msg, data } = rs;
       if (code === 0) {
         message.success('安装成功：', msg);
@@ -261,21 +262,21 @@ export default class PPofList extends React.PureComponent {
       render: (pprofList) => (
         <span>
           {pprofList.length > 0 &&
-          pprofList.map((item) => {
-            return (
-              <Button
-                key={'pp' + item.id}
-                data-id={item.id}
-                data-type={item.type}
-                style={{ marginRight: '8px', marginTop: `8px` }}
-                onClick={() => {
-                  this.showProfileSvg(item.id, item.type, item.url);
-                }}
-              >
-                {pprofBtn[item.type].name}
-              </Button>
-            );
-          })}
+            pprofList.map((item) => {
+              return (
+                <Button
+                  key={'pp' + item.id}
+                  data-id={item.id}
+                  data-type={item.type}
+                  style={{ marginRight: '8px', marginTop: `8px` }}
+                  onClick={() => {
+                    this.showProfileSvg(item.id, item.type, item.url);
+                  }}
+                >
+                  {pprofBtn[item.type].name}
+                </Button>
+              );
+            })}
         </span>
       ),
     },
@@ -300,7 +301,7 @@ export default class PPofList extends React.PureComponent {
     if (!env) {
       return (
         <div style={{ marginTop: 10 }}>
-          <Alert message="Warning" description="请选择环境." type="warning" showIcon/>
+          <Alert message="Warning" description="请选择环境." type="warning" showIcon />
         </div>
       );
     }
@@ -308,9 +309,8 @@ export default class PPofList extends React.PureComponent {
       onChangeZone(e.target.value);
     };
     return (
-      <div>
-        <Card style={{ marginLeft: '10px' }}>
-        <Row style={{ marginLeft: '10px' }}>
+      <div style={{ marginLeft: 10, marginTop: 10, marginRight: 10, marginBottom: 10 }}>
+        <Row>
           <Col span={8}>
             <Select
               dropdownMatchSelectWidth
@@ -321,14 +321,14 @@ export default class PPofList extends React.PureComponent {
               onChange={this.changeNode}
             >
               {appNodeList != undefined &&
-              appNodeList.length > 0 &&
-              appNodeList.map((v, i) => {
-                return (
-                  <Select.Option key={i} value={v.host_name}>
-                    {v.host_name + ' (' + v.ip + ')'}
-                  </Select.Option>
-                );
-              })}
+                appNodeList.length > 0 &&
+                appNodeList.map((v, i) => {
+                  return (
+                    <Select.Option key={i} value={v.host_name}>
+                      {v.host_name + ' (' + v.ip + ')'}
+                    </Select.Option>
+                  );
+                })}
             </Select>
           </Col>
           <Col span={4}>
@@ -345,33 +345,38 @@ export default class PPofList extends React.PureComponent {
             </Popconfirm>
           </Col>
           <Col span={8}>
-            {golang === 1 && <Tag color="green" key={1}>
-              Golang <CheckCircleOutlined/>
-            </Tag>
-            }
-            {golang === 0 && <Tag color="geekblue" key={2}>
-              Golang <CloseCircleOutlined/>
-            </Tag>
-            }
+            {golang === 1 && (
+              <Tag color="green" key={1}>
+                Golang <CheckCircleOutlined />
+              </Tag>
+            )}
+            {golang === 0 && (
+              <Tag color="geekblue" key={2}>
+                Golang <CloseCircleOutlined />
+              </Tag>
+            )}
 
-            {go_torch === 1 && <Tag color="green" key={3}>
-              Go-torch <CheckCircleOutlined/>
-            </Tag>
-            }
-            {go_torch === 0 && <Tag color="geekblue" key={4}>
-              Go-torch <CloseCircleOutlined/>
-            </Tag>
-            }
+            {go_torch === 1 && (
+              <Tag color="green" key={3}>
+                Go-torch <CheckCircleOutlined />
+              </Tag>
+            )}
+            {go_torch === 0 && (
+              <Tag color="geekblue" key={4}>
+                Go-torch <CloseCircleOutlined />
+              </Tag>
+            )}
 
-            {graphviz === 1 && <Tag color="green" key={5}>
-              Graphviz <CheckCircleOutlined/>
-            </Tag>
-            }
-            {graphviz === 0 && <Tag color="geekblue" key={6}>
-              Graphviz <CloseCircleOutlined/>
-            </Tag>
-            }
-
+            {graphviz === 1 && (
+              <Tag color="green" key={5}>
+                Graphviz <CheckCircleOutlined />
+              </Tag>
+            )}
+            {graphviz === 0 && (
+              <Tag color="geekblue" key={6}>
+                Graphviz <CloseCircleOutlined />
+              </Tag>
+            )}
           </Col>
         </Row>
 
@@ -392,12 +397,11 @@ export default class PPofList extends React.PureComponent {
           footer={null}
         >
           <div>
-            <PprofIframe iframepage={this.state.iframepage}/>
+            <PprofIframe iframepage={this.state.iframepage} />
           </div>
         </Modal>
-
-        <Card bordered={false} style={{ marginBottom: '20px', height: { iframeHeight } + 'px' }}/>
-        </Card>
+        {/* <Card bordered={false} style={{ marginBottom: '20px', height: { iframeHeight } + 'px' }}/>
+        </Card> */}
       </div>
     );
   }

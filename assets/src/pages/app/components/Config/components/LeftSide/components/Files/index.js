@@ -31,7 +31,7 @@ function Files(props) {
           onClick={() => props.loadConfig(cfg.id)}
         >{cfg.name}.{cfg.format}</div>
         <div>
-          {currentConfig && currentConfig.content !== currentContent && <span className={styles.notSavedTip}>
+          {currentConfig && currentConfig.content !== currentContent &&cfg.id == currentConfig.id&& <span className={styles.notSavedTip}>
             未保存
           </span>}
         </div>

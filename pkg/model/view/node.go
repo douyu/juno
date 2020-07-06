@@ -15,3 +15,9 @@ type ReqNodeHeartBeat struct {
 	ProxyType    int    `json:"proxy_type"`
 	ProxyVersion string `json:"proxy_version"`
 }
+
+// ReqHTTPProxy ..
+type ReqHTTPProxy struct {
+	URL    string            `json:"url"`
+	Params map[string]interface{} `json:"params"`
+}
