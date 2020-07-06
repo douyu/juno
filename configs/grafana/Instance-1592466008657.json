@@ -35,11 +35,7 @@
       "cacheTimeout": null,
       "colorBackground": true,
       "colorValue": false,
-      "colors": [
-        "#E02F44",
-        "#FF780A",
-        "#56A64B"
-      ],
+      "colors": ["#E02F44", "#FF780A", "#56A64B"],
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
@@ -115,15 +111,11 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": [
-                "$interval"
-              ],
+              "params": ["$interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -136,9 +128,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -225,9 +215,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         }
@@ -241,15 +229,11 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": [
-                "$interval"
-              ],
+              "params": ["$interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -262,9 +246,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -298,11 +280,7 @@
       "cacheTimeout": null,
       "colorBackground": false,
       "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
+      "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
       "datasource": "$datasource",
       "decimals": 2,
       "fieldConfig": {
@@ -331,7 +309,7 @@
         {
           "targetBlank": true,
           "title": "进程",
-          "url": "https://pangu.dz11.com/confu/monitor/test/1"
+          "url": "https://xxx.xxx.com/confu/monitor/test/1"
         },
         {
           "url": "/"
@@ -428,7 +406,7 @@
         {
           "targetBlank": true,
           "title": "进程",
-          "url": "https://pangu.dz11.com/confu/monitor/test/1"
+          "url": "https://xxx.xxx.com/confu/monitor/test/1"
         },
         {
           "url": "/"
@@ -440,9 +418,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         }
@@ -495,7 +471,7 @@
         {
           "targetBlank": true,
           "title": "进程",
-          "url": "https://pangu.dz11.com/confu/monitor/test/1"
+          "url": "https://xxx.xxx.com/confu/monitor/test/1"
         },
         {
           "url": "/"
@@ -507,9 +483,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         }
@@ -563,7 +537,7 @@
         {
           "targetBlank": true,
           "title": "进程",
-          "url": "https://pangu.dz11.com/confu/monitor/test/1"
+          "url": "https://xxx.xxx.com/confu/monitor/test/1"
         },
         {
           "url": "/"
@@ -575,9 +549,7 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
+          "calcs": ["mean"],
           "fields": "",
           "values": false
         }
@@ -601,11 +573,7 @@
       "cacheTimeout": null,
       "colorBackground": false,
       "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
+      "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
       "datasource": "$datasource",
       "description": "GC 持续时间",
       "fieldConfig": {
@@ -857,21 +825,15 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": [
-                "$interval"
-              ],
+              "params": ["$interval"],
               "type": "time"
             },
             {
-              "params": [
-                "route"
-              ],
+              "params": ["route"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -885,9 +847,7 @@
           "select": [
             [
               {
-                "params": [
-                  "rate1m"
-                ],
+                "params": ["rate1m"],
                 "type": "field"
               },
               {
@@ -1013,21 +973,15 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": [
-                "$interval"
-              ],
+              "params": ["$interval"],
               "type": "time"
             },
             {
-              "params": [
-                "route"
-              ],
+              "params": ["route"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -1041,9 +995,7 @@
           "select": [
             [
               {
-                "params": [
-                  "p95"
-                ],
+                "params": ["p95"],
                 "type": "field"
               },
               {
@@ -1051,9 +1003,7 @@
                 "type": "last"
               },
               {
-                "params": [
-                  "95th Percentile"
-                ],
+                "params": ["95th Percentile"],
                 "type": "alias"
               }
             ]
@@ -1271,15 +1221,11 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": [
-                "$interval"
-              ],
+              "params": ["$interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -1292,9 +1238,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -1544,21 +1488,15 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": [
-                "$interval"
-              ],
+              "params": ["$interval"],
               "type": "time"
             },
             {
-              "params": [
-                "route"
-              ],
+              "params": ["route"],
               "type": "tag"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -1571,9 +1509,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -1698,15 +1634,11 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": [
-                "$interval"
-              ],
+              "params": ["$interval"],
               "type": "time"
             },
             {
-              "params": [
-                "null"
-              ],
+              "params": ["null"],
               "type": "fill"
             }
           ],
@@ -1719,9 +1651,7 @@
           "select": [
             [
               {
-                "params": [
-                  "value"
-                ],
+                "params": ["value"],
                 "type": "field"
               },
               {
@@ -2642,9 +2572,7 @@
         "current": {
           "selected": true,
           "text": "All",
-          "value": [
-            "$__all"
-          ]
+          "value": ["$__all"]
         },
         "datasource": "$datasource",
         "definition": "label_values(jupiter_server_handle_seconds_count{job=~'$appname'},method) ",
@@ -2683,17 +2611,7 @@
       "2h",
       "1d"
     ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ]
+    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
   },
   "timezone": "",
   "title": "Instance",

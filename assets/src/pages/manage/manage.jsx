@@ -202,7 +202,7 @@ export default class SysManage extends React.Component {
                 initialValue={grafanaConfig.host}
                 rules={[
                   {required: true, message: "请填写Grafana地址"},
-                  {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
+                  // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
                 ]}
               >
                 <Input
