@@ -1,0 +1,11 @@
+p, peng, default, setting/update
+p, duminxiang, roombase , monitor
+p, liuteng, data_important, monitor
+p, liuteng, data_important, method_common_write
+
+g, alice, data_group_admin
+g2, roomcate, data_important
+g2, roomattach, data_important
+g3, config_read, method_common_read
+g3, config_write, method_common_write
+g3, pprof, method_common_read

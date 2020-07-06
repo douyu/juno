@@ -44,6 +44,7 @@ type cfg struct {
 	ServerProxy       ServerProxy
 	Database          Database
 	Configure         Configure
+	Casbin            Casbin
 	Pprof             Pprof
 }
 
@@ -92,7 +93,8 @@ func defaultConfig() cfg {
 		},
 		ClientProxy: []ClientProxy{
 			{
-				Name: "",
+				Env:      "dev",
+				ZoneCode: "test",
 				Stream: ProxyStream{
 					Enable:    false,
 					ProxyAddr: nil,
@@ -132,6 +134,13 @@ func defaultConfig() cfg {
 		},
 		Pprof: Pprof{
 			Path: ".",
+		},
+		Casbin: Casbin{
+			Enable:           false,
+			Debug:            true,
+			Model:            "./configs/model.conf",
+			AutoLoad:         false,
+			AutoLoadInternal: 0,
 		},
 	}
 }

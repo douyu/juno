@@ -25,19 +25,9 @@ func InitUser(invokerDB *gorm.DB) *user {
 // GetUser ...
 func GetUser(c echo.Context) *db.User {
 	user := Session.Read(c)
-	// 如果user为nil就创建一个
+	// return default user
 	if user == nil {
-		//if conf.GetString("app.mode") == "local" {
-		//	return &db.User{
-		//		Uid:              1,
-		//		Oaid:             0,
-		//		Username:         "local-test",
-		//		Nickname:         "local-test",
-		//		CurrentAuthority: "admin",
-		//		Access:           "admin",
-		//	}
-		//}
-		return nil
+		return &db.User{}
 	}
 	return user
 }

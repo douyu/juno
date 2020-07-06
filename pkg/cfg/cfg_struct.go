@@ -51,7 +51,8 @@ type Server struct {
 
 // Proxy
 type ClientProxy struct {
-	Name         string
+	Env          string
+	ZoneCode     string
 	Stream       ProxyStream
 	HttpServer   ServerSchema
 	GrpcServer   ServerSchema
@@ -148,4 +149,13 @@ type Configure struct {
 	Agent  struct {
 		Port int `json:"port"`
 	} `json:"agent"`
+}
+
+// Casbin
+type Casbin struct {
+	Enable           bool
+	Debug            bool
+	Model            string
+	AutoLoad         bool
+	AutoLoadInternal int
 }

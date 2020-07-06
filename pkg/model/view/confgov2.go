@@ -120,9 +120,10 @@ type (
 	}
 
 	ReqConfigInstanceList struct {
-		AID  uint   `json:"aid"`
-		Env  string `json:"env"`
-		Zone string `json:"zone"`
+		ConfigurationID uint   `json:"configuration_id" query:"configuration_id"`
+		AID             uint   `json:"aid"`
+		Env             string `json:"env"`
+		ZoneCode        string `json:"zone_code"  query:"zone_code"`
 	}
 
 	RespConfigInstanceList []RespConfigInstanceItem
@@ -137,9 +138,9 @@ type (
 		ZoneCode             string    `json:"zone_code"`
 		ZoneName             string    `json:"zone_name"`
 		ConfigFilePath       string    `json:"config_file_path"`
-		ConfigFileUsed       bool      `json:"config_file_used"`
-		ConfigFileSynced     bool      `json:"config_file_synced"`
-		ConfigFileTakeEffect bool      `json:"config_file_take_effect"`
+		ConfigFileUsed       uint      `json:"config_file_used"`
+		ConfigFileSynced     uint      `json:"config_file_synced"`
+		ConfigFileTakeEffect uint      `json:"config_file_take_effect"`
 		SyncAt               time.Time `json:"sync_at"`
 	}
 
@@ -171,6 +172,22 @@ type (
 		Version   string `json:"version"`
 		Format    string `json:"format"`
 		Path      string `json:"path"`
+	}
+
+	// ConfigurationStatus ..
+	ConfigurationStatus struct {
+		// etcd store data
+		FileName   string `json:"file_name"`
+		Version    string `json:"md5"`
+		Hostname   string `json:"hostname"`
+		Env        string `json:"env"`
+		Timestamp  int64  `json:"timestamp"`
+		IP         string `json:"ip"`
+		HealthPort string `json:"health_port"`
+
+		// attach key
+		ZoneCode      string `json:"zone_code"`
+		EffectVersion string `json:"effect_version"`
 	}
 )
 

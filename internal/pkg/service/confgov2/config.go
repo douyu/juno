@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -13,15 +15,11 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/codec/util"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/juno/pkg/code"
+	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/jinzhu/gorm"
-)
-
-var (
-	ErrConfigNotExists error = fmt.Errorf("配置不存在")
+	"go.etcd.io/etcd/clientv3"
 )
 
 func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
@@ -73,6 +71,7 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 	return
 }
 
+// Create ..
 func Create(param view.ReqCreateConfig) (err error) {
 
 	tx := mysql.Begin()
@@ -123,9 +122,8 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return ErrConfigNotExists
+			return errorconst.ParamConfigNotExists.Error()
 		}
-
 		return err
 	}
 
@@ -145,6 +143,12 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 
 	tx := mysql.Begin()
 	{
+		err = mysql.Where("version=?", version).Delete(&db.ConfigurationHistory{}).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
 		// 存历史版本
 		err = mysql.Save(&history).Error
 		if err != nil {
@@ -153,11 +157,13 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 		}
 
 		configuration.Content = param.Content
+		configuration.Version = version
 		err = mysql.Save(&configuration).Error
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
+
 	}
 
 	err = tx.Commit().Error
@@ -173,15 +179,55 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceList, err error) {
 	aid := param.AID
 	env := param.Env
-	zoneCode := param.Zone
+	zoneCode := param.ZoneCode
 	// Get nodes data
 	nodes, err := resource.Resource.GetAllAppNodeList(db.AppNode{
 		Aid:      int(aid),
 		Env:      env,
 		ZoneCode: zoneCode,
 	})
+	if err != nil {
+		return
+	}
+
+	app, err := resource.Resource.GetApp(int(aid))
+	if err != nil {
+		return
+	}
+	var configuration db.Configuration
+	query := mysql.Where("id=?", param.ConfigurationID).Find(&configuration)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+
+	var syncFlag bool = false
 
 	for _, node := range nodes {
+		path := ""
+		used := uint(0)
+		synced := uint(0)
+		takeEffect := uint(0)
+
+		var status db.ConfigurationStatus
+		var statusErr error
+		status, statusErr = getConfigurationStatus(param.ConfigurationID, node.HostName)
+		if statusErr == nil {
+			path = status.ConfigurationPublish.FilePath
+			used = status.Used
+			synced = status.Synced
+			takeEffect = status.TakeEffect
+		}
+
+		// value update
+		if used == 0 {
+			// Perform another synchronization check
+			used = configurationUsed(status.ConfigurationID)
+		}
+		if synced == 0 || takeEffect == 0 {
+			// Perform another synchronization check
+			syncFlag = true
+		}
 		resp = append(resp, view.RespConfigInstanceItem{
 			Env:                  node.Env,
 			IP:                   node.IP,
@@ -191,16 +237,96 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 			RegionName:           node.RegionName,
 			ZoneCode:             node.ZoneCode,
 			ZoneName:             node.ZoneName,
-			ConfigFilePath:       "/path/to/configFile.toml",
-			ConfigFileUsed:       true,
-			ConfigFileSynced:     true,
-			ConfigFileTakeEffect: false,
+			ConfigFilePath:       path,
+			ConfigFileUsed:       used,
+			ConfigFileSynced:     synced,
+			ConfigFileTakeEffect: takeEffect,
 			SyncAt:               time.Now(),
 		})
-
 	}
-
+	// do more sync
+	if !syncFlag {
+		return
+	}
+	newSyncDataMap, err := configurationSyncedAndTakeEffect(app.AppName, env, zoneCode, configuration.Name, configuration.Format)
+	if err != nil {
+		return
+	}
+	var version = configuration.Version
+	for k := range resp {
+		if resp[k].ConfigFileSynced == 1 && resp[k].ConfigFileTakeEffect == 1 {
+			continue
+		}
+		if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
+			if newState.Version == version {
+				resp[k].ConfigFileSynced = 1
+			}
+			if newState.EffectVersion == version {
+				resp[k].ConfigFileTakeEffect = 1
+			}
+		}
+	}
 	return
+}
+
+func getConfigurationStatus(configurationID uint, hostName string) (res db.ConfigurationStatus, err error) {
+	query := mysql.Preload("ConfigurationPublish").Where("configuration_id=? and host_name=?", configurationID, hostName).Order("id desc", false).Find(&res)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+	return
+}
+
+func configurationUsed(configurationID uint) uint {
+	// TODO supervisor systemd status
+	return 0
+}
+
+func configurationSyncedAndTakeEffect(appName, env, zoneCode, filename, format string) (list map[string]view.ConfigurationStatus, err error) {
+	list = make(map[string]view.ConfigurationStatus, 0)
+	fileName := fmt.Sprintf("%s.%s", filename, format)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	key := fmt.Sprintf("/%s/callback/%s/%s", cfg.Cfg.Configure.Prefix, appName, fileName)
+	conn, err := clientproxy.ClientProxy.Conn(env, zoneCode)
+	defer cancel()
+	if err != nil {
+		return
+	}
+	resp, err := conn.Get(ctx, key, clientv3.WithPrefix())
+	if err != nil {
+		return
+	}
+	if len(resp.Kvs) == 0 {
+		err = errorconst.ParamConfigCallbackKvIsZero.Error()
+		return
+	}
+	for _, item := range resp.Kvs {
+		row := view.ConfigurationStatus{}
+		if err := json.Unmarshal(item.Value, &row); err != nil {
+			continue
+		}
+		// TODO 这里需要使用 http_proxy
+		row.EffectVersion = getEffectVersion(fmt.Sprintf("http://%s:%s/debug/config", row.IP, row.HealthPort))
+		list[row.Hostname] = row
+	}
+	return
+}
+
+func getEffectVersion(url string) (res string) {
+	client := http.Client{Timeout: time.Duration(time.Second * 3)}
+	resp, err := client.Get(url)
+	if err != nil {
+		return
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return
+	}
+	return util.Md5Str(string(body))
 }
 
 // Publish ..
@@ -243,7 +369,7 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 	}
 
 	// Save the configuration in etcd
-	if err = publishEtcd(view.ReqConfigPublish{
+	if err = publishETCD(view.ReqConfigPublish{
 		AppName:      appInfo.AppName,
 		ZoneCode:     zoneCode,
 		Port:         appInfo.GovernPort,
@@ -257,21 +383,43 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 		return
 	}
 
-	// Publish record
-	instanceListJSON, _ := json.Marshal(instanceList)
+	tx := mysql.Begin()
+	{
+		// Publish record
+		instanceListJSON, _ := json.Marshal(instanceList)
 
-	var cp db.ConfigurationPublish
-	cp.ApplyInstance = string(instanceListJSON)
-	cp.ConfigurationID = configuration.ID
-	cp.ConfigurationHistoryID = confHistory.ID
-	cp.UID = uint(user.Uid)
-	cp.FilePath = strings.Join([]string{conf.GetString("confgo.dir"), appInfo.AppName, "config", configuration.FileName()}, "/")
-	if err = mysql.Save(&cp).Error; err != nil {
-		return
+		var cp db.ConfigurationPublish
+		cp.ApplyInstance = string(instanceListJSON)
+		cp.ConfigurationID = configuration.ID
+		cp.ConfigurationHistoryID = confHistory.ID
+		cp.UID = uint(user.Uid)
+		cp.FilePath = strings.Join([]string{cfg.Cfg.Configure.Dir, appInfo.AppName, "config", configuration.FileName()}, "/")
+		if err = tx.Save(&cp).Error; err != nil {
+			tx.Rollback()
+			return
+		}
+
+		for _, instance := range instanceList {
+			var cs db.ConfigurationStatus
+			cs.ConfigurationID = configuration.ID
+			cs.ConfigurationPublishID = cp.ID
+			cs.HostName = instance
+			cs.Used = 0
+			cs.Synced = 0
+			cs.TakeEffect = 0
+			cs.CreatedAt = time.Now()
+			cs.UpdateAt = time.Now()
+			if err = tx.Save(&cs).Error; err != nil {
+				tx.Rollback()
+				return
+			}
+		}
+		meta, _ := json.Marshal(cp)
+		appevent.AppEvent.ConfgoFilePublishEvent(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), user)
+
+		tx.Commit()
 	}
 
-	meta, _ := json.Marshal(cp)
-	appevent.AppEvent.ConfgoFilePublishEvent(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), user)
 	return
 }
 
@@ -282,7 +430,7 @@ func getPublishInstance(aid int, env string, zoneCode string) (instanceList []st
 		ZoneCode: zoneCode,
 	})
 	if len(nodes) == 0 {
-		return instanceList, code.ErrorNoInstances
+		return instanceList, fmt.Errorf(errorconst.ParamNoInstances.Code().String() + errorconst.ParamNoInstances.Name())
 	}
 	for _, node := range nodes {
 		instanceList = append(instanceList, node.HostName)
@@ -290,7 +438,7 @@ func getPublishInstance(aid int, env string, zoneCode string) (instanceList []st
 	return instanceList, nil
 }
 
-func publishEtcd(req view.ReqConfigPublish) (err error) {
+func publishETCD(req view.ReqConfigPublish) (err error) {
 	data := view.ConfigurationPublishData{
 		Content: req.Content,
 		Metadata: view.Metadata{
@@ -304,18 +452,16 @@ func publishEtcd(req view.ReqConfigPublish) (err error) {
 	if buf, err = json.Marshal(data); err != nil {
 		return
 	}
-	fmt.Println("req.InstanceList", req.InstanceList)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+	conn, errConn := clientproxy.ClientProxy.Conn(req.Env, req.ZoneCode)
+	if errConn != nil {
+		return errConn
+	}
 	for _, hostName := range req.InstanceList {
 		key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", cfg.Cfg.Configure.Prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
 		// The migration is complete, only write independent ETCD of the configuration center
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-		conn, errConn := clientproxy.ClientProxy.Conn(req.Env, req.ZoneCode)
-		if errConn != nil {
-			return errConn
-		}
-		fmt.Println("key", key)
-		fmt.Println("buf", buf)
 		_, err = conn.Put(ctx, key, string(buf))
 		if err != nil {
 			return

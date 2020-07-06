@@ -10,7 +10,7 @@ export async function ServiceAppEnvZone(appName: string) {
 }
 
 export async function ServiceAppList() {
-  return request(`/api/admin/resource/app/list`);
+  return request(`/api/admin/resource/app/list?pageSize=10000`);
 }
 
 export async function ServiceAppNodeTransferList(param: any) {

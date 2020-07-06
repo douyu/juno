@@ -42,9 +42,9 @@ func MockData() {
 
 func MustMockData() {
 	router := echo.New()
-	urlSystemUpdate := "/system/setting/update"
-	router.POST(urlSystemUpdate, system.SettingUpdate)
-	mockGrafanaSetting(urlSystemUpdate, router)
+	urlSystemCreate := "/system/setting/create"
+	router.POST(urlSystemCreate, system.SettingCreate)
+	mockGrafanaSetting(urlSystemCreate, router)
 }
 
 func PostForm(uri string, param string, router *echo.Echo) []byte {

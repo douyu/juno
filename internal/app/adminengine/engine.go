@@ -18,8 +18,8 @@ import (
 	"time"
 
 	"github.com/douyu/juno/api/apiv1/resource"
+	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/middleware"
 	"github.com/douyu/juno/internal/pkg/service"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/notify"
@@ -77,7 +77,6 @@ func (eng *Admin) initNotify() (err error) {
 			notify.StreamStore.AddRouter(resource.NodeHeartBeat)
 		}
 	}
-
 	return nil
 }
 
@@ -98,10 +97,10 @@ func (eng *Admin) serveHTTP() (err error) {
 	return
 }
 
-func (eng *Admin) initInvoker() error {
+func (eng *Admin) initInvoker() (err error) {
 	invoker.Init()
-	service.Init()
-	return nil
+	err = service.Init()
+	return
 }
 
 func (eng *Admin) initClientProxy() error {
