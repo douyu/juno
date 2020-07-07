@@ -5,7 +5,6 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/casbin"
-	scmc "github.com/douyu/juno/internal/pkg/service/cmc"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/configresource"
@@ -27,8 +26,6 @@ func Init() (err error) {
 
 	// 初始化资源
 	sresource.InitResource(invoker.JunoMysql)
-	// 初始化配置
-	scmc.InitCmc(invoker.JunoMysql)
 
 	social.NewOAuthService()
 

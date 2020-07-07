@@ -16,7 +16,7 @@ package adminengine
 
 import (
 	"github.com/douyu/juno/api/apiv1/analysis"
-	"github.com/douyu/juno/api/apiv1/confgo"
+	"github.com/douyu/juno/api/apiv1/confgov2"
 	"github.com/douyu/juno/api/apiv1/event"
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
@@ -59,56 +59,17 @@ func apiV1(server *xecho.Server) {
 		resourceGroup.GET("/app_node/list", resource.AppNodeList)
 	}
 
-	confgoGroup := v1.Group("/confgo")
+	configurationGroup := v1.Group("/confgo")
 	{
-		confgoGroup.GET("/app/parse", confgo.ParseGenerator)
-
-		// Configuration app relation
-		confgoGroup.POST("/app_config/info", confgo.GetAppConfigInfo)
-
-		// Configuration file
-		confgoGroup.POST("/config/info", confgo.GetAppConfig) // to get an application in an environment is to kv the array and the original profile text
-		confgoGroup.POST("/config/create", confgo.CreateConfigFile)
-
-		confgoGroup.POST("/config/delete", confgo.DeleteConfig)
-		confgoGroup.POST("/config/publish", confgo.PublishConfig)
-		confgoGroup.POST("/config/diff", confgo.DiffAppConfig)
-		confgoGroup.POST("/config/rollback", confgo.RollbackConfig)
-		confgoGroup.POST("/config/record", confgo.ListAppConfigChanges)
-		confgoGroup.POST("/config/related", confgo.GetRelatedResource)
-
-		// Configuration item
-		confgoGroup.POST("/item/create", confgo.ItemCreate)
-		confgoGroup.POST("/item/check", confgo.ItemCheck)
-		confgoGroup.POST("/item/update", confgo.UpdateAppConfigItem)
-		confgoGroup.POST("/item/delete", confgo.DelAppConfigItem)
-		confgoGroup.POST("/item/rollback", confgo.RollbackConfig)
-		confgoGroup.GET("/item/list", confgo.ItemList)
-
-		// Configuration version
-		confgoGroup.POST("/version/list", confgo.ListVersions)
-		confgoGroup.POST("/version/change", confgo.VersionChange)
-		confgoGroup.POST("/version/diff", confgo.VersionChangeOrigin)
-
-		// Configuration fmt
-		confgoGroup.POST("/config/fmt/toml", confgo.TomlFormat)
-
-		// Configuration status
-		confgoGroup.POST("/config/status/list", confgo.StatusList)    // status list
-		confgoGroup.POST("/config/status/sync", confgo.StatusRefresh) // status check
-
-		confgoGroup.GET("/config/statics", confgo.ConfigStatics)
-
-		// Configuration global
-		confgoGroup.POST("/global/list/:typ", confgo.ListResource)
-
-		confgoGroup.GET("/tpl/list", confgo.TplList)
-		confgoGroup.GET("/tpl/info", confgo.TplInfo)
-		confgoGroup.POST("/tpl/create", confgo.TplCreate)
-		confgoGroup.POST("/tpl/update", confgo.TplUpdate)
-		confgoGroup.POST("/tpl/delete", confgo.TplDelete)
-
-		confgoGroup.POST("/app/restart", confgo.AppRestart)
+		configurationGroup.GET("/config/list", confgov2.List)                  // 配置文件列表
+		configurationGroup.GET("/config/detail", confgov2.Detail)              // 配置文件内容
+		configurationGroup.GET("/config/diff", confgov2.Diff)                  // 配置文件Diif，返回两个版本的配置内容
+		configurationGroup.GET("/config/instance/list", confgov2.InstanceList) // 配置发布后各实例同步状态
+		configurationGroup.GET("/config/history", confgov2.History)            // 配置文件历史
+		configurationGroup.POST("/config/create", confgov2.Create)             // 配置新建
+		configurationGroup.POST("/config/update", confgov2.Update)             // 配置更新
+		configurationGroup.POST("/config/publish", confgov2.Publish)           // 配置发布
+		configurationGroup.POST("/config/delete", confgov2.Delete)             // 配置删除
 	}
 
 	analysisGroup := v1.Group("/analysis")

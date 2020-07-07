@@ -12,13 +12,13 @@ import (
 
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
-	"github.com/douyu/juno/internal/pkg/service/codec/util"
 	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/jinzhu/gorm"
 	"go.etcd.io/etcd/clientv3"
 )
@@ -344,7 +344,7 @@ func syncPublishStatus(appName, env string, zoneCode string, configuration db.Co
 }
 
 func syncTakeEffectStatus(appName, governPort, env string, zoneCode string, configuration db.Configuration, notTakeEffectNodes map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
-	newSyncDataMap, err := configurationTakeEffect(appName, governPort, env, zoneCode, configuration.Name, configuration.Format, notTakeEffectNodes)
+	newSyncDataMap, err := configurationTakeEffect(appName, env, zoneCode, configuration.Name, configuration.Format, governPort, notTakeEffectNodes)
 	if err != nil {
 		return resp, err
 	}

@@ -7,6 +7,7 @@ import (
 
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/go-resty/resty/v2"
 	"go.etcd.io/etcd/clientv3"
 )
@@ -63,9 +64,10 @@ func (c *clientproxy) initServerProxyHTTPMap() {
 		if !cp.HTTP.Enable {
 			continue
 		}
-		client := resty.New().SetDebug(false).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8")
+		client := resty.New().SetDebug(false).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8").SetHostURL(cp.HTTP.Scheme + "://" + cp.HTTP.ListenAddr)
 		c.ServerProxyHTTPMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
 	}
+
 	return
 }
 
@@ -77,18 +79,20 @@ func (c *clientproxy) ServerProxyETCDConn(env, zoneCode string) (*clientv3.Clien
 		return conn, nil
 	}
 	// reload one time and try again
-	return nil, fmt.Errorf(errorconst.CannotFindClient.Code().String() + errorconst.CannotFindClient.Name())
+	return nil, fmt.Errorf(errorconst.CannotFindClientETCD.Code().String() + errorconst.CannotFindClientETCD.Name())
 }
 
 // ServerProxyHTTPConn ..
 func (c *clientproxy) ServerProxyHTTPConn(env, zoneCode string) (*resty.Client, error) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
+	util.PPP("GenClientProxyName(env, zoneCode)", GenClientProxyName(env, zoneCode))
+
 	if conn, ok := c.ServerProxyHTTPMap[GenClientProxyName(env, zoneCode)]; ok {
 		return conn, nil
 	}
 	// reload one time and try again
-	return nil, fmt.Errorf(errorconst.CannotFindClient.Code().String() + errorconst.CannotFindClient.Name())
+	return nil, fmt.Errorf(errorconst.CannotFindClientHTTP.Code().String() + errorconst.CannotFindClientHTTP.Name())
 }
 
 // GenClientProxyName ..
