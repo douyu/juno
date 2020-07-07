@@ -79,11 +79,13 @@
     timeout = 3
 
   [clientProxy.http]
-    listenAddr = "127.0.0.0:50000"
+    enable = true
+    listenAddr = "127.0.0.1:50000"
     disableKeepAlives = true
     maxIdelPerHost = 1
     maxIdleConns = 10
     timeout = 100
+    scheme = "http"
 
 [pprof]
     path = "."

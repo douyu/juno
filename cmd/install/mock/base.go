@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/api/apiv1/confgo"
-	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/user"
@@ -27,9 +26,6 @@ func MockData() {
 	router.POST(urlAppPut, resource.AppPut)
 	router.POST(urlAppNodePut, resource.AppNodePut)
 	router.POST(urlConfigTplCreate, confgo.TplCreate)
-	router.POST(urlConfigFileCreate, confgo.CreateConfigFile)
-	router.POST(urlConfigContentUpdate, confgo.ItemCreate)
-	router.POST(urlConfigGeneratorParse, confgo.ParseGenerator)
 	router.POST(urlUserCreate, user.Create)
 
 	mockApp(urlAppPut, router)

@@ -40,7 +40,7 @@ export default {
     yield put({ type: '_apply', payload: { configInstanceListLoading: false } });
 
     if (res.code !== 0) {
-      message.error(res.msg);
+      message.warning(res.msg);
     }
 
     yield put({

@@ -166,6 +166,7 @@ type Casbin struct {
 type HTTPProxy struct {
 	Enable            bool
 	ListenAddr        string
+	Scheme            string
 	Backend           string
 	DisableKeepAlives bool
 	MaxIdleConns      int
