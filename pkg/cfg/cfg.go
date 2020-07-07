@@ -121,8 +121,10 @@ func defaultConfig() cfg {
 					},
 				},
 				HTTP: HTTPProxy{
+					Enable:            true,
 					ListenAddr:        "127.0.0.1:50000",
 					DisableKeepAlives: true,
+					Scheme: "http",
 					MaxIdleConns:      30,
 					MaxIdelPerHost:    60,
 					Timeout:           3,

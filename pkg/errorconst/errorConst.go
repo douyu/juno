@@ -25,8 +25,8 @@ type myErrorConst codes.Code
 const (
 	// ResultOK ..
 	ResultOK myErrorConst = 0 //返回成功
-	// CannotFindClient ..
-	CannotFindClient myErrorConst = 10001
+	// CannotFindClientETCD ..
+	CannotFindClientETCD myErrorConst = 10001
 	// ParamConfigNotExists ..
 	ParamConfigNotExists myErrorConst = 10002
 	// ParamNoInstances ..
@@ -37,12 +37,15 @@ const (
 	JunoAgentQueryOverSize myErrorConst = 10005
 	// ConfigResourceValueNotExist ..
 	ConfigResourceValueNotExist myErrorConst = 10006
+	// CannotFindClientHTTP ..
+	CannotFindClientHTTP myErrorConst = 10007
 )
 
 // errNameMap 错误名称映射map，维护错误码的同时需维护此map
 var errNameMap = map[myErrorConst]string{
 	ResultOK:                    "返回成功",
-	CannotFindClient:            "对应环境的机房中没有部署Juno-Proxy服务",
+	CannotFindClientETCD:        "对应环境的机房中没有部署Juno-Proxy（ETCD）服务",
+	CannotFindClientHTTP:        "对应环境的机房中没有部署Juno-Proxy（HTTP）服务",
 	ParamConfigNotExists:        "配置不存在",
 	ParamNoInstances:            "实例不存在",
 	ParamConfigCallbackKvIsZero: "配置发布同步状态回调数据为空",

@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/codec/util"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/jinzhu/gorm"
 )
 

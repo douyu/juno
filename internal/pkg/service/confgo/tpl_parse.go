@@ -1,12 +1,10 @@
 package confgo
 
 import (
-	"bytes"
 	"encoding/json"
 	"net/url"
 	"strings"
 
-	"github.com/douyu/juno/internal/pkg/service/codec"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
@@ -90,52 +88,52 @@ func (c *CmcTpl) GetTpl(id int) (tpl string, err error) {
 }
 
 func ParseConfig(tx *gorm.DB, value view.RespOneConfig) (output []*CmcTpl, err error) {
-	items, decodeErr := codec.DecodeToml(value.Content, false)
-	if decodeErr != nil {
-		return
-	}
-	// 读取配置
-	rBytes := bytes.NewReader([]byte(value.Content))
-	viper.SetConfigType(value.Format)
-	err = viper.ReadConfig(rBytes)
-	if err != nil {
-		return
-	}
-
-	needParseKeyMap := make(map[string]int, 0)
-	for _, value := range items {
-		// 1 如果后缀解析出junotpl，那么说明该配置需要解析
-		if strings.HasSuffix(value.Key, ".junotpl") {
-			// 找到父节点，并将模板数据赋值上去
-			needParseKeyMap[strings.TrimSuffix(value.Key, ".junotpl")] = viper.GetInt(value.Key)
-		}
-	}
-	output = make([]*CmcTpl, 0)
-	for key, tplId := range needParseKeyMap {
-		c := InitCmcTpl(tx, value)
-		tpl, err := c.GetTpl(tplId)
-
-		if err != nil {
-			continue
-		}
-		err = c.ParseTpl(tpl)
-
-		if err != nil {
-			continue
-		}
-		// todo 优化
-		c.setKey(key)
-		c.parseIp(key)
-		c.parsePort(key)
-		c.parseAddr(key)
-		c.parseUsername(key)
-		c.parsePassword(key)
-		c.parseDsn(key)
-		c.parseURL(key)
-		c.parseAll(key)
-
-		output = append(output, c)
-	}
+	//items, decodeErr := codec.DecodeToml(value.Content, false)
+	//if decodeErr != nil {
+	//	return
+	//}
+	//// 读取配置
+	//rBytes := bytes.NewReader([]byte(value.Content))
+	//viper.SetConfigType(value.Format)
+	//err = viper.ReadConfig(rBytes)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//needParseKeyMap := make(map[string]int, 0)
+	//for _, value := range items {
+	//	// 1 如果后缀解析出junotpl，那么说明该配置需要解析
+	//	if strings.HasSuffix(value.Key, ".junotpl") {
+	//		// 找到父节点，并将模板数据赋值上去
+	//		needParseKeyMap[strings.TrimSuffix(value.Key, ".junotpl")] = viper.GetInt(value.Key)
+	//	}
+	//}
+	//output = make([]*CmcTpl, 0)
+	//for key, tplId := range needParseKeyMap {
+	//	c := InitCmcTpl(tx, value)
+	//	tpl, err := c.GetTpl(tplId)
+	//
+	//	if err != nil {
+	//		continue
+	//	}
+	//	err = c.ParseTpl(tpl)
+	//
+	//	if err != nil {
+	//		continue
+	//	}
+	//	// todo 优化
+	//	c.setKey(key)
+	//	c.parseIp(key)
+	//	c.parsePort(key)
+	//	c.parseAddr(key)
+	//	c.parseUsername(key)
+	//	c.parsePassword(key)
+	//	c.parseDsn(key)
+	//	c.parseURL(key)
+	//	c.parseAll(key)
+	//
+	//	output = append(output, c)
+	//}
 	return
 }
 

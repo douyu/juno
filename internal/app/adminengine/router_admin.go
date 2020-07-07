@@ -15,10 +15,11 @@
 package adminengine
 
 import (
-	"github.com/douyu/juno/internal/pkg/service/casbin"
-	"github.com/douyu/juno/pkg/cfg"
 	"net/http"
 	"strings"
+
+	"github.com/douyu/juno/internal/pkg/service/casbin"
+	"github.com/douyu/juno/pkg/cfg"
 
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/app"
@@ -113,52 +114,13 @@ func apiAdmin(server *xecho.Server) {
 
 	confgoGroup := g.Group("/confgo", loginAuthWithJSON)
 	{
-		// Configuration app relation
-		confgoGroup.POST("/app_config/info", confgo.GetAppConfigInfo)
-
-		// Configuration file
-		confgoGroup.POST("/config/info", confgo.GetAppConfig) // to get an application in an environment is to kv the array and the original profile text
-		confgoGroup.POST("/config/create", confgo.CreateConfigFile)
-
-		confgoGroup.POST("/config/delete", confgo.DeleteConfig)
-		confgoGroup.POST("/config/publish", confgo.PublishConfig)
-		confgoGroup.POST("/config/diff", confgo.DiffAppConfig)
-		confgoGroup.POST("/config/rollback", confgo.RollbackConfig)
-		confgoGroup.POST("/config/record", confgo.ListAppConfigChanges)
-		confgoGroup.POST("/config/related", confgo.GetRelatedResource)
-
-		// Configuration item
-		confgoGroup.POST("/item/create", confgo.ItemCreate)
-		confgoGroup.POST("/item/check", confgo.ItemCheck)
-		confgoGroup.POST("/item/update", confgo.UpdateAppConfigItem)
-		confgoGroup.POST("/item/delete", confgo.DelAppConfigItem)
-		confgoGroup.POST("/item/rollback", confgo.RollbackConfig)
-		confgoGroup.GET("/item/list", confgo.ItemList)
-
-		// Configuration version
-		confgoGroup.POST("/version/list", confgo.ListVersions)
-		confgoGroup.POST("/version/change", confgo.VersionChange)
-		confgoGroup.POST("/version/diff", confgo.VersionChangeOrigin)
-
-		// Configuration fmt
-		confgoGroup.POST("/config/fmt/toml", confgo.TomlFormat)
-
-		// Configuration status
-		confgoGroup.POST("/config/status/list", confgo.StatusList)    // status list
-		confgoGroup.POST("/config/status/sync", confgo.StatusRefresh) // status check
-
 		confgoGroup.GET("/config/statics", confgo.ConfigStatics)
-
-		// Configuration global
-		confgoGroup.POST("/global/list/:typ", confgo.ListResource)
 
 		confgoGroup.GET("/tpl/list", confgo.TplList)
 		confgoGroup.GET("/tpl/info", confgo.TplInfo)
 		confgoGroup.POST("/tpl/create", confgo.TplCreate)
 		confgoGroup.POST("/tpl/update", confgo.TplUpdate)
 		confgoGroup.POST("/tpl/delete", confgo.TplDelete)
-
-		confgoGroup.POST("/app/restart", confgo.AppRestart)
 	}
 
 	configV2G := g.Group("/confgov2", loginAuthWithJSON)
