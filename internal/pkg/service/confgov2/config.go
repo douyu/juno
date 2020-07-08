@@ -24,10 +24,10 @@ import (
 )
 
 const (
-	// ServerProxyHTTPGetURL ..
-	ServerProxyHTTPGetURL = "/api/v1/proxy/get"
-	// ServerProxyHTTPPostURL ..
-	ServerProxyHTTPPostURL = "/api/v1/proxy/post"
+	// ServerProxyConfigurationTakeEffect ..
+	ServerProxyConfigurationTakeEffect = "/api/v1/configuration/takeEffect"
+	// ServerProxyConfigurationUsed ..
+	ServerProxyConfigurationUsed = "/api/v1/configuration/used"
 	// QueryAgentUsingConfiguration ..
 	QueryAgentUsingConfiguration = "http://%s:%s/debug/config"
 	// QueryAgentUsedStatus ..
@@ -300,17 +300,9 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 	}
 	// use map
 	usedMap := make(map[string]int, 0)
-	var wg sync.WaitGroup
-	wg.Add(len(junoAgentList))
 	for _, agent := range junoAgentList {
-		go func(agent view.JunoAgent) {
-			usedMap[agent.HostName] = getUsedStatus(env, zoneCode, filePath, agent.IPPort)
-			// func getUsedStatus(env, zoneCode, filePath string, ip string) int {
-
-			wg.Done()
-		}(agent)
+		usedMap[agent.HostName] = getUsedStatus(env, zoneCode, filePath, agent.IPPort)
 	}
-	wg.Wait()
 	for k, v := range resp {
 		if resp[k].ConfigFileUsed != 0 {
 			continue
@@ -369,12 +361,13 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	if err != nil {
 		return 0
 	}
+
 	req := view.ReqHTTPProxy{}
 	req.URL = fmt.Sprintf(QueryAgentUsedStatus, ipPort)
 	req.Params = map[string]interface{}{
 		"config": filePath,
 	}
-	resp, err := conn.R().SetBody(req).Post(ServerProxyHTTPPostURL)
+	resp, err := conn.R().SetBody(req).Post(ServerProxyConfigurationUsed)
 	if err != nil {
 		return 0
 	}
@@ -389,6 +382,7 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	if err = json.Unmarshal(resp.Body(), configurationUsedStatus); err != nil {
 		return 0
 	}
+	util.PPP("configurationUsedStatus", configurationUsedStatus)
 
 	if configurationUsedStatus.Data.Supervisor {
 		return 1
@@ -459,12 +453,24 @@ func configurationTakeEffect(appName, env, zoneCode, filename, format, governPor
 	// publish status, synced status
 	for _, node := range notTakeEffectNodes {
 		row := view.ConfigurationStatus{}
-		agentQuestResp, agentQuestError := conn.SetQueryParams(map[string]string{"url": fmt.Sprintf(QueryAgentUsingConfiguration, node.IP, governPort)}).R().Get(ServerProxyHTTPGetURL)
+		url := fmt.Sprintf(QueryAgentUsingConfiguration, node.IP, governPort)
+		url = "http://10.1.41.114:35026/debug/config"
+		agentQuestResp, agentQuestError := conn.SetQueryParams(map[string]string{"url": url}).R().Get(ServerProxyConfigurationTakeEffect)
 		if agentQuestError != nil {
 			err = agentQuestError
 			continue
 		}
-		row.EffectVersion = string(agentQuestResp.Body())
+
+		var out struct {
+			JunoConfigurationVersion string `json:"juno_configuration_version"`
+			JunoAgentMD5             string `json:"juno_agent_md5"`
+		}
+		json.Unmarshal(agentQuestResp.Body(), &out)
+
+		util.PPP("out", out)
+
+		effectVersion := out.JunoConfigurationVersion
+		row.EffectVersion = effectVersion
 		list[row.Hostname] = row
 	}
 	return
@@ -597,9 +603,20 @@ func getPublishInstance(aid int, env string, zoneCode string) (instanceList []st
 	return instanceList, nil
 }
 
+func configurationHeader(content, format, version string) string {
+	if format == "toml" {
+		content = fmt.Sprintf("juno_configuration_version = %s\n\n%s", version, content)
+	}
+	return content
+}
+
 func publishETCD(req view.ReqConfigPublish) (err error) {
+
+	content := configurationHeader(req.Content, req.Format, req.Version)
+
+	fmt.Println(content)
 	data := view.ConfigurationPublishData{
-		Content: req.Content,
+		Content: content,
 		Metadata: view.Metadata{
 			Timestamp: time.Now().Unix(),
 			Format:    req.Format,

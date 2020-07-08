@@ -44,34 +44,38 @@ func NodeHeartBeat(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
-// HTTPProxyGET ..
-func HTTPProxyGET(c echo.Context) error {
+// ConfigurationTakeEffect ..
+func ConfigurationTakeEffect(c echo.Context) error {
 	var err error
 	reqModel := view.ReqHTTPProxy{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+	// TODO 接口调用 权限限制
+	// http://%s:%s/debug/config
 	client := resty.New().SetTimeout(time.Duration(time.Second * 3))
 	resp, err := client.R().SetHeader("Content-Type", "application/json").Get(reqModel.URL)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, resp.Body)
+	return c.HTMLBlob(http.StatusOK, resp.Body())
 }
 
-// HTTPProxyPOST ..
-func HTTPProxyPOST(c echo.Context) error {
+// ConfigurationUsed ..
+func ConfigurationUsed(c echo.Context) error {
 	var err error
 	reqModel := view.ReqHTTPProxy{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+	// TODO 接口调用 权限限制
+	// http://%s/api/v1/conf/command_line/status
 	client := resty.New().SetTimeout(time.Duration(time.Second * 3))
 	resp, err := client.R().SetHeader("Content-Type", "application/json").SetBody(reqModel.Params).Post(reqModel.URL)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, resp.Body)
+	return c.HTMLBlob(http.StatusOK, resp.Body())
 }
