@@ -454,7 +454,6 @@ func configurationTakeEffect(appName, env, zoneCode, filename, format, governPor
 	for _, node := range notTakeEffectNodes {
 		row := view.ConfigurationStatus{}
 		url := fmt.Sprintf(QueryAgentUsingConfiguration, node.IP, governPort)
-		url = "http://10.1.41.114:35026/debug/config"
 		agentQuestResp, agentQuestError := conn.SetQueryParams(map[string]string{"url": url}).R().Get(ServerProxyConfigurationTakeEffect)
 		if agentQuestError != nil {
 			err = agentQuestError
