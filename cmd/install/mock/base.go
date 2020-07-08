@@ -1,3 +1,10 @@
+//
+// @Date: 2020-07-08 11:07:37
+// @LastEditors: MEX7
+// @LastEditTime: 2020-07-08 22:53:53
+// @FilePath: /juno/cmd/install/mock/base.go
+//
+
 package mock
 
 import (
@@ -6,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/api/apiv1/confgo"
-	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/user"
