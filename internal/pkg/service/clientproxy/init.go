@@ -7,7 +7,6 @@ import (
 
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
-	"github.com/douyu/juno/pkg/util"
 	"github.com/go-resty/resty/v2"
 	"go.etcd.io/etcd/clientv3"
 )
@@ -86,8 +85,6 @@ func (c *clientproxy) ServerProxyETCDConn(env, zoneCode string) (*clientv3.Clien
 func (c *clientproxy) ServerProxyHTTPConn(env, zoneCode string) (*resty.Client, error) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
-	util.PPP("GenClientProxyName(env, zoneCode)", GenClientProxyName(env, zoneCode))
-
 	if conn, ok := c.ServerProxyHTTPMap[GenClientProxyName(env, zoneCode)]; ok {
 		return conn, nil
 	}
