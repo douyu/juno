@@ -63,7 +63,7 @@ func (c *clientproxy) initServerProxyHTTPMap() {
 		if !cp.HTTP.Enable {
 			continue
 		}
-		client := resty.New().SetDebug(false).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8").SetHostURL(cp.HTTP.Scheme + "://" + cp.HTTP.ListenAddr)
+		client := resty.New().SetDebug(true).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8").SetHostURL(cp.HTTP.Scheme + "://" + cp.HTTP.ListenAddr)
 		c.ServerProxyHTTPMap[GenClientProxyName(cp.Env, cp.ZoneCode)] = client
 	}
 
