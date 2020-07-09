@@ -1,7 +1,7 @@
 # Jupiter Golang Application Standard Makefile
 SHELL:=/bin/bash
 BASE_PATH:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-BUILD_PATH:=$(BASE_PATH)/build
+SCRIPT_PATH:=$(BASE_PATH)/script
 APP_NAME:=$(shell basename $(BASE_PATH))
 COMPILE_OUT:=$(BASE_PATH)/release
 APP_VERSION:=0.2.0
@@ -42,7 +42,7 @@ print:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making print<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@echo SHELL:$(SHELL)
 	@echo BASE_PATH:$(BASE_PATH)
-	@echo BUILD_PATH:$(BUILD_PATH)
+	@echo SCRIPT_PATH:$(SCRIPT_PATH)
 	@echo APP_NAME:$(APP_NAME)
 	@echo BUILD_TIME:$(BUILD_TIME)
 	@echo JUPITER:$(JUPITER)
@@ -82,20 +82,20 @@ build_all:build_admin build_proxy build_data
 
 build_admin:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build juno admin<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	@chmod +x $(BUILD_PATH)/script/shell/*.sh
-	@cd cmd/juno-admin && $(BUILD_PATH)/script/shell/gobuild.sh $(APP_NAME) $(COMPILE_OUT) $(APP_VERSION)
+	@chmod +x $(SCRIPT_PATH)/build/*.sh
+	@cd cmd/juno-admin && $(SCRIPT_PATH)/build/gobuild.sh $(APP_NAME) $(COMPILE_OUT) $(APP_VERSION)
 	@echo -e "\n"
 
 build_proxy:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build juno proxy<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	@chmod +x $(BUILD_PATH)/script/shell/*.sh
-	@cd cmd/juno-proxy && $(BUILD_PATH)/script/shell/gobuild.sh $(APP_NAME) $(COMPILE_OUT) $(APP_VERSION)
+	@chmod +x $(SCRIPT_PATH)/build/*.sh
+	@cd cmd/juno-proxy && $(SCRIPT_PATH)/build/gobuild.sh $(APP_NAME) $(COMPILE_OUT) $(APP_VERSION)
 	@echo -e "\n"
 
 build_data:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	@chmod +x $(BUILD_PATH)/script/shell/*.sh
-	@$(BUILD_PATH)/script/shell/build_data.sh $(APP_NAME) $(APP_VERSION) $(BASE_PATH) $(COMPILE_OUT)/$(APP_VERSION)
+	@chmod +x $(SCRIPT_PATH)/build/*.sh
+	@$(SCRIPT_PATH)/build/build_data.sh $(APP_NAME) $(APP_VERSION) $(BASE_PATH) $(COMPILE_OUT)/$(APP_VERSION)
 	@echo -e "\n"
 
 run:

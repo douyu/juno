@@ -40,7 +40,9 @@ func (*Admin) migrateDB() error {
 	cmdClear(gormdb)
 	cmdInstall(gormdb)
 	cmdMock()
-	os.Exit(0)
+	if !runFlag {
+		os.Exit(0)
+	}
 	return nil
 }
 
