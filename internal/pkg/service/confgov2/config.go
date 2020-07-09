@@ -601,7 +601,8 @@ func getPublishInstance(aid int, env string, zoneCode string) (instanceList []st
 
 func configurationHeader(content, format, version string) string {
 	if format == "toml" {
-		content = fmt.Sprintf(`juno_configuration_version = "%s"\n%s`, version, content)
+		headerVersion := fmt.Sprintf(`juno_configuration_version = "%s"`, version)
+		content = fmt.Sprintf("%s\n%s", headerVersion, content)
 	}
 	return content
 }
