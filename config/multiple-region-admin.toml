@@ -46,7 +46,7 @@
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
-    port = 50003
+    port = 50004
     domain = "localhost"
     # enable gzip
     enableGzip = false
@@ -141,7 +141,7 @@
     allowedDomains = []
     teamIds = []
     allowedOrganizations = []
-    
+
 [casbin]
     enable = false
     debug = true
