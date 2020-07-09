@@ -1,7 +1,7 @@
 //
 // @Date: 2020-07-08 11:07:37
 // @LastEditors: MEX7
-// @LastEditTime: 2020-07-08 23:44:36
+// @LastEditTime: 2020-07-09 10:00:30
 // @FilePath: /juno/api/apiv1/proxy/proxy.go
 //
 
@@ -64,7 +64,7 @@ func ConfigurationTakeEffect(c echo.Context) error {
 	client := resty.New().SetTimeout(time.Duration(time.Second * 3))
 	resp, err := client.R().SetHeader("Content-Type", "application/json").Get(reqModel.URL)
 	if err != nil {
-		return c.HTMLBlob(http.StatusOK, nil)
+		return c.String(http.StatusOK, err.Error())
 	}
 	return c.HTMLBlob(http.StatusOK, resp.Body())
 }
@@ -82,7 +82,7 @@ func ConfigurationUsed(c echo.Context) error {
 	client := resty.New().SetTimeout(time.Duration(time.Second * 3))
 	resp, err := client.R().SetHeader("Content-Type", "application/json").SetBody(reqModel.Params).Post(reqModel.URL)
 	if err != nil {
-		return c.HTMLBlob(http.StatusOK, nil)
+		return c.String(http.StatusOK, err.Error())
 	}
 	return c.HTMLBlob(http.StatusOK, resp.Body())
 }
