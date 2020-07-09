@@ -459,19 +459,16 @@ func configurationTakeEffect(appName, env, zoneCode, filename, format, governPor
 			err = agentQuestError
 			continue
 		}
-
 		var out struct {
 			JunoConfigurationVersion string `json:"juno_configuration_version"`
 			JunoAgentMD5             string `json:"juno_agent_md5"`
 		}
 		json.Unmarshal(agentQuestResp.Body(), &out)
-
-		util.PPP("out", out)
-
 		effectVersion := out.JunoConfigurationVersion
 		row.EffectVersion = effectVersion
-		list[row.Hostname] = row
+		list[node.HostName] = row
 	}
+	util.PPP("list", list)
 	return
 }
 
