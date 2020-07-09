@@ -1,4 +1,0 @@
-
-# info
-
-support docker run

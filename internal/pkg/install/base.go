@@ -1,4 +1,4 @@
-package mock
+package install
 
 import (
 	"io/ioutil"
@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/api/apiv1/confgo"
-	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/user"
@@ -14,7 +13,6 @@ import (
 )
 
 func MockData() {
-
 	router := echo.New()
 	urlAppPut := "/app/put"
 	urlAppNodePut := "/app_node/put"
