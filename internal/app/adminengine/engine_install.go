@@ -1,80 +1,30 @@
-package main
+// Copyright 2020 Douyu
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package adminengine
 
 import (
 	"fmt"
-	"go.uber.org/zap"
-
-	"github.com/douyu/juno/cmd/install/mock"
-	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/juno/internal/pkg/service"
+	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
-	"github.com/douyu/jupiter"
-	"github.com/douyu/jupiter/pkg/flag"
-	"github.com/douyu/jupiter/pkg/xlog"
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/jinzhu/gorm"
+	"os"
 )
 
-// Admin indicates the user is a system administrator.
-type Admin struct {
-	jupiter.Application
-}
-
-var (
-	mockFlag    bool
-	clearFlag   bool
-	installFlag bool
-	// todo config
-	dbName = "juno"
-)
-
-func main() {
-	flag.Register(&flag.BoolFlag{
-		Name:    "mock",
-		Usage:   "--mock",
-		EnvVar:  "Juno_Mock",
-		Default: false,
-		Action:  func(name string, fs *flag.FlagSet) {},
-	})
-
-	flag.Register(&flag.BoolFlag{
-		Name:    "clear",
-		Usage:   "--clear",
-		EnvVar:  "Juno_Clear",
-		Default: false,
-		Action:  func(name string, fs *flag.FlagSet) {},
-	})
-
-	eng := &Admin{}
-	err := eng.Startup(
-		eng.initConfig,
-		eng.initInvoker,
-		eng.migrateDB,
-	)
-	if err != nil {
-		xlog.Error("start up error", zap.Error(err))
-	}
-
-}
-
-func (eng *Admin) initConfig() (err error) {
-	cfg.InitCfg()
-	xlog.DefaultLogger = xlog.StdConfig("default").Build()
-	return
-}
-
-func (eng *Admin) initInvoker() (err error) {
-	invoker.Init()
-	err = service.Init()
-	return
-}
-
-// func migrateDB(cli *cli.Context) error {
 func (*Admin) migrateDB() error {
-	mockFlag = flag.Bool("mock")
-	clearFlag = flag.Bool("clear")
-
 	gormdb, err := gorm.Open(
 		"mysql",
 		cfg.Cfg.Database.DSN,
@@ -87,21 +37,23 @@ func (*Admin) migrateDB() error {
 		_ = gormdb.Close()
 	}()
 
-	if !mockFlag && !clearFlag {
-		installFlag = true
-	}
 	cmdClear(gormdb)
 	cmdInstall(gormdb)
 	cmdMock()
+	os.Exit(0)
 	return nil
 }
 
 func cmdClear(gormdb *gorm.DB) {
 	if clearFlag {
+		dsn, err := util.ParseDSN(cfg.Cfg.Database.DSN)
+		if err != nil {
+			panic("dsn parse error: " + err.Error())
+		}
 		var result []struct {
 			Sqlstr string
 		}
-		gormdb.Raw("SELECT concat('DROP TABLE IF EXISTS `', table_name, '`;') as sqlstr FROM information_schema.tables WHERE table_schema = '" + dbName + "'").Scan(&result)
+		gormdb.Raw("SELECT concat('DROP TABLE IF EXISTS `', table_name, '`;') as sqlstr FROM information_schema.tables WHERE table_schema = '" + dsn.DBName + "'").Scan(&result)
 		for _, v := range result {
 			fmt.Println(`sql drop:`, v.Sqlstr)
 			gormdb.Exec(v.Sqlstr)
@@ -159,14 +111,15 @@ func cmdInstall(gormdb *gorm.DB) {
 			&db.Url{},
 		}
 		gormdb.SingularTable(true)
+		gormdb.Debug()
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
-		mock.MustMockData()
+		install.MustMockData()
 		fmt.Println("create table ok")
 	}
 }
 
 func cmdMock() {
 	if mockFlag {
-		mock.MockData()
+		install.MockData()
 	}
 }
