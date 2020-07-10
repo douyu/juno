@@ -15,8 +15,6 @@
 package adminengine
 
 import (
-	"time"
-
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -27,34 +25,76 @@ import (
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
+	"github.com/douyu/jupiter/pkg/flag"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
+	"strconv"
+)
+
+var (
+	mockFlag    bool
+	clearFlag   bool
+	installFlag bool
+	runFlag     bool
 )
 
 // Admin ...
 type Admin struct {
 	jupiter.Application
-	grpcGovernClient *resty.Client
 }
 
 // New ...
 func New() *Admin {
-	eng := &Admin{
-		grpcGovernClient: resty.New().SetDebug(false).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8"),
-	}
+	flag.Register(&flag.BoolFlag{
+		Name:    "install",
+		Usage:   "--install",
+		EnvVar:  "Juno_Install",
+		Default: false,
+		Action:  func(name string, fs *flag.FlagSet) {},
+	})
+
+	flag.Register(&flag.BoolFlag{
+		Name:    "mock",
+		Usage:   "--mock",
+		EnvVar:  "Juno_Mock",
+		Default: false,
+		Action:  func(name string, fs *flag.FlagSet) {},
+	})
+
+	flag.Register(&flag.BoolFlag{
+		Name:    "clear",
+		Usage:   "--clear",
+		EnvVar:  "Juno_Clear",
+		Default: false,
+		Action:  func(name string, fs *flag.FlagSet) {},
+	})
+
+	eng := &Admin{}
 	err := eng.Startup(
+		eng.parseFlag,
 		eng.initConfig,
 		eng.initInvoker,
+		eng.migrateDB,
 		eng.initNotify,
 		eng.initClientProxy,
 		eng.serveHTTP,
+		eng.serveGovern,
 	)
 	if err != nil {
 		xlog.Panic("start up error", zap.Error(err))
 	}
 	return eng
+}
+
+func (eng *Admin) parseFlag() error {
+	mockFlag = flag.Bool("mock")
+	clearFlag = flag.Bool("clear")
+	installFlag = flag.Bool("install")
+	if !installFlag && !mockFlag && !clearFlag {
+		runFlag = true
+	}
+	return nil
 }
 
 func (eng *Admin) initConfig() (err error) {
@@ -64,6 +104,9 @@ func (eng *Admin) initConfig() (err error) {
 }
 
 func (eng *Admin) initNotify() (err error) {
+	if !runFlag {
+		return
+	}
 	for _, cp := range cfg.Cfg.ClientProxy {
 		if cp.Stream.Enable {
 			ProxyClient := make(map[string]pb.ProxyClient, 0)
@@ -81,6 +124,9 @@ func (eng *Admin) initNotify() (err error) {
 }
 
 func (eng *Admin) serveHTTP() (err error) {
+	if !runFlag {
+		return
+	}
 	serverConfig := xecho.DefaultConfig()
 	serverConfig.Host = cfg.Cfg.Server.Http.Host
 	serverConfig.Port = cfg.Cfg.Server.Http.Port
@@ -97,13 +143,24 @@ func (eng *Admin) serveHTTP() (err error) {
 	return
 }
 
+func (eng *Admin) serveGovern() (err error) {
+	if !runFlag {
+		return
+	}
+	eng.SetGovernor(cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port))
+	return
+}
+
 func (eng *Admin) initInvoker() (err error) {
 	invoker.Init()
 	err = service.Init()
 	return
 }
 
-func (eng *Admin) initClientProxy() error {
+func (eng *Admin) initClientProxy() (err error) {
+	if !runFlag {
+		return
+	}
 	clientproxy.Init()
-	return nil
+	return
 }
