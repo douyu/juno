@@ -13,13 +13,12 @@
       timeout = "2s"
 
 
-[configure]
+[confgo]
   dir = "/tmp/www/server"
   prefix = "juno-agent"
 
-  [configure.agent]
+  [confgo.agent]
     port = 50010
-
 
 [jupiter.logger.default]
     debug = true          # 是否在命令行输出
@@ -33,12 +32,14 @@
   type = ""
 
 
+
 #################################### Server ##############################
 [server.http]
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
-    port = 50002
+    port = 50000
+    # The public facing domain name used to access grafana from a browser
     domain = "localhost"
     # enable gzip
     enableGzip = false
@@ -46,10 +47,12 @@
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
-    port = 50003
+    port = 50004
+    # The public facing domain name used to access grafana from a browser
     domain = "localhost"
     # enable gzip
     enableGzip = false
+
 #################################### Database ##############################
 [database]
     enable = true
@@ -60,36 +63,23 @@
     maxIdleConns = 50
     maxOpenConns = 100
 
-[grafanaProxy]
-    enable = true
-    name = "grafana"
-
 #################################### Proxy ##############################
-[[clientProxy]]
-  env = "live"
-  zoneCode="cn-wuhan-guanggu-f1"
+[proxy]
 
-  [clientProxy.stream]
-    enable = true
-    proxyAddr = ["127.0.0.1:50001"]
+  [proxy.etcd]
+    endpoints = ["127.0.0.1:2379"]
 
-  [clientProxy.etcd]
-    enable = true
-    endpoints = ["127.0.0.1:52379"]
-    timeout = 3
-
-  [clientProxy.http]
-    enable = true
-    listenAddr = "127.0.0.1:50000"
+  [proxy.http]
     disableKeepAlives = true
+    listenAddr = "127.0.0.0:8888"
     maxIdelPerHost = 1
     maxIdleConns = 10
     timeout = 100
-    scheme = "http"
 
-[pprof]
-    path = "."
+ [proxy.etcdv3]
 
+    [proxy.etcdv3.confgo]
+      endpoints = ["127.0.0.1:2379"]
 [auth]
     # Login cookie name
     loginCookieName = "juno_session"
@@ -130,7 +120,7 @@
 
 #################################### Github Auth #########################
 [auth.github]
-    enable = true
+    enabled = true
     allowSignUp = true
     clientId = "a6633e5544e60bd2574e"
     clientSecret = "7c6f51d97fc93d5d575ebd13115b20f397807549"
@@ -141,7 +131,7 @@
     allowedDomains = []
     teamIds = []
     allowedOrganizations = []
-    
+
 [casbin]
     enable = false
     debug = true

@@ -1,4 +1,4 @@
-package mock
+package install
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 )
 
 func mockApp(url string, router *echo.Echo) {
-	file, err := ioutil.ReadFile("./cmd/install/mockdata/app.json")
+	file, err := ioutil.ReadFile("./data/mockdata/app.json")
 	if err != nil {
 		panic(err)
 	}
@@ -21,10 +21,10 @@ func mockApp(url string, router *echo.Echo) {
 }
 
 func mockAppNode(url string, router *echo.Echo) {
-	mockAppNodeByFile("./cmd/install/mockdata/appnode1.json", url, router)
-	mockAppNodeByFile("./cmd/install/mockdata/appnode2.json", url, router)
-	mockAppNodeByFile("./cmd/install/mockdata/appnode3.json", url, router)
-	mockAppNodeByFile("./cmd/install/mockdata/appnode4.json", url, router)
+	mockAppNodeByFile("./data/mockdata/appnode1.json", url, router)
+	mockAppNodeByFile("./data/mockdata/appnode2.json", url, router)
+	mockAppNodeByFile("./data/mockdata/appnode3.json", url, router)
+	mockAppNodeByFile("./data/mockdata/appnode4.json", url, router)
 }
 
 func mockAppNodeByFile(fileName, url string, router *echo.Echo) {
@@ -39,10 +39,10 @@ func mockAppNodeByFile(fileName, url string, router *echo.Echo) {
 }
 
 func mockTplCreate(url string, router *echo.Echo) {
-	mockTplByFile("mysql", "./cmd/install/mockdata/configtpl1.json", url, router)
-	mockTplByFile("mysql", "./cmd/install/mockdata/configtpl2.json", url, router)
-	mockTplByFile("redis", "./cmd/install/mockdata/configtpl3.json", url, router)
-	mockTplByFile("grpc", "./cmd/install/mockdata/configtpl4.json", url, router)
+	mockTplByFile("mysql", "./data/mockdata/configtpl1.json", url, router)
+	mockTplByFile("mysql", "./data/mockdata/configtpl2.json", url, router)
+	mockTplByFile("redis", "./data/mockdata/configtpl3.json", url, router)
+	mockTplByFile("grpc", "./data/mockdata/configtpl4.json", url, router)
 }
 
 func mockTplByFile(tplType, fileName string, url string, router *echo.Echo) {
@@ -61,10 +61,10 @@ func mockTplByFile(tplType, fileName string, url string, router *echo.Echo) {
 }
 
 func mockConfig(urlFile string, urlContent string, router *echo.Echo) {
-	mockConfigByFile("./cmd/install/mockdata/appconfigfile1.json", "./cmd/install/mockdata/appconfigcontent1.toml", urlFile, urlContent, router)
-	mockConfigByFile("./cmd/install/mockdata/appconfigfile2.json", "./cmd/install/mockdata/appconfigcontent2.toml", urlFile, urlContent, router)
-	mockConfigByFile("./cmd/install/mockdata/appconfigfile3.json", "./cmd/install/mockdata/appconfigcontent3.toml", urlFile, urlContent, router)
-	mockConfigByFile("./cmd/install/mockdata/appconfigfile4.json", "./cmd/install/mockdata/appconfigcontent4.toml", urlFile, urlContent, router)
+	mockConfigByFile("./data/mockdata/appconfigfile1.json", "./data/mockdata/appconfigcontent1.toml", urlFile, urlContent, router)
+	mockConfigByFile("./data/mockdata/appconfigfile2.json", "./data/mockdata/appconfigcontent2.toml", urlFile, urlContent, router)
+	mockConfigByFile("./data/mockdata/appconfigfile3.json", "./data/mockdata/appconfigcontent3.toml", urlFile, urlContent, router)
+	mockConfigByFile("./data/mockdata/appconfigfile4.json", "./data/mockdata/appconfigcontent4.toml", urlFile, urlContent, router)
 }
 
 func mockConfigByFile(configFile string, configContent string, urlFile string, urlContent string, router *echo.Echo) {

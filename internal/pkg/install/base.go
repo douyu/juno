@@ -1,11 +1,4 @@
-//
-// @Date: 2020-07-08 11:07:37
-// @LastEditors: MEX7
-// @LastEditTime: 2020-07-08 22:53:53
-// @FilePath: /juno/cmd/install/mock/base.go
-//
-
-package mock
+package install
 
 import (
 	"io/ioutil"
@@ -20,7 +13,6 @@ import (
 )
 
 func MockData() {
-
 	router := echo.New()
 	urlAppPut := "/app/put"
 	urlAppNodePut := "/app_node/put"
