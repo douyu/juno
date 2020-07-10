@@ -47,6 +47,7 @@ type cfg struct {
 	Configure         Configure
 	Casbin            Casbin
 	Pprof             Pprof
+	Register          Register
 }
 
 // DefaultConfig ...
@@ -55,6 +56,10 @@ func defaultConfig() cfg {
 		AppURL:            "",
 		AuthProxyEnabled:  false,
 		DisableUserSignUp: false,
+		Register: Register{
+			Enable:    false,
+			Endpoints: nil,
+		},
 		Auth: Auth{
 			LoginCookieName:                  "juno_session",
 			LoginMaximumInactiveLifetimeDays: 7,
@@ -124,7 +129,7 @@ func defaultConfig() cfg {
 					Enable:            true,
 					ListenAddr:        "127.0.0.1:50000",
 					DisableKeepAlives: true,
-					Scheme: "http",
+					Scheme:            "http",
 					MaxIdleConns:      30,
 					MaxIdelPerHost:    60,
 					Timeout:           3,

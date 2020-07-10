@@ -52,7 +52,7 @@ type ActionData struct {
 
 type Req struct {
 	AppName            string
-	IdcSrvPubAppName   string // wsd-live-app-mpapi-go-1-1
+	IdcSrvPubAppName   string
 	IdcSrvPubAddr      string
 	IdcSrvAccessKey    string
 	IdcSrvAccessSecret string
