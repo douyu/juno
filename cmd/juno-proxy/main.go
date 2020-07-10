@@ -8,17 +8,12 @@
 package main
 
 import (
-	"log"
-	"strconv"
-
 	"github.com/douyu/juno/internal/app/proxyengine"
-	"github.com/douyu/juno/pkg/cfg"
+	"log"
 )
 
 func main() {
-	app := proxyengine.New()
-	app.SetGovernor(cfg.Cfg.ServerProxy.GovernServer.Host + ":" + strconv.Itoa(cfg.Cfg.ServerProxy.GovernServer.Port))
-	if err := app.Run(); err != nil {
+	if err := proxyengine.New().Run(); err != nil {
 		log.Fatal(err)
 	}
 }

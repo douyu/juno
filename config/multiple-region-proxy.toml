@@ -6,12 +6,6 @@
   token = "123456"
   secretKey = "ASDFASDFASDF"
 
-  [app.registry]
-
-    [app.registry.etcd]
-      endpoints = ["127.0.0.1:2379"]
-      timeout = "2s"
-
 [confgo]
   dir = "/tmp/www/server"
   prefix = "juno-agent"
@@ -25,6 +19,12 @@
     enableConsole = true  # 是否按命令行格式输出
     level = "debug"
 
+
+[register]
+    enable=true
+    connectTimeout = "1s"
+    endpoints=["127.0.0.1:2379"]
+    secure = false
 
 
 #################################### Server ##############################

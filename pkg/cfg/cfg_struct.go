@@ -30,6 +30,13 @@ type Auth struct {
 	ApiKeyMaxSecondsToLive           int
 }
 
+type Register struct {
+	Enable         bool
+	Endpoints      []string
+	ConnectTimeout time.Duration `json:"connectTimeout"`
+	Secure         bool          `json:"secure"`
+}
+
 type ServerSchema struct {
 	Host           string
 	Port           int

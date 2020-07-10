@@ -15,6 +15,7 @@
 package adminengine
 
 import (
+	"context"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -24,12 +25,17 @@ import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
+	"github.com/douyu/jupiter/pkg"
+	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/flag"
+	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
+	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
 	"strconv"
+	"time"
 )
 
 var (
@@ -80,7 +86,9 @@ func New() *Admin {
 		eng.initClientProxy,
 		eng.serveHTTP,
 		eng.serveGovern,
+		eng.defers,
 	)
+
 	if err != nil {
 		xlog.Panic("start up error", zap.Error(err))
 	}
@@ -100,6 +108,22 @@ func (eng *Admin) parseFlag() error {
 func (eng *Admin) initConfig() (err error) {
 	cfg.InitCfg()
 	xlog.DefaultLogger = xlog.StdConfig("default").Build()
+	return
+}
+
+func (eng *Admin) initRegister() (err error) {
+	if !runFlag || !cfg.Cfg.Register.Enable {
+		return
+	}
+	config := etcdv3_registry.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+	eng.SetRegistry(
+		compound_registry.New(
+			config.BuildRegistry(),
+		),
+	)
 	return
 }
 
@@ -147,7 +171,26 @@ func (eng *Admin) serveGovern() (err error) {
 	if !runFlag {
 		return
 	}
+	config := etcdv3.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+
+	client := config.Build()
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	addr := cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port)
+	// todo optimize, jupiter will after support metric
+	_, err = client.Put(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName(), addr)
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
 	eng.SetGovernor(cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port))
+	err = client.Close()
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
 	return
 }
 
@@ -163,4 +206,30 @@ func (eng *Admin) initClientProxy() (err error) {
 	}
 	clientproxy.Init()
 	return
+}
+
+func (eng *Admin) defers() (err error) {
+	if !runFlag {
+		return
+	}
+	eng.Defer(func() error {
+		config := etcdv3.DefaultConfig()
+		config.Endpoints = cfg.Cfg.Register.Endpoints
+		config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+		config.Secure = cfg.Cfg.Register.Secure
+		client := config.Build()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+		defer cancel()
+		// todo optimize, jupiter will after support metric
+		_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
+		if err != nil {
+			xlog.Panic(err.Error())
+		}
+		err = client.Close()
+		if err != nil {
+			xlog.Panic(err.Error())
+		}
+		return nil
+	})
+	return nil
 }

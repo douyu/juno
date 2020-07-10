@@ -9,11 +9,13 @@ require (
 	github.com/alibaba/sentinel-golang v0.4.0
 	github.com/casbin/casbin/v2 v2.7.2
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
+	github.com/cockroachdb/datadriven v0.0.0-20190809214429-80d97fb3cbaa // indirect
 	github.com/coreos/etcd v3.3.22+incompatible
 	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc // indirect
-	github.com/douyu/jupiter v0.0.0-20200605021304-25486432a0af
+	github.com/douyu/jupiter v0.0.0-20200709073817-3e760e50d665
 	github.com/go-resty/resty/v2 v2.2.0
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/gobuffalo/packr/v2 v2.8.0 // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-cmp v0.4.0
@@ -23,22 +25,26 @@ require (
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
 	github.com/kr/text v0.2.0 // indirect
+	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/echo-contrib v0.9.0
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/labstack/gommon v0.3.0
 	github.com/lib/pq v1.5.2 // indirect
+	github.com/mattn/go-runewidth v0.0.2 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/olekukonko/tablewriter v0.0.0-20170122224234-a0225b3f23b5 // indirect
 	github.com/onsi/ginkgo v1.12.3
 	github.com/onsi/gomega v1.10.1
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/smartystreets/assertions v1.0.1 // indirect
-	github.com/spf13/cast v1.3.0
+	github.com/spf13/cast v1.3.1
 	github.com/spf13/viper v1.6.3
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/unknwon/com v1.0.1
+	github.com/urfave/cli v1.21.0 // indirect
 	github.com/urfave/negroni v1.0.0
 	go.etcd.io/etcd v3.3.13+incompatible
 	go.uber.org/zap v1.15.0
@@ -52,8 +58,10 @@ require (
 	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/grpc v1.29.1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
+	gopkg.in/cheggaaa/pb.v1 v1.0.25 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v2 v2.3.0
+	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0

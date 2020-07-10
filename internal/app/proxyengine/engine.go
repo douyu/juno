@@ -17,7 +17,10 @@ package proxyengine
 import (
 	"context"
 	"errors"
+	"github.com/douyu/jupiter/pkg"
+	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	"strconv"
+	"time"
 
 	apiproxy "github.com/douyu/juno/api/apiv1/proxy"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
@@ -25,6 +28,8 @@ import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
+	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
+	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/server/xgrpc"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -45,7 +50,9 @@ func New() *Proxy {
 		eng.initServerProxy,
 		eng.serveHTTP,
 		eng.serveGRPC,
+		eng.serveGovern,
 		eng.initHeartBeat,
+		eng.defers,
 	)
 	if err != nil {
 		xlog.Panic("start up error", zap.Error(err))
@@ -56,6 +63,22 @@ func New() *Proxy {
 func (eng *Proxy) initConfig() (err error) {
 	cfg.InitCfg()
 	xlog.DefaultLogger = xlog.StdConfig("default").Build()
+	return
+}
+
+func (eng *Proxy) initRegister() (err error) {
+	if !cfg.Cfg.Register.Enable {
+		return
+	}
+	config := etcdv3_registry.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+	eng.SetRegistry(
+		compound_registry.New(
+			config.BuildRegistry(),
+		),
+	)
 	return
 }
 
@@ -105,6 +128,30 @@ func (eng *Proxy) serveGRPC() (err error) {
 	err = eng.Serve(server)
 	if err != nil {
 		return
+	}
+	return
+}
+
+func (eng *Proxy) serveGovern() (err error) {
+	config := etcdv3.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+
+	client := config.Build()
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	addr := cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port)
+	// todo optimize, jupiter will after support metric
+	_, err = client.Put(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName(), addr)
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
+	eng.SetGovernor(cfg.Cfg.ServerProxy.GovernServer.Host + ":" + strconv.Itoa(cfg.Cfg.ServerProxy.GovernServer.Port))
+	err = client.Close()
+	if err != nil {
+		xlog.Panic(err.Error())
 	}
 	return
 }
@@ -161,5 +208,28 @@ func (*ProxyGrpc) Notify(stream pb.Proxy_NotifyServer) error {
 		}
 		xlog.Debug("recv info", xlog.Any("info", req))
 	}
+	return nil
+}
+
+func (eng *Proxy) defers() (err error) {
+	eng.Defer(func() error {
+		config := etcdv3.DefaultConfig()
+		config.Endpoints = cfg.Cfg.Register.Endpoints
+		config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+		config.Secure = cfg.Cfg.Register.Secure
+		client := config.Build()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+		defer cancel()
+		// todo optimize, jupiter will after support metric
+		_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
+		if err != nil {
+			xlog.Panic(err.Error())
+		}
+		err = client.Close()
+		if err != nil {
+			xlog.Panic(err.Error())
+		}
+		return nil
+	})
 	return nil
 }
