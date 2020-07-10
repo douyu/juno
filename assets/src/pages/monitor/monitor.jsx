@@ -40,15 +40,16 @@ export default class Monitor extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
+    console.log('Monitor -> componentWillReceiveProps -> nextProps', nextProps);
     // 说明已经传了数据
-    if (nextProps.idcCode === '' || nextProps.appName === '' || nextProps.mode === '') {
+    if (nextProps.zoneCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const { idcCode, appName, mode, env } = this.state;
+    const { zoneCode, appName, mode, env } = this.state;
 
     // 内容一样就不在渲染
     if (
-      nextProps.idcCode === idcCode &&
+      nextProps.zoneCode === zoneCode &&
       nextProps.appName === appName &&
       nextProps.mode === mode &&
       nextProps.env === env
@@ -59,7 +60,7 @@ export default class Monitor extends React.PureComponent {
     // 一定要同步
     this.setState(
       {
-        idcCode: nextProps.idcCode,
+        zoneCode: nextProps.zoneCode,
         appName: nextProps.appName,
         env: nextProps.env,
         mode: nextProps.mode,
@@ -100,14 +101,13 @@ export default class Monitor extends React.PureComponent {
 
   monitorTypeTChange = (e) => {
     const dashboardKey = e.target.value;
-    console.log('>>>>>>>>>> monitorTypeTChange', e.target.value);
     const { grafana } = this.props.setting.settings;
 
     if (!grafana) {
       return;
     }
 
-    let dashboardPath = grafana['api_dashboard_addr'];
+    let dashboardPath = grafana[e.target.value];
     this.setState({
       dashboardPath,
       dashboardSelected: dashboardKey,
@@ -124,7 +124,6 @@ export default class Monitor extends React.PureComponent {
   renderGrafana = () => {
     const { appName, zoneCode, env, monitorHost } = this.state;
     let dashboardPath = this.state.dashboardPath;
-    console.log('>>>>>>>>>> renderGrafana', dashboardPath);
     if (!dashboardPath) {
       return (
         <div style={{ marginTop: 10 }}>
@@ -132,6 +131,17 @@ export default class Monitor extends React.PureComponent {
         </div>
       );
     }
+
+    if (zoneCode == '' || zoneCode == 'all') {
+      return (
+        <div style={{ marginTop: 10 }}>
+          <Alert message="请选择可用区" description="" type="warning" showIcon />
+        </div>
+      );
+    }
+    let datasource = env + '.' + zoneCode;
+
+    console.log('renderGrafana -> zoneCode', zoneCode);
     let url =
       dashboardPath +
       '?' +
@@ -139,20 +149,22 @@ export default class Monitor extends React.PureComponent {
       appName +
       '&var-env=' +
       env +
+      '&var-datasource=' +
+      datasource +
       // '&from=now-30m&to=now&kiosk';
       '&from=now-30m&to=now';
     console.log('>>>>>>>>>> url', url);
     // let url = 'ss1111111111111';
 
     return (
-      <div style={{ display: 'block', overflow: 'hidden' }}>
+      <div style={{ display: 'block', overflow: 'hidden',marginLeft:'10px' }}>
         <iframe
           src={url}
           scrolling="no"
           width="104%"
           height={2000}
           frameBorder={0}
-          style={{ marginLeft: '-65px', overflow: 'hidden' }}
+          style={{ marginLeft: '-72px', overflow: 'hidden' }}
         />
       </div>
     );
@@ -193,7 +205,16 @@ export default class Monitor extends React.PureComponent {
 
     return (
       <div style={{ backgroundColor: '#f7f8fa' }}>
-        <div style={{ marginLeft: 10, marginTop: 10, marginRight: 10, marginBottom: 10 }}>
+        <div
+          style={{
+            marginLeft: 10,
+            marginTop: 10,
+            marginRight: 10,
+            marginBottom: 10,
+            paddingTop: 10,
+            paddingBottom: 10,
+          }}
+        >
           <Row gutter={24} className="top">
             <Col span={22}>
               {dashboardRadios.length > 0 ? (
