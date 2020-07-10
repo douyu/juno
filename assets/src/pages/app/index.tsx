@@ -247,11 +247,11 @@ export default class App extends React.Component<ConfgoBase, any> {
               appInfo={this.state.appInfo}
               appNodeList={this.state.appNodeList}
               appIdcList={''}
-              zoneCode={''}
               param={''}
               appEnvZone={appEnvZone}
               idcList={this.state.idcList}
               zoneList={this.state.zoneList}
+              zoneCode={this.state.zoneCode}
             />
           </TabPane>
           <TabPane tab="Pprof" key="pprof">
