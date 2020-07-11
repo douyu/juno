@@ -262,7 +262,7 @@ export default class App extends React.Component<ConfgoBase, any> {
               appInfo={this.state.appInfo}
               appNodeList={this.state.appNodeList}
               appIdcList={''}
-              zoneCode={''}
+              zoneCode={this.state.zoneCode}
               param={''}
               appEnvZone={appEnvZone}
               idcList={this.state.idcList}

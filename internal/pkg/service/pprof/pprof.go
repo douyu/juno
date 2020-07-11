@@ -18,6 +18,8 @@ import (
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/go-resty/resty/v2"
+	torchPprof "github.com/uber-archive/go-torch/pprof"
+	"github.com/uber-archive/go-torch/renderer"
 )
 
 type pprof struct {
@@ -96,12 +98,14 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 				fmt.Println("####  IGrpcGovern err", err)
 				continue
 			}
+			fmt.Println(fmt.Sprintf("*** %s 类型数据获取成功", fileType))
 		}
 		//fmt.Println("fileType", fileType, "res", string(resp))
 
 		// 3. 请求结果存入临时文件
 
 		saveFileName := "/tmp/" + fileType + "_" + hostName + ".bin"
+		//saveFileName := "assets/pprof_static/" + fileType + "_" + hostName + ".bin"
 		saveSvgName := fmt.Sprintf("assets/pprof_static/%s_%s_%s.svg", time.Now().Format("2006_01_02_15_04_05"), hostName, fileType)
 		if err = ioutil.WriteFile(saveFileName, resp, os.ModePerm); err != nil {
 			fmt.Println("err2", err)
@@ -110,8 +114,13 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 
 		// 4. 将临时文件生成对应的pprof 图
 
-		execRs := RunCmd(fmt.Sprintf("pprof/pprof.sh %s %s", saveFileName, saveSvgName))
-		fmt.Printf("execShell result\n----\n%v---\n", execRs)
+		err := getFlameGraph(saveFileName, saveSvgName)
+		if err != nil {
+			fmt.Println(">>> getFlameGraph err", err)
+			continue
+		}
+		//execRs := RunCmd(fmt.Sprintf("pprof/pprof.sh %s %s", saveFileName, saveSvgName))
+		//fmt.Printf("execShell result\n----\n%v---\n", execRs)
 
 		if !FileExists(saveSvgName) {
 			//log.Error("pprof.Run", "err", "Pprof util.FileExists false", "saveFileName", saveFileName, "resp", resp, "fileType", fileType)
@@ -143,6 +152,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 
 		// 6. 清理掉临时文件
 		if err = os.Remove(saveFileName); err != nil {
+			fmt.Println("*** pprof.Run os remove  err: ", err)
 			//log.Error("pprof.Run", "err", "Pprof Remove saveFileName error: "+err.Error(), "saveFileName", saveFileName)
 		}
 
@@ -164,6 +174,49 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 		}
 	}
 
+	return nil
+}
+
+func getFlameGraph(fileName, tagFileName string) error {
+	// 1 获取和存储profile的原始的svg图
+	out, err := exec.Command("bash", "-c", fmt.Sprintf("go tool pprof -svg %s > %s", fileName, tagFileName)).Output()
+	if err != nil {
+		fmt.Println("go tool pprof -svg err, ", err)
+		return fmt.Errorf("go tool pprof -svg err: %v", err)
+	}
+
+	fmt.Println("[success] viewgraph get and save success")
+
+	// 2 获取火焰图准备
+	out, err = exec.Command("bash", "-c", "go tool pprof -raw "+fileName).Output()
+	if err != nil {
+		fmt.Println("go tool pprof -raw err, ", err)
+		return fmt.Errorf("go tool pprof -raw err: %v", err)
+	}
+
+	profile, err := torchPprof.ParseRaw(out)
+	if err != nil {
+		return fmt.Errorf("could not parse raw pprof output: %v", err)
+	}
+
+	sampleIndex := torchPprof.SelectSample([]string{}, profile.SampleNames)
+	flameInput, err := renderer.ToFlameInput(profile, sampleIndex)
+	if err != nil {
+		return fmt.Errorf("could not convert stacks to flamegraph input: %v", err)
+	}
+
+	// 3 生成火焰图
+	flameGraph, err := renderer.GenerateFlameGraph(flameInput, []string{}...)
+	if err != nil {
+		return fmt.Errorf("could not generate flame graph: %v", err)
+	}
+
+	// 4 存储火焰图
+	if err := ioutil.WriteFile(tagFileName+"_hy.svg", flameGraph, os.ModePerm); err != nil {
+		fmt.Println("WriteFile res err, ", err)
+		return err
+	}
+	fmt.Println("[success] flamegraph get and save success")
 	return nil
 }
 

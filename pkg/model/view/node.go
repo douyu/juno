@@ -18,6 +18,6 @@ type ReqNodeHeartBeat struct {
 
 // ReqHTTPProxy ..
 type ReqHTTPProxy struct {
-	URL    string            `json:"url"`
+	URL    string                 `json:"url"`
 	Params map[string]interface{} `json:"params"`
 }
