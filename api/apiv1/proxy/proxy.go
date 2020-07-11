@@ -9,6 +9,7 @@ package proxy
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -85,4 +86,78 @@ func ConfigurationUsed(c echo.Context) error {
 		return c.String(http.StatusOK, err.Error())
 	}
 	return c.HTMLBlob(http.StatusOK, resp.Body())
+}
+
+// pprofInfo
+func PprofInfo(c echo.Context) error {
+	var err error
+	reqModel := view.ReqHTTPProxy{}
+	err = c.Bind(&reqModel)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	fmt.Println("reqModel", reqModel)
+
+	ip, err := checkPara(reqModel.Params, "ip")
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	port, err := checkPara(reqModel.Params, "port")
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	pprofType, err := checkPara(reqModel.Params, "fileType")
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+
+	resp, err := getPprof(ip, port, pprofType)
+
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	return output.JSON(c, output.MsgOk, "get pprof success", resp)
+	//return c.HTMLBlob(http.StatusOK, resp)
+}
+
+func checkPara(para map[string]interface{}, tar string) (tarStr string, err error) {
+	tmp, ok := para[tar]
+	if !ok {
+		return tarStr, fmt.Errorf("必须传" + tar)
+	}
+	tarStr, ok = tmp.(string)
+	if !ok {
+		return tarStr, fmt.Errorf("%s必须为string类型", tar)
+	}
+	if tarStr == "" {
+		return tarStr, fmt.Errorf("%s不能为空", tar)
+	}
+	return tarStr, nil
+}
+
+func getPprof(ip, port, pprofType string) (resp []byte, err error) {
+	client := resty.New().SetDebug(false).SetTimeout(60*time.Second).SetHeader("X-JUNO-GOVERN", "juno")
+	url := fmt.Sprintf("http://%s:%s/debug/pprof", ip, port)
+	// 检测接口是否ok
+	if _, err = checkPprof(client, url); err != nil {
+		return
+	}
+	// 耗时比较久
+	if pprofType == "profile" {
+		pprofType = pprofType + "?seconds=30"
+	}
+	url = url + "/" + pprofType
+	// 获取数据
+	if resp, err = checkPprof(client, url); err != nil {
+		return
+	}
+	return
+}
+
+func checkPprof(client *resty.Client, url string) ([]byte, error) {
+	response, err := client.R().Get(url)
+	if err != nil {
+		return []byte{}, err
+	}
+	return response.Body(), nil
 }

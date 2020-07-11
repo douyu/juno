@@ -44,7 +44,7 @@
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
-    port = 50004
+    port = 50008
 
 [serverProxy.heartbeat]
     enable = true

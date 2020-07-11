@@ -162,6 +162,9 @@ func apiV1(server *xecho.Server) {
 	// work for juno -> agent
 	server.GET("/api/v1/configuration/takeEffect", apiproxy.ConfigurationTakeEffect)
 	server.POST("/api/v1/configuration/used", apiproxy.ConfigurationUsed)
+
+	// pprof info
+	server.POST("/api/v1/pprof/info", apiproxy.PprofInfo)
 }
 
 // ProxyGrpc ..

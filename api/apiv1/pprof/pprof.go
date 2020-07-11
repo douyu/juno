@@ -2,6 +2,7 @@ package pprofHandle
 
 import (
 	"fmt"
+	"os/exec"
 	"strings"
 
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
@@ -37,9 +38,9 @@ func CheckDep(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 	type RespCheck struct {
-		Golang   int `json:"golang"`
-		GoTorch  int `json:"go_torch"`
-		Graphviz int `json:"graphviz"`
+		Golang     int `json:"golang"`
+		FlameGraph int `json:"flameGraph"`
+		Graphviz   int `json:"graphviz"`
 	}
 	resp := RespCheck{}
 
@@ -50,20 +51,30 @@ func CheckDep(c echo.Context) error {
 	} else {
 		resp.Golang = 1
 	}
-	if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkGoTorch.sh"); err != nil {
-		xlog.Error("checkGoTorch err", zap.Any("res", res))
-		//return fmt.Errorf("checkGo err:%v", err)
-		//return output.JSON(c, output.MsgErr, err.Error())
-	} else {
-		resp.GoTorch = 1
+
+	/*	if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkFlameGraph.sh"); err != nil {
+			xlog.Error("checkFlameGraph err", zap.Any("res", res))
+			//return fmt.Errorf("checkGo err:%v", err)
+			//return output.JSON(c, output.MsgErr, err.Error())
+		} else {
+			resp.FlameGraph = 1
+		}*/
+
+	if path, err := exec.LookPath("flamegraph.pl"); err == nil && path != "" {
+		resp.FlameGraph = 1
 	}
-	if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkGraphviz.sh"); err != nil {
-		xlog.Error("checkGraphviz err", zap.Any("res", res))
-		//return fmt.Errorf("checkGo err:%v", err)
-		//return output.JSON(c, output.MsgErr, err.Error())
-	} else {
+
+	if path, err := exec.LookPath("dot"); err == nil && path != "" {
 		resp.Graphviz = 1
 	}
+
+	/*	if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkGraphviz.sh"); err != nil {
+			xlog.Error("checkGraphviz err", zap.Any("res", res))
+			//return fmt.Errorf("checkGo err:%v", err)
+			//return output.JSON(c, output.MsgErr, err.Error())
+		} else {
+			resp.Graphviz = 1
+		}*/
 
 	if reqModel.InstallType > 0 {
 		return output.JSON(c, output.MsgOk, "success", resp)
@@ -82,8 +93,8 @@ func CheckDep(c echo.Context) error {
 	}
 	res = append(res, item)
 	item = DepInfo{
-		Name:       "Go-torch环境",
-		CheckRes:   resp.GoTorch,
+		Name:       "FlameGraph环境",
+		CheckRes:   resp.FlameGraph,
 		CanInstall: 2,
 	}
 	res = append(res, item)
@@ -114,8 +125,8 @@ func InstallDep(c echo.Context) error {
 			return output.JSON(c, output.MsgErr, err.Error())
 		}
 	case 2:
-		if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/installGoTorch.sh"); err != nil {
-			fmt.Println("installGoTorch err", res)
+		if res, err := pprof.CheckShell(cfg.Cfg.Pprof.Path + "/pprof/installFlameGraph.sh"); err != nil {
+			fmt.Println("installFlameGraph err", res)
 			//return fmt.Errorf("checkGo err:%v", err)
 			return output.JSON(c, output.MsgErr, err.Error())
 		}
@@ -134,6 +145,14 @@ func Run(c echo.Context) error {
 
 	if reqModel.AppName == "" || reqModel.HostName == "" || reqModel.Env == "" {
 		return output.JSON(c, output.MsgErr, "参数缺失")
+	}
+
+	if reqModel.ZoneCode == "" {
+		return output.JSON(c, output.MsgErr, "必须选择可用区")
+	}
+
+	if reqModel.ZoneCode == "all" {
+		return output.JSON(c, output.MsgErr, "请选择具体的可用区，不要选择全部")
 	}
 
 	//execRs := pprof.RunCmd(fmt.Sprintf("pprof/graphviz.sh",))

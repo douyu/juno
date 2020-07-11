@@ -2,34 +2,42 @@ package grpcgovern
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
+	"github.com/douyu/juno/internal/pkg/service/clientproxy"
+	"github.com/douyu/juno/pkg/model/view"
 )
 
 type ProfResp struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
-	Data string `json:"data"`
+	Data []byte `json:"data"`
 }
 
 // 将appname设置config的value
-func (g *GrpcGovern) Pprof(env, idcCode, ip, port, fileType string) (resp []byte, err error) {
-	params := map[string]string{
+func (g *GrpcGovern) Pprof(env, zoneCode, ip, port, fileType string) (resp []byte, err error) {
+	conn, err := clientproxy.ClientProxy.ServerProxyHTTPConn(env, zoneCode)
+	if err != nil {
+		return resp, err
+	}
+
+	req := view.ReqHTTPProxy{}
+	//req.URL = fmt.Sprintf(QueryAgentUsedStatus, ipPort)
+	req.Params = map[string]interface{}{
 		"ip":       ip,
 		"port":     port,
 		"fileType": fileType,
 	}
-	profResp := ProfResp{}
-	resp, err = g.PostStream(env, idcCode, UrlPprofV2Info, params)
+	response, err := conn.R().SetBody(req).Post(UrlPprofV1Info)
 	if err != nil {
-		return
+		return resp, err
 	}
-
-	if err = json.Unmarshal(resp, &profResp); err != nil {
-		return resp, nil
-		//return resp, fmt.Errorf("json Unmarshal error: %v", err)
+	profResp := ProfResp{}
+	//fmt.Println(">>>>>>> response.Body()", string(response.Body()))
+	if err = json.Unmarshal(response.Body(), &profResp); err != nil {
+		return resp, err
 	}
 	if profResp.Code != 0 {
-		return resp, fmt.Errorf("msg=%v,data=%v", profResp.Msg, profResp.Data)
+		return []byte(profResp.Data), errors.New(profResp.Msg)
 	}
 	return []byte(profResp.Data), nil
 }
