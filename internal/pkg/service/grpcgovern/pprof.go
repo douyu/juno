@@ -21,7 +21,6 @@ func (g *GrpcGovern) Pprof(env, zoneCode, ip, port, fileType string) (resp []byt
 	}
 
 	req := view.ReqHTTPProxy{}
-	//req.URL = fmt.Sprintf(QueryAgentUsedStatus, ipPort)
 	req.Params = map[string]interface{}{
 		"ip":       ip,
 		"port":     port,
@@ -32,7 +31,6 @@ func (g *GrpcGovern) Pprof(env, zoneCode, ip, port, fileType string) (resp []byt
 		return resp, err
 	}
 	profResp := ProfResp{}
-	//fmt.Println(">>>>>>> response.Body()", string(response.Body()))
 	if err = json.Unmarshal(response.Body(), &profResp); err != nil {
 		return resp, err
 	}
