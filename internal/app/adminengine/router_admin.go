@@ -207,7 +207,6 @@ func apiAdmin(server *xecho.Server) {
 		pprofGroup.POST("/run", pprofHandle.Run)
 		pprofGroup.GET("/list", pprofHandle.FileList)
 		pprofGroup.GET("/dep/check", pprofHandle.CheckDep)
-		pprofGroup.GET("/dep/install", pprofHandle.InstallDep)
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
 	}
 }

@@ -29,7 +29,6 @@
 .vscode/
 .idea/
 bin/*
-go.sum
 *.DS_Store
 coverage.txt
 

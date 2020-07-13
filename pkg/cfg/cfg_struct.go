@@ -124,7 +124,11 @@ type HeartBeat struct {
 }
 
 type Pprof struct {
-	Path string
+	TmpPath     string
+	TokenHeader string
+	Token       string
+	Timeout     time.Duration
+	Debug       bool
 }
 
 type Database struct {

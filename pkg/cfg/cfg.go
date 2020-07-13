@@ -165,7 +165,11 @@ func defaultConfig() cfg {
 			},
 		},
 		Pprof: Pprof{
-			Path: ".",
+			Debug:       false,
+			TmpPath:     "/tmp",
+			TokenHeader: "X-JUNO-PPROF",
+			Token:       "juno666",
+			Timeout:     xtime.Duration("120s"),
 		},
 		Casbin: Casbin{
 			Enable:           false,
