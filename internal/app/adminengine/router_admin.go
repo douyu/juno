@@ -64,7 +64,7 @@ func apiAdmin(server *xecho.Server) {
 	// static file
 	server.GET("/", static.File("assets/dist/index.html"), sessionMW, loginAuthRedirect)
 	server.Static("/ant/*", "assets/dist")
-	server.Static("/pprof/*", "assets/pprof_static")
+	server.Static("/pprof/*", cfg.Cfg.Pprof.StorePath)
 
 	echo.NotFoundHandler = func(c echo.Context) error {
 		if strings.HasPrefix(c.Request().URL.Path, "/api/") {

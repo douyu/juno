@@ -48,6 +48,7 @@ type ServerSchema struct {
 
 type App struct {
 	SecretKey string
+	Mode      string
 }
 
 // Admin Server
@@ -129,6 +130,7 @@ type Pprof struct {
 	Token       string
 	Timeout     time.Duration
 	Debug       bool
+	StorePath   string
 }
 
 type Database struct {

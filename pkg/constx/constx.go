@@ -6,3 +6,10 @@ const (
 
 	MsgNodeHeartBeatResp = 1001
 )
+
+// mode
+
+const (
+	ModeSingle   = "single"
+	ModeMultiple = "multiple"
+)
