@@ -22,6 +22,8 @@ type User struct {
 	// open source user data
 	CurrentAuthority string `json:"currentAuthority"`
 	Access           string `json:"access"`
+
+	UserGroup *CasbinPolicyGroup `gorm:"foreignKey:Uid;association_foreignkey:Uid"`
 }
 
 type UserList []User

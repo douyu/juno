@@ -147,3 +147,5 @@
     model = "./configs/model.conf"
     autoLoad = true
     autoLoadInternal = 60
+    # 资源配置
+    resourceFile = './configs/resource.yaml'

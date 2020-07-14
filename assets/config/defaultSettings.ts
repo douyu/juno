@@ -43,14 +43,14 @@ export interface DefaultSettings {
 }
 
 export default {
-  navTheme: 'darken',
+  navTheme: 'light',
   // 拂晓蓝
   primaryColor: '#1890ff',
-  layout: 'topmenu',
+  layout: 'sidemenu',
   contentWidth: 'Fluid',
   fixedHeader: false,
   autoHideHeader: false,
-  fixSiderbar: false,
+  fixSiderbar: true,
   colorWeak: false,
   menu: {
     locale: true,

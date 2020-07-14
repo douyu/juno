@@ -15,11 +15,12 @@
 package adminengine
 
 import (
-	"net/http"
-	"strings"
-
+	"github.com/douyu/juno/api/apiv1/permission"
 	"github.com/douyu/juno/internal/pkg/service/casbin"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/model/db"
+	"net/http"
+	"strings"
 
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/app"
@@ -55,10 +56,12 @@ func apiAdmin(server *xecho.Server) {
 	// casbin init
 	if cfg.Cfg.Casbin.Enable {
 		casbinMW = middleware.CasbinMiddleware(middleware.CasbinConfig{
-			Skipper:  middleware.AllowPathPrefixSkipper("/api/admin/public", "/api/admin/user/login"),
-			Enforcer: casbin.Casbin,
+			Skipper: middleware.AllowPathPrefixSkipper("/api/admin/public",
+				"/api/admin/user/login", "/api/admin/permission/menu/list", "/api/admin/confgov2/",
+				"/api/admin/pprof",
+			),
+			Enforcer: casbin.Casbin.SyncedEnforcer,
 		})
-
 	}
 
 	// static file
@@ -74,7 +77,7 @@ func apiAdmin(server *xecho.Server) {
 	}
 
 	// grafana proxy
-	groupGrafana := server.Group("/grafana", sessionMW, loginAuthRedirect)
+	groupGrafana := server.Group("/grafana", sessionMW, loginAuthRedirect, middleware.GrafanaAuthMW)
 	{
 		AllMethods := []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete,
 			http.MethodHead, http.MethodTrace, http.MethodPut, http.MethodConnect, http.MethodOptions}
@@ -125,15 +128,21 @@ func apiAdmin(server *xecho.Server) {
 
 	configV2G := g.Group("/confgov2", loginAuthWithJSON)
 	{
-		configV2G.GET("/config/list", confgov2.List)                  // 配置文件列表
-		configV2G.GET("/config/detail", confgov2.Detail)              // 配置文件内容
-		configV2G.POST("/config/create", confgov2.Create)             // 配置新建
-		configV2G.POST("/config/update", confgov2.Update)             // 配置更新
-		configV2G.POST("/config/publish", confgov2.Publish)           // 配置发布
-		configV2G.GET("/config/history", confgov2.History)            // 配置文件历史
-		configV2G.POST("/config/delete", confgov2.Delete)             // 配置删除
-		configV2G.GET("/config/diff", confgov2.Diff)                  // 配置文件Diif，返回两个版本的配置内容
-		configV2G.GET("/config/instance/list", confgov2.InstanceList) // 配置文件Diif，返回两个版本的配置内容
+		// 根据请求获取应用环境信息，并进行权限验证
+		configReadQueryMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromContext, db.AppPermConfigRead)
+		configWriteBodyMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromContext, db.AppPermConfigWrite)
+		configReadByIDMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigRead)
+		configWriteByIDMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigWrite)
+
+		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                 // 配置文件列表
+		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)              // 配置文件内容
+		configV2G.POST("/config/create", confgov2.Create, configWriteBodyMW)            // 配置新建
+		configV2G.POST("/config/update", confgov2.Update, configWriteByIDMW)            // 配置更新
+		configV2G.POST("/config/publish", confgov2.Publish, configWriteByIDMW)          // 配置发布
+		configV2G.GET("/config/history", confgov2.History, configReadByIDMW)            // 配置文件历史
+		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)            // 配置删除
+		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                  // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW) // 配置文件Diif，返回两个版本的配置内容
 
 		resourceG := configV2G.Group("/resource")
 		resourceG.GET("/list", configresource.List)
@@ -149,6 +158,7 @@ func apiAdmin(server *xecho.Server) {
 	{
 		resourceGroup.GET("/app/info", resource.AppInfo)
 		resourceGroup.GET("/app/list", resource.AppList)
+		resourceGroup.GET("/app/listWithEnv", resource.AppListWithEnv)
 		resourceGroup.POST("/app/create", resource.AppCreate)
 		resourceGroup.POST("/app/update", resource.AppUpdate)
 		resourceGroup.POST("/app/delete", resource.AppDelete)
@@ -188,13 +198,52 @@ func apiAdmin(server *xecho.Server) {
 	}
 
 	systemGroup := g.Group("/system", loginAuthWithJSON)
-
 	{
+		systemGroup.GET("/menu", system.MenuList)
 		systemGroup.GET("/option/info", system.OptionInfo)
 		systemGroup.GET("/option/list", system.OptionList)
 		systemGroup.POST("/option/create", system.OptionCreate)
 		systemGroup.POST("/option/update", system.OptionUpdate)
 		systemGroup.POST("/option/delete", system.OptionDelete)
+	}
+
+	permissionG := g.Group("/permission")
+	{
+		// 用户列表
+		permissionG.GET("/user/list", permission.ListUser)
+		// 用户组列表
+		permissionG.GET("/user/group/list", permission.ListUserGroup)
+		// 修改用户组
+		permissionG.GET("/user/group/update", permission.UpdateUserGroup)
+		// 管理用户所在组
+		permissionG.POST("/user/changeGroup", permission.ChangeUserGroup)
+		// 分配用户组接口权限
+		permissionG.POST("/user/group/setApiPermission", permission.SetAPIPerm)
+		// 分配用户组应用权限
+		permissionG.POST("/user/group/setAppPermission", permission.SetAppPerm)
+		// 分配用户组菜单权限
+		permissionG.POST("/user/group/setMenuPermission", permission.SetMenuPerm)
+		// 获取用户有权限的菜单列表
+		permissionG.GET("/user/group/menuPermission", permission.GetMenuPerm)
+		// 获取用户组有权限的接口列表
+		permissionG.GET("/user/group/apiPermission", permission.GetAPIPerm)
+		// 获取用户组有权限的应用列表
+		permissionG.GET("/user/group/appPermission", permission.GetAppPerm)
+
+		// 应用权限列表
+		permissionG.GET("/appPermissions", permission.AppPermissionList)
+
+		// 应用组列表
+		permissionG.GET("/app/group", permission.ListAppGroup)
+		// 修改应用组
+		permissionG.POST("/app/group/update", permission.UpdateAppGroup)
+		// 分配应用所在组
+		permissionG.POST("/app/changeGroup", permission.ChangeAppGroup)
+
+		// 菜单列表
+		permissionG.GET("/menu/list", permission.ListMenu)
+		// API列表
+		permissionG.GET("/api/list", permission.ListAPI)
 	}
 
 	eventGroup := g.Group("/event", loginAuthWithJSON)
@@ -204,9 +253,14 @@ func apiAdmin(server *xecho.Server) {
 
 	pprofGroup := g.Group("/pprof", loginAuthWithJSON)
 	{
-		pprofGroup.POST("/run", pprofHandle.Run)
-		pprofGroup.GET("/list", pprofHandle.FileList)
-		pprofGroup.GET("/dep/check", pprofHandle.CheckDep)
+		mwRunPProfAuth := middleware.CasbinAppMW(middleware.ParseAppEnvFromContext, db.AppPermPProfRun)
+		mwReadPProfAuth := middleware.CasbinAppMW(middleware.ParseAppEnvFromContext, db.AppPermPProfRead)
+
+		pprofGroup.POST("/run", pprofHandle.Run, mwRunPProfAuth)
+		pprofGroup.GET("/list", pprofHandle.FileList, mwReadPProfAuth)
+		pprofGroup.GET("/dep/check", pprofHandle.CheckDep, mwReadPProfAuth)
+
+		// 和应用无关的接口
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
 	}
 }

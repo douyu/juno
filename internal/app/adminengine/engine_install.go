@@ -16,12 +16,13 @@ package adminengine
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/jinzhu/gorm"
-	"os"
 )
 
 func (*Admin) migrateDB() error {
@@ -109,12 +110,13 @@ func cmdInstall(gormdb *gorm.DB) {
 			&db.ConfigResourceValue{},
 			&db.CasbinPolicyAuth{},
 			&db.CasbinPolicyGroup{},
-			&db.CasbinGroup{},
-			&db.Url{},
 		}
 		gormdb.SingularTable(true)
 		gormdb.Debug()
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
+
+		gormdb.Model(&db.CasbinPolicyGroup{}).AddUniqueIndex("idx_unique_app_env_act", "app_name", "app_env", "act")
+
 		install.MustMockData()
 		fmt.Println("create table ok")
 	}

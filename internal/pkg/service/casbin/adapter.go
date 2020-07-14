@@ -4,6 +4,7 @@ import (
 	"fmt"
 	casbinModel "github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
 )
@@ -51,7 +52,7 @@ func (a *CasbinAdapter) loadPolicyAuth(m casbinModel.Model) (err error) {
 	}
 
 	for _, item := range authList {
-		line := fmt.Sprintf("p,%s,%s,%s", item.Sub, item.Obj, item.Act)
+		line := fmt.Sprintf("p,%s,%s,%s,%s", item.Sub, item.Obj, item.Act, item.Type)
 		persist.LoadPolicyLine(line, m)
 	}
 	return nil
@@ -65,13 +66,14 @@ func (a *CasbinAdapter) loadPolicyGroup(m casbinModel.Model) (err error) {
 	}
 	var line string
 	for _, item := range authList {
+		groupKey := CasbinGroupKey(item.Type, item.GroupName)
 		switch item.Type {
-		case TypeUser:
-			line = fmt.Sprintf("g,%s,%s", item.Uid, item.Gid)
-		case TypeApp:
-			line = fmt.Sprintf("g,%s,%s", item.AppName, item.Gid)
-		case TypeUrl:
-			line = fmt.Sprintf("g,%s,%s", item.UrlId, item.Gid)
+		case db.CasbinGroupTypeUser:
+			line = fmt.Sprintf("g,%d,%s", item.Uid, groupKey)
+		case db.CasbinGroupTypeMenu:
+			line = fmt.Sprintf("g2,%s,%s", item.URL, groupKey)
+		case db.CasbinGroupTypeApp:
+			line = fmt.Sprintf("g3,%s@%s,%s", item.AppName, item.AppEnv, groupKey)
 		}
 		persist.LoadPolicyLine(line, m)
 	}

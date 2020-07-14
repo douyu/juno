@@ -49,7 +49,7 @@ func (a *appEvent) insert(event db.AppEvent) error {
 		return err
 	}
 
-	//invoker.AppStatic.WithLabelValues(event.AppName, event.Source, event.Operation).Inc()
+	//invoker.AppStatic.WithLabelValues(event.App, event.Source, event.Operation).Inc()
 	return nil
 }
 

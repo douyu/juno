@@ -178,6 +178,7 @@ func defaultConfig() cfg {
 			Model:            "./configs/model.conf",
 			AutoLoad:         false,
 			AutoLoadInternal: 0,
+			ResourceFile:     "./configs/resource.yaml",
 		},
 	}
 }

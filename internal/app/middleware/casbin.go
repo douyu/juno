@@ -1,12 +1,21 @@
 package middleware
 
 import (
-	"errors"
-	"github.com/douyu/juno/internal/pkg/service/user"
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
+	casbin2 "github.com/douyu/juno/internal/pkg/service/casbin"
+	"github.com/douyu/juno/internal/pkg/service/confgov2"
+	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -21,6 +30,9 @@ type (
 		// Required.
 		Enforcer *casbin.SyncedEnforcer
 	}
+
+	// 从 echo context 中获取 app 和 env 参数的函数
+	AppEnvParser func(c echo.Context) (appName, env string, err error)
 )
 
 var (
@@ -44,44 +56,168 @@ func CasbinMiddleware(config CasbinConfig) echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			if pass, err := config.CheckPermission(c); err == nil && pass {
-				return next(c)
-			} else if err != nil {
-				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			u := user.GetUser(c)
+			if u == nil {
+				return output.JSON(c, output.MsgNeedLogin, "forbidden")
 			}
 
-			return echo.ErrForbidden
+			pass, err := config.CheckPermission(u, c.Path(), c.Request().Method)
+			if err != nil {
+				return output.JSON(c, output.MsgErr, err.Error())
+			}
+
+			if pass {
+				return next(c)
+			}
+
+			apiItem := casbin2.Casbin.GetAPIItem(c.Path(), c.Request().Method)
+			if apiItem == nil {
+				return AuthFailedResp(c, "当前用户没有接口权限，请联系管理员", c.Path(), c.Request().Method)
+			}
+
+			return AuthFailedResp(c, "当前用户没有接口权限，请联系管理员", c.Path(), apiItem.Name)
 		}
 	}
 }
 
-// CheckPermission checks the user/method/path combination from the request.
+// CheckUserPermission checks the user/method/path combination from the request.
 // Returns true (permission granted) or false (permission forbidden)
-func (a *CasbinConfig) CheckPermission(c echo.Context) (bool, error) {
-	u := user.GetUser(c)
-	if !u.IsLogin() {
-		return false, errors.New("no user")
-	}
-	path := c.Request().URL.Path
-	appName := c.QueryParam("appname")
-
-	// app name is empty
-	if appName == "" {
-		appName = "juno_default"
-	}
-
-	return a.Enforcer.Enforce(strconv.Itoa(u.Uid), appName, path)
+func (a *CasbinConfig) CheckPermission(user *db.User, path, method string) (bool, error) {
+	return casbin2.Casbin.CheckUserPermission(user, path, method, db.CasbinPolicyTypeAPI)
 }
 
 func AllowPathPrefixSkipper(prefixes ...string) func(c echo.Context) bool {
 	return func(c echo.Context) bool {
 		path := c.Request().URL.Path
-		pathLen := len(path)
 		for _, p := range prefixes {
-			if pl := len(p); pathLen >= pl && path[:pl] == p {
+			if strings.HasPrefix(path, p) {
 				return true
 			}
 		}
 		return false
 	}
+}
+
+//ParseAppEnvFromContext 从Query/Body参数中获取应用环境信息
+func ParseAppEnvFromContext(c echo.Context) (appName, env string, err error) {
+	payload := struct {
+		AppName string `json:"app_name" query:"app_name"`
+		Env     string `json:"env" query:"env"`
+	}{}
+	err = c.Bind(&payload)
+	if err != nil {
+		return "", "", err
+	}
+
+	appName, env = payload.AppName, payload.Env
+	return
+}
+
+//ParseAppEnvFromConfigID 从
+func ParseAppEnvFromConfigID(c echo.Context) (appName, env string, err error) {
+	payload := struct {
+		ID uint `json:"id" query:"id"`
+	}{}
+	err = c.Bind(&payload)
+	if err != nil {
+		return "", "", err
+	}
+
+	detail, err := confgov2.Detail(view.ReqDetailConfig{ID: payload.ID})
+	if err != nil {
+		return
+	}
+
+	app, err := resource.Resource.GetApp(detail.AID)
+	if err != nil {
+		return
+	}
+	if app.Aid == 0 {
+		err = fmt.Errorf("不存在该应用")
+		return
+	}
+
+	appName, env = app.AppName, detail.Env
+
+	return
+}
+
+func CasbinAppMW(parserFn AppEnvParser, action string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// 获取 Body 内容
+			bodyBytes, _ := ioutil.ReadAll(c.Request().Body)
+			c.Request().Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+
+			appName, env, err := parserFn(c)
+
+			// 写回 Request Body
+			c.Request().Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
+			if err != nil {
+				return output.JSON(c, output.MsgErr, "can not get app,env from context: "+err.Error())
+			}
+
+			u := user.GetUser(c)
+			if u == nil {
+				return output.JSON(c, output.MsgNeedLogin, "forbidden")
+			}
+
+			sub := strconv.Itoa(u.Uid)
+			obj := casbin2.CasbinAppObjKey(appName, env)
+
+			hasPerm, err := casbin2.Casbin.CheckPermission(sub, obj, action, db.CasbinPolicyTypeApp)
+			if err != nil {
+				return output.JSON(c, output.MsgErr, err.Error())
+			}
+
+			if hasPerm {
+				return next(c)
+			}
+
+			return AuthFailedResp(c, "当前用户没有应用权限，请联系管理员", obj, action)
+		}
+	}
+}
+
+func GrafanaAuthMW(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// grafana document 请求
+		if strings.HasPrefix(c.Request().URL.Path, "/grafana/d/") {
+			param := struct {
+				AppName string `query:"var-appname"`
+				Env     string `query:"var-env"`
+			}{}
+
+			u := user.GetUser(c)
+
+			_ = c.Bind(&param)
+			obj := casbin2.CasbinAppObjKey(param.AppName, param.Env)
+			sub := strconv.Itoa(u.Uid)
+			act := db.AppPermMonitorRead
+			hasPerm, err := casbin2.Casbin.CheckPermission(sub, obj, act, db.CasbinPolicyTypeApp)
+			if err != nil {
+				return err
+			}
+
+			if hasPerm {
+				return next(c)
+			}
+
+			return c.HTML(http.StatusForbidden,
+				"<div style=\"text-align:center;\">当前用户无应用权限</div>")
+		}
+
+		return next(c)
+	}
+}
+
+func AuthFailedResp(c echo.Context, msg, obj, act string) error {
+	return c.JSON(http.StatusForbidden, map[string]interface{}{
+		"code": output.MsgNoAuth,
+		"msg":  msg,
+		"data": map[string]interface{}{
+			"obj": obj,
+			"act": act,
+		},
+	})
 }

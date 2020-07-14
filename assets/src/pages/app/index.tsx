@@ -274,7 +274,7 @@ export default class App extends React.Component<ConfgoBase, any> {
     }
     return (
       <PageHeaderWrapper>
-        <div style={{ backgroundColor: '#fff' }}>
+        <div style={{ backgroundColor: '#fff', borderRadius: '8px' }}>
           <div style={{ padding: 10 }}>
             <Row>
               <AppHeader

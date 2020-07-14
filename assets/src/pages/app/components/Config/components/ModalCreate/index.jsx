@@ -16,10 +16,10 @@ function ModalCreate(props) {
   }
 
   const onFinish = (fields) => {
-    const {aid, env} = props
+    const {appName, env} = props
     const data = {
       ...fields,
-      aid: parseInt(aid),
+      app_name: appName,
       env
     }
 
@@ -29,7 +29,7 @@ function ModalCreate(props) {
         showCreateModal(false)
       }
 
-      loadConfigList(aid, env)
+      loadConfigList(appName, env)
     })
   }
 
@@ -90,17 +90,18 @@ const mapStateToProps = ({config}) => {
   return {
     zoneList: config.zoneList,
     aid: config.aid,
-    env: config.env
+    env: config.env,
+    appName: config.appName
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
     createConfig: payload => dispatch({type: 'config/create', payload}),
-    loadConfigList: (aid, env) => dispatch({
+    loadConfigList: (appName, env) => dispatch({
       type: 'config/loadConfigInfo',
       payload: {
-        aid,
+        appName,
         env
       }
     }),

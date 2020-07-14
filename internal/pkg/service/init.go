@@ -11,6 +11,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/parse"
+	"github.com/douyu/juno/internal/pkg/service/permission"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
@@ -53,6 +54,8 @@ func Init() (err error) {
 	if err != nil {
 		return
 	}
-	return
 
+	permission.Init(invoker.JunoMysql)
+
+	return
 }

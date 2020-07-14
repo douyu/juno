@@ -19,7 +19,6 @@ function Publish(props: any) {
     historyListLoading,
     showEditorMaskLayer,
     setCurrentInstance,
-    currentConfig,
   } = props;
 
   const [visible, setVisible] = useState(false);

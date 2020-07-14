@@ -28,6 +28,8 @@ type AppInfo struct {
 	WebURL     string       `gorm:"not null;" json:"web_url"`
 	ProtoDir   string       `gorm:"not null;" json:"proto_dir"`
 	GitURL     string       `gorm:"not null;" json:"git_url"`
+
+	AppNodes []AppNode `gorm:"foreignKey:Aid;association_foreignkeyAid" json:"-"`
 }
 
 // TableName ...

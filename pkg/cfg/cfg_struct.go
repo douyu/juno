@@ -173,6 +173,7 @@ type Casbin struct {
 	Model            string
 	AutoLoad         bool
 	AutoLoadInternal int
+	ResourceFile     string
 }
 
 // HTTPProxy ..

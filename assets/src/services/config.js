@@ -1,18 +1,17 @@
 //获取配置 confu
 import request from '@/utils/request';
-import { stringify } from 'qs';
+import {stringify} from 'qs';
 
-export async function loadConfigs(aid, env) {
-  return request(`/api/admin/confgov2/config/list?${stringify({ aid, env })}`);
+export async function loadConfigs(appName, env) {
+  return request(`/api/admin/confgov2/config/list?${stringify({app_name: appName, env})}`);
 }
 
-export async function srvLoadConfigInstances(aid, env, zoneCode, configurationID) {
+export async function srvLoadConfigInstances(env, zoneCode, configurationID) {
   return request(
     `/api/admin/confgov2/config/instance/list?${stringify({
-      aid,
       env,
       zone_code: zoneCode,
-      configuration_id: configurationID,
+      id: configurationID,
     })}`,
   );
 }
@@ -22,12 +21,11 @@ export async function srvConfigPublish(id, version) {
   console.log('version', version);
   return request(`/api/admin/confgov2/config/publish`, {
     method: 'post',
-    data: { id: id, version: version },
+    data: {id: id, version: version},
   });
 }
 
 export async function createConfig(payload) {
-  payload.aid = parseInt(payload.aid);
   return request(`/api/admin/confgov2/config/create`, {
     method: 'post',
     data: payload,
@@ -50,7 +48,7 @@ export async function saveConfig(id, message, content) {
 }
 
 export async function loadHistoryList(id, page = 0, size = 10) {
-  const query = stringify({ id, page, size });
+  const query = stringify({id, page, size});
   return request(`/api/admin/confgov2/config/history?${query}`, {
     method: 'GET',
   });

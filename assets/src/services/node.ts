@@ -1,5 +1,5 @@
-import { request } from 'umi';
 import { stringify } from "qs";
+import request from "@/utils/request";
 
 export async function ServiceNodeUpdate(params: Resource.Node) {
   return request('/api/admin/resource/node/update', {

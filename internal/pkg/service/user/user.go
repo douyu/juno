@@ -118,6 +118,18 @@ func (u *user) Create(item *db.User) (err error) {
 	item.CreateTime = time.Now().Unix()
 	item.UpdateTime = time.Now().Unix()
 	err = u.DB.Create(item).Error
+	if err != nil {
+		return err
+	}
+
+	if item.Access == "admin" {
+		u.DB.Create(db.CasbinPolicyGroup{
+			GroupName: "admin",
+			Uid:       item.Uid,
+			Type:      db.CasbinGroupTypeUser,
+		})
+	}
+
 	return
 }
 

@@ -4,6 +4,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
 
@@ -49,6 +50,21 @@ func AppList(c echo.Context) error {
 		"pagination": page,
 		"list":       list,
 	})
+}
+
+func AppListWithEnv(c echo.Context) error {
+	var param view.ReqAppListWithEnv
+	err := c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgOk, err.Error())
+	}
+
+	appList, err := resource.Resource.GetAppListWithEnv(param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+
+	return output.JSON(c, output.MsgOk, "success", appList)
 }
 
 // 创建数据或者修改数据

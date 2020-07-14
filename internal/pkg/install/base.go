@@ -32,7 +32,7 @@ func MockData() {
 	mockTplCreate(urlConfigTplCreate, router)
 	mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
 	mockParse(urlConfigGeneratorParse, router)
-	mockCreateAdmin(urlUserCreate, router)
+	mockCreateUser(urlUserCreate, router)
 }
 
 func MustMockData() {
