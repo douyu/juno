@@ -72,7 +72,7 @@ test:
 	@echo testPath ${BAST_PATH}
 	go test -v .${BAST_PATH}/...
 
-build_all:build_admin build_proxy build_data
+build_all:build_admin build_proxy build_assests build_data
 
 
 build_admin:
@@ -87,7 +87,7 @@ build_proxy:
 	@cd cmd/juno-proxy && $(SCRIPT_PATH)/build/gobuild.sh $(JUNO_PROXY_NAME) $(COMPILE_OUT) $(APP_VERSION)
 	@echo -e "\n"
 
-build_data:
+build_assests:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build assets<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@cd assests && npm run build
 	@echo -e "\n"
