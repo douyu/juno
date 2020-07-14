@@ -1,0 +1,213 @@
+#菜单权限
+menu:
+  - name: 工作台
+    path: /workspace
+    icon: CrownOutlined
+
+  - name: 应用服务
+    path: /app
+    icon: RocketOutlined
+
+  - name: 功能看板
+    path: /analysis
+    icon: GlobalOutlined
+    children:
+      - name: 大盘
+        path: /analysis/dashboard
+      - name: 依赖拓扑
+        path: /analysis/topology
+
+  - name: 资源中心
+    path: /resource
+    icon: UngroupOutlined
+    children:
+      - path: /resource/app/list
+        name: 应用列表
+      - path: /resource/zone/list
+        name: 可用区列表
+      - path: /resource/node/list
+        name: 节点列表
+      - path: /resource/appnode/list
+        name: 应用节点关系列表
+
+  - name: 配置中心
+    path: /confgo
+    icon: FileProtectOutlined
+    children:
+      - path: /confgo/resource
+        name: 资源
+      - path: /confgo/tpl/list
+        name: 配置依赖解析模板
+
+  - name: 权限管理
+    path: /permission
+    icon: UserOutlined
+    children:
+      - path: /permission/user_group
+        name: 用户组
+      - path: /permission/menu
+        name: 菜单权限
+      - path: /permission/api
+        name: 接口权限
+      - path: /permission/app
+        name: 应用权限
+
+  - name: 系统设置
+    path: /admin
+    icon: ToolOutlined
+    children:
+      - path: /admin/user
+        name: 用户管理
+      - path: /admin/config
+        name: 系统设置
+
+# 应用权限
+app:
+  - name: 应用查看
+    key: app:read
+  - name: 配置查看
+    key: config:read
+  - name: 配置编辑
+    key: config:write
+  - name: 监控查看
+    key: monitor:read
+  - name: PProf查看
+    key: pprof:read
+  - name: PProf执行
+    key: pprof:run
+
+# 接口
+api:
+  - name: 用户管理
+    path: /api/admin/user
+    children:
+      - name: 用户创建
+        path: /api/admin/user/create
+        method: GET
+      - name: 用户删除
+        path: /api/admin/user/delete
+        method: POST
+      - name: 用户列表
+        path: /api/admin/user/list
+        method: GET
+  - name: 资源
+    path: /api/admin/resource
+    children:
+      - name: 应用
+        path: /api/admin/resource/app
+        children:
+          - name: 应用列表
+            path: /api/admin/resource/app/list
+            method: GET
+          - name: 应用详情信息
+            path: /api/admin/resource/app/info
+            method: GET
+          - name: 应用更新
+            path: /api/admin/resource/app/update
+            method: POST
+          - name: 应用创建
+            path: /api/admin/resource/app/create
+            method: POST
+          - name: 应用删除
+            path: /api/admin/resource/app/delete
+            method: POST
+      - name: 可用区
+        path: /api/admin/resource/zone
+        children:
+          - name: 可用区详情信息
+            path: /api/admin/resource/zone/info
+            method: GET
+          - name: 可用区列表
+            path: /api/admin/resource/zone/list
+            method: GET
+          - name: 创建可用区
+            path: /api/admin/resource/zone/create
+            method: POST
+          - name: 更新可用区
+            path: /api/admin/resource/zone/update
+            method: POST
+          - name: 删除可用区
+            path: /api/admin/resource/zone/delete
+            method: POST
+          - name: 可用区和环境列表
+            path: /api/admin/resource/zone/zone_env
+            method: GET
+      - name: 节点
+        path: /api/admin/resource/node
+        children:
+          - name: 节点信息
+            path: /api/admin/resource/node/info
+            method: GET
+          - name: 节点列表
+            path: /api/admin/resource/node/list
+            method: GET
+          - path: /api/admin/resource/node/create
+            name: 创建节点
+            method: POST
+          - path: /api/admin/resource/node/update
+            name: 更新节点
+            method: POST
+          - path: /api/admin/resource/node/delete
+            name: 删除节点
+            method: POST
+          - path: /api/admin/resource/node/statics
+            name: 节点信息统计
+            method: GET
+          - path: /api/admin/resource/node/transfer/list
+            name: 可用区节点列表
+            method: GET
+          - path: /api/admin/resource/node/transfer/put
+            name: 可用区节点列表更新
+            method: POST
+          - path: /api/admin/resource/app_node/info
+            name: 应用节点信息
+            method: GET
+          - path: /api/admin/resource/app_node/list
+            name: 应用节点列表
+            method: GET
+          - path: /api/admin/resource/app_node/transfer/list
+            name: 应用节点列表
+            method: GET
+          - path: /api/admin/resource/app_node/transfer/list
+            name: 应用节点列表更新
+            method: POST
+          - path: /api/admin/resource/app_env_zone/list
+            name: 应用环境可用区列表
+            method: GET
+
+  - name: 系统分析
+    path: /api/admin/analysis
+    children:
+      - path: /api/admin/analysis/index
+        method: GET
+        name: 全局统计信息
+      - path: /api/admin/analysis/topology/select
+        method: GET
+        name: 看板拓扑
+      - path: /api/admin/analysis/topology/list
+        method: GET
+        name: 应用拓扑列表
+      - path: /api/admin/analysis/topology/relationship
+        method: GET
+        name: 应用拓扑关系
+  - name: 系统
+    path: /api/admin/system
+    children:
+      - path: /api/admin/system/menu
+        method: GET
+        name: 系统菜单
+      - path: /api/admin/system/option/info
+        method: GET
+        name: 可用区信息
+      - path: /api/admin/system/option/list
+        method: GET
+        name: 可用区列表
+      - path: /api/admin/system/option/create
+        method: POST
+        name: 创建可用区
+      - path: /api/admin/system/option/update
+        method: POST
+        name: 更新可用区
+      - path: /api/admin/system/option/delete
+        method: POST
+        name: 删除可用区

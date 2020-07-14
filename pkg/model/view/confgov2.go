@@ -17,8 +17,8 @@ var (
 type (
 	// ReqListConfig ..
 	ReqListConfig struct {
-		AID uint   `json:"aid"`
-		Env string `json:"env"`
+		AppName string `query:"app_name"`
+		Env     string `query:"env"`
 	}
 
 	// RespListConfig ..
@@ -59,7 +59,7 @@ type (
 
 	// ReqCreateConfig ..
 	ReqCreateConfig struct {
-		AID      uint         `json:"aid"`
+		AppName  string       `json:"app_name"`
 		Env      string       `json:"env"`
 		Zone     string       `json:"zone"`
 		FileName string       `json:"file_name"` // 文件名(不带后缀)
@@ -120,9 +120,8 @@ type (
 	}
 
 	ReqConfigInstanceList struct {
-		ConfigurationID uint   `json:"configuration_id" query:"configuration_id"`
-		AID             uint   `json:"aid"`
-		Env             string `json:"env"`
+		ConfigurationID uint   `json:"id" query:"id"`
+		Env             string `json:"env" query:"env"`
 		ZoneCode        string `json:"zone_code"  query:"zone_code"`
 	}
 

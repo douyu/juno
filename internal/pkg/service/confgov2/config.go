@@ -35,10 +35,18 @@ const (
 )
 
 func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
+	var app db.AppInfo
+
 	resp = make(view.RespListConfig, 0)
 	list := make([]db.Configuration, 0)
+
+	err = mysql.Where("app_name = ?", param.AppName).First(&app).Error
+	if err != nil {
+		return resp, err
+	}
+
 	err = mysql.Select("id, aid, name, format, env, zone, created_at, updated_at, published_at").
-		Where("aid = ?", param.AID).
+		Where("aid = ?", app.Aid).
 		Where("env = ?", param.Env).
 		Find(&list).Error
 
@@ -85,12 +93,18 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 
 // Create ..
 func Create(param view.ReqCreateConfig) (err error) {
+	var app db.AppInfo
+
+	err = mysql.Where("app_name = ?", param.AppName).First(&app).Error
+	if err != nil {
+		return err
+	}
 
 	tx := mysql.Begin()
 	{
 		// check if name exists
 		exists := 0
-		err = tx.Model(&db.Configuration{}).Where("aid = ?", param.AID).
+		err = tx.Model(&db.Configuration{}).Where("aid = ?", app.Aid).
 			Where("env = ?", param.Env).
 			Where("name = ?", param.FileName).
 			Where("format = ?", param.Format).
@@ -106,7 +120,7 @@ func Create(param view.ReqCreateConfig) (err error) {
 		}
 
 		configuration := db.Configuration{
-			AID:    param.AID,
+			AID:    uint(app.Aid),
 			Name:   param.FileName, // 不带后缀
 			Format: string(param.Format),
 			Env:    param.Env,
@@ -191,12 +205,20 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 
 // Instances ..
 func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceList, err error) {
-	aid := param.AID
+	var configuration db.Configuration
+
 	env := param.Env
 	zoneCode := param.ZoneCode
+
+	query := mysql.Where("id=?", param.ConfigurationID).Find(&configuration)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+
 	// Get nodes data
 	nodes, err := resource.Resource.GetAllAppNodeList(db.AppNode{
-		Aid:      int(aid),
+		Aid:      int(configuration.AID),
 		Env:      env,
 		ZoneCode: zoneCode,
 	})
@@ -204,14 +226,8 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 		return
 	}
 
-	app, err := resource.Resource.GetApp(int(aid))
+	app, err := resource.Resource.GetApp(configuration.AID)
 	if err != nil {
-		return
-	}
-	var configuration db.Configuration
-	query := mysql.Where("id=?", param.ConfigurationID).Find(&configuration)
-	if query.Error != nil {
-		err = query.Error
 		return
 	}
 

@@ -111,6 +111,8 @@ export default class PPofList extends React.PureComponent {
 
   GetCheckDep = () => {
     checkDep({installType: 1}).then((res) => {
+      if (res.status >= 300) return
+
       if (res.code !== 0) {
         message.error(res.msg);
         return false;
@@ -204,12 +206,17 @@ export default class PPofList extends React.PureComponent {
         env,
       },
       callback: (resp) => {
-        if (resp.code !== 0) {
-          message.error('更新错误,err:' + resp.msg);
-          this.stopLoading();
+        this.stopLoading();
+
+        if (res.status >= 300) {
           return;
         }
-        this.stopLoading();
+
+        if (resp.code !== 0) {
+          message.error('更新错误,err:' + resp.msg);
+          return;
+        }
+
         message.success('成功！因文件服务延时，请稍等片刻查看相关分析文件！', 8);
         this.getList();
       },

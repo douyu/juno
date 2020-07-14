@@ -107,7 +107,7 @@ export default class Monitor extends React.PureComponent {
       return;
     }
 
-    let dashboardPath = grafana[e.target.value];
+    let dashboardPath = grafana[dashboardKey];
     this.setState({
       dashboardPath,
       dashboardSelected: dashboardKey,

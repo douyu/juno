@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/douyu/juno/internal/app/adminengine"
 	"log"
+
+	"github.com/douyu/juno/internal/app/adminengine"
 )
 
 func main() {

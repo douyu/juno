@@ -11,11 +11,14 @@ function ConfigEdit(props) {
   const {aid, env, zoneList, appName} = props;
 
   useEffect(() => {
+    if (!appName) return
+
     // load config-file list
     props.dispatch({
       type: 'config/loadConfigInfo',
       payload: {
-        aid, env
+        appName,
+        env
       }
     });
 
@@ -33,7 +36,7 @@ function ConfigEdit(props) {
         appName
       }
     })
-  }, [aid, env, zoneList]);
+  }, [appName, env, zoneList]);
 
   return (
     <div className={styles.container}>

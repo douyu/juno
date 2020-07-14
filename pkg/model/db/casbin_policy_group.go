@@ -1,13 +1,28 @@
 package db
 
-type CasbinPolicyGroup struct {
-	Model
-	Uid     int    `gorm:"not null;"json:"uid"`
-	UrlId   int    `gorm:"not null;"json:"uriId"`
-	AppName string `gorm:"not null;index;"json:"app_name"`
-	Gid     int    `gorm:"not null;index;"json:"gid"`
-	Type    int    `gorm:"not null;"json:"type"` // 1 user, 2 app ,3 url
-}
+import "github.com/jinzhu/gorm"
+
+type (
+	CasbinGroupType string
+
+	CasbinPolicyGroup struct {
+		gorm.Model
+		GroupName string `gorm:"type:varchar(30);not null;" json:"group_name"`
+
+		Uid     int    `gorm:"not null;index;"json:"uid"`
+		AppName string `gorm:"type:varchar(255);not null;"json:"app_name"`
+		AppEnv  string `gorm:"type:varchar(30);not null";json:"app_env"`
+		URL     string `gorm:"type:varchar(255);not null;" json:"url"`
+
+		Type string `gorm:"not null;"json:"type"`
+	}
+)
+
+var (
+	CasbinGroupTypeUser = "user"
+	CasbinGroupTypeApp  = "app"
+	CasbinGroupTypeMenu = "url"
+)
 
 func (c CasbinPolicyGroup) TableName() string {
 	return "casbin_policy_group"

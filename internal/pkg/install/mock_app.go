@@ -106,7 +106,7 @@ func mockParse(url string, router *echo.Echo) {
 	PostForm(url, "", router)
 }
 
-func mockCreateAdmin(url string, router *echo.Echo) {
+func mockCreateUser(url string, router *echo.Echo) {
 	// 发起post请求，以表单形式传递参数
 	param := `{
 	"username": "admin",
@@ -117,6 +117,11 @@ func mockCreateAdmin(url string, router *echo.Echo) {
 
 	body := PostForm(url, param, router)
 	fmt.Println(string(body))
+
+	PostForm(url,
+		`{"username": "default", "nickname": "default","password": "c21f969b5f03d33d43e04f8f136e7682","access": "user"}`,
+		router,
+	)
 }
 
 func mockMonitorAPI(url string, router *echo.Echo) {

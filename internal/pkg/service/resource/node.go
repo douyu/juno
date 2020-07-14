@@ -19,7 +19,7 @@ func (r *resource) GetNode(tx *gorm.DB, identify interface{}) (resp db.Node, err
 	switch v := identify.(type) {
 	case string:
 		err = tx.Where("host_name = ?", v).Find(&resp).Error
-	case int:
+	case int, uint:
 		err = tx.Where("id=?", v).Find(&resp).Error
 	default:
 		err = errors.New("identify type error")

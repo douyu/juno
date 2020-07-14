@@ -3,6 +3,7 @@ package resource
 import (
 	"encoding/json"
 	"errors"
+	"golang.org/x/sync/errgroup"
 	"strconv"
 	"strings"
 	"sync"
@@ -24,7 +25,7 @@ func (r *resource) GetApp(identify interface{}) (resp db.AppInfo, err error) {
 	switch v := identify.(type) {
 	case string:
 		err = r.DB.Where("app_name = ?", v).Find(&resp).Error
-	case int:
+	case int, uint:
 		err = r.DB.Where("aid=?", v).Find(&resp).Error
 	default:
 		err = errors.New("identify type error")
@@ -160,6 +161,61 @@ func (r *resource) GetAppList(where db.AppInfo, currentPage, pageSize int, keyTy
 		sql = sql.Order(sort)
 	}
 	err = sql.Offset((page.Current - 1) * page.PageSize).Limit(page.PageSize).Find(&resp).Error
+	return
+}
+
+// 获取带环境信息的应用列表
+func (r *resource) GetAppListWithEnv(param view.ReqAppListWithEnv) (resp view.RespAppListWithEnv, err error) {
+	var apps []db.AppInfo
+	var eg errgroup.Group
+
+	page := param.Page
+	if page > 0 {
+		page -= 1
+	}
+	pageSize := param.PageSize
+	if pageSize > 1000 {
+		pageSize = 1000
+	}
+	offset := page * pageSize
+
+	resp.Pagination.Current = int(param.Page)
+	resp.Pagination.PageSize = int(pageSize)
+
+	query := r.DB.Model(&db.AppInfo{})
+	if param.SearchText != "" {
+		query = query.Where("app_name like ?", "%"+param.SearchText+"%")
+	}
+
+	eg.Go(func() error {
+		return query.Count(&resp.Pagination.Total).Error
+	})
+
+	eg.Go(func() error {
+		return query.Preload("AppNodes", func(db *gorm.DB) *gorm.DB {
+			// group by env
+			return db.Group("app_name,env")
+		}).Limit(pageSize).Offset(offset).Find(&apps).Error
+	})
+
+	err = eg.Wait()
+	if err != nil {
+		return view.RespAppListWithEnv{}, err
+	}
+
+	for _, app := range apps {
+		appItem := view.AppListWithEnvItem{
+			AppInfo: app,
+			Envs:    make([]string, 0),
+		}
+
+		for _, node := range app.AppNodes {
+			appItem.Envs = append(appItem.Envs, node.Env)
+		}
+
+		resp.List = append(resp.List, appItem)
+	}
+
 	return
 }
 

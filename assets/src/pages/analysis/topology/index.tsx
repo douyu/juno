@@ -79,7 +79,8 @@ export default class ServiceTopology extends Component {
       (res) => {
         this.topology.hideLoading();
         if (res.code != 0) {
-          message.warn(res.msg);
+          message.error(res.msg);
+          return
         }
         this.renderTopology(res.data || []);
 
