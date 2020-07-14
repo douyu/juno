@@ -78,18 +78,18 @@ build_all:build_admin build_proxy build_assests build_data
 build_admin:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build juno admin<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@chmod +x $(SCRIPT_PATH)/build/*.sh
-	@cd cmd/juno-admin && $(SCRIPT_PATH)/build/gobuild.sh $(JUNO_ADMIN_NAME) $(COMPILE_OUT) $(APP_VERSION)
+	@cd $(BASE_PATH)/cmd/juno-admin && $(SCRIPT_PATH)/build/gobuild.sh $(JUNO_ADMIN_NAME) $(COMPILE_OUT) $(APP_VERSION)
 	@echo -e "\n"
 
 build_proxy:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build juno proxy<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@chmod +x $(SCRIPT_PATH)/build/*.sh
-	@cd cmd/juno-proxy && $(SCRIPT_PATH)/build/gobuild.sh $(JUNO_PROXY_NAME) $(COMPILE_OUT) $(APP_VERSION)
+	@cd $(BASE_PATH)/cmd/juno-proxy && $(SCRIPT_PATH)/build/gobuild.sh $(JUNO_PROXY_NAME) $(COMPILE_OUT) $(APP_VERSION)
 	@echo -e "\n"
 
 build_assests:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build assets<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	@cd assests && npm run build
+	@cd $(BASE_PATH)/assets && npm run build
 	@echo -e "\n"
 
 build_data:
