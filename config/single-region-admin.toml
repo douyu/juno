@@ -1,10 +1,6 @@
-
 [app]
-  appurl = ""
-  mode = "prod"
-  name = "juno"
-  token = "123456"
-  secretKey = "ASDFASDFASDF"
+  secretKey = "ASDFASDFASDF" # hashStatecode
+  mode = "single" # single without proxy, multiple with proxy
 
 [confgo]
   dir = "/tmp/www/server"
@@ -14,10 +10,14 @@
     port = 50010
 
 [jupiter.logger.default]
-    debug = true          # 是否在命令行输出
-    enableConsole = true  # 是否按命令行格式输出
+#    debug = true          # 是否在命令行输出
+#    enableConsole = true  # 是否按命令行格式输出
+#    level = "debug"
+    debug = false          # 是否在命令行输出
+    enableConsole = false  # 是否按命令行格式输出
     level = "debug"
-
+    name = "default.json" # 日志名称
+    dir = "./"
 
 [session]
   maxAge = 172800
@@ -35,20 +35,14 @@
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
-    port = 50002
+    port = 50000
     # The public facing domain name used to access grafana from a browser
     domain = "localhost"
-    # enable gzip
-    enableGzip = false
 [server.govern]
     # The ip address to bind to, empty will bind to all interfaces
-    host = "0.0.0.0"
+    host = "127.0.0.1"
     # The http port to use
     port = 50004
-    # The public facing domain name used to access grafana from a browser
-    domain = "localhost"
-    # enable gzip
-    enableGzip = false
 
 #################################### Database ##############################
 [database]

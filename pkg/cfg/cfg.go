@@ -165,11 +165,12 @@ func defaultConfig() cfg {
 			},
 		},
 		Pprof: Pprof{
-			Debug:       false,
 			TmpPath:     "/tmp",
 			TokenHeader: "X-JUNO-PPROF",
 			Token:       "juno666",
 			Timeout:     xtime.Duration("120s"),
+			Debug:       false,
+			StorePath:   "data/pprof",
 		},
 		Casbin: Casbin{
 			Enable:           false,

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
@@ -17,7 +18,6 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/model/db"
-	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/go-resty/resty/v2"
 	torchPprof "github.com/uber-archive/go-torch/pprof"
@@ -84,7 +84,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 
 		resp := make([]byte, 0)
 		// 没走代理
-		if conf.GetString("proxy.mode") == "local" {
+		if cfg.Cfg.App.Mode == constx.ModeSingle {
 			resp, err = p.GetPprof(ip, governPort, fileType)
 			if err != nil {
 				xlog.Error("PostPprof err", zap.Error(err), zap.String("fileType", fileType))
@@ -101,7 +101,15 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 
 		// 3. 请求结果存入临时文件
 		saveFileName := path.Join(cfg.Cfg.Pprof.TmpPath, fileType+"_"+hostName+".bin")
-		saveSvgName := fmt.Sprintf("data/pprof_static/%s_%s_%s.svg", time.Now().Format("2006_01_02_15_04_05"), hostName, fileType)
+
+		monthPath := time.Now().Format("2006_01_02")
+		storePath := path.Join(cfg.Cfg.Pprof.StorePath, monthPath)
+		err = util.CreatePath(storePath)
+		if err != nil {
+			xlog.Error("create store path error", zap.Error(err), zap.String("storePath", storePath))
+			continue
+		}
+		saveSvgName := path.Join(storePath, fmt.Sprintf("%s_%s_%s.svg", time.Now().Format("2006_01_02_15_04_05"), hostName, fileType))
 		if err = ioutil.WriteFile(saveFileName, resp, os.ModePerm); err != nil {
 			xlog.Error("save tmp file error", zap.Error(err), zap.String("saveSvgName", saveSvgName))
 			continue
@@ -191,6 +199,7 @@ func getFlameGraph(fileName, tagFileName string) error {
 	// 3 生成火焰图
 	flameGraph, err := renderer.GenerateFlameGraph(flameInput, []string{}...)
 	if err != nil {
+		xlog.Error("flame graph err", zap.Error(err), zap.Any("flameInput", flameInput))
 		return fmt.Errorf("could not generate flame graph: %v", err)
 	}
 

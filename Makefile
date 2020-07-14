@@ -72,7 +72,7 @@ test:
 	@echo testPath ${BAST_PATH}
 	go test -v .${BAST_PATH}/...
 
-build_all:build_admin build_proxy build_assests build_data
+build_all:build_admin build_proxy build_assets build_data
 
 
 build_admin:
@@ -87,7 +87,7 @@ build_proxy:
 	@cd $(BASE_PATH)/cmd/juno-proxy && $(SCRIPT_PATH)/build/gobuild.sh $(JUNO_PROXY_NAME) $(COMPILE_OUT) $(APP_VERSION)
 	@echo -e "\n"
 
-build_assests:
+build_assets:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build assets<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@cd $(BASE_PATH)/assets && npm run build
 	@echo -e "\n"
@@ -102,3 +102,5 @@ run:
 	go run cmd/main.go --config=config/config.toml
 
 
+tar:
+	@cd $(BASE_PATH)/release && tar zcvf $(APP_VERSION).tar.gz $(APP_VERSION)

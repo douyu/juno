@@ -388,3 +388,11 @@ func IsExist(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil || os.IsExist(err)
 }
+
+func CreatePath(filePath string) error {
+	if !IsExist(filePath) {
+		err := os.MkdirAll(filePath, os.ModePerm)
+		return err
+	}
+	return nil
+}
