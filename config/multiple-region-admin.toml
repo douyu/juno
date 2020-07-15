@@ -144,8 +144,8 @@
 [casbin]
     enable = false
     debug = true
-    model = "./configs/model.conf"
+    model = "./config/model.conf"
     autoLoad = true
     autoLoadInternal = 60
     # 资源配置
-    resourceFile = './configs/resource.yaml'
+    resourceFile = './config/resource.yaml'

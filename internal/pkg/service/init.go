@@ -50,7 +50,7 @@ func Init() (err error) {
 	configresource.Init(invoker.JunoMysql)
 
 	casbinAdapter := &casbin.CasbinAdapter{}
-	_, _, err = casbin.InitCasbin(casbinAdapter)
+	err = casbin.InitCasbin(casbinAdapter)
 	if err != nil {
 		return
 	}
