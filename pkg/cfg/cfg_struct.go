@@ -159,8 +159,8 @@ type Database struct {
 
 // Configure ..
 type Configure struct {
-	Dir    string `json:"dir"`
-	Prefix string `json:"prefix"`
+	Dirs    []string `json:"dirs"`
+	Prefixes []string `json:"prefixes"`
 	Agent  struct {
 		Port int `json:"port"`
 	} `json:"agent"`
