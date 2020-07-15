@@ -15,12 +15,14 @@
 package adminengine
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/douyu/juno/api/apiv1/permission"
 	"github.com/douyu/juno/internal/pkg/service/casbin"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
-	"net/http"
-	"strings"
+	"github.com/douyu/juno/pkg/util"
 
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/app"
@@ -65,6 +67,11 @@ func apiAdmin(server *xecho.Server) {
 	}
 
 	// static file
+	flag, err := util.IsFileExists("assets/dist")
+	if err != nil || !flag {
+		panic("assets/dist not exist")
+	}
+
 	server.GET("/", static.File("assets/dist/index.html"), sessionMW, loginAuthRedirect)
 	server.Static("/ant/*", "assets/dist")
 	server.Static("/pprof/*", cfg.Cfg.Pprof.StorePath)
