@@ -310,11 +310,6 @@ func Md5Str(val string) string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func PPP(key string, in interface{}) {
-	d, _ := json.Marshal(in)
-	fmt.Println(key, ": ", string(d))
-}
-
 // 字符串截取
 func Substr(str string, start int, length int) string {
 	rs := []rune(str)

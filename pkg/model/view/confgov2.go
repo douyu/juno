@@ -170,10 +170,10 @@ type (
 
 	// Metadata ..
 	Metadata struct {
-		Timestamp int64  `json:"timestamp"`
-		Version   string `json:"version"`
-		Format    string `json:"format"`
-		Path      string `json:"path"`
+		Timestamp int64    `json:"timestamp"`
+		Version   string   `json:"version"`
+		Format    string   `json:"format"`
+		Paths     []string `json:"paths"`
 	}
 
 	// ConfigurationStatus ..

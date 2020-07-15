@@ -104,7 +104,8 @@ func defaultConfig() cfg {
 			Name:   "gateway",
 		},
 		Configure: Configure{
-			Dir: "",
+			Dirs: []string{"/tmp/www/server"},
+			Prefixes: []string{"juno-agent"},
 		},
 		ClientProxy: []ClientProxy{
 			{

@@ -67,6 +67,7 @@ function InstanceDetail(props) {
               onClick={() => {
                 setVisibleRestartModal(true)
               }}
+              disabled
             >
               重启
             </Button>

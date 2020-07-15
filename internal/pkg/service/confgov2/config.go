@@ -19,8 +19,10 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
 	"go.etcd.io/etcd/clientv3"
+	"go.uber.org/zap"
 )
 
 const (
@@ -345,19 +347,24 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 }
 
 func syncPublishStatus(appName, env string, zoneCode string, configuration db.Configuration, notSyncFlag map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
-	newSyncDataMap, err := configurationSynced(appName, env, zoneCode, configuration.Name, configuration.Format, notSyncFlag)
-	if err != nil {
-		return resp, err
-	}
-	var version = configuration.Version
-	for k, v := range resp {
-		if resp[k].ConfigFileSynced == 1 {
+	for _, prefix := range cfg.Cfg.Configure.Prefixes {
+		newSyncDataMap, err := configurationSynced(appName, env, zoneCode, configuration.Name, configuration.Format, prefix, notSyncFlag)
+		if err != nil {
+			xlog.Error("syncPublishStatus", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("prefix", prefix), zap.String("err", err.Error()))
 			continue
 		}
-		if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
-			if newState.Version == version {
-				resp[k].ConfigFileSynced = 1
-				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("synced", 1)
+		xlog.Debug("syncPublishStatus", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.Any("newSyncDataMap", newSyncDataMap))
+
+		var version = configuration.Version
+		for k, v := range resp {
+			if resp[k].ConfigFileSynced == 1 {
+				continue
+			}
+			if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
+				if newState.Version == version {
+					resp[k].ConfigFileSynced = 1
+					mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("synced", 1)
+				}
 			}
 		}
 	}
@@ -411,7 +418,6 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	if err = json.Unmarshal(resp.Body(), configurationUsedStatus); err != nil {
 		return 0
 	}
-	util.PPP("configurationUsedStatus", configurationUsedStatus)
 
 	if configurationUsedStatus.Data.Supervisor {
 		return 1
@@ -440,11 +446,11 @@ func getConfigurationStatus(configurationID uint, hostName string) (res db.Confi
 	return
 }
 
-func configurationSynced(appName, env, zoneCode, filename, format string, notSyncFlag map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
+func configurationSynced(appName, env, zoneCode, filename, format, prefix string, notSyncFlag map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
 	list = make(map[string]view.ConfigurationStatus, 0)
 	fileName := fmt.Sprintf("%s.%s", filename, format)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	key := fmt.Sprintf("/%s/callback/%s/%s", cfg.Cfg.Configure.Prefix, appName, fileName)
+	key := fmt.Sprintf("/%s/callback/%s/%s", prefix, appName, fileName)
 	conn, err := clientproxy.ClientProxy.ServerProxyETCDConn(env, zoneCode)
 	defer cancel()
 	if err != nil {
@@ -497,7 +503,6 @@ func configurationTakeEffect(appName, env, zoneCode, filename, format, governPor
 		row.EffectVersion = effectVersion
 		list[node.HostName] = row
 	}
-	util.PPP("list", list)
 	return
 }
 
@@ -583,7 +588,7 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 		cp.ConfigurationID = configuration.ID
 		cp.ConfigurationHistoryID = confHistory.ID
 		cp.UID = uint(user.Uid)
-		cp.FilePath = strings.Join([]string{cfg.Cfg.Configure.Dir, appInfo.AppName, "config", configuration.FileName()}, "/")
+		_, cp.FilePath = genConfigurePath(appInfo.AppName, configuration.FileName())
 		if err = tx.Save(&cp).Error; err != nil {
 			tx.Rollback()
 			return
@@ -610,6 +615,19 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 		tx.Commit()
 	}
 
+	return
+}
+
+func genConfigurePath(appName string, filename string) (pathArr []string, pathStr string) {
+	for k, dir := range cfg.Cfg.Configure.Dirs {
+		path := strings.Join([]string{dir, appName, "config", filename}, "/")
+		pathArr = append(pathArr, path)
+		if k == 0 {
+			pathStr = path
+		} else {
+			pathStr = pathStr + ";" + path
+		}
+	}
 	return
 }
 
@@ -640,14 +658,16 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 
 	content := configurationHeader(req.Content, req.Format, req.Version)
 
-	fmt.Println(content)
+	xlog.Debug("func publishETCD", zap.String("content", content))
+
+	paths, _ := genConfigurePath(req.AppName, req.FileName)
 	data := view.ConfigurationPublishData{
 		Content: content,
 		Metadata: view.Metadata{
 			Timestamp: time.Now().Unix(),
 			Format:    req.Format,
 			Version:   req.Version,
-			Path:      strings.Join([]string{cfg.Cfg.Configure.Dir, req.AppName, "config", req.FileName}, "/"),
+			Paths:     paths,
 		},
 	}
 	var buf []byte
@@ -657,16 +677,19 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
+
 	conn, errConn := clientproxy.ClientProxy.ServerProxyETCDConn(req.Env, req.ZoneCode)
 	if errConn != nil {
 		return errConn
 	}
 	for _, hostName := range req.InstanceList {
-		key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", cfg.Cfg.Configure.Prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
-		// The migration is complete, only write independent ETCD of the configuration center
-		_, err = conn.Put(ctx, key, string(buf))
-		if err != nil {
-			return
+		for _, prefix := range cfg.Cfg.Configure.Prefixes {
+			key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
+			// The migration is complete, only write independent ETCD of the configuration center
+			_, err = conn.Put(ctx, key, string(buf))
+			if err != nil {
+				return
+			}
 		}
 	}
 	return nil
