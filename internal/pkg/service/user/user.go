@@ -122,12 +122,18 @@ func (u *user) Create(item *db.User) (err error) {
 		return err
 	}
 
+	groupName := "default"
 	if item.Access == "admin" {
-		u.DB.Create(db.CasbinPolicyGroup{
-			GroupName: "admin",
-			Uid:       item.Uid,
-			Type:      db.CasbinGroupTypeUser,
-		})
+		groupName = "admin"
+	}
+
+	err = u.DB.Save(&db.CasbinPolicyGroup{
+		GroupName: groupName,
+		Uid:       item.Uid,
+		Type:      db.CasbinGroupTypeUser,
+	}).Error
+	if err != nil {
+		return err
 	}
 
 	return
