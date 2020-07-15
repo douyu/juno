@@ -6,7 +6,7 @@ import {DatabaseOutlined} from '@ant-design/icons';
 import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
 import ScrollArea from 'react-scrollbar';
-import {ReloadOutlined} from "@ant-design/icons/lib";
+import {ReloadOutlined, StopOutlined} from "@ant-design/icons/lib";
 
 function Publish(props: any) {
   const {
@@ -93,6 +93,7 @@ function Publish(props: any) {
     <div className={styles.publish}>
       <div className={styles.optionBlock}>
         <Select
+          placeholder={"选择配置文件"}
           style={{width: '100%'}}
           loading={configInstanceListLoading}
           onChange={selectConfigFile}
@@ -113,6 +114,13 @@ function Publish(props: any) {
           </OptionButton>
         </div>
       </div>
+
+      {!configFile && (
+        <div className={styles.tipConfigNotSelect}>
+          <StopOutlined/>
+          请先选择配置文件
+        </div>
+      )}
 
       {configInstanceListLoading && (
         <div className={styles.instanceListLoading}>
