@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { connect } from 'dva';
+import React, {useEffect, useState} from 'react';
+import {connect} from 'dva';
 import styles from './index.less';
-import { message, Modal, Select, Spin } from 'antd';
-import { DatabaseOutlined } from '@ant-design/icons';
+import {message, Modal, Select, Spin} from 'antd';
+import {DatabaseOutlined} from '@ant-design/icons';
 import OptionButton from '@/pages/app/components/Config/components/OptionButton';
-import { StopOutlined } from '@ant-design/icons/lib';
+import {StopOutlined} from '@ant-design/icons/lib';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
 
 function Publish(props: any) {
@@ -21,7 +21,7 @@ function Publish(props: any) {
     setCurrentInstance,
   } = props;
 
-  const [visible, setVisible] = useState(false);
+  const [visibleModalPublish, setVisibleModalPublish] = useState(false);
   const [version, setVersion] = useState('');
   const [configFile, setConfigFile] = useState<{
     aid: number;
@@ -53,7 +53,7 @@ function Publish(props: any) {
       message.error('请选择配置文件再进行发布');
     }
 
-    setVisible(true);
+    setVisibleModalPublish(true);
     loadConfigHistory(configFile?.id);
   };
 
@@ -61,14 +61,14 @@ function Publish(props: any) {
     setVersion(val);
   };
 
-  let handleCancel = () => {
-    setVisible(false);
+  let handleCancelPublish = () => {
+    setVisibleModalPublish(false);
   };
 
-  let handleOk = () => {
+  let handlePublishConfig = () => {
     configPublish(configFile?.id, version);
     loadConfigInstances(configFile?.aid, configFile?.env, configFile?.zone, configFile?.id);
-    setVisible(false);
+    setVisibleModalPublish(false);
   };
 
   let selectConfigFile = (val: any, target: any) => {
@@ -84,7 +84,7 @@ function Publish(props: any) {
   return (
     <div className={styles.publish}>
       <Select
-        style={{ width: '100%' }}
+        style={{width: '100%'}}
         loading={configInstanceListLoading}
         onChange={selectConfigFile}
         value={configFile && configFile.id}
@@ -98,95 +98,100 @@ function Publish(props: any) {
         })}
       </Select>
 
-      <div style={{ marginTop: '10px' }}>
-        <OptionButton style={{ width: '100%' }} onClick={publishStart}>
+      <div style={{marginTop: '10px'}}>
+        <OptionButton style={{width: '100%'}} onClick={publishStart}>
           发布
         </OptionButton>
       </div>
 
       {!configFile && (
         <div className={styles.tipConfigNotSelect}>
-          <StopOutlined />
+          <StopOutlined/>
           请先选择配置文件
         </div>
       )}
 
       {configInstanceListLoading && (
         <div className={styles.instanceListLoading}>
-          <Spin tip={'实例加载中'} />
+          <Spin tip={'实例加载中'}/>
         </div>
       )}
 
       {configFile && !configInstanceListLoading && (
         <ul className={styles.instanceList}>
           {configInstanceList != undefined &&
-            configInstanceList.map((item: any, index: any) => {
-              return (
-                <li
-                  key={index}
-                  onClick={() => {
-                    setCurrentInstance(item);
-                    showEditorMaskLayer(true, <InstanceDetail />);
-                  }}
-                >
-                  <div className={styles.instanceName}>
-                    <div className={styles.icon}>
-                      <DatabaseOutlined />
-                    </div>
-                    <div>{item.host_name}</div>
+          configInstanceList.map((item: any, index: any) => {
+            return (
+              <li
+                key={index}
+                onClick={() => {
+                  setCurrentInstance(item);
+                  showEditorMaskLayer(true, <InstanceDetail/>);
+                }}
+              >
+                <div className={styles.instanceName}>
+                  <div className={styles.icon}>
+                    <DatabaseOutlined/>
                   </div>
+                  <div>{item.host_name}</div>
+                </div>
 
-                  <div className={styles.instanceStatus}>
-                    <div
-                      className={
-                        item.config_file_used ? styles.statusSynced : styles.statusNotSynced
-                      }
-                    >
-                      接入状态
-                    </div>
-                    <div
-                      className={
-                        item.config_file_synced ? styles.statusSynced : styles.statusNotSynced
-                      }
-                    >
-                      发布状态
-                    </div>
-                    <div
-                      className={
-                        item.config_file_take_effect ? styles.statusSynced : styles.statusNotSynced
-                      }
-                    >
-                      生效状态
-                    </div>
+                <div className={styles.instanceStatus}>
+                  <div
+                    className={
+                      item.config_file_used ? styles.statusSynced : styles.statusNotSynced
+                    }
+                  >
+                    接入状态
                   </div>
-                </li>
-              );
-            })}
+                  <div
+                    className={
+                      item.config_file_synced ? styles.statusSynced : styles.statusNotSynced
+                    }
+                  >
+                    发布状态
+                  </div>
+                  <div
+                    className={
+                      item.config_file_take_effect ? styles.statusSynced : styles.statusNotSynced
+                    }
+                  >
+                    生效状态
+                  </div>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      <Modal title="配置发布" visible={visible} onOk={handleOk} onCancel={handleCancel}>
+      <Modal
+        title="配置发布"
+        visible={visibleModalPublish}
+        onOk={handlePublishConfig}
+        onCancel={handleCancelPublish}
+      >
         <Select
-          style={{ width: '100%' }}
+          style={{width: '100%'}}
           loading={historyListLoading}
           onSelect={selectVersion}
           value={version}
         >
           {historyList != undefined &&
-            historyList.map((item: any, index: any) => {
-              return (
-                <Select.Option value={item.version} key={index}>
-                  {item.version}.{item.change_log}
-                </Select.Option>
-              );
-            })}
+          historyList.map((item: any, index: any) => {
+            return (
+              <Select.Option value={item.version} key={index}>
+                {item.version}.{item.change_log}
+              </Select.Option>
+            );
+          })}
         </Select>
       </Modal>
     </div>
   );
 }
 
-const mapStateToProps = ({ config }: any) => {
+const mapStateToProps = ({config}: any) => {
   console.log('mapStateToProps -> config', config);
   return {
     aid: config.aid,
