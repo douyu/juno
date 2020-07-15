@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { connect } from 'dva';
+import React, {useEffect, useState} from 'react';
+import {connect} from 'dva';
 import styles from './index.less';
-import { message, Modal, Select, Spin } from 'antd';
-import { DatabaseOutlined } from '@ant-design/icons';
-import OptionButton from '@/pages/app/components/Config/components/OptionButton';
-import { StopOutlined } from '@ant-design/icons/lib';
+import {Empty, message, Modal, Select, Spin} from 'antd';
+import {DatabaseOutlined} from '@ant-design/icons';
+import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
+import ScrollArea from 'react-scrollbar';
+import {ReloadOutlined, StopOutlined} from "@ant-design/icons/lib";
 
 function Publish(props: any) {
   const {
@@ -19,9 +20,10 @@ function Publish(props: any) {
     historyListLoading,
     showEditorMaskLayer,
     setCurrentInstance,
+    currentConfig
   } = props;
 
-  const [visible, setVisible] = useState(false);
+  const [visibleModalPublish, setVisibleModalPublish] = useState(false);
   const [version, setVersion] = useState('');
   const [configFile, setConfigFile] = useState<{
     aid: number;
@@ -32,6 +34,12 @@ function Publish(props: any) {
 
   useEffect(() => {
     if (!configFile) {
+      if (currentConfig) {
+        setConfigFile(currentConfig)
+        loadConfigInstances(currentConfig.aid, currentConfig.env, currentConfig.zone, currentConfig.id)
+        return;
+      }
+
       if (configList && configList.length > 0) {
         setConfigFile(configList[0]);
         loadConfigInstances(
@@ -53,7 +61,7 @@ function Publish(props: any) {
       message.error('请选择配置文件再进行发布');
     }
 
-    setVisible(true);
+    setVisibleModalPublish(true);
     loadConfigHistory(configFile?.id);
   };
 
@@ -61,14 +69,14 @@ function Publish(props: any) {
     setVersion(val);
   };
 
-  let handleCancel = () => {
-    setVisible(false);
+  let handleCancelPublish = () => {
+    setVisibleModalPublish(false);
   };
 
-  let handleOk = () => {
+  let handlePublishConfig = () => {
     configPublish(configFile?.id, version);
     loadConfigInstances(configFile?.aid, configFile?.env, configFile?.zone, configFile?.id);
-    setVisible(false);
+    setVisibleModalPublish(false);
   };
 
   let selectConfigFile = (val: any, target: any) => {
@@ -83,55 +91,80 @@ function Publish(props: any) {
 
   return (
     <div className={styles.publish}>
-      <Select
-        style={{ width: '100%' }}
-        loading={configInstanceListLoading}
-        onChange={selectConfigFile}
-        value={configFile && configFile.id}
-      >
-        {configList.map((item: any, index: any) => {
-          return (
-            <Select.Option value={item.id} config={item} key={index}>
-              {item.name}.{item.format}
-            </Select.Option>
-          );
-        })}
-      </Select>
+      <div className={styles.optionBlock}>
+        <Select
+          placeholder={"选择配置文件"}
+          style={{width: '100%'}}
+          loading={configInstanceListLoading}
+          onChange={selectConfigFile}
+          value={configFile && configFile.id}
+        >
+          {configList.map((item: any, index: any) => {
+            return (
+              <Select.Option value={item.id} config={item} key={index}>
+                {item.name}.{item.format}
+              </Select.Option>
+            );
+          })}
+        </Select>
 
-      <div style={{ marginTop: '10px' }}>
-        <OptionButton style={{ width: '100%' }} onClick={publishStart}>
-          发布
-        </OptionButton>
+        <div style={{marginTop: '10px'}}>
+          <OptionButton style={{width: '100%'}} onClick={publishStart}>
+            发布
+          </OptionButton>
+        </div>
       </div>
 
       {!configFile && (
         <div className={styles.tipConfigNotSelect}>
-          <StopOutlined />
+          <StopOutlined/>
           请先选择配置文件
         </div>
       )}
 
       {configInstanceListLoading && (
         <div className={styles.instanceListLoading}>
-          <Spin tip={'实例加载中'} />
+          <Spin tip={'实例加载中'}/>
         </div>
       )}
 
-      {configFile && !configInstanceListLoading && (
-        <ul className={styles.instanceList}>
-          {configInstanceList != undefined &&
-            configInstanceList.map((item: any, index: any) => {
+      {!configInstanceListLoading && !configList && (<div>
+        <Empty description={"暂无实例"}/>
+      </div>)}
+
+      {configFile && !configInstanceListLoading && configInstanceList && (
+        <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>
+          <ul className={styles.instanceList}>
+            <div className={styles.instanceListOpt}>
+              <div className={styles.instanceListTitle}>
+                实例列表
+              </div>
+              <div style={{textAlign: 'right'}}>
+                <OptionButton
+                  onClick={() => {
+                    loadConfigInstances(configFile?.aid, configFile?.env, configFile?.zone, configFile?.id);
+                  }}
+                  type={ButtonType.Text}
+                  title={"刷新实例列表"}
+                >
+                  <ReloadOutlined/>
+                </OptionButton>
+              </div>
+            </div>
+
+            {configInstanceList.map((item: any, index: any) => {
               return (
                 <li
+                  className={styles.instanceListItem}
                   key={index}
                   onClick={() => {
                     setCurrentInstance(item);
-                    showEditorMaskLayer(true, <InstanceDetail />);
+                    showEditorMaskLayer(true, <InstanceDetail/>);
                   }}
                 >
                   <div className={styles.instanceName}>
                     <div className={styles.icon}>
-                      <DatabaseOutlined />
+                      <DatabaseOutlined/>
                     </div>
                     <div>{item.host_name}</div>
                   </div>
@@ -162,31 +195,38 @@ function Publish(props: any) {
                 </li>
               );
             })}
-        </ul>
+          </ul>
+
+        </ScrollArea>
       )}
 
-      <Modal title="配置发布" visible={visible} onOk={handleOk} onCancel={handleCancel}>
+      <Modal
+        title="配置发布"
+        visible={visibleModalPublish}
+        onOk={handlePublishConfig}
+        onCancel={handleCancelPublish}
+      >
         <Select
-          style={{ width: '100%' }}
+          style={{width: '100%'}}
           loading={historyListLoading}
           onSelect={selectVersion}
           value={version}
         >
           {historyList != undefined &&
-            historyList.map((item: any, index: any) => {
-              return (
-                <Select.Option value={item.version} key={index}>
-                  {item.version}.{item.change_log}
-                </Select.Option>
-              );
-            })}
+          historyList.map((item: any, index: any) => {
+            return (
+              <Select.Option value={item.version} key={index}>
+                {item.version}.{item.change_log}
+              </Select.Option>
+            );
+          })}
         </Select>
       </Modal>
     </div>
   );
 }
 
-const mapStateToProps = ({ config }: any) => {
+const mapStateToProps = ({config}: any) => {
   console.log('mapStateToProps -> config', config);
   return {
     aid: config.aid,

@@ -59,7 +59,7 @@ function ModalHistory(props) {
             return <Button
               type={"link"}
               onClick={() => {
-                showDiffEditor(row.id)
+                showDiffEditor(row.configuration_id, row.id)
                 showHistoryModal(false)
               }}
             >
@@ -94,11 +94,12 @@ const mapDispatchToProps = dispatch => {
       type: 'config/loadHistory',
       payload: payload
     }),
-    showDiffEditor: (id) => {
+    showDiffEditor: (configID, historyID) => {
       dispatch({
         type: 'config/showDiffEditor',
         payload: {
-          id
+          configID,
+          historyID
         }
       })
     }

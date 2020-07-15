@@ -49,12 +49,12 @@ func Create(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
-	err = confgov2.Create(param)
+	resp, err := confgov2.Create(param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	return output.JSON(c, output.MsgOk, "success")
+	return output.JSON(c, output.MsgOk, "success", resp)
 }
 
 // Update ..
@@ -121,7 +121,7 @@ func Diff(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-	resp, err := confgov2.Diff(param.ID)
+	resp, err := confgov2.Diff(param.ID, param.HistoryID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
