@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {connect} from 'dva';
 import styles from './index.less';
-import {message, Modal, Select, Spin} from 'antd';
+import {Empty, message, Modal, Select, Spin} from 'antd';
 import {DatabaseOutlined} from '@ant-design/icons';
-import OptionButton from '@/pages/app/components/Config/components/OptionButton';
-import {StopOutlined} from '@ant-design/icons/lib';
+import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
+import ScrollArea from 'react-scrollbar';
+import {ReloadOutlined} from "@ant-design/icons/lib";
 
 function Publish(props: any) {
   const {
@@ -19,6 +20,7 @@ function Publish(props: any) {
     historyListLoading,
     showEditorMaskLayer,
     setCurrentInstance,
+    currentConfig
   } = props;
 
   const [visibleModalPublish, setVisibleModalPublish] = useState(false);
@@ -32,6 +34,12 @@ function Publish(props: any) {
 
   useEffect(() => {
     if (!configFile) {
+      if (currentConfig) {
+        setConfigFile(currentConfig)
+        loadConfigInstances(currentConfig.aid, currentConfig.env, currentConfig.zone, currentConfig.id)
+        return;
+      }
+
       if (configList && configList.length > 0) {
         setConfigFile(configList[0]);
         loadConfigInstances(
@@ -83,33 +91,28 @@ function Publish(props: any) {
 
   return (
     <div className={styles.publish}>
-      <Select
-        style={{width: '100%'}}
-        loading={configInstanceListLoading}
-        onChange={selectConfigFile}
-        value={configFile && configFile.id}
-      >
-        {configList.map((item: any, index: any) => {
-          return (
-            <Select.Option value={item.id} config={item} key={index}>
-              {item.name}.{item.format}
-            </Select.Option>
-          );
-        })}
-      </Select>
+      <div className={styles.optionBlock}>
+        <Select
+          style={{width: '100%'}}
+          loading={configInstanceListLoading}
+          onChange={selectConfigFile}
+          value={configFile && configFile.id}
+        >
+          {configList.map((item: any, index: any) => {
+            return (
+              <Select.Option value={item.id} config={item} key={index}>
+                {item.name}.{item.format}
+              </Select.Option>
+            );
+          })}
+        </Select>
 
-      <div style={{marginTop: '10px'}}>
-        <OptionButton style={{width: '100%'}} onClick={publishStart}>
-          发布
-        </OptionButton>
-      </div>
-
-      {!configFile && (
-        <div className={styles.tipConfigNotSelect}>
-          <StopOutlined/>
-          请先选择配置文件
+        <div style={{marginTop: '10px'}}>
+          <OptionButton style={{width: '100%'}} onClick={publishStart}>
+            发布
+          </OptionButton>
         </div>
-      )}
+      </div>
 
       {configInstanceListLoading && (
         <div className={styles.instanceListLoading}>
@@ -117,52 +120,76 @@ function Publish(props: any) {
         </div>
       )}
 
-      {configFile && !configInstanceListLoading && (
-        <ul className={styles.instanceList}>
-          {configInstanceList != undefined &&
-          configInstanceList.map((item: any, index: any) => {
-            return (
-              <li
-                key={index}
-                onClick={() => {
-                  setCurrentInstance(item);
-                  showEditorMaskLayer(true, <InstanceDetail/>);
-                }}
-              >
-                <div className={styles.instanceName}>
-                  <div className={styles.icon}>
-                    <DatabaseOutlined/>
-                  </div>
-                  <div>{item.host_name}</div>
-                </div>
+      {!configInstanceListLoading && !configList && (<div>
+        <Empty description={"暂无实例"}/>
+      </div>)}
 
-                <div className={styles.instanceStatus}>
-                  <div
-                    className={
-                      item.config_file_used ? styles.statusSynced : styles.statusNotSynced
-                    }
-                  >
-                    接入状态
+      {configFile && !configInstanceListLoading && configInstanceList && (
+        <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>
+          <ul className={styles.instanceList}>
+            <div className={styles.instanceListOpt}>
+              <div className={styles.instanceListTitle}>
+                实例列表
+              </div>
+              <div style={{textAlign: 'right'}}>
+                <OptionButton
+                  onClick={() => {
+                    loadConfigInstances(configFile?.aid, configFile?.env, configFile?.zone, configFile?.id);
+                  }}
+                  type={ButtonType.Text}
+                  title={"刷新实例列表"}
+                >
+                  <ReloadOutlined/>
+                </OptionButton>
+              </div>
+            </div>
+
+            {configInstanceList.map((item: any, index: any) => {
+              return (
+                <li
+                  className={styles.instanceListItem}
+                  key={index}
+                  onClick={() => {
+                    setCurrentInstance(item);
+                    showEditorMaskLayer(true, <InstanceDetail/>);
+                  }}
+                >
+                  <div className={styles.instanceName}>
+                    <div className={styles.icon}>
+                      <DatabaseOutlined/>
+                    </div>
+                    <div>{item.host_name}</div>
                   </div>
-                  <div
-                    className={
-                      item.config_file_synced ? styles.statusSynced : styles.statusNotSynced
-                    }
-                  >
-                    发布状态
+
+                  <div className={styles.instanceStatus}>
+                    <div
+                      className={
+                        item.config_file_used ? styles.statusSynced : styles.statusNotSynced
+                      }
+                    >
+                      接入状态
+                    </div>
+                    <div
+                      className={
+                        item.config_file_synced ? styles.statusSynced : styles.statusNotSynced
+                      }
+                    >
+                      发布状态
+                    </div>
+                    <div
+                      className={
+                        item.config_file_take_effect ? styles.statusSynced : styles.statusNotSynced
+                      }
+                    >
+                      生效状态
+                    </div>
                   </div>
-                  <div
-                    className={
-                      item.config_file_take_effect ? styles.statusSynced : styles.statusNotSynced
-                    }
-                  >
-                    生效状态
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                </li>
+              );
+            })}
+          </ul>
+
+        </ScrollArea>
       )}
 
       <Modal
