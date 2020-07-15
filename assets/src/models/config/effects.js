@@ -142,6 +142,15 @@ export default {
       },
     });
   },
+  * clearCurrentConfig(_, {put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        currentConfig: null,
+        currentContent: '',
+      }
+    })
+  },
   * setEditor({payload}, {put}) {
     yield put({
       type: '_apply',

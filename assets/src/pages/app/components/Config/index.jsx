@@ -36,6 +36,10 @@ function ConfigEdit(props) {
         appName
       }
     })
+
+    props.dispatch({
+      type: 'config/clearCurrentConfig',
+    })
   }, [appName, env, zoneList]);
 
   return (
