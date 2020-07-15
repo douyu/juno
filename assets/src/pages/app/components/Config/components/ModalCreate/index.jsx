@@ -5,7 +5,7 @@ import {Form, Input, Modal, Radio, Select} from "antd";
 function ModalCreate(props) {
   const [form] = Form.useForm()
   const [format, setFormat] = useState('toml')
-  const {showCreateModal, loadConfigList} = props
+  const {showCreateModal, loadConfigList, loadConfigDetail} = props
 
   useEffect(() => {
     form.resetFields()
@@ -23,11 +23,14 @@ function ModalCreate(props) {
       env
     }
 
-    console.log(data)
     props.createConfig(data).then(r => {
+      const {data} = r
       if (r.code === 0) {
         showCreateModal(false)
       }
+
+      // 加载新建的文件
+      loadConfigDetail(data.id)
 
       loadConfigList(appName, env)
     })
@@ -108,7 +111,11 @@ const mapDispatchToProps = dispatch => {
     showCreateModal: visible => dispatch({
       type: 'config/showCreateModal',
       payload: visible
-    })
+    }),
+    loadConfigDetail: id => dispatch({
+      type: 'config/loadConfigDetail',
+      payload: {id}
+    }),
   }
 }
 

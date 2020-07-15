@@ -92,12 +92,20 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 }
 
 // Create ..
-func Create(param view.ReqCreateConfig) (err error) {
+func Create(param view.ReqCreateConfig) (resp view.RespDetailConfig, err error) {
 	var app db.AppInfo
 
 	err = mysql.Where("app_name = ?", param.AppName).First(&app).Error
 	if err != nil {
-		return err
+		return
+	}
+
+	configuration := db.Configuration{
+		AID:    uint(app.Aid),
+		Name:   param.FileName, // 不带后缀
+		Format: string(param.Format),
+		Env:    param.Env,
+		Zone:   param.Zone,
 	}
 
 	tx := mysql.Begin()
@@ -111,20 +119,12 @@ func Create(param view.ReqCreateConfig) (err error) {
 			Count(&exists).Error
 		if err != nil {
 			tx.Rollback()
-			return err
+			return
 		}
 
 		if exists != 0 {
 			tx.Rollback()
-			return fmt.Errorf("已存在同名配置")
-		}
-
-		configuration := db.Configuration{
-			AID:    uint(app.Aid),
-			Name:   param.FileName, // 不带后缀
-			Format: string(param.Format),
-			Env:    param.Env,
-			Zone:   param.Zone,
+			return resp, fmt.Errorf("已存在同名配置")
 		}
 
 		err = tx.Create(&configuration).Error
@@ -137,7 +137,20 @@ func Create(param view.ReqCreateConfig) (err error) {
 	err = tx.Commit().Error
 	if err != nil {
 		tx.Rollback()
-		return err
+		return
+	}
+
+	resp = view.RespDetailConfig{
+		ID:          configuration.ID,
+		AID:         configuration.AID,
+		Name:        configuration.Name,
+		Content:     configuration.Content,
+		Format:      configuration.Format,
+		Env:         configuration.Env,
+		Zone:        configuration.Zone,
+		CreatedAt:   configuration.CreatedAt,
+		UpdatedAt:   configuration.UpdatedAt,
+		PublishedAt: configuration.PublishedAt,
 	}
 
 	return
@@ -733,17 +746,17 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 }
 
 // Diff ..
-func Diff(id uint) (resp view.RespDiffConfig, err error) {
+func Diff(configID, historyID uint) (resp view.RespDiffConfig, err error) {
 	modifiedConfig := db.ConfigurationHistory{}
 	err = mysql.Preload("Configuration").Preload("User").
-		Where("id = ?", id).First(&modifiedConfig).Error
+		Where("id = ?", historyID).First(&modifiedConfig).Error
 	if err != nil {
 		return
 	}
 
 	originConfig := db.ConfigurationHistory{}
 	err = mysql.Preload("Configuration").Preload("User").
-		Where("id < ?", id).Order("id desc").First(&originConfig).Error
+		Where("id < ? and configuration_id = ?", historyID, configID).Order("id desc").First(&originConfig).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			resp.Origin = nil

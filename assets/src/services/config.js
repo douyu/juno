@@ -54,8 +54,8 @@ export async function loadHistoryList(id, page = 0, size = 10) {
   });
 }
 
-export async function loadConfigDiff(id) {
-  return request(`/api/admin/confgov2/config/diff?id=${id}`);
+export async function loadConfigDiff(configID, historyID) {
+  return request(`/api/admin/confgov2/config/diff?id=${configID}&history_id=${historyID}`);
 }
 
 export async function deleteConfig(id) {

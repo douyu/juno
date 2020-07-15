@@ -235,7 +235,7 @@ export default {
     return res;
   },
   * showDiffEditor({payload}, {call, put}) {
-    const { /*配置版本对应的id*/ id} = payload;
+    const { /*配置版本对应的id*/ configID, historyID} = payload;
 
     yield put({
       type: '_apply',
@@ -245,7 +245,7 @@ export default {
       },
     });
 
-    const res = yield call(loadConfigDiff, id);
+    const res = yield call(loadConfigDiff, configID, historyID);
 
     yield put({
       type: '_apply',

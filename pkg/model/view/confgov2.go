@@ -105,7 +105,8 @@ type (
 
 	// ReqDiffConfig ..
 	ReqDiffConfig struct {
-		ID uint `json:"id"`
+		ID        uint `query:"id" valid:"required"`         // 配置ID
+		HistoryID uint `query:"history_id" valid:"required"` // 版本ID
 	}
 
 	// RespDiffConfig ..
