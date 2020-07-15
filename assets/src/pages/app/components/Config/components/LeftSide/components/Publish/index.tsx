@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {connect} from 'dva';
 import styles from './index.less';
-import {Empty, message, Modal, Select, Spin} from 'antd';
+import {Empty, message, Select, Spin} from 'antd';
 import {DatabaseOutlined} from '@ant-design/icons';
 import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
 import ScrollArea from 'react-scrollbar';
 import {ReloadOutlined, StopOutlined} from "@ant-design/icons/lib";
+import ModalPublish from "@/pages/app/components/Config/components/LeftSide/components/Publish/ModalPublish";
 
 function Publish(props: any) {
   const {
@@ -15,16 +16,12 @@ function Publish(props: any) {
     configInstanceListLoading,
     configInstanceList,
     configPublish,
-    loadConfigHistory,
-    historyList,
-    historyListLoading,
     showEditorMaskLayer,
     setCurrentInstance,
     currentConfig
   } = props;
 
   const [visibleModalPublish, setVisibleModalPublish] = useState(false);
-  const [version, setVersion] = useState('');
   const [configFile, setConfigFile] = useState<{
     aid: number;
     env: string;
@@ -51,9 +48,6 @@ function Publish(props: any) {
       }
       return;
     }
-    if (historyList && historyList.length > 0) {
-      setVersion(historyList[0].version);
-    }
   }, [configFile]);
 
   let publishStart = () => {
@@ -62,18 +56,10 @@ function Publish(props: any) {
     }
 
     setVisibleModalPublish(true);
-    loadConfigHistory(configFile?.id);
+    // loadConfigHistory(configFile?.id);
   };
 
-  let selectVersion = (val: string) => {
-    setVersion(val);
-  };
-
-  let handleCancelPublish = () => {
-    setVisibleModalPublish(false);
-  };
-
-  let handlePublishConfig = () => {
+  let handlePublishConfig = (version: string) => {
     configPublish(configFile?.id, version);
     loadConfigInstances(configFile?.aid, configFile?.env, configFile?.zone, configFile?.id);
     setVisibleModalPublish(false);
@@ -200,28 +186,12 @@ function Publish(props: any) {
         </ScrollArea>
       )}
 
-      <Modal
-        title="配置发布"
+      <ModalPublish
         visible={visibleModalPublish}
-        onOk={handlePublishConfig}
-        onCancel={handleCancelPublish}
-      >
-        <Select
-          style={{width: '100%'}}
-          loading={historyListLoading}
-          onSelect={selectVersion}
-          value={version}
-        >
-          {historyList != undefined &&
-          historyList.map((item: any, index: any) => {
-            return (
-              <Select.Option value={item.version} key={index}>
-                {item.version}.{item.change_log}
-              </Select.Option>
-            );
-          })}
-        </Select>
-      </Modal>
+        onCancel={() => setVisibleModalPublish(false)}
+        configID={configFile && configFile.id}
+        onSubmit={(version: string) => handlePublishConfig(version)}
+      />
     </div>
   );
 }
