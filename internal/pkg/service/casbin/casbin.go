@@ -17,6 +17,7 @@ import (
 type (
 	CasbinService struct {
 		*casbin.SyncedEnforcer
+		enabled bool
 
 		Resource struct {
 			Menu MenuTree          `yaml:"menu" json:"menu"`
@@ -71,49 +72,46 @@ var (
 )
 
 // InitCasbin 初始化casbin
-func InitCasbin(adapter persist.Adapter) (*CasbinService, func(), error) {
-	cleanFunc := func() {}
-	if !cfg.Cfg.Casbin.Enable {
-		return nil, cleanFunc, nil
-	}
-
+func InitCasbin(adapter persist.Adapter) (err error) {
 	Casbin = &CasbinService{
 		SyncedEnforcer: nil,
+		enabled:        cfg.Cfg.Casbin.Enable,
 	}
 
 	config := cfg.Cfg.Casbin
-	if config.Model == "" {
-		Casbin.SyncedEnforcer = new(casbin.SyncedEnforcer)
-		return Casbin, nil, nil
-	}
-
-	e, err := casbin.NewSyncedEnforcer(config.Model)
-	if err != nil {
-		return nil, nil, err
-	}
-	e.EnableLog(config.Debug)
-
-	err = e.InitWithModelAndAdapter(e.GetModel(), adapter)
-	if err != nil {
-		return nil, nil, err
-	}
-	e.EnableEnforce(config.Enable)
-
-	if config.AutoLoad {
-		e.StartAutoLoadPolicy(time.Duration(config.AutoLoadInternal) * time.Second)
-		cleanFunc = func() {
-			e.StopAutoLoadPolicy()
-		}
-	}
-
 	if config.ResourceFile == "" {
 		log.Panicf("invalid ResourceFile is ''")
 	}
 	Casbin.loadResourceFile(config.ResourceFile)
 
+	if !cfg.Cfg.Casbin.Enable {
+		return
+	}
+
+	if config.Model == "" {
+		Casbin.SyncedEnforcer = new(casbin.SyncedEnforcer)
+		return
+	}
+
+	e, err := casbin.NewSyncedEnforcer(config.Model)
+	if err != nil {
+		return
+	}
+	e.EnableLog(config.Debug)
+
+	err = e.InitWithModelAndAdapter(e.GetModel(), adapter)
+	if err != nil {
+		return
+	}
+	e.EnableEnforce(config.Enable)
+
+	if config.AutoLoad {
+		e.StartAutoLoadPolicy(time.Duration(config.AutoLoadInternal) * time.Second)
+	}
+
 	Casbin.SyncedEnforcer = e
 
-	return Casbin, cleanFunc, nil
+	return
 }
 
 func (c *CasbinService) loadResourceFile(resourceFile string) {
@@ -129,6 +127,10 @@ func (c *CasbinService) loadResourceFile(resourceFile string) {
 }
 
 func (c *CasbinService) CheckPermission(sub, object, action string, policyType db.CasbinPolicyType) (ok bool, err error) {
+	if !c.enabled {
+		return true, nil
+	}
+
 	ok, err = c.Enforce(sub, object, action, string(policyType))
 	if err != nil {
 		log.Errorf("CasbinService.CheckUserPermission: %s", err.Error())
@@ -139,7 +141,7 @@ func (c *CasbinService) CheckPermission(sub, object, action string, policyType d
 }
 
 func (c *CasbinService) CheckUserPermission(u *db.User, object string, action string, policyType db.CasbinPolicyType) (ok bool, err error) {
-	ok, err = c.Enforce(strconv.Itoa(u.Uid), object, action, string(policyType))
+	ok, err = c.CheckPermission(strconv.Itoa(u.Uid), object, action, policyType)
 	if err != nil {
 		log.Errorf("CasbinService.CheckUserPermission: %s", err.Error())
 		return false, err
@@ -247,7 +249,7 @@ func (c *CasbinService) UserAPITree(u *db.User) (apiTree APITree, err error) {
 }
 
 func (c *CasbinService) UserMenu(u *db.User) (menu view.MenuTree, err error) {
-	if u == nil {
+	if u == nil || !u.IsLogin() {
 		err = fmt.Errorf("无效的登录账户")
 		return
 	}

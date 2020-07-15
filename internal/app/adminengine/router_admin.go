@@ -207,7 +207,7 @@ func apiAdmin(server *xecho.Server) {
 		systemGroup.POST("/option/delete", system.OptionDelete)
 	}
 
-	permissionG := g.Group("/permission")
+	permissionG := g.Group("/permission", loginAuthWithJSON)
 	{
 		// 用户列表
 		permissionG.GET("/user/list", permission.ListUser)
