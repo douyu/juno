@@ -12,12 +12,13 @@ import ProLayout, {
 import React, {useEffect} from 'react';
 // @ts-ignore
 import {connect, Dispatch, history, Link, useIntl} from 'umi';
-import {GithubOutlined}  from '@ant-design/icons';
+import {GithubOutlined} from '@ant-design/icons';
 import {Button, Result} from 'antd';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import {ConnectState} from '@/models/connect';
 import {getAuthorityFromRouter} from '@/utils/utils';
+import LogoIcon from '../../favicon.png';
 
 const noMatch = (
   <Result
@@ -64,18 +65,12 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
 
 const defaultFooterDom = (
   <DefaultFooter
-    copyright={`${new Date().getFullYear()} 蚂蚁金服体验技术部出品`}
+    copyright={`${new Date().getFullYear()} 武汉斗鱼科技有限公司`}
     links={[
-      {
-        key: 'Ant Design Pro',
-        title: 'Ant Design Pro',
-        href: 'https://pro.ant.design',
-        blankTarget: true,
-      },
       {
         key: 'github',
         title: <GithubOutlined/>,
-        href: 'https://github.com/ant-design/ant-design-pro',
+        href: 'https://github.com/douyu/juno',
         blankTarget: true,
       },
       {
@@ -93,6 +88,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
     dispatch,
     children,
     settings,
+    collapsed,
     location = {
       pathname: '/',
     },
@@ -133,6 +129,12 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
 
   return (
     <ProLayout
+      // headerRender={false}
+      menuHeaderRender={() => {
+        return <div style={{width: '100%', textAlign: 'center'}}>
+          <img style={{maxWidth: collapsed ? '30px' : '60px', height: 'auto'}} src={LogoIcon} alt={"juno"}/>
+        </div>
+      }}
       formatMessage={formatMessage}
       onCollapse={handleMenuCollapse}
       onMenuHeaderClick={() => history.push('/')}
