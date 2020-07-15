@@ -28,7 +28,7 @@ function Files(props) {
         className={styles.configItem}
       >
         <div
-          onClick={() => props.loadConfig(cfg.id)}
+          onClick={() => props.loadConfigDetail(cfg.id)}
         >{cfg.name}.{cfg.format}</div>
         <div>
           {currentConfig && currentConfig.content !== currentContent &&cfg.id === currentConfig.id&& <span className={styles.notSavedTip}>
@@ -111,7 +111,7 @@ const mapDispatch = (dispatch) => {
     showCreateModal: visible => dispatch({type: 'config/showCreateModal', payload: visible}),
     showSaveModal: visible => dispatch({type: 'config/showSaveModal', payload: visible}),
     showHistoryModal: visible => dispatch({type: 'config/showHistoryModal', payload: visible}),
-    loadConfig: id => dispatch({
+    loadConfigDetail: id => dispatch({
       type: 'config/loadConfigDetail',
       payload: {id}
     }),
