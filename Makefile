@@ -72,7 +72,7 @@ test:
 	@echo testPath ${BAST_PATH}
 	go test -v .${BAST_PATH}/...
 
-build_all:build_admin build_proxy build_assets build_data
+build_all:build_admin build_proxy build_assets build_data tar
 
 
 build_admin:

@@ -16,9 +16,6 @@ package adminengine
 
 import (
 	"context"
-	"strconv"
-	"time"
-
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -37,18 +34,18 @@ import (
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
-)
-
-var (
-	mockFlag    bool
-	clearFlag   bool
-	installFlag bool
-	runFlag     bool
+	"strconv"
+	"time"
 )
 
 // Admin ...
 type Admin struct {
 	jupiter.Application
+	mockFlag    bool
+	clearFlag   bool
+	installFlag bool
+	runFlag     bool
+	hostFlag    string
 }
 
 // New ...
@@ -77,6 +74,14 @@ func New() *Admin {
 		Action:  func(name string, fs *flag.FlagSet) {},
 	})
 
+	flag.Register(&flag.StringFlag{
+		Name:    "host",
+		Usage:   "--host",
+		EnvVar:  "Juno_Host",
+		Default: "",
+		Action:  func(name string, fs *flag.FlagSet) {},
+	})
+
 	eng := &Admin{}
 	err := eng.Startup(
 		eng.parseFlag,
@@ -97,23 +102,38 @@ func New() *Admin {
 }
 
 func (eng *Admin) parseFlag() error {
-	mockFlag = flag.Bool("mock")
-	clearFlag = flag.Bool("clear")
-	installFlag = flag.Bool("install")
-	if !installFlag && !mockFlag && !clearFlag {
-		runFlag = true
+	eng.mockFlag = flag.Bool("mock")
+	eng.clearFlag = flag.Bool("clear")
+	eng.installFlag = flag.Bool("install")
+	eng.hostFlag = flag.String("host")
+	if !eng.installFlag && !eng.mockFlag && !eng.clearFlag {
+		eng.runFlag = true
 	}
 	return nil
 }
 
 func (eng *Admin) initConfig() (err error) {
 	cfg.InitCfg()
-	xlog.DefaultLogger = xlog.StdConfig("default").Build()
+	jupiterConfig := xlog.DefaultConfig()
+	jupiterConfig.Name = cfg.Cfg.Logger.System.Name
+	jupiterConfig.Debug = cfg.Cfg.Logger.System.Debug
+	jupiterConfig.Level = cfg.Cfg.Logger.System.Level
+	jupiterConfig.Dir = cfg.Cfg.Logger.System.Dir
+	jupiterConfig.Async = cfg.Cfg.Logger.System.Async
+	xlog.JupiterLogger = jupiterConfig.Build()
+	//
+	bizConfig := xlog.DefaultConfig()
+	bizConfig.Name = cfg.Cfg.Logger.Biz.Name
+	bizConfig.Debug = cfg.Cfg.Logger.Biz.Debug
+	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
+	bizConfig.Dir = cfg.Cfg.Logger.Biz.Dir
+	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
+	xlog.DefaultLogger = bizConfig.Build()
 	return
 }
 
 func (eng *Admin) initRegister() (err error) {
-	if !runFlag || !cfg.Cfg.Register.Enable {
+	if !eng.runFlag || !cfg.Cfg.Register.Enable {
 		return
 	}
 	config := etcdv3_registry.DefaultConfig()
@@ -129,7 +149,7 @@ func (eng *Admin) initRegister() (err error) {
 }
 
 func (eng *Admin) initNotify() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
 	for _, cp := range cfg.Cfg.ClientProxy {
@@ -149,13 +169,15 @@ func (eng *Admin) initNotify() (err error) {
 }
 
 func (eng *Admin) serveHTTP() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
 	serverConfig := xecho.DefaultConfig()
 	serverConfig.Host = cfg.Cfg.Server.Http.Host
+	if eng.hostFlag != "" {
+		serverConfig.Host = eng.hostFlag
+	}
 	serverConfig.Port = cfg.Cfg.Server.Http.Port
-
 	server := serverConfig.Build()
 	server.Debug = true
 
@@ -169,7 +191,7 @@ func (eng *Admin) serveHTTP() (err error) {
 }
 
 func (eng *Admin) serveGovern() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
 	config := etcdv3.DefaultConfig()
@@ -179,9 +201,14 @@ func (eng *Admin) serveGovern() (err error) {
 
 	client := config.Build()
 
+	host := cfg.Cfg.Server.Govern.Host
+	if eng.hostFlag != "" {
+		host = eng.hostFlag
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
-	addr := cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port)
+	addr := host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port)
 	// todo optimize, jupiter will after support metric
 	_, err = client.Put(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName(), addr)
 	if err != nil {
@@ -202,7 +229,7 @@ func (eng *Admin) initInvoker() (err error) {
 }
 
 func (eng *Admin) initClientProxy() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
 	clientproxy.Init()
@@ -210,7 +237,7 @@ func (eng *Admin) initClientProxy() (err error) {
 }
 
 func (eng *Admin) defers() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
 	eng.Defer(func() error {

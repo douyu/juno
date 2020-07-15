@@ -1,10 +1,6 @@
-
 [app]
-  appurl = ""
-  mode = "prod"
-  name = "juno"
-  token = "123456"
-  secretKey = "ASDFASDFASDF"
+  secretKey = "ASDFASDFASDF" # hashStatecode
+  mode = "multiple" # single without proxy, multiple with proxy
 
 [configure]
   dir = "/tmp/www/server"
@@ -14,16 +10,20 @@
     port = 50010
 
 
-[jupiter.logger.default]
-#    debug = true          # 是否在命令行输出
-#    enableConsole = true  # 是否按命令行格式输出
-#    level = "debug"
+[logger.system]
     debug = false          # 是否在命令行输出
     enableConsole = false  # 是否按命令行格式输出
     level = "debug"
-    name = "default.json" # 日志名称
+    async = false
+    name = "system.json" # 日志名称
     dir = "./"
-
+[logger.biz]
+    debug = false          # 是否在命令行输出
+    enableConsole = false  # 是否按命令行格式输出
+    level = "debug"
+    async = false
+    name = "biz.json" # 日志名称
+    dir = "./"
 
 [session]
   maxAge = 172800
@@ -46,7 +46,7 @@
     domain = "localhost"
 [server.govern]
     # The ip address to bind to, empty will bind to all interfaces
-    host = "127.0.0.1"
+    host = "0.0.0.0"
     # The http port to use
     port = 50004
 #################################### Database ##############################
@@ -114,18 +114,6 @@
     oauthStateCookieMaxAge = 60
     # limit of api_key seconds to live before expiration
     apiKeyMaxSecondsToLive = -1
-
-
-#################################### Anonymous Auth ######################
-[auth.anonymous]
-    # enable anonymous access
-    enabled = false
-    # specify organization name that should be used for unauthenticated users
-    orgName = "Main Org."
-    # specify role for unauthenticated users
-    orgRole = "Viewer"
-    # mask the Grafana version number for unauthenticated users
-    hideVersion = false
 
 #################################### Github Auth #########################
 [auth.github]

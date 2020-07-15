@@ -14,7 +14,10 @@
 
 package cfg
 
-import "time"
+import (
+	"go.uber.org/zap"
+	"time"
+)
 
 type Auth struct {
 	// Auth
@@ -186,4 +189,26 @@ type HTTPProxy struct {
 	MaxIdleConns      int
 	MaxIdelPerHost    int
 	Timeout           int
+}
+
+type Logger struct {
+	Biz    LoggerInfo
+	System LoggerInfo
+}
+
+type LoggerInfo struct {
+	// Dir 日志输出目录
+	Dir string
+	// Name 日志文件名称
+	Name string
+	// Level 日志初始等级
+	Level string
+	// 日志初始化字段
+	Fields []zap.Field
+	// 是否添加调用者信息
+	AddCaller  bool
+	Interval   time.Duration
+	CallerSkip int
+	Async      bool
+	Debug      bool
 }
