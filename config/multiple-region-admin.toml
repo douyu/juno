@@ -3,8 +3,8 @@
   mode = "multiple" # single without proxy, multiple with proxy
 
 [configure]
-  dir = "/tmp/www/server"
-  prefix = "juno-agent"
+  dirs = ["/tmp/www/server", "/tmp/www/.config"]
+  prefixes = ["juno-agent", "jupiter-agent"]
 
   [configure.agent]
     port = 50010
