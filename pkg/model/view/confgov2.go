@@ -69,7 +69,7 @@ type (
 	// ReqUpdateConfig ..
 	ReqUpdateConfig struct {
 		ID      uint   `json:"id"`
-		Message string `json:"message"`
+		Message string `json:"message" valid:"required"`
 		Content string `json:"content"`
 	}
 

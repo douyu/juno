@@ -67,9 +67,10 @@ export default {
 
     if (res.code !== 0) {
       message.error(res.msg);
-    } else {
-      message.success('配置发布成功');
+      return res
     }
+
+    message.success('配置发布成功');
     return res
   },
   * setZoneList({payload}, {call, put}) {
