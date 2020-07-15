@@ -1,8 +1,14 @@
 @import "../../../../var";
 @import "~antd/lib/style/themes/default";
 
+@optionBlockH: 95px;
+
 .publish {
-  padding: 10px;
+
+  .optionBlock {
+    height: @optionBlockH;
+    padding: 10px;
+  }
 
   .tipConfigNotSelect {
     text-align: center;
@@ -17,15 +23,30 @@
     color: @secondColor;
   }
 
-  .instanceList {
-    margin: 10px 0 0 0;
-    padding: 0;
+  .instanceListScroll {
+    height: @editorH - @optionBlockH;
+  }
 
-    li {
+  .instanceList {
+    padding: 10px;
+    color: @secondColor;
+
+    .instanceListOpt {
+      display: grid;
+      grid-template-columns: auto 30px;
+
+      .instanceListTitle {
+      }
+    }
+
+    .instanceListItem {
       cursor: pointer;
       border-radius: 5px;
       padding: 10px;
       background-color: #2a2d2e;
+      display: block;
+      color: @primaryColor;
+      border-bottom: none;
 
       &:nth-child(n + 2) {
         margin-top: 10px;

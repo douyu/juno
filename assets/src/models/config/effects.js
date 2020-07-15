@@ -44,14 +44,12 @@ export default {
 
     if (res.code !== 0) {
       message.error(res.msg);
-
-      return res
     }
 
     yield put({
       type: '_apply',
       payload: {
-        configInstanceList: res.data,
+        configInstanceList: res.data || [],
       },
     });
     return res
