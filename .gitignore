@@ -43,3 +43,7 @@ assets/pprof_static/*
 /pprof/*
 /release/*
 package-lock.json
+default.json
+biz.json
+system.json
+data/pprof

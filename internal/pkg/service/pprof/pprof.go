@@ -119,7 +119,6 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 		err := getFlameGraph(saveFileName, saveSvgName)
 		if err != nil {
 			xlog.Error("get flame grapht err", zap.Error(err), zap.String("saveFileName", saveFileName), zap.String("saveSvgName", saveSvgName))
-			continue
 		}
 
 		if !util.IsExist(saveSvgName) {
@@ -152,7 +151,6 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 		if err = os.Remove(saveFileName); err != nil {
 			xlog.Error("pprof.Run", zap.Error(err), zap.String("saveFileName", saveFileName))
 		}
-
 	}
 
 	if len(fileList) <= 0 {
