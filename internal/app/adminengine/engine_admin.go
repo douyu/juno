@@ -16,6 +16,9 @@ package adminengine
 
 import (
 	"context"
+	"strconv"
+	"time"
+
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -34,8 +37,6 @@ import (
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
-	"strconv"
-	"time"
 )
 
 // Admin ...
@@ -183,8 +184,9 @@ func (eng *Admin) serveHTTP() (err error) {
 
 	server.Use(middleware.ProxyGatewayMW)
 
+	// Provide Admin API interface
 	apiAdmin(server)
-	// Provide API interface
+	// Provide Open API interface
 	apiV1(server)
 	err = eng.Serve(server)
 	return

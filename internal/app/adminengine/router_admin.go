@@ -25,7 +25,6 @@ import (
 	"github.com/douyu/juno/pkg/util"
 
 	"github.com/douyu/juno/api/apiv1/analysis"
-	"github.com/douyu/juno/api/apiv1/app"
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/confgov2"
 	"github.com/douyu/juno/api/apiv1/confgov2/configresource"
@@ -98,10 +97,6 @@ func apiAdmin(server *xecho.Server) {
 	if cfg.Cfg.Casbin.Enable {
 		g.Use(casbinMW) // use casbin
 	}
-	g.GET("/api/app/filter/list", app.FilterList)
-	g.GET("/api/app/info", app.Info) // Get application information, the application room information
-	g.GET("/api/app/env", app.Env)
-	g.GET("/api/system", app.Info)
 
 	publicGroup := g.Group("/public")
 	{
