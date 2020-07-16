@@ -6,7 +6,7 @@ type (
 	}
 
 	ReqDeleteAccessToken struct {
-		ID uint `query:"id"`
+		AppID string `json:"app_id" valid:"required"`
 	}
 
 	ReqListAccessToken struct {

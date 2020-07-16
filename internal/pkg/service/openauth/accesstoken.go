@@ -5,9 +5,9 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/jinzhu/gorm"
+	"github.com/labstack/gommon/log"
 	"github.com/labstack/gommon/random"
 	"golang.org/x/sync/errgroup"
-	"log"
 	"sync"
 )
 
@@ -92,7 +92,7 @@ func (o *openAuthService) Create(param view.ReqCreateAccessToken) (token view.Ac
 }
 
 func (o *openAuthService) Delete(param view.ReqDeleteAccessToken) (err error) {
-	return o.db.Where("id = ?", param.ID).Limit(1).Delete(&db.AccessToken{}).Error
+	return o.db.Where("app_id = ?", param.AppID).Limit(1).Delete(&db.AccessToken{}).Error
 }
 
 func (o *openAuthService) List(param view.ReqListAccessToken) (resp view.RespListAccessToken, err error) {
@@ -108,7 +108,7 @@ func (o *openAuthService) List(param view.ReqListAccessToken) (resp view.RespLis
 	})
 
 	eg.Go(func() error {
-		return o.db.Limit(pageSize).Offset(offset).Find(&list).Error
+		return o.db.Limit(pageSize).Offset(offset).Order("id desc").Find(&list).Error
 	})
 
 	err = eg.Wait()
