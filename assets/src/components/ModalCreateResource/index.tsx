@@ -113,6 +113,10 @@ function ModalCreateResource(props: ModalCreateResourceInterface) {
         <Input.TextArea/>
       </Form.Item>
 
+      <Form.Item label={"全局可见"} name={"is_global"}>
+        <Switch/>
+      </Form.Item>
+
       <Form.Item label={"值可见"} name={"visible"} help={"资源值内容是否公开"}>
         <Switch/>
       </Form.Item>
