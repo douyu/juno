@@ -1,5 +1,7 @@
 package view
 
+import "fmt"
+
 type SelectData struct {
 	Title string `json:"name"`
 	Value string `json:"value"`
@@ -13,3 +15,12 @@ type (
 		ZoneName string `json:"zone_name"`
 	}
 )
+
+type UniqZone struct {
+	Zone string
+	Env  string
+}
+
+func (u UniqZone) String() string {
+	return fmt.Sprintf("%s.%s", u.Env, u.Zone)
+}

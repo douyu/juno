@@ -15,14 +15,14 @@
     level = "debug"
     async = false
     name = "system.json" # 日志名称
-    dir = "./"
+    dir = "."
 [logger.biz]
     debug = false          # 是否在命令行输出
     enableConsole = false  # 是否按命令行格式输出
     level = "debug"
     async = false
     name = "biz.json" # 日志名称
-    dir = "./"
+    dir = "."
 [session]
   maxAge = 172800
   secret = "ldfgoqnf935nvav34"
@@ -59,22 +59,11 @@
     maxOpenConns = 100
 
 #################################### Proxy ##############################
-[proxy]
+[clientProxy]
 
-  [proxy.etcd]
+  [clientProxy.singleProxy.etcd]
     endpoints = ["127.0.0.1:2379"]
 
-  [proxy.http]
-    disableKeepAlives = true
-    listenAddr = "127.0.0.0:8888"
-    maxIdelPerHost = 1
-    maxIdleConns = 10
-    timeout = 100
-
- [proxy.etcdv3]
-
-    [proxy.etcdv3.confgo]
-      endpoints = ["127.0.0.1:2379"]
 [auth]
     # Login cookie name
     loginCookieName = "juno_session"

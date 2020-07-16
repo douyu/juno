@@ -60,8 +60,23 @@ type Server struct {
 	Govern ServerSchema
 }
 
-// ClientProxy ..
 type ClientProxy struct {
+	HttpRouter  HttpRouter
+	SingleProxy SingleProxy
+	MultiProxy  []MultiProxy
+}
+
+type HttpRouter struct {
+	GovernConfig string
+}
+
+// MultiProxy ..
+type SingleProxy struct {
+	Etcd Etcd
+}
+
+// MultiProxy ..
+type MultiProxy struct {
 	Env      string
 	ZoneCode string
 	Stream   ProxyStream
@@ -93,12 +108,12 @@ type Gateway struct {
 
 // Etcd ..
 type Etcd struct {
-	Enable     bool     `json:"enable"`
-	ListenAddr string   `json:"listenAddr"`
-	Endpoints  []string `json:"endpoints"`
-	Namespace  string   `json:"namespace"`
-	Timeout    int      `json:"timeout"`
-	TLS        TLS      `json:"tls"`
+	Enable     bool          `json:"enable"`
+	ListenAddr string        `json:"listenAddr"`
+	Endpoints  []string      `json:"endpoints"`
+	Namespace  string        `json:"namespace"`
+	Timeout    time.Duration `json:"timeout"`
+	TLS        TLS           `json:"tls"`
 }
 
 // TLS ..
@@ -162,9 +177,9 @@ type Database struct {
 
 // Configure ..
 type Configure struct {
-	Dirs    []string `json:"dirs"`
+	Dirs     []string `json:"dirs"`
 	Prefixes []string `json:"prefixes"`
-	Agent  struct {
+	Agent    struct {
 		Port int `json:"port"`
 	} `json:"agent"`
 }

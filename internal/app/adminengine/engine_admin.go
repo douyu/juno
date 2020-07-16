@@ -155,7 +155,7 @@ func (eng *Admin) initNotify() (err error) {
 	if !eng.runFlag {
 		return
 	}
-	for _, cp := range cfg.Cfg.ClientProxy {
+	for _, cp := range cfg.Cfg.ClientProxy.MultiProxy {
 		if cp.Stream.Enable {
 			ProxyClient := make(map[string]pb.ProxyClient, 0)
 			for _, value := range cp.Stream.ProxyAddr {
