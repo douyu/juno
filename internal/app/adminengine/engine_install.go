@@ -40,10 +40,6 @@ func (eng *Admin) migrateDB() error {
 
 	eng.cmdClear(gormdb)
 	eng.cmdInstall(gormdb)
-	eng.cmdMock()
-	if !eng.runFlag {
-		os.Exit(0)
-	}
 	return nil
 }
 
@@ -110,18 +106,25 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&db.ConfigResourceValue{},
 			&db.CasbinPolicyAuth{},
 			&db.CasbinPolicyGroup{},
+			&db.AccessToken{},
 		}
 		gormdb.SingularTable(true)
 		gormdb.Debug()
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
 
+		gormdb.Model(&db.AccessToken{}).AddUniqueIndex("idx_unique_name", "name")
 
 		fmt.Println("create table ok")
 	}
 }
 
-func (eng *Admin) cmdMock() {
+func (eng *Admin) cmdMock() error {
 	if eng.mockFlag {
 		install.MockData()
 	}
+
+	if !eng.runFlag {
+		os.Exit(0)
+	}
+	return nil
 }

@@ -90,6 +90,7 @@ func New() *Admin {
 		eng.initConfig,
 		eng.migrateDB,
 		eng.initInvoker,
+		eng.cmdMock,
 		eng.initNotify,
 		eng.initClientProxy,
 		eng.serveHTTP,
