@@ -455,7 +455,7 @@ func (u *userGroup) GetAppPerm(param view.ReqGetAppPerm) (resp view.RespGetAppPe
 			appItem.AvailableEnvs = append(appItem.AvailableEnvs, node.Env)
 			// get all
 			//sub := casbin.CasbinGroupKey(db.CasbinGroupTypeUser, param.GroupName)
-			//obj := casbin.CasbinAppObjKey(appItem.AppName, node.Env)
+			//obj := casbin.CasbinAppObjKey(appItem.Name, node.Env)
 			//casbin.Casbin.Enforce()
 		}
 

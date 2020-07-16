@@ -10,6 +10,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
+	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/permission"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
@@ -56,6 +57,8 @@ func Init() (err error) {
 	}
 
 	permission.Init(invoker.JunoMysql)
+
+	openauth.Init(invoker.JunoMysql)
 
 	return
 }

@@ -15,6 +15,7 @@
 package adminengine
 
 import (
+	"github.com/douyu/juno/api/apiv1/openauth"
 	"net/http"
 	"strings"
 
@@ -264,5 +265,12 @@ func apiAdmin(server *xecho.Server) {
 
 		// 和应用无关的接口
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
+	}
+
+	openAuthG := g.Group("/openAuth", loginAuthWithJSON)
+	{
+		openAuthG.GET("/accessToken/list", openauth.ListAccessToken)
+		openAuthG.POST("/accessToken/create", openauth.CreateAccessToken)
+		openAuthG.POST("/accessToken/delete", openauth.DeleteAccessToken)
 	}
 }
