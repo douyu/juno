@@ -16,14 +16,14 @@
     level = "debug"
     async = false
     name = "system.json" # 日志名称
-    dir = "./"
+    dir = "."
 [logger.biz]
     debug = false          # 是否在命令行输出
     enableConsole = false  # 是否按命令行格式输出
     level = "debug"
     async = false
     name = "biz.json" # 日志名称
-    dir = "./"
+    dir = "."
 
 [session]
   maxAge = 172800
@@ -64,20 +64,20 @@
     name = "grafana"
 
 #################################### Proxy ##############################
-[[clientProxy]]
+[[clientProxy.multiProxy]]
   env = "live"
   zoneCode="cn-wuhan-guanggu-f1"
 
-  [clientProxy.stream]
+  [clientProxy.multiProxy.stream]
     enable = true
     proxyAddr = ["127.0.0.1:50001"]
 
-  [clientProxy.etcd]
+  [clientProxy.multiProxy.etcd]
     enable = true
     endpoints = ["127.0.0.1:52379"]
     timeout = 3
 
-  [clientProxy.http]
+  [clientProxy.multiProxy.http]
     enable = true
     listenAddr = "127.0.0.1:50000"
     disableKeepAlives = true

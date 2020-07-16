@@ -3,8 +3,9 @@ package pprof
 import (
 	"errors"
 	"fmt"
+	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/juno/pkg/constx"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
@@ -15,7 +16,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
@@ -81,23 +81,13 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 
 	// 4 range pprof type list, get the pprof info
 	for _, fileType := range p.PProfTypeList {
-
-		resp := make([]byte, 0)
-		// 没走代理
-		if cfg.Cfg.App.Mode == constx.ModeSingle {
-			resp, err = p.GetPprof(ip, governPort, fileType)
-			if err != nil {
-				xlog.Error("PostPprof err", zap.Error(err), zap.String("fileType", fileType))
-				continue
-			}
-		} else {
-			resp, err = grpcgovern.IGrpcGovern.Pprof(env, zoneCode, ip, governPort, fileType)
-			if err != nil {
-				xlog.Error("get remote pprof err", zap.Error(err), zap.String("fileType", fileType))
-				continue
-			}
-			xlog.Debug("get remote pprof success", zap.String("fileType", fileType))
+		var resp []byte
+		resp, err = p.GetPprof(view.UniqZone{env, zoneCode}, ip, governPort, fileType)
+		if err != nil {
+			xlog.Error("PostPprof err", zap.Error(err), zap.String("fileType", fileType))
+			continue
 		}
+		xlog.Debug("get remote pprof success", zap.String("fileType", fileType))
 
 		// 3. 请求结果存入临时文件
 		saveFileName := path.Join(cfg.Cfg.Pprof.TmpPath, fileType+"_"+hostName+".bin")
@@ -209,9 +199,13 @@ func getFlameGraph(fileName, tagFileName string) error {
 	return nil
 }
 
-func (g *pprof) GetPprof(ip, port, pprofType string) (resp []byte, err error) {
-	url := fmt.Sprintf("http://%s:%s/debug/pprof", ip, port)
-	if _, err = g.CheckPprof(url); err != nil {
+func (g *pprof) GetPprof(uniqZone view.UniqZone, ip, port, pprofType string) (resp []byte, err error) {
+	url := "/debug/pprof"
+	_, err = clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
+		Address: fmt.Sprintf("%s:%s", ip, port),
+		URL:     url,
+	})
+	if err != nil {
 		return
 	}
 	// 耗时比较久
@@ -219,19 +213,15 @@ func (g *pprof) GetPprof(ip, port, pprofType string) (resp []byte, err error) {
 		pprofType = pprofType + "?seconds=15"
 	}
 	url = url + "/" + pprofType
-	if resp, err = g.CheckPprof(url); err != nil {
-		return
-	}
-	return
-}
-
-func (g *pprof) CheckPprof(url string) (resp []byte, err error) {
-	output, err := g.Client.R().Get(url)
+	resp2, err := clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
+		Address: fmt.Sprintf("%s:%s", ip, port),
+		URL:     url,
+	})
 	if err != nil {
 		return
 	}
-	stream := output.Body()
-	return stream, nil
+	resp = resp2.Body()
+	return
 }
 
 // 存储pprof

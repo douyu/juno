@@ -30,10 +30,11 @@ const (
 	ServerProxyConfigurationTakeEffect = "/api/v1/configuration/takeEffect"
 	// ServerProxyConfigurationUsed ..
 	ServerProxyConfigurationUsed = "/api/v1/configuration/used"
-	// QueryAgentUsingConfiguration ..
-	QueryAgentUsingConfiguration = "http://%s:%s/debug/config"
+	//// QueryAgentUsingConfiguration ..
+	//QueryAgentUsingConfiguration = "/debug/config"
 	// QueryAgentUsedStatus ..
-	QueryAgentUsedStatus = "http://%s/api/v1/conf/command_line/status"
+	//QueryAgentUsedStatus = "http://%s/api/v1/conf/command_line/status"
+	QueryAgentUsedStatus = "/api/v1/conf/command_line/status"
 )
 
 func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
@@ -393,20 +394,29 @@ func syncTakeEffectStatus(appName, governPort, env string, zoneCode string, conf
 
 func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	// query proxy for used status
-	conn, err := clientproxy.ClientProxy.ServerProxyHTTPConn(env, zoneCode)
+	resp, err := clientproxy.ClientProxy.HttpPost(view.UniqZone{
+		env,
+		zoneCode,
+	}, view.ReqHTTPProxy{
+		Address: ipPort,
+		URL:     QueryAgentUsedStatus,
+		Params: map[string]string{
+			"config": filePath,
+		},
+	})
 	if err != nil {
 		return 0
 	}
 
-	req := view.ReqHTTPProxy{}
-	req.URL = fmt.Sprintf(QueryAgentUsedStatus, ipPort)
-	req.Params = map[string]interface{}{
-		"config": filePath,
-	}
-	resp, err := conn.R().SetBody(req).Post(ServerProxyConfigurationUsed)
-	if err != nil {
-		return 0
-	}
+	//req := view.ReqHTTPProxy{}
+	//req.URL = fmt.Sprintf(QueryAgentUsedStatus, ipPort)
+	//req.Params = map[string]interface{}{
+	//	"config": filePath,
+	//}
+	//resp, err := conn.R().SetBody(req).Post(ServerProxyConfigurationUsed)
+	//if err != nil {
+	//	return 0
+	//}
 	configurationUsedStatus := new(struct {
 		Code int `json:"code"`
 		Data struct {
@@ -451,12 +461,8 @@ func configurationSynced(appName, env, zoneCode, filename, format, prefix string
 	fileName := fmt.Sprintf("%s.%s", filename, format)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	key := fmt.Sprintf("/%s/callback/%s/%s", prefix, appName, fileName)
-	conn, err := clientproxy.ClientProxy.ServerProxyETCDConn(env, zoneCode)
 	defer cancel()
-	if err != nil {
-		return
-	}
-	resp, err := conn.Get(ctx, key, clientv3.WithPrefix())
+	resp, err := clientproxy.ClientProxy.EtcdGet(view.UniqZone{env, zoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
 		return
 	}
@@ -481,15 +487,13 @@ func configurationSynced(appName, env, zoneCode, filename, format, prefix string
 func configurationTakeEffect(appName, env, zoneCode, filename, format, governPort string, notTakeEffectNodes map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
 	list = make(map[string]view.ConfigurationStatus, 0)
 	// take effect status
-	conn, err := clientproxy.ClientProxy.ServerProxyHTTPConn(env, zoneCode)
-	if err != nil {
-		return
-	}
 	// publish status, synced status
 	for _, node := range notTakeEffectNodes {
 		row := view.ConfigurationStatus{}
-		url := fmt.Sprintf(QueryAgentUsingConfiguration, node.IP, governPort)
-		agentQuestResp, agentQuestError := conn.SetQueryParams(map[string]string{"url": url}).R().Get(ServerProxyConfigurationTakeEffect)
+		agentQuestResp, agentQuestError := clientproxy.ClientProxy.HttpGet(view.UniqZone{env, zoneCode}, view.ReqHTTPProxy{
+			Address: node.IP + ":" + governPort,
+			URL:     cfg.Cfg.ClientProxy.HttpRouter.GovernConfig,
+		})
 		if agentQuestError != nil {
 			err = agentQuestError
 			continue
@@ -678,15 +682,11 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
-	conn, errConn := clientproxy.ClientProxy.ServerProxyETCDConn(req.Env, req.ZoneCode)
-	if errConn != nil {
-		return errConn
-	}
 	for _, hostName := range req.InstanceList {
 		for _, prefix := range cfg.Cfg.Configure.Prefixes {
 			key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
 			// The migration is complete, only write independent ETCD of the configuration center
-			_, err = conn.Put(ctx, key, string(buf))
+			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{req.Env, req.ZoneCode}, ctx, key, string(buf))
 			if err != nil {
 				return
 			}

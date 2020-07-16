@@ -41,7 +41,7 @@ type cfg struct {
 	Server            Server
 	GrafanaProxy      GrafanaProxy
 	Gateway           Gateway
-	ClientProxy       []ClientProxy
+	ClientProxy       ClientProxy
 	ServerProxy       ServerProxy
 	Database          Database
 	Configure         Configure
@@ -104,37 +104,52 @@ func defaultConfig() cfg {
 			Name:   "gateway",
 		},
 		Configure: Configure{
-			Dirs: []string{"/tmp/www/server"},
+			Dirs:     []string{"/tmp/www/server"},
 			Prefixes: []string{"juno-agent"},
 		},
-		ClientProxy: []ClientProxy{
-			{
-				Env:      "dev",
-				ZoneCode: "test",
-				Stream: ProxyStream{
-					Enable:    false,
-					ProxyAddr: nil,
-				},
+		ClientProxy: ClientProxy{
+			HttpRouter: HttpRouter{
+				GovernConfig: "/configs",
+			},
+			SingleProxy: SingleProxy{
 				Etcd: Etcd{
-					Enable:     true,
-					ListenAddr: "127.0.0.1:52370",
-					Endpoints:  []string{"127.0.0.1:2370"},
+					Enable:     false,
+					ListenAddr: "",
+					Endpoints:  nil,
 					Namespace:  "",
-					Timeout:    3, // 3 second
-					TLS: TLS{
-						Cert:   "",
-						Key:    "",
-						CaCert: "",
-					},
+					Timeout:    0,
+					TLS:        TLS{},
 				},
-				HTTP: HTTPProxy{
-					Enable:            true,
-					ListenAddr:        "127.0.0.1:50000",
-					DisableKeepAlives: true,
-					Scheme:            "http",
-					MaxIdleConns:      30,
-					MaxIdelPerHost:    60,
-					Timeout:           3,
+			},
+			MultiProxy: []MultiProxy{
+				{
+					Env:      "dev",
+					ZoneCode: "test",
+					Stream: ProxyStream{
+						Enable:    false,
+						ProxyAddr: nil,
+					},
+					Etcd: Etcd{
+						Enable:     true,
+						ListenAddr: "127.0.0.1:52370",
+						Endpoints:  []string{"127.0.0.1:2370"},
+						Namespace:  "",
+						Timeout:    xtime.Duration("3s"), // 3 second
+						TLS: TLS{
+							Cert:   "",
+							Key:    "",
+							CaCert: "",
+						},
+					},
+					HTTP: HTTPProxy{
+						Enable:            true,
+						ListenAddr:        "127.0.0.1:50000",
+						DisableKeepAlives: true,
+						Scheme:            "http",
+						MaxIdleConns:      30,
+						MaxIdelPerHost:    60,
+						Timeout:           3,
+					},
 				},
 			},
 		},

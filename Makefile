@@ -32,8 +32,6 @@ run.multiple-region-proxy:
 docker:
 	@docker-compose -f ./build/docker/standalone.yaml up
 
-docker.build.run:
-	@./docker/run.sh
 
 all:print fmt lint buildall
 alltar:print fmt lint buildall
