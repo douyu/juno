@@ -19,6 +19,7 @@ function ModalPublish(props: ModalPublishProps) {
 
   useEffect(() => {
     if (historyList) setSelectedVersion(historyList[0]?.version)
+    else setSelectedVersion('')
   }, [historyList])
 
   useEffect(() => {
