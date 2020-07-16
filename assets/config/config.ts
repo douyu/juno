@@ -194,6 +194,11 @@ export default defineConfig({
                   path: '/admin/config',
                   component: './manage/manage',
                 },
+                {
+                  name: 'Access Tokens',
+                  path: '/admin/accessTokens',
+                  component: './manage/AccessTokens'
+                }
               ],
             },
             {

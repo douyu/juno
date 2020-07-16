@@ -60,6 +60,8 @@ menu:
         name: 用户管理
       - path: /admin/config
         name: 系统设置
+      - path: /admin/accessTokens
+        name: Access Tokens
 
 # 应用权限
 app:
