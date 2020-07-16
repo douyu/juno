@@ -115,9 +115,7 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 		gormdb.Debug()
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
 
-		gormdb.Model(&db.CasbinPolicyGroup{}).AddUniqueIndex("idx_unique_app_env_act", "app_name", "app_env", "act")
 
-		install.MustMockData()
 		fmt.Println("create table ok")
 	}
 }

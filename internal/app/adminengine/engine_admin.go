@@ -16,6 +16,7 @@ package adminengine
 
 import (
 	"context"
+	"github.com/douyu/juno/internal/pkg/install"
 	"strconv"
 	"time"
 
@@ -87,8 +88,8 @@ func New() *Admin {
 	err := eng.Startup(
 		eng.parseFlag,
 		eng.initConfig,
-		eng.initInvoker,
 		eng.migrateDB,
+		eng.initInvoker,
 		eng.initNotify,
 		eng.initClientProxy,
 		eng.serveHTTP,
@@ -227,6 +228,14 @@ func (eng *Admin) serveGovern() (err error) {
 func (eng *Admin) initInvoker() (err error) {
 	invoker.Init()
 	err = service.Init()
+	if err != nil {
+		return err
+	}
+
+	if eng.installFlag {
+		// 服务注册完之后再mock数据
+		install.MustMockData()
+	}
 	return
 }
 
