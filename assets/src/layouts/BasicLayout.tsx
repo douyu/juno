@@ -45,15 +45,6 @@ export interface BasicLayoutProps extends ProLayoutProps {
   menuData: MenuDataItem[];
 }
 
-export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
-  breadcrumbNameMap: {
-    [path: string]: MenuDataItem;
-  };
-};
-/**
- * use Authorized check all menu item
- */
-
 const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
   menuList.map((item) => {
     const localItem = {
