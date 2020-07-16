@@ -23,8 +23,6 @@ func mockApp(url string, router *echo.Echo) {
 func mockAppNode(url string, router *echo.Echo) {
 	mockAppNodeByFile("./data/mockdata/appnode1.json", url, router)
 	mockAppNodeByFile("./data/mockdata/appnode2.json", url, router)
-	mockAppNodeByFile("./data/mockdata/appnode3.json", url, router)
-	mockAppNodeByFile("./data/mockdata/appnode4.json", url, router)
 }
 
 func mockAppNodeByFile(fileName, url string, router *echo.Echo) {

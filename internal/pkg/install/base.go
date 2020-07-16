@@ -17,9 +17,9 @@ func MockData() {
 	urlAppPut := "/app/put"
 	urlAppNodePut := "/app_node/put"
 	urlConfigTplCreate := "/config/tpl/create"
-	urlConfigFileCreate := "/config/file/create"
-	urlConfigContentUpdate := "/config/content/update"
-	urlConfigGeneratorParse := "/config/parse"
+	//urlConfigFileCreate := "/config/file/create"
+	//urlConfigContentUpdate := "/config/content/update"
+	//urlConfigGeneratorParse := "/config/parse"
 	urlUserCreate := "/user/create"
 
 	router.POST(urlAppPut, resource.AppPut)
@@ -29,9 +29,9 @@ func MockData() {
 
 	mockApp(urlAppPut, router)
 	mockAppNode(urlAppNodePut, router)
-	mockTplCreate(urlConfigTplCreate, router)
-	mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
-	mockParse(urlConfigGeneratorParse, router)
+	//mockTplCreate(urlConfigTplCreate, router)
+	//mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
+	//mockParse(urlConfigGeneratorParse, router)
 	mockCreateUser(urlUserCreate, router)
 }
 

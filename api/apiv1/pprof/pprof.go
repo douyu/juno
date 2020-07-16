@@ -1,6 +1,7 @@
 package pprofHandle
 
 import (
+	"github.com/douyu/juno/pkg/cfg"
 	"os/exec"
 	"strings"
 
@@ -142,17 +143,10 @@ func FileList(c echo.Context) error {
 		item := list[0]
 		item.PprofList = make([]db.PprofInfo, 0)
 		for _, node := range list {
-			url := node.FileInfo
-			urls := strings.Split(url, "/")
-			for _, v := range urls {
-				if strings.Contains(v, ".svg") {
-					url = v
-				}
-			}
 			item.PprofList = append(item.PprofList, db.PprofInfo{
 				Id:   node.ID,
 				Type: node.Type,
-				Url:  url,
+				Url:  strings.TrimPrefix(node.FileInfo, cfg.Cfg.Pprof.StorePath),
 			})
 		}
 		showData = append(showData, item)
