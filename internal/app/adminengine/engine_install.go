@@ -25,7 +25,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func (*Admin) migrateDB() error {
+func (eng *Admin) migrateDB() error {
 	gormdb, err := gorm.Open(
 		"mysql",
 		cfg.Cfg.Database.DSN,
@@ -38,17 +38,17 @@ func (*Admin) migrateDB() error {
 		_ = gormdb.Close()
 	}()
 
-	cmdClear(gormdb)
-	cmdInstall(gormdb)
-	cmdMock()
-	if !runFlag {
+	eng.cmdClear(gormdb)
+	eng.cmdInstall(gormdb)
+	eng.cmdMock()
+	if !eng.runFlag {
 		os.Exit(0)
 	}
 	return nil
 }
 
-func cmdClear(gormdb *gorm.DB) {
-	if clearFlag {
+func (eng *Admin) cmdClear(gormdb *gorm.DB) {
+	if eng.clearFlag {
 		dsn, err := util.ParseDSN(cfg.Cfg.Database.DSN)
 		if err != nil {
 			panic("dsn parse error: " + err.Error())
@@ -65,8 +65,8 @@ func cmdClear(gormdb *gorm.DB) {
 	}
 }
 
-func cmdInstall(gormdb *gorm.DB) {
-	if installFlag {
+func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
+	if eng.installFlag {
 		models := []interface{}{
 			&db.AppInfo{},
 			&db.AppChangeMap{},
@@ -122,8 +122,8 @@ func cmdInstall(gormdb *gorm.DB) {
 	}
 }
 
-func cmdMock() {
-	if mockFlag {
+func (eng *Admin) cmdMock() {
+	if eng.mockFlag {
 		install.MockData()
 	}
 }

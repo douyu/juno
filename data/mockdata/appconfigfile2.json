@@ -1,8 +1,0 @@
-{
-  "aid":2,
-  "app_name":"douyu-mouri-ran",
-  "zone_code":"cn-wuhan-guanggu-f1",
-  "env":"dev",
-  "format": "toml",
-  "file_name":"config-dev.toml"
-}

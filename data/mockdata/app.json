@@ -2,8 +2,8 @@
   "list":[
     {
       "gid":1,
-      "name":"江户川柯南",
-      "app_name":"douyu-edogawa-konan",
+      "name":"jupiter-demo",
+      "app_name":"jupiter-demo",
       "lang":"go",
       "level":1,
       "biz_domain":"直播系统",
@@ -11,50 +11,22 @@
       "rpc_port":"8012",
       "govern_port":"9999",
       "users":["askuy","lvchao","duminxiang"],
-      "web_url":"https://github.com/douyu/konan",
-      "git_url":"git@github.com/douyu/konan.git"
+      "web_url":"https://github.com/douyu/jupiter-demo",
+      "git_url":"git@github.com/douyu/jupiter-demo.git"
     },
     {
       "gid":2,
-      "name":"毛利兰",
-      "app_name":"douyu-mouri-ran",
+      "name":"juno-admin",
+      "app_name":"juno-admin",
       "lang":"go",
       "level":1,
       "biz_domain":"直播系统",
-      "http_port":"8021",
-      "rpc_port":"8022",
-      "govern_port":"9999",
-      "users":["askuy","lvchao","duminxiang"],
-      "web_url":"https://github.com/douyu/ran",
-      "git_url":"git@github.com/douyu/ran.git"
-    },
-    {
-      "gid":3,
-      "name":"灰原哀",
-      "app_name":"douyu-haibara-ai",
-      "lang":"go",
-      "level":1,
-      "biz_domain":"点播系统",
-      "http_port":"8031",
-      "rpc_port":"8032",
-      "govern_port":"9999",
-      "users":["askuy","lvchao","duminxiang"],
-      "web_url":"https://github.com/douyu/ai",
-      "git_url":"git@github.com/douyu/ai.git"
-    },
-    {
-      "gid":4,
-      "name":"吉田步美",
-      "app_name":"douyu-yoshida-ayumi",
-      "lang":"go",
-      "level":1,
-      "biz_domain":"直播系统",
-      "http_port":"8041",
-      "rpc_port":"8042",
-      "govern_port":"9999",
-      "users":["askuy","lvchao","duminxiang"],
-      "web_url":"https://github.com/douyu/ayumi",
-      "git_url":"git@github.com/douyu/ayumi.git"
+      "http_port":"50000",
+      "rpc_port":"0",
+      "govern_port":"50004",
+      "users":["askuy","mex"],
+      "web_url":"https://github.com/douyu/juno",
+      "git_url":"git@github.com/douyu/juno.git"
     }
   ]
 }

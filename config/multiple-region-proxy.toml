@@ -1,9 +1,5 @@
 
 [app]
-  appurl = ""
-  mode = "prod"
-  name = "juno"
-  token = "123456"
   secretKey = "ASDFASDFASDF"
 
 [confgo]
@@ -14,11 +10,20 @@
     port = 50010
 
 
-[jupiter.logger.default]
-    debug = true          # 是否在命令行输出
-    enableConsole = true  # 是否按命令行格式输出
+[logger.system]
+    debug = false          # 是否在命令行输出
+    enableConsole = false  # 是否按命令行格式输出
     level = "debug"
-
+    async = false
+    name = "system.json" # 日志名称
+    dir = "./"
+[logger.biz]
+    debug = false          # 是否在命令行输出
+    enableConsole = false  # 是否按命令行格式输出
+    level = "debug"
+    async = false
+    name = "biz.json" # 日志名称
+    dir = "./"
 
 [register]
     enable=true

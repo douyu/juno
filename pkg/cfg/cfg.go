@@ -48,6 +48,7 @@ type cfg struct {
 	Casbin            Casbin
 	Pprof             Pprof
 	Register          Register
+	Logger            Logger
 }
 
 // DefaultConfig ...
@@ -176,10 +177,10 @@ func defaultConfig() cfg {
 		Casbin: Casbin{
 			Enable:           false,
 			Debug:            true,
-			Model:            "./configs/model.conf",
+			Model:            "./config/model.conf",
 			AutoLoad:         false,
 			AutoLoadInternal: 0,
-			ResourceFile:     "./configs/resource.yaml",
+			ResourceFile:     "./config/resource.yaml",
 		},
 	}
 }

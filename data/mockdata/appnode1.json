@@ -1,5 +1,5 @@
 {
-  "app_name":"douyu-edogawa-konan",
+  "app_name":"douyu-demo",
   "list":[
       {
          "host_name":"wuhan-host-1-1",
@@ -9,69 +9,6 @@
          "region_name":"武汉",
          "zone_code":"cn-wuhan-guanggu-f1",
          "zone_name":"武汉光谷F1区"
-      },
-      {
-        "host_name":"wuhan-host-1-2",
-        "ip":"192.168.1.2",
-        "env":"dev",
-        "region_code":"cn-wuhan",
-        "region_name":"武汉",
-        "zone_code":"cn-wuhan-guanggu-f1",
-        "zone_name":"武汉光谷F1区"
-      },
-      {
-        "host_name":"wuhan-host-100-1",
-        "ip":"192.168.100.1",
-        "env":"prod",
-        "region_code":"cn-wuhan",
-        "region_name":"武汉",
-        "zone_code":"cn-wuhan-guanggu-f3",
-        "zone_name":"武汉光谷F3区"
-      },
-      {
-        "host_name":"wuhan-host-100-2",
-        "ip":"192.168.100.2",
-        "env":"prod",
-        "region_code":"cn-wuhan",
-        "region_name":"武汉",
-        "zone_code":"cn-wuhan-guanggu-f3",
-        "zone_name":"武汉光谷F3区"
-      },
-      {
-        "host_name":"wuhan-host-100-3",
-        "ip":"192.168.100.3",
-        "env":"prod",
-        "region_code":"cn-wuhan",
-        "region_name":"武汉",
-        "zone_code":"cn-wuhan-guanggu-f3",
-        "zone_name":"武汉光谷F3区"
-      },
-      {
-        "host_name":"wuhan-host-100-4",
-        "ip":"192.168.100.4",
-        "env":"prod",
-        "region_code":"cn-wuhan",
-        "region_name":"武汉",
-        "zone_code":"cn-wuhan-guanggu-f3",
-        "zone_name":"武汉光谷F3区"
-      },
-    {
-      "host_name":"file-watch-demo-host",
-      "ip":"172.18.0.6",
-      "env":"dev",
-      "region_code":"cn-wuhan",
-      "region_name":"武汉",
-      "zone_code":"cn-wuhan-guanggu-f3",
-      "zone_name":"武汉光谷F3区"
-    },
-    {
-      "host_name":"http-watch-demo-host",
-      "ip":"172.18.0.7",
-      "env":"live",
-      "region_code":"cn-wuhan",
-      "region_name":"武汉",
-      "zone_code":"cn-wuhan-guanggu-f1",
-      "zone_name":"武汉光谷F1区"
-    }
+      }
   ]
 }

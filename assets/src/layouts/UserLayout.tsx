@@ -4,7 +4,7 @@ import { Link, SelectLang, useIntl, ConnectProps, connect } from 'umi';
 import React from 'react';
 import { ConnectState } from '@/models/connect';
 import logo from '../assets/logo.svg';
-import styles from './UserLayout.less';
+import styles from './layout.less';
 
 export interface UserLayoutProps extends Partial<ConnectProps> {
   breadcrumbNameMap: {
