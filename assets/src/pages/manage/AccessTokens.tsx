@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import {Button, Card, Col, Form, List, message, Modal, Popconfirm, Row} from "antd";
 import {ConnectState, Pagination} from "@/models/connect";
@@ -19,6 +19,14 @@ interface ModalCreateProps {
 function ModalCreate(props: ModalCreateProps) {
   const {onOk, visible, onCancel} = props
   const [form] = Form.useForm()
+  const refInputName = useRef(null)
+
+  useEffect(() => {
+    if (visible) {
+      // @ts-ignore
+      refInputName.current && refInputName.current?.focus()
+    }
+  }, [visible])
 
   return <Modal
     title={"新建Access Token"}
@@ -43,7 +51,7 @@ function ModalCreate(props: ModalCreateProps) {
           {required: true, message: '请输入名称'}
         ]}
       >
-        <Input/>
+        <Input ref={refInputName}/>
       </Form.Item>
     </Form>
   </Modal>
@@ -116,7 +124,14 @@ function AccessTokens(props: AccessTokensProps) {
       <List
         style={{marginTop: '10px'}}
         loading={listLoading}
-        pagination={pagination}
+        pagination={{
+          onChange(page, pageSize) {
+            fetchList(page - 1, pageSize)
+          },
+          current: pagination.current + 1,
+          pageSize: pagination.pageSize,
+          total: pagination.total
+        }}
         dataSource={list}
         renderItem={(item) => {
           return <List.Item
