@@ -154,7 +154,7 @@ func CasbinAppMW(parserFn AppEnvParser, action string) echo.MiddlewareFunc {
 			// 写回 Request Body
 			c.Request().Body = ioutil.NopCloser(bytes.NewReader(bodyBytes))
 			if err != nil {
-				return output.JSON(c, output.MsgErr, "can not get app,env from context: "+err.Error())
+				return output.JSON(c, output.MsgErr, "can not get app,env from context: "+err.Error(), nil)
 			}
 
 			u := user.GetUser(c)

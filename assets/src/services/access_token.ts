@@ -18,7 +18,7 @@ export async function deleteAccessToken(appId: string) {
   return request(`/api/admin/openAuth/accessToken/delete`, {
     method: 'POST',
     data: {
-      appId
+      app_id: appId
     }
   })
 }

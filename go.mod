@@ -5,11 +5,13 @@ go 1.14
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/alibaba/sentinel-golang v0.4.0
+	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535
 	github.com/casbin/casbin/v2 v2.7.2
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/coreos/etcd v3.3.22+incompatible
 	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc // indirect
 	github.com/douyu/jupiter v0.0.0-20200709073817-3e760e50d665
+	github.com/go-playground/validator/v10 v10.3.0
 	github.com/go-resty/resty/v2 v2.2.0
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/golang/protobuf v1.4.2

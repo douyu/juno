@@ -21,11 +21,12 @@ import (
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
+	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 )
 
 func apiV1(server *xecho.Server) {
-	v1 := server.Group("/api/v1")
+	v1 := server.Group("/api/v1", middleware.OpenAuth)
 	resourceGroup := v1.Group("/resource")
 	{
 		// 创建应用

@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
-import { Row, message, Modal, Transfer, Button, Table, Col } from 'antd';
-import {
-  ServiceAppNodeTransferList,
-  ServiceAppNodeTransferPut,
-  ServiceGetAppList,
-} from '@/services/app';
+import React, {useState} from 'react';
+import {Button, Col, message, Modal, Row, Table, Transfer} from 'antd';
+import {ServiceAppNodeTransferList, ServiceAppNodeTransferPut,} from '@/services/app';
 import moment from 'moment';
 import styles from './style.less';
+
+export interface DetailProps {
+  aid: number
+  env: string
+  appNodeList: any[]
+}
+
 /**
  * 此方法会跳转到 redirect 参数所在的位置
  */
-const Detail: React.FC<{}> = (props) => {
-  const { aid, env, appNodeList, appEnvZone, zone } = props;
-  const [dataSource, setDataSource] = useState([]);
+const Detail = (props: DetailProps) => {
+  const {aid, appNodeList} = props;
+  const [dataSource, setDataSource] = useState<any[]>([]);
   const [targetKeys, setTargetKeys] = useState([]);
-  const [nodeArr, setNodeArr] = useState([]);
+  const [nodeArr, setNodeArr] = useState<any[]>([]);
   const [visible, setVisible] = useState(Boolean);
-  const [data, setData] = useState([]);
   const [dataQuery, setDataQuery] = useState(true);
 
   if (dataQuery) {
@@ -24,7 +26,7 @@ const Detail: React.FC<{}> = (props) => {
   }
 
   let initTransfer = () => {
-    ServiceAppNodeTransferList({ aid }).then((res: any) => {
+    ServiceAppNodeTransferList({aid}).then((res: any) => {
       if (res.code !== 0) {
         message.error(res.msg);
         return false;
@@ -92,7 +94,7 @@ const Detail: React.FC<{}> = (props) => {
     {
       title: '地区',
       key: 'region_code',
-      render: (record) => (
+      render: (record: any) => (
         <span>
           {record.region_code}({record.region_name})
         </span>
@@ -101,7 +103,7 @@ const Detail: React.FC<{}> = (props) => {
     {
       title: '可用区',
       key: 'zone_code',
-      render: (record) => (
+      render: (record: any) => (
         <span>
           {record.zone_code}({record.zone_name})
         </span>
@@ -116,19 +118,19 @@ const Detail: React.FC<{}> = (props) => {
       title: '更新时间',
       dataIndex: 'update_time',
       key: 'update_time',
-      render: (update_time) => moment(update_time, 'X').format('YYYY-MM-DD HH:mm:ss'),
+      render: (update_time: any) => moment(update_time, 'X').format('YYYY-MM-DD HH:mm:ss'),
     },
   ];
 
-  let onChange = (pagination, filters, sorter, extra) => {
+  let onChange = (pagination: any, filters: any, sorter: any, extra: any) => {
     console.log('params', pagination, filters, sorter, extra);
   };
 
   return (
-    <div style={{ marginTop: '5px' }}>
+    <div style={{marginTop: '5px'}}>
       <Row>
         <Col span={23}>
-          <div style={{ float: 'right' }}>
+          <div style={{float: 'right'}}>
             <Button
               type="primary"
               className={styles.lay}

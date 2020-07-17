@@ -15,6 +15,8 @@
 package invoker
 
 import (
+	"github.com/douyu/jupiter/pkg/util/xtime"
+	"github.com/go-resty/resty/v2"
 	"time"
 
 	"github.com/douyu/juno/pkg/cfg"
@@ -27,6 +29,8 @@ var (
 	JunoMysql *gorm.DB
 	// ConfgoEtcd for configuration
 	ConfgoEtcd *clientv3.Client
+	// Resty
+	Resty *resty.Client
 )
 
 // Init invoker
@@ -48,5 +52,6 @@ func Init() {
 			panic(err.Error())
 		}
 	}
+	Resty = resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(xtime.Duration("10s"))
 
 }
