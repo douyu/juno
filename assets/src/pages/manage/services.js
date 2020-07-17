@@ -14,11 +14,11 @@ export async function getSysConfig(params) {
 }
 
 export async function loadSettings() {
-  return request(`/api/v1/system/setting/list`)
+  return request(`/api/admin/system/setting/list`)
 }
 
 export async function updateSetting(name, content) {
-  return request(`/api/v1/system/setting/update`, {
+  return request(`/api/admin/system/setting/update`, {
     method: 'POST',
     data: {
       name,
