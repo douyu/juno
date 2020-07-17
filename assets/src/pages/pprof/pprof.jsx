@@ -130,7 +130,7 @@ export default class PPofList extends React.PureComponent {
 
     this.props.dispatch({
       type: 'pprofModel/list',
-      payload: {appName, zoneCode, env},
+      payload: {appName, zoneCode: zoneCode === 'all' ? null : zoneCode, env},
     });
 
     this.props.dispatch({
@@ -141,11 +141,7 @@ export default class PPofList extends React.PureComponent {
 
   btnLoadingFun = (type, op) => {
     let obj = {};
-    if (op === true) {
-      obj[type + 'Loading'] = true;
-    } else {
-      obj[type + 'Loading'] = false;
-    }
+    obj[type + 'Loading'] = op === true;
     this.setState(obj);
   };
 
@@ -168,10 +164,6 @@ export default class PPofList extends React.PureComponent {
       payload: {appName, idcCode, hostName, env},
     });
   };
-
-  componentWillMount() {
-    const that = this;
-  }
 
   showProfileSvg = (id, type, url) => {
     var that = this;
@@ -207,8 +199,9 @@ export default class PPofList extends React.PureComponent {
       },
       callback: (resp) => {
         this.stopLoading();
+        this.getList();
 
-        if (res.status >= 300) {
+        if (resp.status >= 300) {
           return;
         }
 
@@ -218,7 +211,6 @@ export default class PPofList extends React.PureComponent {
         }
 
         message.success('成功！因文件服务延时，请稍等片刻查看相关分析文件！', 8);
-        this.getList();
       },
     });
   };
