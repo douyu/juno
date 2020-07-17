@@ -1,4 +1,4 @@
-import {Form, Input, Button, Select, Card, message} from 'antd';
+import {Form, Input, Button, Select, Card, message, InputNumber} from 'antd';
 import React from "react";
 import {history} from "umi";
 
@@ -73,9 +73,12 @@ export default function CommonForm (props) {
       <Form.Item
         name="gid"
         label="Gitlab Id"
+        rules={[
+          {required: true}
+        ]}
         hasFeedback
       >
-        <Input />
+        <InputNumber style={{width: '100%'}}/>
       </Form.Item>
       <Form.Item
         name="lang"
