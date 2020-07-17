@@ -114,9 +114,9 @@ func Run(c echo.Context) error {
 // 查询已经存储的pprof文件
 func FileList(c echo.Context) error {
 	req := db.PProfReqList{}
-	err := c.Bind(&req)
 	showData := make([]db.PProf, 0)
 
+	err := c.Bind(&req)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数错误", showData)
 	}
