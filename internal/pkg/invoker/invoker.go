@@ -52,6 +52,5 @@ func Init() {
 			panic(err.Error())
 		}
 	}
-	Resty = resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(xtime.Duration("10s"))
-
+	Resty = resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(xtime.Duration("20s"))
 }

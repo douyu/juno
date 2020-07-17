@@ -12,14 +12,12 @@
 
 [logger.system]
     debug = false          # 是否在命令行输出
-    enableConsole = false  # 是否按命令行格式输出
     level = "debug"
-    async = false
+    async = true
     name = "system.json" # 日志名称
     dir = "."
 [logger.biz]
     debug = false          # 是否在命令行输出
-    enableConsole = false  # 是否按命令行格式输出
     level = "debug"
     async = false
     name = "biz.json" # 日志名称
@@ -56,7 +54,7 @@
     enable = true
     debug = true
     addr = "stream"
-    internal = "10s"
+    internal = "120s"
     hostName = "JUNO_HOST" # 环境变量的名称，或者命令行参数的名称
     regionCode = "REGION_CODE" # 环境变量的名称，或者命令行参数的名称
     regionName = "REGION_NAME"

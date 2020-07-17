@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/douyu/juno/pkg/model/db"
 	"github.com/labstack/echo/v4"
 )
 
@@ -56,47 +55,6 @@ func mockTplByFile(tplType, fileName string, url string, router *echo.Echo) {
 
 	// 发起post请求，以表单形式传递参数
 	PostForm(url, string(paramByte), router)
-}
-
-func mockConfig(urlFile string, urlContent string, router *echo.Echo) {
-	mockConfigByFile("./data/mockdata/appconfigfile1.json", "./data/mockdata/appconfigcontent1.toml", urlFile, urlContent, router)
-	mockConfigByFile("./data/mockdata/appconfigfile2.json", "./data/mockdata/appconfigcontent2.toml", urlFile, urlContent, router)
-	mockConfigByFile("./data/mockdata/appconfigfile3.json", "./data/mockdata/appconfigcontent3.toml", urlFile, urlContent, router)
-	mockConfigByFile("./data/mockdata/appconfigfile4.json", "./data/mockdata/appconfigcontent4.toml", urlFile, urlContent, router)
-}
-
-func mockConfigByFile(configFile string, configContent string, urlFile string, urlContent string, router *echo.Echo) {
-	file, err := ioutil.ReadFile(configFile)
-	if err != nil {
-		panic(err)
-	}
-	// 发起post请求，以表单形式传递参数
-	body := PostForm(urlFile, string(file), router)
-	fmt.Println("urlFile------>", configFile)
-	fmt.Println(string(body))
-	resp := struct {
-		Data db.CmcApp `json:"data"`
-	}{}
-	err = json.Unmarshal(body, &resp)
-	if err != nil {
-		panic(err)
-	}
-
-	file, err = ioutil.ReadFile(configContent)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(file))
-	param1 := map[string]interface{}{
-		"caid":  resp.Data.ID,
-		"key":   "default",
-		"value": string(file),
-	}
-
-	tt, _ := json.Marshal(param1)
-	// 发起post请求，以表单形式传递参数
-	body = PostForm(urlContent, string(tt), router)
-	fmt.Println(string(body))
 }
 
 func mockParse(url string, router *echo.Echo) {

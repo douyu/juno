@@ -63,7 +63,6 @@ func (c *simplePorxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (re
 		err = fmt.Errorf("resty is nil")
 		return
 	}
-	fmt.Println("req", req)
 	return c.proxyHTTP.Get(req)
 }
 

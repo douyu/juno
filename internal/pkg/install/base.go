@@ -40,6 +40,8 @@ func MustMockData() {
 	urlSystemCreate := "/system/setting/create"
 	router.POST(urlSystemCreate, system.SettingCreate)
 	mockGrafanaSetting(urlSystemCreate, router)
+	mockAdminUser()
+
 }
 
 func PostForm(uri string, param string, router *echo.Echo) []byte {

@@ -70,8 +70,10 @@ test:
 	@echo testPath ${BAST_PATH}
 	go test -v .${BAST_PATH}/...
 
-build_all:build_admin build_proxy build_assets build_data tar
+build_all:build_clear build_admin build_proxy build_assets build_data tar
 
+build_clear:
+	rm -rf release
 
 build_admin:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build juno admin<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"

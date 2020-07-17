@@ -17,6 +17,7 @@ package proxyengine
 import (
 	"context"
 	"errors"
+	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/jupiter/pkg"
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	"strconv"
@@ -62,7 +63,22 @@ func New() *Proxy {
 
 func (eng *Proxy) initConfig() (err error) {
 	cfg.InitCfg()
-	xlog.DefaultLogger = xlog.StdConfig("default").Build()
+	jupiterConfig := xlog.DefaultConfig()
+	jupiterConfig.Name = cfg.Cfg.Logger.System.Name
+	jupiterConfig.Debug = cfg.Cfg.Logger.System.Debug
+	jupiterConfig.Level = cfg.Cfg.Logger.System.Level
+	jupiterConfig.Dir = cfg.Cfg.Logger.System.Dir
+	jupiterConfig.Async = cfg.Cfg.Logger.System.Async
+	xlog.JupiterLogger = jupiterConfig.Build()
+	//
+	bizConfig := xlog.DefaultConfig()
+	bizConfig.Name = cfg.Cfg.Logger.Biz.Name
+	bizConfig.Debug = cfg.Cfg.Logger.Biz.Debug
+	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
+	bizConfig.Dir = cfg.Cfg.Logger.Biz.Dir
+	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
+	xlog.DefaultLogger = bizConfig.Build()
+	invoker.Init()
 	return
 }
 
