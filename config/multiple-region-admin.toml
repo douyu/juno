@@ -12,14 +12,12 @@
 
 [logger.system]
     debug = false          # 是否在命令行输出
-    enableConsole = false  # 是否按命令行格式输出
     level = "debug"
     async = false
     name = "system.json" # 日志名称
     dir = "."
 [logger.biz]
     debug = false          # 是否在命令行输出
-    enableConsole = false  # 是否按命令行格式输出
     level = "debug"
     async = false
     name = "biz.json" # 日志名称
@@ -65,8 +63,8 @@
 
 #################################### Proxy ##############################
 [[clientProxy.multiProxy]]
-  env = "live"
-  zoneCode="cn-wuhan-guanggu-f1"
+  env = "dev"
+  zoneCode="guanggu"
 
   [clientProxy.multiProxy.stream]
     enable = true
@@ -75,7 +73,7 @@
   [clientProxy.multiProxy.etcd]
     enable = true
     endpoints = ["127.0.0.1:52379"]
-    timeout = 3
+    timeout = "3s"
 
   [clientProxy.multiProxy.http]
     enable = true

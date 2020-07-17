@@ -78,18 +78,8 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&db.AppViewHistory{},
 			&db.Board{},
 			&db.BoardAuth{},
-			&db.CmcApp{},
-			&db.CmcAppLog{},
-			&db.CmcHistory{},
-			&db.CmcHistoryItem{},
-			&db.CmcConfig{},
-			&db.CmcConfigLog{},
-			&db.CmcResource{},
-			&db.CmcPublishLog{},
-			&db.CmcUseStatus{},
 			&db.CmcTpl{},
 			&db.Zone{},
-			&db.IdcSrv{},
 			&db.OpsSupervisorConfig{},
 			&db.PProf{},
 			&db.ToolInfo{},
@@ -108,12 +98,10 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&db.CasbinPolicyGroup{},
 			&db.AccessToken{},
 		}
+		gormdb = gormdb.Debug()
 		gormdb.SingularTable(true)
-		gormdb.Debug()
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
-
 		gormdb.Model(&db.AccessToken{}).AddUniqueIndex("idx_unique_name", "name")
-
 		fmt.Println("create table ok")
 	}
 }

@@ -241,6 +241,7 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 	if err != nil {
 		return
 	}
+	xlog.Debug("nodes list", zap.Any("nodes", nodes))
 
 	app, err := resource.Resource.GetApp(configuration.AID)
 	if err != nil {

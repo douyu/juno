@@ -26,6 +26,9 @@ import (
 )
 
 func apiV1(server *xecho.Server) {
+
+	server.POST("/api/v1/resource/node/heartbeat", resource.NodeHeartBeat)
+
 	v1 := server.Group("/api/v1", middleware.OpenAuth)
 	resourceGroup := v1.Group("/resource")
 	{
@@ -48,7 +51,6 @@ func apiV1(server *xecho.Server) {
 		resourceGroup.GET("/node/list", resource.NodeList)
 		resourceGroup.GET("/node/transfer/list", resource.NodeTransferList)
 		resourceGroup.GET("/node/transfer/put", resource.NodeTransferPut)
-		resourceGroup.POST("/node/heartbeat", resource.NodeHeartBeat)
 
 		// 创建应用和节点关系
 		resourceGroup.POST("/app_node/put", resource.AppNodePut)

@@ -17,8 +17,8 @@ type (
 )
 
 type UniqZone struct {
-	Zone string
 	Env  string
+	Zone string
 }
 
 func (u UniqZone) String() string {
