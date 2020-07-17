@@ -78,13 +78,14 @@ export default {
     });
   },
   * setCurrentEnv({payload}, {call, put}) {
-    const {aid, env, appName} = payload;
+    const {aid, env, appName, zoneCode} = payload;
     yield put({
       type: '_apply',
       payload: {
         aid,
         env,
         appName,
+        zoneCode
       },
     });
   },

@@ -208,6 +208,10 @@ func apiAdmin(server *xecho.Server) {
 		systemGroup.POST("/option/create", system.OptionCreate)
 		systemGroup.POST("/option/update", system.OptionUpdate)
 		systemGroup.POST("/option/delete", system.OptionDelete)
+
+		// 系统设置
+		systemGroup.GET("/setting/list", system.SettingList)
+		systemGroup.POST("/setting/update", system.SettingUpdate)
 	}
 
 	permissionG := g.Group("/permission", loginAuthWithJSON)

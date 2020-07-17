@@ -16,16 +16,17 @@ package adminengine
 
 import (
 	"context"
-	"github.com/douyu/juno/internal/pkg/install"
 	"strconv"
 	"time"
 
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/app/middleware"
+	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/notify"
+	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
@@ -36,6 +37,7 @@ import (
 	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
 	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
+	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
 )
@@ -155,7 +157,7 @@ func (eng *Admin) initNotify() (err error) {
 	if !eng.runFlag {
 		return
 	}
-	for _, cp := range cfg.Cfg.ClientProxy {
+	for _, cp := range cfg.Cfg.ClientProxy.MultiProxy {
 		if cp.Stream.Enable {
 			ProxyClient := make(map[string]pb.ProxyClient, 0)
 			for _, value := range cp.Stream.ProxyAddr {
@@ -185,6 +187,8 @@ func (eng *Admin) serveHTTP() (err error) {
 	server.Debug = true
 
 	server.Use(middleware.ProxyGatewayMW)
+
+	server.Validator = NewValidator()
 
 	// Provide Admin API interface
 	apiAdmin(server)
@@ -272,4 +276,17 @@ func (eng *Admin) defers() (err error) {
 		return nil
 	})
 	return nil
+}
+
+func (eng *Admin) initWorker() (err error) {
+	{ // 定时刷新AccessToken任务
+		accessTokenUpdateCron := xcron.DefaultConfig().Build()
+		accessTokenUpdateCron.Schedule(xcron.Every(time.Minute), xcron.FuncJob(openauth.OpenAuthService.IntervalUpdateTokens))
+
+		err = eng.Schedule(accessTokenUpdateCron)
+		if err != nil {
+			return err
+		}
+	}
+	return
 }

@@ -5,11 +5,19 @@ import {Form, Input, Modal, Radio, Select} from "antd";
 function ModalCreate(props) {
   const [form] = Form.useForm()
   const [format, setFormat] = useState('toml')
-  const {showCreateModal, loadConfigList, loadConfigDetail} = props
+  const {showCreateModal, loadConfigList, loadConfigDetail, zoneCode} = props
 
   useEffect(() => {
     form.resetFields()
   }, [])
+
+  useEffect(() => {
+    if (zoneCode !== 'all') {
+      form.setFieldsValue({
+        zone: zoneCode
+      })
+    }
+  }, [zoneCode])
 
   const onOK = () => {
     form.submit()
@@ -94,7 +102,8 @@ const mapStateToProps = ({config}) => {
     zoneList: config.zoneList,
     aid: config.aid,
     env: config.env,
-    appName: config.appName
+    appName: config.appName,
+    zoneCode: config.zoneCode
   }
 }
 

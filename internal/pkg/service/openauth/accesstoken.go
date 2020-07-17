@@ -2,13 +2,14 @@ package openauth
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/jinzhu/gorm"
+	"github.com/labstack/gommon/log"
 	"github.com/labstack/gommon/random"
 	"golang.org/x/sync/errgroup"
-	"log"
-	"sync"
 )
 
 const (
@@ -32,10 +33,22 @@ type (
 )
 
 func (o *openAuthService) init() {
-	var accessTokens []db.AccessToken
-	err := o.db.Find(&accessTokens).Error
+	err := o.loadAccessTokens()
 	if err != nil {
-		log.Panicf("openAuthService.init(): load access token failed: %s", err.Error())
+		log.Errorf("openAuthService.init: load access token failed:%s", err.Error())
+	}
+}
+
+//IntervalUpdateTokens 定时更新Token，为了防止其他进程往AccessToken数据表写数据
+func (o *openAuthService) IntervalUpdateTokens() (err error) {
+	return o.loadAccessTokens()
+}
+
+func (o *openAuthService) loadAccessTokens() (err error) {
+	var accessTokens []db.AccessToken
+	err = o.db.Find(&accessTokens).Error
+	if err != nil {
+		return
 	}
 
 	o.accessTokensMtx.Lock()
@@ -43,6 +56,7 @@ func (o *openAuthService) init() {
 	for _, token := range accessTokens {
 		o.accessTokens[token.AppID] = token
 	}
+	return
 }
 
 func (o *openAuthService) Create(param view.ReqCreateAccessToken) (token view.AccessTokenItem, err error) {
@@ -92,7 +106,16 @@ func (o *openAuthService) Create(param view.ReqCreateAccessToken) (token view.Ac
 }
 
 func (o *openAuthService) Delete(param view.ReqDeleteAccessToken) (err error) {
-	return o.db.Where("id = ?", param.ID).Limit(1).Delete(&db.AccessToken{}).Error
+	err = o.db.Where("app_id = ?", param.AppID).Limit(1).Delete(&db.AccessToken{}).Error
+	if err != nil {
+		return err
+	}
+
+	o.accessTokensMtx.Lock()
+	defer o.accessTokensMtx.Unlock()
+	delete(o.accessTokens, param.AppID)
+
+	return
 }
 
 func (o *openAuthService) List(param view.ReqListAccessToken) (resp view.RespListAccessToken, err error) {
@@ -108,7 +131,7 @@ func (o *openAuthService) List(param view.ReqListAccessToken) (resp view.RespLis
 	})
 
 	eg.Go(func() error {
-		return o.db.Limit(pageSize).Offset(offset).Find(&list).Error
+		return o.db.Limit(pageSize).Offset(offset).Order("id desc").Find(&list).Error
 	})
 
 	err = eg.Wait()
@@ -130,13 +153,14 @@ func (o *openAuthService) List(param view.ReqListAccessToken) (resp view.RespLis
 	return
 }
 
+//GetAccessTokenByAppID 从内存缓存中取Access Token
 func (o *openAuthService) GetAccessTokenByAppID(appId string) (accessToken db.AccessToken, err error) {
-	err = o.db.Where("app_id = ?", appId).First(&accessToken).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			err = ErrAppNotFound
-			return
-		}
+	o.accessTokensMtx.Lock()
+	defer o.accessTokensMtx.Unlock()
+
+	accessToken, ok := o.accessTokens[appId]
+	if !ok {
+		err = ErrAppNotFound
 		return
 	}
 

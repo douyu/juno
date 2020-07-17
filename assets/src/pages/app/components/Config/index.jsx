@@ -8,7 +8,7 @@ import ModalHistory from "@/pages/app/components/Config/components/ModalHistory"
 import EditorMaskLayer from "@/pages/app/components/Config/components/EditorMaskLayer";
 
 function ConfigEdit(props) {
-  const {aid, env, zoneList, appName} = props;
+  const {aid, env, zoneList, zoneCode, appName} = props;
 
   useEffect(() => {
     if (!appName) return
@@ -27,20 +27,23 @@ function ConfigEdit(props) {
       payload: zoneList
     })
 
+    props.dispatch({
+      type: 'config/clearCurrentConfig',
+    })
+  }, [appName, env, zoneList]);
+
+  useEffect(() => {
     // 从上级拿到数据后写到 "config" model 里面
     props.dispatch({
       type: 'config/setCurrentEnv',
       payload: {
         aid,
         env,
-        appName
+        appName,
+        zoneCode
       }
     })
-
-    props.dispatch({
-      type: 'config/clearCurrentConfig',
-    })
-  }, [appName, env, zoneList]);
+  }, [aid, appName, env, zoneCode])
 
   return (
     <div className={styles.container}>
