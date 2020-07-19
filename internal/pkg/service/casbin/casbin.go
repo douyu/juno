@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -20,23 +21,21 @@ type (
 		enabled bool
 
 		Resource struct {
-			Menu MenuTree          `yaml:"menu" json:"menu"`
-			App  AppPermissionList `yaml:"app" json:"app"`
-			API  APITree           `yaml:"api" json:"api"`
+			Permission PermissionTree    `yaml:"permission" json:"permission"`
+			App        AppPermissionList `yaml:"app" json:"app"`
 		}
 	}
 
-	MenuTree []MenuTreeItem
+	PermissionTree []MenuTreeItem
 
 	AppPermissionList []AppPermissionItem
 
-	APITree []APITreeItem
-
 	MenuTreeItem struct {
-		Name     string   `yaml:"name" json:"name"`
-		Path     string   `yaml:"path" json:"path"`
-		Icon     string   `yaml:"icon" json:"icon"`
-		Children MenuTree `yaml:"children" json:"children"`
+		Name     string         `yaml:"name" json:"name"`
+		Path     string         `yaml:"path" json:"path"`
+		Icon     string         `yaml:"icon" json:"icon"`
+		API      []APIItem      `yaml:"api" json:"api"`
+		Children PermissionTree `yaml:"children" json:"children"`
 	}
 
 	AppPermissionItem struct {
@@ -44,11 +43,10 @@ type (
 		Key  string `yaml:"key" json:"key"`
 	}
 
-	APITreeItem struct {
-		Name     string  `yaml:"name" json:"name"`
-		Path     string  `yaml:"path" json:"path"`
-		Method   *string `yaml:"method" json:"method,omitempty"`
-		Children APITree `yaml:"children" json:"children,omitempty"`
+	APIItem struct {
+		Name   string `yaml:"name" json:"name"`
+		Path   string `yaml:"path" json:"path"`
+		Method string `yaml:"method" json:"method,omitempty"`
 	}
 
 	Object struct {
@@ -151,8 +149,8 @@ func (c *CasbinService) CheckUserPermission(u *db.User, object string, action st
 }
 
 func (c *CasbinService) GetMenu(sub string) (menu view.MenuTree, err error) {
-	var genMenuTreeFunctor func(tree MenuTree) (menu view.MenuTree)
-	genMenuTreeFunctor = func(tree MenuTree) view.MenuTree {
+	var genMenuTreeFunctor func(tree PermissionTree) (menu view.MenuTree)
+	genMenuTreeFunctor = func(tree PermissionTree) view.MenuTree {
 		ret := view.MenuTree{}
 		for _, item := range tree {
 
@@ -179,73 +177,54 @@ func (c *CasbinService) GetMenu(sub string) (menu view.MenuTree, err error) {
 		return ret
 	}
 
-	menu = genMenuTreeFunctor(c.Resource.Menu)
+	menu = genMenuTreeFunctor(c.Resource.Permission)
 
 	return
 }
 
-func (c *CasbinService) GetAPITree(sub string) (apiTree APITree, err error) {
-	var genTreeFn func(tree APITree) APITree
+//
+//func (c *CasbinService) GetAPITree(sub string) (apiTree APITree, err error) {
+//	var genTreeFn func(tree APITree) APITree
+//
+//	genTreeFn = func(tree APITree) APITree {
+//		var ret APITree
+//		for _, item := range tree {
+//			treeItem := APIItem{
+//				Name:   item.Name,
+//				Path:   item.Path,
+//				Method: item.Method,
+//			}
+//			if len(item.Children) > 0 {
+//				treeItem.Children = genTreeFn(item.Children)
+//				if len(treeItem.Children) > 0 {
+//					ret = append(ret, treeItem)
+//				}
+//			} else {
+//				treeItem.Method = item.Method
+//				ok, _ := c.CheckPermission(sub, item.Path, *item.Method, db.CasbinPolicyTypeAPI)
+//				if ok {
+//					ret = append(ret, treeItem)
+//				}
+//			}
+//		}
+//		return ret
+//	}
+//
+//	apiTree = genTreeFn(c.Resource.API)
+//
+//	return
+//}
 
-	genTreeFn = func(tree APITree) APITree {
-		var ret APITree
-		for _, item := range tree {
-			treeItem := APITreeItem{
-				Name:   item.Name,
-				Path:   item.Path,
-				Method: item.Method,
-			}
-			if len(item.Children) > 0 {
-				treeItem.Children = genTreeFn(item.Children)
-				if len(treeItem.Children) > 0 {
-					ret = append(ret, treeItem)
-				}
-			} else {
-				treeItem.Method = item.Method
-				ok, _ := c.CheckPermission(sub, item.Path, *item.Method, db.CasbinPolicyTypeAPI)
-				if ok {
-					ret = append(ret, treeItem)
-				}
-			}
-		}
-		return ret
-	}
-
-	apiTree = genTreeFn(c.Resource.API)
-
-	return
-}
-
-func (c *CasbinService) GetAPIItem(path, method string) (apiItem *APITreeItem) {
-	var findFn func(tree APITree)
-
-	findFn = func(tree APITree) {
-		for _, item := range tree {
-			if item.Path == path && item.Method != nil && *item.Method == method {
-				apiItem = &APITreeItem{
-					Name:   item.Name,
-					Path:   item.Path,
-					Method: item.Method,
-				}
-				return
-			}
-
-			if len(item.Children) > 0 {
-				findFn(item.Children)
-			}
+func (c *CasbinService) GetAPIItem(path, method string) (apiItem *APIItem) {
+	fullApiList := c.FullAPIList()
+	for _, item := range fullApiList {
+		if item.Path == path && item.Method == method {
+			apiItem = &item
+			return
 		}
 	}
 
-	findFn(c.Resource.API)
-
-	return
-}
-
-func (c *CasbinService) UserAPITree(u *db.User) (apiTree APITree, err error) {
-	sub := strconv.Itoa(u.Uid)
-	apiTree, err = c.GetAPITree(sub)
-
-	return
+	return nil
 }
 
 func (c *CasbinService) UserMenu(u *db.User) (menu view.MenuTree, err error) {
@@ -257,28 +236,46 @@ func (c *CasbinService) UserMenu(u *db.User) (menu view.MenuTree, err error) {
 	return c.GetMenu(strconv.Itoa(u.Uid))
 }
 
-func (c *CasbinService) GetAPIList() (list []APIListItem) {
-	var genAPIListFunctor func(tree APITree)
-	genAPIListFunctor = func(tree APITree) {
+func (c *CasbinService) APIList(sub string) (list []APIItem) {
+	list = make([]APIItem, 0)
+	apiList := c.FullAPIList()
+	for _, item := range apiList {
+		ok, _ := c.CheckPermission(sub, item.Path, item.Method, db.CasbinPolicyTypeAPI)
+		if ok {
+			list = append(list, item)
+		}
+	}
+
+	return
+}
+
+// 获取所有的API权限列表（去重结果）
+func (c *CasbinService) FullAPIList() (list []APIItem) {
+	apiMap := make(map[string]APIItem) // "METHOD_PATH" -> APIListItem
+
+	var genApiListFn func(tree PermissionTree)
+	genApiListFn = func(tree PermissionTree) {
 		for _, item := range tree {
-			listItem := APIListItem{
-				Name: item.Name,
-				Path: item.Path,
-			}
-			if item.Method != nil {
-				listItem.Method = *item.Method
+			for _, apiItem := range item.API {
+				key := fmt.Sprintf("%s_%s", apiItem.Method, apiItem.Path)
+				apiMap[key] = apiItem
 			}
 
 			if len(item.Children) > 0 {
-				genAPIListFunctor(item.Children)
+				genApiListFn(item.Children)
 			}
-
-			list = append(list, listItem)
 		}
-
 	}
 
-	genAPIListFunctor(c.Resource.API)
+	genApiListFn(c.Resource.Permission)
+
+	for _, item := range apiMap {
+		list = append(list, item)
+	}
+
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].Path < list[j].Path
+	})
 
 	return
 }
@@ -294,7 +291,7 @@ func (c *CasbinService) CheckAppPermissionKeyValid(key string) bool {
 }
 
 func (c *CasbinService) CheckAPIValid(path, method string) bool {
-	for _, item := range c.GetAPIList() {
+	for _, item := range c.FullAPIList() {
 		if item.Path == path && item.Method == method {
 			return true
 		}

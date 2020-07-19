@@ -39,7 +39,6 @@ import (
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"go.uber.org/zap"
 )
 
 // Admin ...
@@ -101,7 +100,7 @@ func New() *Admin {
 	)
 
 	if err != nil {
-		xlog.Panic("start up error", zap.Error(err))
+		xlog.Panic("start up error: " + err.Error())
 	}
 	return eng
 }

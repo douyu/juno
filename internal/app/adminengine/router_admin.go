@@ -249,8 +249,8 @@ func apiAdmin(server *xecho.Server) {
 
 		// 菜单列表
 		permissionG.GET("/menu/list", permission.ListMenu)
-		// API列表
-		permissionG.GET("/api/list", permission.ListAPI)
+		// 菜单-API权限树
+		permissionG.GET("/permissionTree", permission.MenuAPITree)
 	}
 
 	eventGroup := g.Group("/event", loginAuthWithJSON)
