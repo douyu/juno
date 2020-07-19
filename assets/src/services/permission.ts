@@ -66,3 +66,7 @@ export async function setUserGroupAppPerm(payload: { group_name: string, app_nam
     data: payload
   })
 }
+
+export async function fetchPermissionTree() {
+  return request(`/api/admin/permission/permissionTree`)
+}

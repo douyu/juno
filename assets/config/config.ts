@@ -163,14 +163,9 @@ export default defineConfig({
                   component: './permission/UserGroup'
                 },
                 {
-                  name: '菜单权限',
-                  path: '/permission/menu',
-                  component: './permission/Menu'
-                },
-                {
-                  name: '接口权限',
-                  path: '/permission/api',
-                  component: './permission/API'
+                  name: '菜单接口权限',
+                  path: '/permission/menu_api_permission',
+                  component: './permission/MenuAPI'
                 },
                 {
                   name: '应用权限',
