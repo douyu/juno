@@ -6,4 +6,5 @@ func Init(db *gorm.DB) {
 	initUserGroup(db)
 	initAppGroup(db)
 	initUser(db)
+	initPermission(db)
 }

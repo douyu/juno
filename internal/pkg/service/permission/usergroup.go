@@ -358,8 +358,9 @@ func (u *userGroup) createPerms(mysql *gorm.DB, list []db.CasbinPolicyAuth) (err
 
 func (u *userGroup) deletePerms(mysql *gorm.DB, list []db.CasbinPolicyAuth) (err error) {
 	for _, item := range list {
-		err = mysql.Where("sub = ? and obj = ? and act = ? and type = ?", item.Sub, item.Obj, item.Act, item.Type).
-			Delete(&db.CasbinPolicyAuth{}).Error
+		//err = mysql.Where("sub = ? and obj = ? and act = ? and type = ?", item.Sub, item.Obj, item.Act, item.Type).
+		//	Delete(&db.CasbinPolicyAuth{}).Error
+		err = mysql.Delete(&item).Error
 
 		return
 	}
@@ -383,31 +384,13 @@ func (u *userGroup) GetMenuPerm(param view.ReqGetGroupMenuPerm) (resp view.RespG
 }
 
 func (u *userGroup) GetAPIPerm(param view.ReqGetGroupAPIPerm) (resp view.RespGetGroupAPIPerm, err error) {
-	var expandFn func(tree casbin.APITree)
-
-	expandFn = func(tree casbin.APITree) {
-		for _, item := range tree {
-			if len(item.Children) > 0 {
-				expandFn(item.Children)
-			} else {
-				respItem := view.APIPermItem{
-					Path: item.Path,
-				}
-				if item.Method != nil {
-					respItem.Method = *item.Method
-				}
-
-				resp = append(resp, respItem)
-			}
-		}
+	list := casbin.Casbin.APIList(casbin.CasbinGroupKey(db.CasbinGroupTypeUser, param.GroupName))
+	for _, item := range list {
+		resp = append(resp, view.APIPermItem{
+			Method: item.Method,
+			Path:   item.Path,
+		})
 	}
-
-	tree, err := casbin.Casbin.GetAPITree(casbin.CasbinGroupKey(db.CasbinGroupTypeUser, param.GroupName))
-	if err != nil {
-		return nil, err
-	}
-
-	expandFn(tree)
 
 	return
 }
