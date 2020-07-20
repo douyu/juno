@@ -54,7 +54,7 @@ function MenuTree(props: MenuTreeProps) {
       </div>
     </List.Item>
     {permissionTree.map(item => {
-      return <List.Item>
+      return <List.Item key={item.path}>
         <MenuTreeItem
           disabled={disabled}
           checkedAPI={checkedAPI}
@@ -155,7 +155,7 @@ function MenuTreeItem(props: MenuTreeItemProps) {
             }
           })
 
-          return <span>
+          return <span key={item.path + " " + item.method}>
             <Checkbox
               disabled={props.disabled}
               checked={checked}
@@ -181,6 +181,7 @@ function MenuTreeItem(props: MenuTreeItemProps) {
     <div>
       {(props.children || []).map(item => {
         return <MenuTreeItem
+          key={item.path}
           disabled={props.disabled}
           checkedAPI={props.checkedAPI}
           onAPIChange={props.onAPIChange}
