@@ -15,14 +15,14 @@
     level = "debug"
     async = false
     name = "system.json" # 日志名称
-    dir = "."
+    dir = "./logs"
 [logger.biz]
     debug = false          # 是否在命令行输出
     enableConsole = false  # 是否按命令行格式输出
     level = "debug"
     async = false
     name = "biz.json" # 日志名称
-    dir = "."
+    dir = "./logs"
 [session]
   maxAge = 172800
   secret = "ldfgoqnf935nvav34"
@@ -39,7 +39,7 @@
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
-    port = 50000
+    port = 50002
     # The public facing domain name used to access grafana from a browser
     domain = "localhost"
 

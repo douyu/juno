@@ -97,7 +97,7 @@ function ModalCreateResource(props: ModalCreateResourceInterface) {
       <Form.Item
         label={"Name"} name={"name"}
         rules={[
-          {type: "regexp", pattern: /^[a-zA-Z0-9]{5,32}$/, message: "无效的资源名称"},
+          {pattern: /^[a-zA-Z0-9_]{5,32}$/, message: "无效的资源名称"},
           {required: true, message: '请输入资源名称'},
         ]}
       >

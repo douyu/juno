@@ -148,11 +148,14 @@ function Publish(props: any) {
                     showEditorMaskLayer(true, <InstanceDetail/>);
                   }}
                 >
-                  <div className={styles.instanceName}>
+                  <div className={styles.instanceInfo}>
                     <div className={styles.icon}>
                       <DatabaseOutlined/>
                     </div>
-                    <div>{item.host_name}</div>
+                    <div>
+                      <div className={styles.instanceName}>{item.host_name}</div>
+                      <div className={styles.version}>版本: {item.version || '---'}</div>
+                    </div>
                   </div>
 
                   <div className={styles.instanceStatus}>
