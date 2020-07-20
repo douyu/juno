@@ -361,8 +361,9 @@ func (u *userGroup) deletePerms(mysql *gorm.DB, list []db.CasbinPolicyAuth) (err
 		//err = mysql.Where("sub = ? and obj = ? and act = ? and type = ?", item.Sub, item.Obj, item.Act, item.Type).
 		//	Delete(&db.CasbinPolicyAuth{}).Error
 		err = mysql.Delete(&item).Error
-
-		return
+		if err != nil {
+			return
+		}
 	}
 
 	return
