@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -77,7 +75,6 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 	if err != nil {
 		return
 	}
-
 	resp = view.RespDetailConfig{
 		ID:          configuration.ID,
 		AID:         configuration.AID,
@@ -90,7 +87,6 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 		UpdatedAt:   configuration.UpdatedAt,
 		PublishedAt: configuration.PublishedAt,
 	}
-
 	return
 }
 
@@ -221,32 +217,53 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 
 // Instances ..
 func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceList, err error) {
-	var configuration db.Configuration
 
-	env := param.Env
-	zoneCode := param.ZoneCode
+	// input params
+	var (
+		env      = param.Env
+		zoneCode = param.ZoneCode
+	)
 
+	// process
+	var (
+		configuration db.Configuration
+		// configurationHistory db.ConfigurationHistory
+		changeLog string
+		version   string
+
+		app   db.AppInfo
+		nodes []db.AppNode
+	)
+
+	// get configuration info
 	query := mysql.Where("id=?", param.ConfigurationID).Find(&configuration)
 	if query.Error != nil {
 		err = query.Error
 		return
 	}
 
-	// Get nodes data
-	nodes, err := resource.Resource.GetAllAppNodeList(db.AppNode{
+	// if err = mysql.Where("version=? and configuration_id=?", version, configuration.ID).Find(&configurationHistory).Error; err != nil {
+	// 	return
+	// }
+	// changeLog = configurationHistory.ChangeLog
+	// version = configurationHistory.Version
+
+	// get app info
+	if app, err = resource.Resource.GetApp(configuration.AID); err != nil {
+		return
+	}
+
+	xlog.Debug("Instances", xlog.String("step", "app"), zap.Any("app", app))
+
+	// get all node list
+	if nodes, err = resource.Resource.GetAllAppNodeList(db.AppNode{
 		Aid:      int(configuration.AID),
 		Env:      env,
 		ZoneCode: zoneCode,
-	})
-	if err != nil {
+	}); err != nil {
 		return
 	}
-	xlog.Debug("nodes list", zap.Any("nodes", nodes))
-
-	app, err := resource.Resource.GetApp(configuration.AID)
-	if err != nil {
-		return
-	}
+	xlog.Debug("Instances", xlog.String("step", "nodes"), zap.Any("nodes", nodes))
 
 	var syncFlag bool = false
 	notSyncNodes := make(map[string]db.AppNode, 0)
@@ -305,6 +322,8 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 			ConfigFileSynced:      synced,
 			ConfigFileTakeEffect:  takeEffect,
 			SyncAt:                time.Now(),
+			Version:               version,
+			ChangeLog:             changeLog,
 		})
 	}
 
@@ -396,8 +415,8 @@ func syncTakeEffectStatus(appName, governPort, env string, zoneCode string, conf
 func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	// query proxy for used status
 	resp, err := clientproxy.ClientProxy.HttpPost(view.UniqZone{
-		env,
-		zoneCode,
+		Env:  env,
+		Zone: zoneCode,
 	}, view.ReqHTTPProxy{
 		Address: ipPort,
 		URL:     QueryAgentUsedStatus,
@@ -408,16 +427,6 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	if err != nil {
 		return 0
 	}
-
-	//req := view.ReqHTTPProxy{}
-	//req.URL = fmt.Sprintf(QueryAgentUsedStatus, ipPort)
-	//req.Params = map[string]interface{}{
-	//	"config": filePath,
-	//}
-	//resp, err := conn.R().SetBody(req).Post(ServerProxyConfigurationUsed)
-	//if err != nil {
-	//	return 0
-	//}
 	configurationUsedStatus := new(struct {
 		Code int `json:"code"`
 		Data struct {
@@ -429,11 +438,9 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	if err = json.Unmarshal(resp.Body(), configurationUsedStatus); err != nil {
 		return 0
 	}
-
 	if configurationUsedStatus.Data.Supervisor {
 		return 1
 	}
-
 	if configurationUsedStatus.Data.Systemd {
 		return 2
 	}
@@ -465,10 +472,12 @@ func configurationSynced(appName, env, zoneCode, filename, format, prefix string
 	defer cancel()
 	resp, err := clientproxy.ClientProxy.EtcdGet(view.UniqZone{env, zoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
+		xlog.Warn("configurationSynced", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.Any("error", err.Error))
 		return
 	}
 	if len(resp.Kvs) == 0 {
 		err = errorconst.ParamConfigCallbackKvIsZero.Error()
+		xlog.Warn("configurationSynced", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.Any("error", err.Error))
 		return
 	}
 	// publish status, synced status
@@ -491,7 +500,7 @@ func configurationTakeEffect(appName, env, zoneCode, filename, format, governPor
 	// publish status, synced status
 	for _, node := range notTakeEffectNodes {
 		row := view.ConfigurationStatus{}
-		agentQuestResp, agentQuestError := clientproxy.ClientProxy.HttpGet(view.UniqZone{env, zoneCode}, view.ReqHTTPProxy{
+		agentQuestResp, agentQuestError := clientproxy.ClientProxy.HttpGet(view.UniqZone{Env: env, Zone: zoneCode}, view.ReqHTTPProxy{
 			Address: node.IP + ":" + governPort,
 			URL:     cfg.Cfg.ClientProxy.HttpRouter.GovernConfig,
 		})
@@ -503,28 +512,12 @@ func configurationTakeEffect(appName, env, zoneCode, filename, format, governPor
 			JunoConfigurationVersion string `json:"juno_configuration_version"`
 			JunoAgentMD5             string `json:"juno_agent_md5"`
 		}
-		json.Unmarshal(agentQuestResp.Body(), &out)
+		_ = json.Unmarshal(agentQuestResp.Body(), &out)
 		effectVersion := out.JunoConfigurationVersion
 		row.EffectVersion = effectVersion
 		list[node.HostName] = row
 	}
 	return
-}
-
-func getEffectVersion(url string) (res string) {
-	client := http.Client{Timeout: time.Duration(time.Second * 3)}
-	resp, err := client.Get(url)
-	if err != nil {
-		return
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-	return util.Md5Str(string(body))
 }
 
 // Publish ..
