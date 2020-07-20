@@ -5,7 +5,6 @@ go 1.14
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/alibaba/sentinel-golang v0.4.0
-	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535
 	github.com/casbin/casbin/v2 v2.7.2
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/coreos/etcd v3.3.22+incompatible
@@ -43,12 +42,12 @@ require (
 	github.com/urfave/negroni v1.0.0
 	go.etcd.io/etcd v3.3.13+incompatible
 	go.uber.org/zap v1.15.0
-	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
-	golang.org/x/net v0.0.0-20200520004742-59133d7f0dd7
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
-	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
+	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
-	golang.org/x/tools v0.0.0-20200601175630-2caf76543d99 // indirect
+	golang.org/x/tools v0.0.0-20200717024301-6ddee64345a6 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/grpc v1.29.1

@@ -2,7 +2,6 @@ package configresource
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -10,11 +9,16 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
 )
 
 var (
 	mysql *gorm.DB
+)
+
+const (
+	ResourceNameRegex = "^[a-zA-Z0-9_]{5,32}$"
 )
 
 func Init(db *gorm.DB) {
@@ -128,6 +132,18 @@ func Create(uid int, param view.ReqCreateConfigResource) (err error) {
 
 	{
 		tx := mysql.Begin()
+
+		var existConfigResource db.ConfigResource
+		err = mysql.Where("name = ?", param.Name).First(&existConfigResource).Error
+		if !gorm.IsRecordNotFoundError(err) {
+			tx.Rollback()
+			if err == nil {
+				err = fmt.Errorf("已存在同名资源")
+				return err
+			}
+
+			return err
+		}
 
 		err = mysql.Save(&configResource).Error
 		if err != nil {
@@ -391,7 +407,7 @@ func GetVersionByResourceValue(value string) (version string) {
 
 // FillConfigResource .. check
 func FillConfigResource(content string) string {
-	fmt.Println("before:", content)
+	xlog.Debug("FillConfigResource", xlog.String("before", content))
 	for _, source := range GetAllConfigResource(content) {
 		sourceArr := strings.Split(source, "@")
 		if len(sourceArr) != 2 {
@@ -404,14 +420,8 @@ func FillConfigResource(content string) string {
 		}
 		content = strings.Replace(content, source, crv.Value, 1)
 	}
-	fmt.Println("after:", content)
+	xlog.Debug("FillConfigResource", xlog.String("after", content))
 	return content
-}
-
-// GetAllConfigResource ..
-func GetAllConfigResource(content string) (res []string) {
-	reg := regexp.MustCompile(`{{[\w\W]*\@[0-9]*}}`)
-	return reg.FindAllString(content, -1)
 }
 
 // GetConfigResourceValueByIDWithoutCheck ..
