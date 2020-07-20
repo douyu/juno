@@ -503,18 +503,18 @@ func getConfigurationStatus(configurationID uint, hostName string) (res db.Confi
 
 func configurationSynced(appName, env, zoneCode, filename, format, prefix string, notSyncFlag map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
 	list = make(map[string]view.ConfigurationStatus, 0)
-	fileName := fmt.Sprintf("%s.%s", filename, format)
+	fileNameWithSuffix := fmt.Sprintf("%s.%s", filename, format)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	key := fmt.Sprintf("/%s/callback/%s/%s", prefix, appName, fileName)
+	key := fmt.Sprintf("/%s/callback/%s/%s", prefix, appName, fileNameWithSuffix)
 	defer cancel()
-	resp, err := clientproxy.ClientProxy.EtcdGet(view.UniqZone{env, zoneCode}, ctx, key, clientv3.WithPrefix())
+	resp, err := clientproxy.ClientProxy.EtcdGet(view.UniqZone{Env: env, Zone: zoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
-		xlog.Warn("configurationSynced", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.Any("error", err.Error))
+		xlog.Warn("configurationSynced", zap.String("step", "EtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
 		return
 	}
 	if len(resp.Kvs) == 0 {
 		err = errorconst.ParamConfigCallbackKvIsZero.Error()
-		xlog.Warn("configurationSynced", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.Any("error", err.Error))
+		xlog.Warn("configurationSynced", zap.String("step", "resp.Kvs"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.Any("resp", resp))
 		return
 	}
 	// publish status, synced status
@@ -523,11 +523,15 @@ func configurationSynced(appName, env, zoneCode, filename, format, prefix string
 		if err := json.Unmarshal(item.Value, &row); err != nil {
 			continue
 		}
+		xlog.Debug("configurationSynced", zap.String("step", "for.resp.Kvs"), zap.Any("row", row), zap.Any("notSyncFlag", notSyncFlag))
+
 		if _, ok := notSyncFlag[row.Hostname]; !ok {
 			continue
 		}
 		list[row.Hostname] = row
 	}
+	xlog.Debug("configurationSynced", zap.String("step", "finish"), zap.Any("list", list))
+
 	return
 }
 
@@ -717,7 +721,7 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 		for _, prefix := range cfg.Cfg.Configure.Prefixes {
 			key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
 			// The migration is complete, only write independent ETCD of the configuration center
-			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{req.Env, req.ZoneCode}, ctx, key, string(buf))
+			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, string(buf))
 			if err != nil {
 				return
 			}
