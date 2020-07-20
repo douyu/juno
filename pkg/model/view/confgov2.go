@@ -144,6 +144,8 @@ type (
 		ConfigFileSynced      uint      `json:"config_file_synced"`
 		ConfigFileTakeEffect  uint      `json:"config_file_take_effect"`
 		SyncAt                time.Time `json:"sync_at"`
+		ChangeLog             string    `json:"change_log"`
+		Version               string    `json:"version"` // 发布到Juno Proxy的版本号
 	}
 
 	// ConfigFormat ..
