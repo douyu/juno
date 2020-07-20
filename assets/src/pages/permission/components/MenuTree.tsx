@@ -1,5 +1,5 @@
 import React, {ReactText} from "react";
-import {Checkbox, List} from "antd";
+import {Checkbox, List, Popover, Tag} from "antd";
 import styles from './menu_tree.less';
 
 const SubMenuOffsetWidth = 20;
@@ -64,14 +64,10 @@ function MenuTree(props: MenuTreeProps) {
           {...item}
           onAPIChange={(ev) => {
             let afterChecked = checkedAPI.filter(item => {
-              return item.path != ev.path || item.method != item.method
+              return ev.findIndex(e => !e.checked && e.method == item.method && e.path == item.path) < 0
             })
-            if (ev.checked) {
-              afterChecked = [
-                ...afterChecked,
-                ev
-              ]
-            }
+            afterChecked.push(...ev.filter(item => item.checked))
+
             onAPIChange(afterChecked)
           }}
           onMenuChange={(fields) => {
@@ -91,7 +87,7 @@ export interface MenuTreeItemProps extends PermissionItem {
   checkedAPI: APIItem[]
   disabled: boolean
   onMenuChange: (menu: { path: ReactText, checked: boolean }[]) => void
-  onAPIChange: (event: { path: string, method: string, checked: boolean, name: string }) => void
+  onAPIChange: (event: { path: string, method: string, checked: boolean, name: string }[]) => void
   depth: number
   menuPath: ReactText[]
   checked: boolean
@@ -113,20 +109,40 @@ function MenuTreeItem(props: MenuTreeItemProps) {
       }}
     >
       <div>
-        <Checkbox disabled={props.disabled} checked={props.checked} onChange={e => {
-          if (e.target.checked) {
-            props.onMenuChange([
-              ...props.menuPath.map(path => ({path, checked: true})),
-              {path: props.path, checked: true},
-              ...(props.children || []).map(item => ({path: item.path, checked: true}))
-            ])
-          } else {
-            props.onMenuChange([
-              {path: props.path, checked: false},
-              ...(props.children || []).map(item => ({path: item.path, checked: false}))
-            ])
-          }
-        }}>
+        <Checkbox
+          disabled={props.disabled} checked={props.checked}
+          onChange={e => {
+            if (e.target.checked) {
+              props.onMenuChange([
+                ...props.menuPath.map(path => ({path, checked: true})),
+                {path: props.path, checked: true},
+                ...(props.children || []).map(item => ({path: item.path, checked: true}))
+              ])
+
+              // 获取所有子API权限，然后设置权限
+              let api = props.api || []
+              let getSubAPI = (children: PermissionItem[]) => {
+                let subAPI : APIItem[] = []
+                children.map(child => {
+                  subAPI.push(...child.api)
+                  if (child.children) {
+                    subAPI.push(...getSubAPI(child.children))
+                  }
+                })
+                return subAPI
+              }
+              api.push(...getSubAPI(props.children || []))
+
+              props.onAPIChange([
+                ...api.map(item => ({...item, checked: true}))
+              ])
+            } else {
+              props.onMenuChange([
+                {path: props.path, checked: false},
+                ...(props.children || []).map(item => ({path: item.path, checked: false}))
+              ])
+            }
+          }}>
           {props.name}
         </Checkbox>
       </div>
@@ -144,12 +160,20 @@ function MenuTreeItem(props: MenuTreeItemProps) {
               disabled={props.disabled}
               checked={checked}
               onChange={e => {
-                props.onAPIChange({
-                  ...item,
-                  checked: e.target.checked
-                })
+                props.onAPIChange([
+                  {...item, checked: e.target.checked},
+                ])
               }}
-            >{item.name}</Checkbox>
+            >
+              <Popover
+                title={item.name}
+                content={<span>
+                  <Tag color={"success"}>{item.method}</Tag> {item.path}
+                </span>}
+              >
+                <span>{item.name}</span>
+              </Popover>
+            </Checkbox>
           </span>
         })}
       </div>
