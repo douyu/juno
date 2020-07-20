@@ -3,6 +3,9 @@ package clientproxy
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -11,8 +14,6 @@ import (
 	"github.com/go-resty/resty/v2"
 	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
-	"sync"
-	"time"
 )
 
 type multiProxy struct {
@@ -96,7 +97,7 @@ func (c *multiProxy) EtcdGet(uniqZone view.UniqZone, ctx context.Context, key st
 		err = fmt.Errorf(errorconst.CannotFindClientETCD.Code().String() + errorconst.CannotFindClientETCD.Name())
 		return
 	}
-	return conn.Get(ctx, key)
+	return conn.Get(ctx, key, opts...)
 }
 
 func (c *multiProxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
