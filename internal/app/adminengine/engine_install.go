@@ -91,6 +91,7 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&db.ConfigurationPublish{},
 			&db.ConfigurationHistory{},
 			&db.ConfigurationStatus{},
+			&db.ConfigurationResourceRelation{},
 			&db.ConfigResource{},
 			&db.ConfigResourceTag{},
 			&db.ConfigResourceValue{},

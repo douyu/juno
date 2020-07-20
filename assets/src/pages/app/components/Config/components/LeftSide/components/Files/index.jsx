@@ -8,7 +8,7 @@ import {Popconfirm, Spin} from 'antd'
 function Files(props) {
   const {
     zoneList, currentConfig, configList, configListLoading, currentContent,
-    deleteConfig, aid, env, loadConfigList
+    deleteConfig, aid, env, loadConfigList, appName
   } = props
 
   const renderConfigListByZone = (zone) => {
@@ -40,7 +40,7 @@ function Files(props) {
             title={"谨慎操作，删除后无法找回.确定删除?"}
             onConfirm={() => {
               deleteConfig(cfg.id).then(r => {
-                loadConfigList(props.aid, props.env)
+                loadConfigList(props.appName, props.env)
               })
             }}
           >
@@ -102,6 +102,7 @@ const mapState = ({config}) => {
     currentConfig: config.currentConfig,
     currentContent: config.currentContent,
     aid: config.aid,
+    appName: config.appName,
     env: config.env
   }
 }
@@ -119,10 +120,10 @@ const mapDispatch = (dispatch) => {
       type: 'config/deleteConfig',
       payload: id
     }),
-    loadConfigList: (aid, env) => dispatch({
+    loadConfigList: (appName, env) => dispatch({
       type: 'config/loadConfigInfo',
       payload: {
-        aid,
+        appName,
         env
       }
     }),

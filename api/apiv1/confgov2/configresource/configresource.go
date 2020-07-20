@@ -1,6 +1,8 @@
 package configresource
 
 import (
+	"regexp"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/user"
@@ -32,6 +34,15 @@ func Create(c echo.Context) (err error) {
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "invalid param:"+err.Error())
+	}
+
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+
+	if !regexp.MustCompile(configresource.ResourceNameRegex).MatchString(param.Name) {
+		return output.JSON(c, output.MsgErr, "无效的资源名称，需要符合规则:"+configresource.ResourceNameRegex)
 	}
 
 	u := user.GetUser(c)

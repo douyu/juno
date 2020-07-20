@@ -5,7 +5,7 @@ import "time"
 type (
 	ReqListConfigResource struct {
 		Page     uint     `json:"page"`
-		PageSize uint     `json:"page_size" valid:"required"`
+		PageSize uint     `json:"page_size" validate:"required"`
 		Env      []string `json:"env"`
 		Zone     []string `json:"zone"`
 		Tag      string   `json:"tag"`
@@ -34,18 +34,18 @@ type (
 	}
 
 	ReqCreateConfigResource struct {
-		Env         string   `json:"env" valid:"required"`
-		Zone        string   `json:"zone" valid:"required"`
-		Name        string   `json:"name" valid:"required"`
-		Value       string   `json:"value" valid:"required"`
+		Env         string   `json:"env" validate:"required"`
+		Zone        string   `json:"zone" validate:"required"`
+		Name        string   `json:"name" validate:"required"`
+		Value       string   `json:"value" validate:"required"`
 		IsGlobal    bool     `json:"is_global"`
-		Description string   `json:"description" valid:"required"`
+		Description string   `json:"description" validate:"required"`
 		Visible     bool     `json:"visible"`
 		Tags        []string `json:"tags"`
 	}
 
 	ReqDetailConfigResource struct {
-		ID uint `json:"id" valid:"required"`
+		ID uint `json:"id" validate:"required"`
 	}
 
 	RespDetailConfigResource struct {
@@ -75,9 +75,9 @@ type (
 	}
 
 	ReqCreateConfigResourceVersion struct {
-		ID          uint     `json:"id" valid:"required"`
-		Value       string   `json:"value" valid:"required"`
-		Description string   `json:"description" valid:"required"`
+		ID          uint     `json:"id" validate:"required"`
+		Value       string   `json:"value" validate:"required"`
+		Description string   `json:"description" validate:"required"`
 		Tags        []string `json:"tags"`
 	}
 

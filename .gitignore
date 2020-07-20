@@ -47,3 +47,4 @@ default.json
 biz.json
 system.json
 data/pprof
+logs
