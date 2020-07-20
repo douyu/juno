@@ -35,8 +35,18 @@ type (
 		CreatedAt       time.Time  `gorm:"column:created_at" json:"created_at"`
 		DeletedAt       *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 
-		User          *User          `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
-		Configuration *Configuration `json:"-" gorm:"foreignKey:ConfigurationID;"`
+		User             *User                           `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
+		Configuration    *Configuration                  `json:"-" gorm:"foreignKey:ConfigurationID;"`
+		ResourceRelation []ConfigurationResourceRelation `json:"-" gorm:"association_foreignkey:ConfigurationHistoryID"`
+	}
+
+	//ConfigurationResourceRelation relate configuration and resource
+	ConfigurationResourceRelation struct {
+		ID                     uint       `gorm:"column:id;primary_key" json:"id"`
+		CreatedAt              time.Time  `gorm:"column:created_at" json:"created_at"`
+		DeletedAt              *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
+		ConfigurationHistoryID uint       `gorm:"column:configuration_history_id" json:"configuration_history_id"` // 配置版本ID
+		ConfigResourceValueID  uint       `gorm:"column:config_resource_value_id" json:"config_resource_value_id"` // 配置资源值ID
 	}
 
 	// ConfigurationPublish Publish record
@@ -93,4 +103,9 @@ func (ConfigurationPublish) TableName() string {
 // TableName ..
 func (ConfigurationStatus) TableName() string {
 	return "configuration_status"
+}
+
+//TableName ..
+func (ConfigurationResourceRelation) TableName() string {
+	return "configuration_resource_relation"
 }

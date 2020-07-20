@@ -169,8 +169,10 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 		}
 		return err
 	}
+
 	newContent := configresource.FillConfigResource(param.Content)
 	oldContent := configresource.FillConfigResource(configuration.Content)
+
 	// 计算本次版本号
 	version := util.Md5Str(newContent)
 	if util.Md5Str(oldContent) == version {
@@ -185,24 +187,42 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 		Version:         version,
 	}
 
+	// 配置/资源 关联关系
+	resourceValues, err := ParseConfigResourceValuesFromConfig(history)
+	if err != nil {
+		return
+	}
+
 	tx := mysql.Begin()
 	{
-		err = mysql.Where("version=?", version).Delete(&db.ConfigurationHistory{}).Error
+		err = tx.Where("version=?", version).Delete(&db.ConfigurationHistory{}).Error
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 
 		// 存历史版本
-		err = mysql.Save(&history).Error
+		err = tx.Save(&history).Error
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 
+		// 存资源配置关联
+		for _, value := range resourceValues {
+			err = tx.Save(&db.ConfigurationResourceRelation{
+				ConfigurationHistoryID: history.ID,
+				ConfigResourceValueID:  value.ID,
+			}).Error
+			if err != nil {
+				tx.Rollback()
+				return
+			}
+		}
+
 		configuration.Content = param.Content
 		configuration.Version = version
-		err = mysql.Save(&configuration).Error
+		err = tx.Save(&configuration).Error
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -217,6 +237,23 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 	}
 
 	return
+}
+
+func ParseConfigResourceValuesFromConfig(history db.ConfigurationHistory) ([]db.ConfigResourceValue, error) {
+	var resourceValues []db.ConfigResourceValue
+	resources := configresource.ParseResourceFromConfig(history.Content)
+	resourceValueIds := make([]uint, 0) // 版本就是资源值ID，全局唯一
+	for _, res := range resources {
+		resourceValueIds = append(resourceValueIds, res.Version)
+	}
+
+	err := mysql.Where("id in (?)", resourceValueIds).Find(&resourceValues).Error
+	if err != nil {
+		xlog.Error("confgov2.ParseConfigResourceValuesFromConfig", xlog.String("error", "query resource-values failed:"+err.Error()))
+		return nil, err
+	}
+
+	return resourceValues, nil
 }
 
 // Instances ..
