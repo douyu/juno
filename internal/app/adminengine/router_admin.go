@@ -59,7 +59,7 @@ func apiAdmin(server *xecho.Server) {
 	if cfg.Cfg.Casbin.Enable {
 		casbinMW = middleware.CasbinMiddleware(middleware.CasbinConfig{
 			Skipper: middleware.AllowPathPrefixSkipper("/api/admin/public",
-				"/api/admin/user/login", "/api/admin/permission/menu/list", "/api/admin/confgov2/",
+				"/api/admin/user/login", "/api/admin/permission/menu/list", "/api/admin/confgov2/config",
 				"/api/admin/pprof",
 			),
 			Enforcer: casbin.Casbin.SyncedEnforcer,
@@ -265,7 +265,7 @@ func apiAdmin(server *xecho.Server) {
 
 		pprofGroup.POST("/run", pprofHandle.Run, mwRunPProfAuth)
 		pprofGroup.GET("/list", pprofHandle.FileList, mwReadPProfAuth)
-		pprofGroup.GET("/dep/check", pprofHandle.CheckDep, mwReadPProfAuth)
+		pprofGroup.GET("/dep/check", pprofHandle.CheckDep)
 
 		// 和应用无关的接口
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
