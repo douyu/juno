@@ -19,7 +19,7 @@ type GrpcGovern struct {
 
 const (
 	UrlProviderV2Info = "/v2/provider/info"
-	UrlPprofV2Info    = "/v2/pprof/info"
+	UrlPprofV1Info    = "/api/v1/pprof/info"
 	UrlGovernInfo     = "/v2/govern/%s/%d"
 	UrlEtcdInfo       = "/api/etcdctl/%s/%s"
 	UrlGovernEvent    = "/api/provider/%s/events" // /api/provider/:appname/events

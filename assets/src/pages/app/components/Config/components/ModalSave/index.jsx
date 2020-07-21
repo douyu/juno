@@ -33,7 +33,7 @@ function ModalSave(props) {
         return <>
           {val === row.version ?
             <Badge status={"success"}/>
-          : <Badge status={"warning"}/>}
+            : <Badge status={"warning"}/>}
           {val}
         </>
       }
@@ -67,7 +67,12 @@ function ModalSave(props) {
         })
       }}
     >
-      <Form.Item label={"Message"} name={"message"} required>
+      <Form.Item
+        label={"Message"} name={"message"}
+        rules={[
+          {required: true, message: '请填写Message'}
+        ]}
+      >
         <Input.TextArea placeholder={"简单描述一下本次修改发生的改变"}/>
       </Form.Item>
 

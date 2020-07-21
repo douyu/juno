@@ -1,26 +1,21 @@
-import React, { PureComponent } from 'react';
-import Confgo from '../confgo/config/confgo';
+import React from 'react';
 import PPofList from '../pprof/pprof';
 import Monitor from '../monitor/monitor';
-import { connect } from 'dva';
-import { Card, Row, Col, message, Alert, Tabs } from 'antd';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import {Alert, Col, message, Row, Tabs} from 'antd';
+import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import AppHeader from './components/AppHeader/index';
-import { routerRedux } from 'dva/router';
-import { ServiceAppList, ServiceGetAppList } from '@/services/app';
-import { ConfgoBase } from '../confgo/config/view';
-import { ServiceGetIdcList } from '@/services/idc';
-import { ServiceAppInfo, ServiceAppEnvZone } from '@/services/app';
-import { history } from 'umi';
-import styles from './style.less';
+import {ServiceAppEnvZone, ServiceAppInfo, ServiceAppList, ServiceGetAppList} from '@/services/app';
+import {ConfgoBase} from '../confgo/config/view';
+import {ServiceGetIdcList} from '@/services/idc';
+import {history} from 'umi';
 import Detail from './components/Detail/index';
 import ZoneSelect from '@/components/ZoneSelect';
 import Config from './components/Config';
 
-const { TabPane } = Tabs;
+const {TabPane} = Tabs;
 
-export default class App extends React.Component<ConfgoBase, any> {
-  constructor(props) {
+export default class App extends React.Component<ConfgoBase & { location: { query: any } }, any> {
+  constructor(props: any) {
     super(props);
     this.state = {
       appName: this.props.location.query.appName,
@@ -58,7 +53,7 @@ export default class App extends React.Component<ConfgoBase, any> {
         message.error(res.msg);
       }
     });
-    const { aid, appName, tab } = this.state;
+    const {aid, appName, tab} = this.state;
     if (aid != undefined && aid != 0 && appName != undefined && appName != 0) {
       this.getAppInfo(aid, appName);
       this.GetList(this.state.aid, this.state.env);
@@ -73,6 +68,13 @@ export default class App extends React.Component<ConfgoBase, any> {
         tab: tab,
       },
     });
+
+    const {zone} = queries
+    if (zone) {
+      this.setState({
+        zoneCode: zone
+      })
+    }
   }
 
   getAppInfo = (aid: number, appName: string) => {
@@ -128,7 +130,7 @@ export default class App extends React.Component<ConfgoBase, any> {
   };
 
   genZoneList = (list: any, env: string) => {
-    list.forEach((element) => {
+    list.forEach((element: any) => {
       if (element.env == env) {
         this.setState({
           zoneList: element.zone_list,
@@ -137,7 +139,7 @@ export default class App extends React.Component<ConfgoBase, any> {
     });
   };
 
-  callback = (tab: string) => {
+  onChangeTab = (tab: string) => {
     this.getAppEnvZone(this.state.appName);
     this.setState({
       tab,
@@ -152,7 +154,7 @@ export default class App extends React.Component<ConfgoBase, any> {
   };
 
   GetList = (aid: number, env: string) => {
-    ServiceGetAppList({ aid: aid, env: env, pageSize: 10000 }).then((res: any) => {
+    ServiceGetAppList({aid: aid, env: env, pageSize: 10000}).then((res: any) => {
       if (res.code == 0) {
         this.setState({
           appNodeList: res.data.list,
@@ -185,14 +187,22 @@ export default class App extends React.Component<ConfgoBase, any> {
   };
 
   changeZone = (e: any) => {
-    this.onChangeZone(e.target.value);
-    this.setState({ zoneCode: e.target.value });
+    const zone = e.target.value
+    this.onChangeZone(zone);
+    this.setState({zoneCode: zone});
+    let queries = this.props.location.query;
+    history.push({
+      query: {
+        ...queries,
+        zone
+      }
+    })
   };
 
   render() {
     let view = null;
-    const { aid, appName, env, appEnvZone } = this.state;
-    let { disable } = this.state;
+    const {aid, appName, env, appEnvZone} = this.state;
+    let {disable} = this.state;
 
     if (appName != undefined && appName != '') {
       disable = false;
@@ -200,9 +210,9 @@ export default class App extends React.Component<ConfgoBase, any> {
 
     if (aid == undefined || isNaN(aid) || aid == 0) {
       view = (
-        <Col span={24} style={{ marginTop: 20 }}>
+        <Col span={24} style={{marginTop: 20}}>
           <Alert
-            style={{ marginLeft: 10, marginRight: 20, marginBottom: 20 }}
+            style={{marginLeft: 10, marginRight: 20, marginBottom: 20}}
             message="优先选择应用"
             description=""
             type="info"
@@ -213,16 +223,15 @@ export default class App extends React.Component<ConfgoBase, any> {
       view = (
         <Tabs
           defaultActiveKey={this.state.tab}
-          onChange={this.callback}
-          style={{ width: '100%', marginTop: '-10px' }}
-          tabBarStyle={{ paddingLeft: '10px', marginBottom: 0 }}
+          onChange={this.onChangeTab}
+          style={{width: '100%', marginTop: '-10px'}}
+          tabBarStyle={{paddingLeft: '10px', marginBottom: 0}}
         >
           <TabPane tab="详情" key="detail">
             <Detail
               aid={aid}
               env={env}
               appNodeList={this.state.appNodeList}
-              appEnvZone={appEnvZone}
             />
           </TabPane>
           <TabPane tab="配置" key="confgo">
@@ -247,11 +256,11 @@ export default class App extends React.Component<ConfgoBase, any> {
               appInfo={this.state.appInfo}
               appNodeList={this.state.appNodeList}
               appIdcList={''}
-              zoneCode={''}
               param={''}
               appEnvZone={appEnvZone}
               idcList={this.state.idcList}
               zoneList={this.state.zoneList}
+              zoneCode={this.state.zoneCode}
             />
           </TabPane>
           <TabPane tab="Pprof" key="pprof">
@@ -262,7 +271,7 @@ export default class App extends React.Component<ConfgoBase, any> {
               appInfo={this.state.appInfo}
               appNodeList={this.state.appNodeList}
               appIdcList={''}
-              zoneCode={''}
+              zoneCode={this.state.zoneCode}
               param={''}
               appEnvZone={appEnvZone}
               idcList={this.state.idcList}
@@ -274,8 +283,8 @@ export default class App extends React.Component<ConfgoBase, any> {
     }
     return (
       <PageHeaderWrapper>
-        <div style={{ backgroundColor: '#fff' }}>
-          <div style={{ padding: 10 }}>
+        <div style={{backgroundColor: '#fff', borderRadius: '8px'}}>
+          <div style={{padding: 10}}>
             <Row>
               <AppHeader
                 appInfo={this.state.appInfo}
@@ -296,7 +305,7 @@ export default class App extends React.Component<ConfgoBase, any> {
                   appEnvZone={appEnvZone}
                   env={env}
                   onChange={this.changeZone}
-                  defalutZone={this.state.zoneCode}
+                  zoneCode={this.state.zoneCode}
                 />
               </Col>
             </Row>

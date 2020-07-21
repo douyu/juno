@@ -1,8 +1,0 @@
-{
-  "aid":3,
-  "app_name":"douyu-haibara-ai",
-  "zone_code":"cn-wuhan-guanggu-f1",
-  "env":"dev",
-  "format": "toml",
-  "file_name":"config-dev.toml"
-}

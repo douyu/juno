@@ -17,9 +17,9 @@ func MockData() {
 	urlAppPut := "/app/put"
 	urlAppNodePut := "/app_node/put"
 	urlConfigTplCreate := "/config/tpl/create"
-	urlConfigFileCreate := "/config/file/create"
-	urlConfigContentUpdate := "/config/content/update"
-	urlConfigGeneratorParse := "/config/parse"
+	//urlConfigFileCreate := "/config/file/create"
+	//urlConfigContentUpdate := "/config/content/update"
+	//urlConfigGeneratorParse := "/config/parse"
 	urlUserCreate := "/user/create"
 
 	router.POST(urlAppPut, resource.AppPut)
@@ -29,10 +29,10 @@ func MockData() {
 
 	mockApp(urlAppPut, router)
 	mockAppNode(urlAppNodePut, router)
-	mockTplCreate(urlConfigTplCreate, router)
-	mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
-	mockParse(urlConfigGeneratorParse, router)
-	mockCreateAdmin(urlUserCreate, router)
+	//mockTplCreate(urlConfigTplCreate, router)
+	//mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
+	//mockParse(urlConfigGeneratorParse, router)
+	mockCreateUser(urlUserCreate, router)
 }
 
 func MustMockData() {
@@ -40,6 +40,8 @@ func MustMockData() {
 	urlSystemCreate := "/system/setting/create"
 	router.POST(urlSystemCreate, system.SettingCreate)
 	mockGrafanaSetting(urlSystemCreate, router)
+	mockAdminUser()
+
 }
 
 func PostForm(uri string, param string, router *echo.Echo) []byte {

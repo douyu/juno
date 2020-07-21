@@ -5,31 +5,42 @@ import {Form, Input, Modal, Radio, Select} from "antd";
 function ModalCreate(props) {
   const [form] = Form.useForm()
   const [format, setFormat] = useState('toml')
-  const {showCreateModal, loadConfigList} = props
+  const {showCreateModal, loadConfigList, loadConfigDetail, zoneCode} = props
 
   useEffect(() => {
     form.resetFields()
   }, [])
+
+  useEffect(() => {
+    if (zoneCode !== 'all') {
+      form.setFieldsValue({
+        zone: zoneCode
+      })
+    }
+  }, [zoneCode])
 
   const onOK = () => {
     form.submit()
   }
 
   const onFinish = (fields) => {
-    const {aid, env} = props
+    const {appName, env} = props
     const data = {
       ...fields,
-      aid: parseInt(aid),
+      app_name: appName,
       env
     }
 
-    console.log(data)
     props.createConfig(data).then(r => {
+      const {data} = r
       if (r.code === 0) {
         showCreateModal(false)
       }
 
-      loadConfigList(aid, env)
+      // 加载新建的文件
+      loadConfigDetail(data.id)
+
+      loadConfigList(appName, env)
     })
   }
 
@@ -90,24 +101,30 @@ const mapStateToProps = ({config}) => {
   return {
     zoneList: config.zoneList,
     aid: config.aid,
-    env: config.env
+    env: config.env,
+    appName: config.appName,
+    zoneCode: config.zoneCode
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
     createConfig: payload => dispatch({type: 'config/create', payload}),
-    loadConfigList: (aid, env) => dispatch({
+    loadConfigList: (appName, env) => dispatch({
       type: 'config/loadConfigInfo',
       payload: {
-        aid,
+        appName,
         env
       }
     }),
     showCreateModal: visible => dispatch({
       type: 'config/showCreateModal',
       payload: visible
-    })
+    }),
+    loadConfigDetail: id => dispatch({
+      type: 'config/loadConfigDetail',
+      payload: {id}
+    }),
   }
 }
 
