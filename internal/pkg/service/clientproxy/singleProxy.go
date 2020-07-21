@@ -3,6 +3,7 @@ package clientproxy
 import (
 	"context"
 	"fmt"
+
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/model/view"
@@ -47,7 +48,7 @@ func (c *simplePorxy) EtcdPut(uniqZone view.UniqZone, ctx context.Context, key, 
 		err = fmt.Errorf("etcd is nil")
 		return
 	}
-	return c.proxyEtcd.Put(ctx, key, val)
+	return c.proxyEtcd.Put(ctx, key, val, opts...)
 }
 
 func (c *simplePorxy) EtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
@@ -55,7 +56,7 @@ func (c *simplePorxy) EtcdGet(uniqZone view.UniqZone, ctx context.Context, key s
 		err = fmt.Errorf("etcd is nil")
 		return
 	}
-	return c.proxyEtcd.Get(ctx, key)
+	return c.proxyEtcd.Get(ctx, key, opts...)
 }
 
 func (c *simplePorxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
