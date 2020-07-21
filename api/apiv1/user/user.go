@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"github.com/douyu/juno/internal/app/core"
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
@@ -109,12 +110,12 @@ func Delete(c echo.Context) error {
 }
 
 // Info get userinfo
-func Info(c echo.Context) error {
+func Info(c *core.Context) error {
 	u := user.GetUser(c)
 	if !u.IsLogin() {
-		return output.JSON(c, output.MsgErr, "err")
+		return c.OutputJSON(output.MsgErr, "err")
 	}
-	return output.JSON(c, output.MsgOk, "", u)
+	return c.OutputJSON(output.MsgOk, "", u)
 }
 
 type login struct {
