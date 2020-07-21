@@ -59,11 +59,11 @@ type (
 
 	// ReqCreateConfig ..
 	ReqCreateConfig struct {
-		AppName  string       `json:"app_name"`
-		Env      string       `json:"env"`
-		Zone     string       `json:"zone"`
-		FileName string       `json:"file_name"` // 文件名(不带后缀)
-		Format   ConfigFormat `json:"format"`    // 格式后缀名(比如: toml, yaml)
+		AppName  string       `json:"app_name" validate:"required"`
+		Env      string       `json:"env" validate:"required"`
+		Zone     string       `json:"zone" validate:"required"`
+		FileName string       `json:"file_name" validate:"required"` // 文件名(不带后缀)
+		Format   ConfigFormat `json:"format" validate:"required"`    // 格式后缀名(比如: toml, yaml)
 	}
 
 	// ReqUpdateConfig ..
@@ -96,6 +96,8 @@ type (
 	RespHistoryConfigItem struct {
 		ID              uint      `json:"id"`
 		UID             uint      `json:"uid"` // 发布人ID
+		AccessTokenID   uint      `json:"access_token_id"`
+		AccessTokenName string    `json:"access_token_name"`
 		UserName        string    `json:"user_name"`
 		ChangeLog       string    `json:"change_log"`
 		ConfigurationID uint      `json:"configuration_id"`

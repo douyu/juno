@@ -49,6 +49,11 @@ func Create(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
+	}
+
 	resp, err := confgov2.Create(param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -65,9 +70,7 @@ func Update(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
-	u := user.GetUser(c)
-
-	err = confgov2.Update(u.Uid, param)
+	err = confgov2.Update(c, param)
 	if err != nil {
 		if err == errorconst.ParamConfigNotExists.Error() {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法更新")

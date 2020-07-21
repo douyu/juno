@@ -27,7 +27,8 @@ type (
 	// ConfigurationHistory Application configuration release history version
 	ConfigurationHistory struct {
 		ID              uint       `gorm:"column:id;primary_key" json:"id"`
-		UID             uint       `gorm:"column:uid" json:"uid"` // 操作用户ID
+		AccessTokenID   uint       `gorm:"access_token_id" json:"access_token_id"` // AccessToken 授权ID
+		UID             uint       `gorm:"column:uid" json:"uid"`                  // 操作用户ID
 		ConfigurationID uint       `gorm:"column:configuration_id" json:"configuration_id"`
 		ChangeLog       string     `gorm:"column:change_log;type:longtext" json:"change_log"` // 变更说明文字
 		Content         string     `gorm:"column:content;type:longtext" json:"content"`       // 配置内容
@@ -36,6 +37,7 @@ type (
 		DeletedAt       *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 
 		User             *User                           `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
+		AccessToken      *AccessToken                    `json:"-" gorm:"foreignKey:AccessTokenID;association_foreignkey:ID"`
 		Configuration    *Configuration                  `json:"-" gorm:"foreignKey:ConfigurationID;"`
 		ResourceRelation []ConfigurationResourceRelation `json:"-" gorm:"association_foreignkey:ConfigurationHistoryID"`
 	}
