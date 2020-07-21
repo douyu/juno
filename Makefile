@@ -2,7 +2,9 @@
 SHELL:=/bin/bash
 BASE_PATH:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 SCRIPT_PATH:=$(BASE_PATH)/script
-APP_NAME:=$(shell basename $(BASE_PATH))
+JUNO_NAME:=juno
+JUNO_ADMIN_NAME:=juno-admin
+JUNO_PROXY_NAME:=juno-proxy
 COMPILE_OUT:=$(BASE_PATH)/release
 APP_VERSION:=0.2.0
 
@@ -30,10 +32,6 @@ run.multiple-region-proxy:
 docker:
 	@docker-compose -f ./build/docker/standalone.yaml up
 
-docker.build.run:
-	@./docker/run.sh
-
-
 
 all:print fmt lint buildall
 alltar:print fmt lint buildall
@@ -43,17 +41,12 @@ print:
 	@echo SHELL:$(SHELL)
 	@echo BASE_PATH:$(BASE_PATH)
 	@echo SCRIPT_PATH:$(SCRIPT_PATH)
-	@echo APP_NAME:$(APP_NAME)
-	@echo BUILD_TIME:$(BUILD_TIME)
-	@echo JUPITER:$(JUPITER)
-	@echo BINS:$(BINS)
-	@echo APP_NAME:$(APP_NAME)
-	@echo LDFLAGS:$(LDFLAGS)
+	@echo JUNO_NAME:$(JUNO_NAME)
 	@echo -e "\n"
 
 fmt:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making fmt<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	go fmt $(APP_NAME)/internal/...
+	go fmt $(JUNO_NAME)/internal/...
 	@echo -e "\n"
 
 lint:
@@ -77,28 +70,37 @@ test:
 	@echo testPath ${BAST_PATH}
 	go test -v .${BAST_PATH}/...
 
-build_all:build_admin build_proxy build_data
+build_all:build_clear build_admin build_proxy build_assets build_data tar
 
+build_clear:
+	rm -rf release
 
 build_admin:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build juno admin<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@chmod +x $(SCRIPT_PATH)/build/*.sh
-	@cd cmd/juno-admin && $(SCRIPT_PATH)/build/gobuild.sh $(APP_NAME) $(COMPILE_OUT) $(APP_VERSION)
+	@cd $(BASE_PATH)/cmd/juno-admin && $(SCRIPT_PATH)/build/gobuild.sh $(JUNO_ADMIN_NAME) $(COMPILE_OUT) $(APP_VERSION)
 	@echo -e "\n"
 
 build_proxy:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build juno proxy<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@chmod +x $(SCRIPT_PATH)/build/*.sh
-	@cd cmd/juno-proxy && $(SCRIPT_PATH)/build/gobuild.sh $(APP_NAME) $(COMPILE_OUT) $(APP_VERSION)
+	@cd $(BASE_PATH)/cmd/juno-proxy && $(SCRIPT_PATH)/build/gobuild.sh $(JUNO_PROXY_NAME) $(COMPILE_OUT) $(APP_VERSION)
+	@echo -e "\n"
+
+build_assets:
+	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build assets<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+	@cd $(BASE_PATH)/assets && npm run build
 	@echo -e "\n"
 
 build_data:
-	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build data<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	@chmod +x $(SCRIPT_PATH)/build/*.sh
-	@$(SCRIPT_PATH)/build/build_data.sh $(APP_NAME) $(APP_VERSION) $(BASE_PATH) $(COMPILE_OUT)/$(APP_VERSION)
+	@$(SCRIPT_PATH)/build/build_data.sh $(JUNO_NAME) $(APP_VERSION) $(BASE_PATH) $(COMPILE_OUT)/$(APP_VERSION)
 	@echo -e "\n"
 
 run:
 	go run cmd/main.go --config=config/config.toml
 
 
+tar:
+	@cd $(BASE_PATH)/release && tar zcvf $(APP_VERSION).tar.gz $(APP_VERSION)

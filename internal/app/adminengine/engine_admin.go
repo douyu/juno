@@ -15,33 +15,40 @@
 package adminengine
 
 import (
+	"context"
+	"strconv"
+	"time"
+
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/app/middleware"
+	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/notify"
+	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
+	"github.com/douyu/jupiter/pkg"
+	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/flag"
+	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
+	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
+	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"go.uber.org/zap"
-	"strconv"
-)
-
-var (
-	mockFlag    bool
-	clearFlag   bool
-	installFlag bool
-	runFlag     bool
 )
 
 // Admin ...
 type Admin struct {
 	jupiter.Application
+	mockFlag    bool
+	clearFlag   bool
+	installFlag bool
+	runFlag     bool
+	hostFlag    string
 }
 
 // New ...
@@ -70,44 +77,86 @@ func New() *Admin {
 		Action:  func(name string, fs *flag.FlagSet) {},
 	})
 
+	flag.Register(&flag.StringFlag{
+		Name:    "host",
+		Usage:   "--host",
+		EnvVar:  "Juno_Host",
+		Default: "",
+		Action:  func(name string, fs *flag.FlagSet) {},
+	})
+
 	eng := &Admin{}
 	err := eng.Startup(
 		eng.parseFlag,
 		eng.initConfig,
-		eng.initInvoker,
 		eng.migrateDB,
+		eng.initInvoker,
+		eng.cmdMock,
 		eng.initNotify,
 		eng.initClientProxy,
 		eng.serveHTTP,
 		eng.serveGovern,
+		eng.defers,
 	)
+
 	if err != nil {
-		xlog.Panic("start up error", zap.Error(err))
+		xlog.Panic("start up error: " + err.Error())
 	}
 	return eng
 }
 
 func (eng *Admin) parseFlag() error {
-	mockFlag = flag.Bool("mock")
-	clearFlag = flag.Bool("clear")
-	installFlag = flag.Bool("install")
-	if !installFlag && !mockFlag && !clearFlag {
-		runFlag = true
+	eng.mockFlag = flag.Bool("mock")
+	eng.clearFlag = flag.Bool("clear")
+	eng.installFlag = flag.Bool("install")
+	eng.hostFlag = flag.String("host")
+	if !eng.installFlag && !eng.mockFlag && !eng.clearFlag {
+		eng.runFlag = true
 	}
 	return nil
 }
 
 func (eng *Admin) initConfig() (err error) {
 	cfg.InitCfg()
-	xlog.DefaultLogger = xlog.StdConfig("default").Build()
+	jupiterConfig := xlog.DefaultConfig()
+	jupiterConfig.Name = cfg.Cfg.Logger.System.Name
+	jupiterConfig.Debug = cfg.Cfg.Logger.System.Debug
+	jupiterConfig.Level = cfg.Cfg.Logger.System.Level
+	jupiterConfig.Dir = cfg.Cfg.Logger.System.Dir
+	jupiterConfig.Async = cfg.Cfg.Logger.System.Async
+	xlog.JupiterLogger = jupiterConfig.Build()
+	//
+	bizConfig := xlog.DefaultConfig()
+	bizConfig.Name = cfg.Cfg.Logger.Biz.Name
+	bizConfig.Debug = cfg.Cfg.Logger.Biz.Debug
+	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
+	bizConfig.Dir = cfg.Cfg.Logger.Biz.Dir
+	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
+	xlog.DefaultLogger = bizConfig.Build()
+	return
+}
+
+func (eng *Admin) initRegister() (err error) {
+	if !eng.runFlag || !cfg.Cfg.Register.Enable {
+		return
+	}
+	config := etcdv3_registry.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+	eng.SetRegistry(
+		compound_registry.New(
+			config.BuildRegistry(),
+		),
+	)
 	return
 }
 
 func (eng *Admin) initNotify() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
-	for _, cp := range cfg.Cfg.ClientProxy {
+	for _, cp := range cfg.Cfg.ClientProxy.MultiProxy {
 		if cp.Stream.Enable {
 			ProxyClient := make(map[string]pb.ProxyClient, 0)
 			for _, value := range cp.Stream.ProxyAddr {
@@ -124,43 +173,119 @@ func (eng *Admin) initNotify() (err error) {
 }
 
 func (eng *Admin) serveHTTP() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
 	serverConfig := xecho.DefaultConfig()
 	serverConfig.Host = cfg.Cfg.Server.Http.Host
+	if eng.hostFlag != "" {
+		serverConfig.Host = eng.hostFlag
+	}
 	serverConfig.Port = cfg.Cfg.Server.Http.Port
-
 	server := serverConfig.Build()
 	server.Debug = true
 
 	server.Use(middleware.ProxyGatewayMW)
 
+	server.Validator = NewValidator()
+
+	// Provide Admin API interface
 	apiAdmin(server)
-	// Provide API interface
+	// Provide Open API interface
 	apiV1(server)
 	err = eng.Serve(server)
 	return
 }
 
 func (eng *Admin) serveGovern() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
+	config := etcdv3.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+
+	client := config.Build()
+
+	host := cfg.Cfg.Server.Govern.Host
+	if eng.hostFlag != "" {
+		host = eng.hostFlag
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	addr := host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port)
+	// todo optimize, jupiter will after support metric
+	_, err = client.Put(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName(), addr)
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
 	eng.SetGovernor(cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port))
+	err = client.Close()
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
 	return
 }
 
 func (eng *Admin) initInvoker() (err error) {
 	invoker.Init()
 	err = service.Init()
+	if err != nil {
+		return err
+	}
+
+	if eng.installFlag {
+		// 服务注册完之后再mock数据
+		install.MustMockData()
+	}
 	return
 }
 
 func (eng *Admin) initClientProxy() (err error) {
-	if !runFlag {
+	if !eng.runFlag {
 		return
 	}
 	clientproxy.Init()
+	return
+}
+
+func (eng *Admin) defers() (err error) {
+	if !eng.runFlag {
+		return
+	}
+	eng.Defer(func() error {
+		config := etcdv3.DefaultConfig()
+		config.Endpoints = cfg.Cfg.Register.Endpoints
+		config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+		config.Secure = cfg.Cfg.Register.Secure
+		client := config.Build()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+		defer cancel()
+		// todo optimize, jupiter will after support metric
+		_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
+		if err != nil {
+			xlog.Panic(err.Error())
+		}
+		err = client.Close()
+		if err != nil {
+			xlog.Panic(err.Error())
+		}
+		return nil
+	})
+	return nil
+}
+
+func (eng *Admin) initWorker() (err error) {
+	{ // 定时刷新AccessToken任务
+		accessTokenUpdateCron := xcron.DefaultConfig().Build()
+		accessTokenUpdateCron.Schedule(xcron.Every(time.Minute), xcron.FuncJob(openauth.OpenAuthService.IntervalUpdateTokens))
+
+		err = eng.Schedule(accessTokenUpdateCron)
+		if err != nil {
+			return err
+		}
+	}
 	return
 }

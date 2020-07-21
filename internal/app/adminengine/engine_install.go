@@ -16,15 +16,16 @@ package adminengine
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/jinzhu/gorm"
-	"os"
 )
 
-func (*Admin) migrateDB() error {
+func (eng *Admin) migrateDB() error {
 	gormdb, err := gorm.Open(
 		"mysql",
 		cfg.Cfg.Database.DSN,
@@ -37,17 +38,13 @@ func (*Admin) migrateDB() error {
 		_ = gormdb.Close()
 	}()
 
-	cmdClear(gormdb)
-	cmdInstall(gormdb)
-	cmdMock()
-	if !runFlag {
-		os.Exit(0)
-	}
+	eng.cmdClear(gormdb)
+	eng.cmdInstall(gormdb)
 	return nil
 }
 
-func cmdClear(gormdb *gorm.DB) {
-	if clearFlag {
+func (eng *Admin) cmdClear(gormdb *gorm.DB) {
+	if eng.clearFlag {
 		dsn, err := util.ParseDSN(cfg.Cfg.Database.DSN)
 		if err != nil {
 			panic("dsn parse error: " + err.Error())
@@ -64,8 +61,8 @@ func cmdClear(gormdb *gorm.DB) {
 	}
 }
 
-func cmdInstall(gormdb *gorm.DB) {
-	if installFlag {
+func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
+	if eng.installFlag {
 		models := []interface{}{
 			&db.AppInfo{},
 			&db.AppChangeMap{},
@@ -81,18 +78,8 @@ func cmdInstall(gormdb *gorm.DB) {
 			&db.AppViewHistory{},
 			&db.Board{},
 			&db.BoardAuth{},
-			&db.CmcApp{},
-			&db.CmcAppLog{},
-			&db.CmcHistory{},
-			&db.CmcHistoryItem{},
-			&db.CmcConfig{},
-			&db.CmcConfigLog{},
-			&db.CmcResource{},
-			&db.CmcPublishLog{},
-			&db.CmcUseStatus{},
 			&db.CmcTpl{},
 			&db.Zone{},
-			&db.IdcSrv{},
 			&db.OpsSupervisorConfig{},
 			&db.PProf{},
 			&db.ToolInfo{},
@@ -104,24 +91,29 @@ func cmdInstall(gormdb *gorm.DB) {
 			&db.ConfigurationPublish{},
 			&db.ConfigurationHistory{},
 			&db.ConfigurationStatus{},
+			&db.ConfigurationResourceRelation{},
 			&db.ConfigResource{},
 			&db.ConfigResourceTag{},
 			&db.ConfigResourceValue{},
 			&db.CasbinPolicyAuth{},
 			&db.CasbinPolicyGroup{},
-			&db.CasbinGroup{},
-			&db.Url{},
+			&db.AccessToken{},
 		}
+		gormdb = gormdb.Debug()
 		gormdb.SingularTable(true)
-		gormdb.Debug()
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
-		install.MustMockData()
+		gormdb.Model(&db.AccessToken{}).AddUniqueIndex("idx_unique_name", "name")
 		fmt.Println("create table ok")
 	}
 }
 
-func cmdMock() {
-	if mockFlag {
+func (eng *Admin) cmdMock() error {
+	if eng.mockFlag {
 		install.MockData()
 	}
+
+	if !eng.runFlag {
+		os.Exit(0)
+	}
+	return nil
 }

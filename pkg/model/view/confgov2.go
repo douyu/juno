@@ -17,8 +17,8 @@ var (
 type (
 	// ReqListConfig ..
 	ReqListConfig struct {
-		AID uint   `json:"aid"`
-		Env string `json:"env"`
+		AppName string `query:"app_name" validate:"required"`
+		Env     string `query:"env" validate:"required"`
 	}
 
 	// RespListConfig ..
@@ -40,7 +40,7 @@ type (
 
 	// ReqDetailConfig ..
 	ReqDetailConfig struct {
-		ID uint `json:"id"`
+		ID uint `json:"id" validate:"required"`
 	}
 
 	// RespDetailConfig Contains configuration content
@@ -59,30 +59,30 @@ type (
 
 	// ReqCreateConfig ..
 	ReqCreateConfig struct {
-		AID      uint         `json:"aid"`
-		Env      string       `json:"env"`
-		Zone     string       `json:"zone"`
-		FileName string       `json:"file_name"` // 文件名(不带后缀)
-		Format   ConfigFormat `json:"format"`    // 格式后缀名(比如: toml, yaml)
+		AppName  string       `json:"app_name" validate:"required"`
+		Env      string       `json:"env" validate:"required"`
+		Zone     string       `json:"zone" validate:"required"`
+		FileName string       `json:"file_name" validate:"required"` // 文件名(不带后缀)
+		Format   ConfigFormat `json:"format" validate:"required"`    // 格式后缀名(比如: toml, yaml)
 	}
 
 	// ReqUpdateConfig ..
 	ReqUpdateConfig struct {
-		ID      uint   `json:"id"`
-		Message string `json:"message"`
-		Content string `json:"content"`
+		ID      uint   `json:"id" validate:"required"`
+		Message string `json:"message" validate:"required"`
+		Content string `json:"content" validate:"required"`
 	}
 
 	// ReqPublishConfig ..
 	ReqPublishConfig struct {
-		ID      uint    `json:"id"`      // 配置ID
-		Version *string `json:"version"` // 版本号
+		ID      uint    `json:"id" validate:"required"`      // 配置ID
+		Version *string `json:"version" validate:"optional"` // 版本号
 	}
 
 	// ReqHistoryConfig ..
 	ReqHistoryConfig struct {
-		ID   uint `json:"id"` // 配置文件ID
-		Size uint `json:"size"`
+		ID   uint `json:"id" validate:"required"` // 配置文件ID
+		Size uint `json:"size" validate:"required"`
 		Page uint `json:"page"`
 	}
 
@@ -96,6 +96,8 @@ type (
 	RespHistoryConfigItem struct {
 		ID              uint      `json:"id"`
 		UID             uint      `json:"uid"` // 发布人ID
+		AccessTokenID   uint      `json:"access_token_id"`
+		AccessTokenName string    `json:"access_token_name"`
 		UserName        string    `json:"user_name"`
 		ChangeLog       string    `json:"change_log"`
 		ConfigurationID uint      `json:"configuration_id"`
@@ -105,7 +107,8 @@ type (
 
 	// ReqDiffConfig ..
 	ReqDiffConfig struct {
-		ID uint `json:"id"`
+		ID        uint `query:"id" validate:"required"`         // 配置ID
+		HistoryID uint `query:"history_id" validate:"required"` // 版本ID
 	}
 
 	// RespDiffConfig ..
@@ -116,14 +119,13 @@ type (
 
 	// ReqDeleteConfig ..
 	ReqDeleteConfig struct {
-		ID uint `json:"id"`
+		ID uint `json:"id" validate:"required"`
 	}
 
 	ReqConfigInstanceList struct {
-		ConfigurationID uint   `json:"configuration_id" query:"configuration_id"`
-		AID             uint   `json:"aid"`
-		Env             string `json:"env"`
-		ZoneCode        string `json:"zone_code"  query:"zone_code"`
+		ConfigurationID uint   `json:"id" query:"id" validate:"required"`
+		Env             string `json:"env" query:"env" validate:"required"`
+		ZoneCode        string `json:"zone_code" query:"zone_code" validate:"required"`
 	}
 
 	RespConfigInstanceList []RespConfigInstanceItem
@@ -144,6 +146,8 @@ type (
 		ConfigFileSynced      uint      `json:"config_file_synced"`
 		ConfigFileTakeEffect  uint      `json:"config_file_take_effect"`
 		SyncAt                time.Time `json:"sync_at"`
+		ChangeLog             string    `json:"change_log"`
+		Version               string    `json:"version"` // 发布到Juno Proxy的版本号
 	}
 
 	// ConfigFormat ..
@@ -170,10 +174,10 @@ type (
 
 	// Metadata ..
 	Metadata struct {
-		Timestamp int64  `json:"timestamp"`
-		Version   string `json:"version"`
-		Format    string `json:"format"`
-		Path      string `json:"path"`
+		Timestamp int64    `json:"timestamp"`
+		Version   string   `json:"version"`
+		Format    string   `json:"format"`
+		Paths     []string `json:"paths"`
 	}
 
 	// ConfigurationStatus ..

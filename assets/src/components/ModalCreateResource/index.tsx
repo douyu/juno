@@ -97,7 +97,7 @@ function ModalCreateResource(props: ModalCreateResourceInterface) {
       <Form.Item
         label={"Name"} name={"name"}
         rules={[
-          {type: "regexp", pattern: /^[a-zA-Z0-9]{5,32}$/, message: "无效的资源名称"},
+          {pattern: /^[a-zA-Z0-9_]{5,32}$/, message: "无效的资源名称"},
           {required: true, message: '请输入资源名称'},
         ]}
       >
@@ -111,6 +111,10 @@ function ModalCreateResource(props: ModalCreateResourceInterface) {
         ]}
       >
         <Input.TextArea/>
+      </Form.Item>
+
+      <Form.Item label={"全局可见"} name={"is_global"}>
+        <Switch/>
       </Form.Item>
 
       <Form.Item label={"值可见"} name={"visible"} help={"资源值内容是否公开"}>

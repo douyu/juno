@@ -17,7 +17,11 @@ package proxyengine
 import (
 	"context"
 	"errors"
+	"github.com/douyu/juno/internal/pkg/invoker"
+	"github.com/douyu/jupiter/pkg"
+	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	"strconv"
+	"time"
 
 	apiproxy "github.com/douyu/juno/api/apiv1/proxy"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
@@ -25,6 +29,8 @@ import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
+	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
+	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/server/xgrpc"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -45,7 +51,9 @@ func New() *Proxy {
 		eng.initServerProxy,
 		eng.serveHTTP,
 		eng.serveGRPC,
+		eng.serveGovern,
 		eng.initHeartBeat,
+		eng.defers,
 	)
 	if err != nil {
 		xlog.Panic("start up error", zap.Error(err))
@@ -55,7 +63,38 @@ func New() *Proxy {
 
 func (eng *Proxy) initConfig() (err error) {
 	cfg.InitCfg()
-	xlog.DefaultLogger = xlog.StdConfig("default").Build()
+	jupiterConfig := xlog.DefaultConfig()
+	jupiterConfig.Name = cfg.Cfg.Logger.System.Name
+	jupiterConfig.Debug = cfg.Cfg.Logger.System.Debug
+	jupiterConfig.Level = cfg.Cfg.Logger.System.Level
+	jupiterConfig.Dir = cfg.Cfg.Logger.System.Dir
+	jupiterConfig.Async = cfg.Cfg.Logger.System.Async
+	xlog.JupiterLogger = jupiterConfig.Build()
+	//
+	bizConfig := xlog.DefaultConfig()
+	bizConfig.Name = cfg.Cfg.Logger.Biz.Name
+	bizConfig.Debug = cfg.Cfg.Logger.Biz.Debug
+	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
+	bizConfig.Dir = cfg.Cfg.Logger.Biz.Dir
+	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
+	xlog.DefaultLogger = bizConfig.Build()
+	invoker.Init()
+	return
+}
+
+func (eng *Proxy) initRegister() (err error) {
+	if !cfg.Cfg.Register.Enable {
+		return
+	}
+	config := etcdv3_registry.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+	eng.SetRegistry(
+		compound_registry.New(
+			config.BuildRegistry(),
+		),
+	)
 	return
 }
 
@@ -109,12 +148,40 @@ func (eng *Proxy) serveGRPC() (err error) {
 	return
 }
 
+func (eng *Proxy) serveGovern() (err error) {
+	config := etcdv3.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+
+	client := config.Build()
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	addr := cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port)
+	// todo optimize, jupiter will after support metric
+	_, err = client.Put(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName(), addr)
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
+	eng.SetGovernor(cfg.Cfg.ServerProxy.GovernServer.Host + ":" + strconv.Itoa(cfg.Cfg.ServerProxy.GovernServer.Port))
+	err = client.Close()
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
+	return
+}
+
 func apiV1(server *xecho.Server) {
+	server.POST("/*", apiproxy.ProxyPost)
 	server.POST("/api/v1/resource/node/heartbeat", apiproxy.NodeHeartBeat)
 
-	// work for juno -> agent
-	server.GET("/api/v1/proxy/get", apiproxy.HTTPProxyGET)
-	server.POST("/api/v1/proxy/post", apiproxy.HTTPProxyPOST)
+	//// work for juno -> agent
+	//server.GET("/api/v1/configuration/takeEffect", apiproxy.ConfigurationTakeEffect)
+	//server.POST("/api/v1/configuration/used", apiproxy.ConfigurationUsed)
+	//
+	//// pprof info
+	//server.POST("/api/v1/pprof/info", apiproxy.PprofInfo)
 }
 
 // ProxyGrpc ..
@@ -161,5 +228,28 @@ func (*ProxyGrpc) Notify(stream pb.Proxy_NotifyServer) error {
 		}
 		xlog.Debug("recv info", xlog.Any("info", req))
 	}
+	return nil
+}
+
+func (eng *Proxy) defers() (err error) {
+	eng.Defer(func() error {
+		config := etcdv3.DefaultConfig()
+		config.Endpoints = cfg.Cfg.Register.Endpoints
+		config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+		config.Secure = cfg.Cfg.Register.Secure
+		client := config.Build()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+		defer cancel()
+		// todo optimize, jupiter will after support metric
+		_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
+		if err != nil {
+			xlog.Panic(err.Error())
+		}
+		err = client.Close()
+		if err != nil {
+			xlog.Panic(err.Error())
+		}
+		return nil
+	})
 	return nil
 }

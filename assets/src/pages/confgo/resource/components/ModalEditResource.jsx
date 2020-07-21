@@ -74,7 +74,8 @@ function ModalEditResource(props) {
         label={"Name"} name={"name"}
         initialValue={name}
         rules={[
-          {type: "regexp", pattern: /^[a-zA-Z0-9]{5,32}$/, message: "无效的资源名称"}
+          {pattern: /^[a-zA-Z0-9_]{5,32}$/, message: "无效的资源名称.需要符合规则：/^[a-zA-Z0-9_]{5,32}$/"},
+          {required: true, message: '请输入资源名称'},
         ]}
       >
         <Input disabled/>

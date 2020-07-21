@@ -41,12 +41,14 @@ type cfg struct {
 	Server            Server
 	GrafanaProxy      GrafanaProxy
 	Gateway           Gateway
-	ClientProxy       []ClientProxy
+	ClientProxy       ClientProxy
 	ServerProxy       ServerProxy
 	Database          Database
 	Configure         Configure
 	Casbin            Casbin
 	Pprof             Pprof
+	Register          Register
+	Logger            Logger
 }
 
 // DefaultConfig ...
@@ -55,6 +57,10 @@ func defaultConfig() cfg {
 		AppURL:            "",
 		AuthProxyEnabled:  false,
 		DisableUserSignUp: false,
+		Register: Register{
+			Enable:    false,
+			Endpoints: nil,
+		},
 		Auth: Auth{
 			LoginCookieName:                  "juno_session",
 			LoginMaximumInactiveLifetimeDays: 7,
@@ -68,7 +74,7 @@ func defaultConfig() cfg {
 			ApiKeyMaxSecondsToLive:           -1,
 		},
 		Database: Database{
-			Enable:          true,
+			Enable:          false,
 			ConnMaxLifetime: time.Duration(time.Second * 300),
 			Debug:           true,
 			DSN:             "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s",
@@ -98,36 +104,52 @@ func defaultConfig() cfg {
 			Name:   "gateway",
 		},
 		Configure: Configure{
-			Dir: "",
+			Dirs:     []string{"/tmp/www/server"},
+			Prefixes: []string{"juno-agent"},
 		},
-		ClientProxy: []ClientProxy{
-			{
-				Env:      "dev",
-				ZoneCode: "test",
-				Stream: ProxyStream{
-					Enable:    false,
-					ProxyAddr: nil,
-				},
+		ClientProxy: ClientProxy{
+			HttpRouter: HttpRouter{
+				GovernConfig: "/configs",
+			},
+			SingleProxy: SingleProxy{
 				Etcd: Etcd{
-					Enable:     true,
-					ListenAddr: "127.0.0.1:52370",
-					Endpoints:  []string{"127.0.0.1:2370"},
+					Enable:     false,
+					ListenAddr: "",
+					Endpoints:  nil,
 					Namespace:  "",
-					Timeout:    3, // 3 second
-					TLS: TLS{
-						Cert:   "",
-						Key:    "",
-						CaCert: "",
-					},
+					Timeout:    0,
+					TLS:        TLS{},
 				},
-				HTTP: HTTPProxy{
-					Enable:            true,
-					ListenAddr:        "127.0.0.1:50000",
-					DisableKeepAlives: true,
-					Scheme: "http",
-					MaxIdleConns:      30,
-					MaxIdelPerHost:    60,
-					Timeout:           3,
+			},
+			MultiProxy: []MultiProxy{
+				{
+					Env:      "dev",
+					ZoneCode: "test",
+					Stream: ProxyStream{
+						Enable:    false,
+						ProxyAddr: nil,
+					},
+					Etcd: Etcd{
+						Enable:     true,
+						ListenAddr: "127.0.0.1:52370",
+						Endpoints:  []string{"127.0.0.1:2370"},
+						Namespace:  "",
+						Timeout:    xtime.Duration("3s"), // 3 second
+						TLS: TLS{
+							Cert:   "",
+							Key:    "",
+							CaCert: "",
+						},
+					},
+					HTTP: HTTPProxy{
+						Enable:            true,
+						ListenAddr:        "127.0.0.1:50000",
+						DisableKeepAlives: true,
+						Scheme:            "http",
+						MaxIdleConns:      30,
+						MaxIdelPerHost:    60,
+						Timeout:           3,
+					},
 				},
 			},
 		},
@@ -160,14 +182,20 @@ func defaultConfig() cfg {
 			},
 		},
 		Pprof: Pprof{
-			Path: ".",
+			TmpPath:     "/tmp",
+			TokenHeader: "X-JUNO-PPROF",
+			Token:       "juno666",
+			Timeout:     xtime.Duration("120s"),
+			Debug:       false,
+			StorePath:   "data/pprof",
 		},
 		Casbin: Casbin{
 			Enable:           false,
 			Debug:            true,
-			Model:            "./configs/model.conf",
+			Model:            "./config/model.conf",
 			AutoLoad:         false,
 			AutoLoadInternal: 0,
+			ResourceFile:     "./config/resource.yaml",
 		},
 	}
 }

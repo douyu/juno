@@ -1,36 +1,38 @@
-
 [app]
-  appurl = ""
-  mode = "prod"
-  name = "juno"
-  token = "123456"
-  secretKey = "ASDFASDFASDF"
-
-  [app.registry]
-
-    [app.registry.etcd]
-      endpoints = ["127.0.0.1:2379"]
-      timeout = "2s"
-
+  secretKey = "ASDFASDFASDF" # hashStatecode
+  mode = "multiple" # single without proxy, multiple with proxy
 
 [configure]
-  dir = "/tmp/www/server"
-  prefix = "juno-agent"
+  dirs = ["/tmp/www/server", "/tmp/www/.config"]
+  prefixes = ["juno-agent", "jupiter-agent"]
 
   [configure.agent]
     port = 50010
 
 
-[jupiter.logger.default]
-    debug = true          # 是否在命令行输出
-    enableConsole = true  # 是否按命令行格式输出
+[logger.system]
+    debug = false          # 是否在命令行输出
     level = "debug"
-
+    async = false
+    name = "system.json" # 日志名称
+    dir = "."
+[logger.biz]
+    debug = false          # 是否在命令行输出
+    level = "debug"
+    async = false
+    name = "biz.json" # 日志名称
+    dir = "."
 
 [session]
   maxAge = 172800
   secret = "ldfgoqnf935nvav34"
   type = ""
+
+[register]
+    enable=true
+    connectTimeout = "1s"
+    endpoints=["127.0.0.1:2379"]
+    secure = false
 
 
 #################################### Server ##############################
@@ -40,16 +42,11 @@
     # The http port to use
     port = 50002
     domain = "localhost"
-    # enable gzip
-    enableGzip = false
 [server.govern]
     # The ip address to bind to, empty will bind to all interfaces
     host = "0.0.0.0"
     # The http port to use
     port = 50004
-    domain = "localhost"
-    # enable gzip
-    enableGzip = false
 #################################### Database ##############################
 [database]
     enable = true
@@ -65,20 +62,20 @@
     name = "grafana"
 
 #################################### Proxy ##############################
-[[clientProxy]]
-  env = "live"
-  zoneCode="cn-wuhan-guanggu-f1"
+[[clientProxy.multiProxy]]
+  env = "dev"
+  zoneCode="guanggu"
 
-  [clientProxy.stream]
+  [clientProxy.multiProxy.stream]
     enable = true
     proxyAddr = ["127.0.0.1:50001"]
 
-  [clientProxy.etcd]
+  [clientProxy.multiProxy.etcd]
     enable = true
     endpoints = ["127.0.0.1:52379"]
-    timeout = 3
+    timeout = "3s"
 
-  [clientProxy.http]
+  [clientProxy.multiProxy.http]
     enable = true
     listenAddr = "127.0.0.1:50000"
     disableKeepAlives = true
@@ -116,18 +113,6 @@
     # limit of api_key seconds to live before expiration
     apiKeyMaxSecondsToLive = -1
 
-
-#################################### Anonymous Auth ######################
-[auth.anonymous]
-    # enable anonymous access
-    enabled = false
-    # specify organization name that should be used for unauthenticated users
-    orgName = "Main Org."
-    # specify role for unauthenticated users
-    orgRole = "Viewer"
-    # mask the Grafana version number for unauthenticated users
-    hideVersion = false
-
 #################################### Github Auth #########################
 [auth.github]
     enable = true
@@ -145,6 +130,8 @@
 [casbin]
     enable = false
     debug = true
-    model = "./configs/model.conf"
+    model = "./config/model.conf"
     autoLoad = true
     autoLoadInternal = 60
+    # 资源配置
+    resourceFile = './config/resource.yaml'

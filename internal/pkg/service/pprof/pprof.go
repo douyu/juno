@@ -1,23 +1,27 @@
 package pprof
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/douyu/juno/internal/pkg/service/clientproxy"
+	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/xlog"
+	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/resource"
-	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
-	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/go-resty/resty/v2"
+	torchPprof "github.com/uber-archive/go-torch/pprof"
+	"github.com/uber-archive/go-torch/renderer"
 )
 
 type pprof struct {
@@ -36,28 +40,24 @@ func InitPprof(gormDB *gorm.DB) *pprof {
 			"goroutine",
 			"block",
 		},
-		Client: resty.New().SetDebug(false).SetTimeout(120*time.Second).SetHeader("X-JUNO-GOVERN", "juno"),
+		Client: resty.New().SetDebug(cfg.Cfg.Pprof.Debug).SetTimeout(cfg.Cfg.Pprof.Timeout).SetHeader(cfg.Cfg.Pprof.TokenHeader, cfg.Cfg.Pprof.Token),
 		DB:     gormDB,
 	}
 	return Pprof
 }
 
-const tempFilePath = "/tmp"
-
-func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
-	// 检测 Golang环境，如果没有退出返回错误
-	if res, err := CheckShell(cfg.Cfg.Pprof.Path + "/pprof/checkGo.sh"); err != nil {
-		fmt.Println("checkGo err", res)
-		return fmt.Errorf("checkGo err:%v", err)
+func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
+	// 1 check go version
+	if _, err = exec.Command("go", "version").Output(); err != nil {
+		return fmt.Errorf("There was an error running 'go version' command: %s", err)
 	}
 
-	// 检测 Graphviz环境，如果没有自动安装
-	if res, err := CheckShell(cfg.Cfg.Pprof.Path + "/pprof/graphviz.sh"); err != nil {
-		fmt.Println("CheckGraphviz err", res)
-		return fmt.Errorf("CheckGraphviz install err:%v", err)
+	// 2 check dot -v, graphiz
+	if _, err = exec.Command("dot", "-v").Output(); err != nil {
+		return fmt.Errorf("There was an error running 'dot -v' command: %s", err)
 	}
 
-	// 1. 拿到应用的治理端口和ip
+	// 3 get app ip and govern port
 	appInfo, err := resource.Resource.GetApp(appName)
 	if err != nil {
 		return err
@@ -79,48 +79,45 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 		fileList   = make([]db.PProfFileInfo, 0)
 	)
 
-	// 2. 根据pprofTypeList 分别访问对应机器的执行结果  proxy
+	// 4 range pprof type list, get the pprof info
 	for _, fileType := range p.PProfTypeList {
-
-		resp := make([]byte, 0)
-		// 没走代理
-		if conf.GetString("proxy.mode") == "local" {
-			resp, err = p.GetPprof(ip, governPort, fileType)
-			if err != nil {
-				fmt.Println("####  PostPprof err", err)
-				continue
-			}
-		} else {
-			resp, err = grpcgovern.IGrpcGovern.Pprof(env, zoneCode, ip, governPort, fileType)
-			if err != nil {
-				fmt.Println("####  IGrpcGovern err", err)
-				continue
-			}
+		var resp []byte
+		resp, err = p.GetPprof(view.UniqZone{env, zoneCode}, ip, governPort, fileType)
+		if err != nil {
+			xlog.Error("PostPprof err", zap.Error(err), zap.String("fileType", fileType))
+			continue
 		}
-		//fmt.Println("fileType", fileType, "res", string(resp))
+		xlog.Debug("get remote pprof success", zap.String("fileType", fileType))
 
 		// 3. 请求结果存入临时文件
+		saveFileName := path.Join(cfg.Cfg.Pprof.TmpPath, fileType+"_"+hostName+".bin")
 
-		saveFileName := "/tmp/" + fileType + "_" + hostName + ".bin"
-		saveSvgName := fmt.Sprintf("assets/pprof_static/%s_%s_%s.svg", time.Now().Format("2006_01_02_15_04_05"), hostName, fileType)
+		monthPath := time.Now().Format("2006_01_02")
+		storePath := path.Join(cfg.Cfg.Pprof.StorePath, monthPath)
+		err = util.CreatePath(storePath)
+		if err != nil {
+			xlog.Error("create store path error", zap.Error(err), zap.String("storePath", storePath))
+			continue
+		}
+		saveSvgName := path.Join(storePath, fmt.Sprintf("%s_%s_%s.svg", time.Now().Format("2006_01_02_15_04_05"), hostName, fileType))
 		if err = ioutil.WriteFile(saveFileName, resp, os.ModePerm); err != nil {
-			fmt.Println("err2", err)
+			xlog.Error("save tmp file error", zap.Error(err), zap.String("saveSvgName", saveSvgName))
 			continue
 		}
 
 		// 4. 将临时文件生成对应的pprof 图
+		err := getFlameGraph(saveFileName, saveSvgName)
+		if err != nil {
+			xlog.Error("get flame grapht err", zap.Error(err), zap.String("saveFileName", saveFileName), zap.String("saveSvgName", saveSvgName))
+		}
 
-		execRs := RunCmd(fmt.Sprintf("pprof/pprof.sh %s %s", saveFileName, saveSvgName))
-		fmt.Printf("execShell result\n----\n%v---\n", execRs)
-
-		if !FileExists(saveSvgName) {
-			//log.Error("pprof.Run", "err", "Pprof util.FileExists false", "saveFileName", saveFileName, "resp", resp, "fileType", fileType)
+		if !util.IsExist(saveSvgName) {
+			xlog.Error("pprof.Run", zap.String("err", "Pprof util.FileExists false"), zap.String("saveFileName", saveFileName), zap.Any("resp", resp), zap.String("fileType", fileType))
 			continue
 		}
 
 		// 5. 图存储
-
-		fmt.Printf("saveFileName = %v, saveSvgName = %v\n", saveFileName, saveSvgName)
+		xlog.Debug("store file", zap.String("saveFileName", saveFileName), zap.String("saveSvgName", saveSvgName))
 
 		item := db.PProfFileInfo{
 			Url:      saveSvgName,
@@ -130,9 +127,8 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 
 		// 6. 火焰图存储 block无火焰图输出
 		saveSvgNameHy := saveSvgName + "_hy.svg"
-		fmt.Println("saveSvgNameHy------>", saveSvgNameHy)
 
-		if FileExists(saveSvgNameHy) && fileType != "block" {
+		if util.IsExist(saveSvgNameHy) && fileType != "block" {
 			item := db.PProfFileInfo{
 				Url:      saveSvgNameHy,
 				FileType: fileType + "_hy",
@@ -143,71 +139,73 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) error {
 
 		// 6. 清理掉临时文件
 		if err = os.Remove(saveFileName); err != nil {
-			//log.Error("pprof.Run", "err", "Pprof Remove saveFileName error: "+err.Error(), "saveFileName", saveFileName)
+			xlog.Error("pprof.Run", zap.Error(err), zap.String("saveFileName", saveFileName))
 		}
-
 	}
 
 	if len(fileList) <= 0 {
-		//log.Error("pprof.Run", "err", "fileList error: app can not get pprof file", "appName", appName, "idcCode", idcCode, "hostName", hostName, "ip", ip, "appInfo", appInfo)
 		return errors.New("app can not get pprof file")
 	}
 
 	// 7. 数据落库
 	//生成场景ID
-	sceneId := ShortHash(strconv.FormatInt(time.Now().Unix(), 10), 1)
+	sceneId := util.ShortHash(strconv.FormatInt(time.Now().Unix(), 10), 1)
 	for _, item := range fileList {
 		err := p.savePProf2DB(env, zoneCode, appName, appInfo.Aid, hostName, sceneId, item.FileType, item.Url, "svg")
 		if err != nil {
-			//log.Error("pprof.Run", "err", "Pprof savePProf2DB error: "+err.Error(), appName, "idcCode", idcCode, "hostName", hostName, "item", item)
+			xlog.Error("save pprof to db err", zap.Error(err), zap.String("appName", appName), zap.String("zoneCode", zoneCode), zap.String("hostName", hostName), zap.Any("item", item))
 			return err
 		}
 	}
-
 	return nil
 }
 
-func RunCmd(cmdStr string) string {
-	//envs := make([]string, 0)
-	//envs = append(envs, fmt.Sprintf("PATH=%s:%s", os.Getenv("PATH"), "/tmp/"))
-	//envs = append(envs, fmt.Sprintf("GOPATH=%s", "/tmp"))
-	//envs = append(envs, "GOCACHE=/tmp")
-
-	command := exec.Command("/bin/bash", "-c", cmdStr) //初始化Cmd
-	//command.Env = envs
-
-	//SetCmdEnv(command)
-	resp, err := command.CombinedOutput()
+func getFlameGraph(fileName, tagFileName string) error {
+	// 1 获取和存储profile的原始的svg图
+	out, err := exec.Command("bash", "-c", fmt.Sprintf("go tool pprof -svg %s > %s", fileName, tagFileName)).Output()
 	if err != nil {
-		return "run err " + err.Error() + " " + string(resp)
+		return fmt.Errorf("go tool pprof -svg err: %v", err)
 	}
-	return string(resp)
-}
 
-func CheckShell(cmdStr string) (string, error) {
-	command := exec.Command("/bin/bash", "-c", cmdStr) //初始化Cmd
-
-	resp, err := command.CombinedOutput()
+	// 2 获取火焰图准备
+	out, err = exec.Command("bash", "-c", "go tool pprof -raw "+fileName).Output()
 	if err != nil {
-		return string(resp), err
+		return fmt.Errorf("go tool pprof -raw err: %v", err)
 	}
-	return string(resp), nil
+
+	profile, err := torchPprof.ParseRaw(out)
+	if err != nil {
+		return fmt.Errorf("could not parse raw pprof output: %v", err)
+	}
+
+	sampleIndex := torchPprof.SelectSample([]string{}, profile.SampleNames)
+	flameInput, err := renderer.ToFlameInput(profile, sampleIndex)
+	if err != nil {
+		return fmt.Errorf("could not convert stacks to flamegraph input: %v", err)
+	}
+
+	// 3 生成火焰图
+	flameGraph, err := renderer.GenerateFlameGraph(flameInput, []string{}...)
+	if err != nil {
+		xlog.Error("flame graph err", zap.Error(err), zap.Any("flameInput", flameInput))
+		return fmt.Errorf("could not generate flame graph: %v", err)
+	}
+
+	// 4 存储火焰图
+	if err := ioutil.WriteFile(tagFileName+"_hy.svg", flameGraph, os.ModePerm); err != nil {
+		return err
+	}
+	xlog.Debug("[success] viewgraph get and save success", zap.String("fileName", fileName), zap.String("tagFileName", tagFileName))
+	return nil
 }
 
-// FileExists reports whether the named file or directory exists.
-func FileExists(name string) bool {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-	return true
-}
-
-func (g *pprof) GetPprof(ip, port, pprofType string) (resp []byte, err error) {
-
-	url := fmt.Sprintf("http://%s:%s/debug/pprof", ip, port)
-	if _, err = g.CheckPprof(url); err != nil {
+func (g *pprof) GetPprof(uniqZone view.UniqZone, ip, port, pprofType string) (resp []byte, err error) {
+	url := "/debug/pprof"
+	_, err = clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
+		Address: fmt.Sprintf("%s:%s", ip, port),
+		URL:     url,
+	})
+	if err != nil {
 		return
 	}
 	// 耗时比较久
@@ -215,28 +213,15 @@ func (g *pprof) GetPprof(ip, port, pprofType string) (resp []byte, err error) {
 		pprofType = pprofType + "?seconds=15"
 	}
 	url = url + "/" + pprofType
-	if resp, err = g.CheckPprof(url); err != nil {
-		return
-	}
-	return
-}
-
-func (g *pprof) CheckPprof(url string) (resp []byte, err error) {
-	output, err := g.Client.R().Get(url)
+	resp2, err := clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
+		Address: fmt.Sprintf("%s:%s", ip, port),
+		URL:     url,
+	})
 	if err != nil {
 		return
 	}
-	stream := output.Body()
-	return stream, nil
-	/*	profResp := ProfResp{}
-		if err = json.Unmarshal(stream, &profResp); err != nil {
-			return resp, nil
-			//return resp, fmt.Errorf("json Unmarshal error: %v", err)
-		}
-		if profResp.Code != 0 {
-			return resp, fmt.Errorf("msg=%v,data=%v", profResp.Msg, profResp.Data)
-		}
-		return []byte(profResp.Data), nil*/
+	resp = resp2.Body()
+	return
 }
 
 // 存储pprof
@@ -299,85 +284,4 @@ func (p *pprof) ListByScene(env, zoneCode, appName, sceneId string) (fileList []
 	}
 	dbConn.Find(&fileList)
 	return
-}
-
-type ProfResp struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
-	Data string `json:"data"`
-}
-
-// 生成短hash
-func ShortHash(longstr string, number int) string {
-	baseVal := 0x3FFFFFFF
-	indexVal := 0x0000003D
-	charset := []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
-
-	if number < 1 || number > 4 {
-		number = 1
-	}
-	key := "juno666"
-	urlhash := Md5(key + longstr)
-	len := len(urlhash)
-
-	var hexcc int64
-	var short_url []byte
-	var result [4]string
-
-	for i := 0; i < 4; i++ {
-		urlhash_piece := Substr(urlhash, i*len/4, len/4)
-		hexDec, _ := strconv.ParseInt(urlhash_piece, 16, 64)
-		hexcc = hexDec & int64(baseVal)
-
-		var index int64
-		short_url = []byte{}
-		for j := 0; j < 6; j++ {
-			//将得到的值与0x0000003d,3d为61，即charset的坐标最大值
-			index = hexcc & int64(indexVal)
-			short_url = append(short_url, charset[index])
-			//循环完以后将hex右移5位
-			hexcc = hexcc >> 5
-		}
-		result[i] = string(short_url)
-	}
-
-	return result[number]
-
-}
-
-// 字符串截取
-func Substr(str string, start int, length int) string {
-	rs := []rune(str)
-	rl := len(rs)
-	end := 0
-
-	if start < 0 {
-		start = rl - 1 + start
-	}
-	end = start + length
-
-	if start > end {
-		start, end = end, start
-	}
-
-	if start < 0 {
-		start = 0
-	}
-	if start > rl {
-		start = rl
-	}
-	if end < 0 {
-		end = 0
-	}
-	if end > rl {
-		end = rl
-	}
-	return string(rs[start:end])
-}
-
-// md5
-func Md5(s string) string {
-	h := md5.New()
-	h.Write([]byte(s))
-	return hex.EncodeToString(h.Sum(nil))
 }

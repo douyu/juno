@@ -82,7 +82,7 @@ func AppEnvZoneList(c echo.Context) error {
 	var (
 		err error
 	)
-	reqModel := ReqAppNodeList{}
+	reqModel := ReqAppEnvNodeList{}
 	err = c.Bind(&reqModel)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())

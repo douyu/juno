@@ -5,8 +5,11 @@ import {Button, Modal, Table} from "antd";
 const historyTableColumns = [
   {
     key: 'user',
-    dataIndex: 'user_name',
-    title: '操作用户'
+    // dataIndex: 'user_name',
+    title: '操作用户',
+    render(row) {
+      return row.user_name || row.access_token_name || '---'
+    }
   },
   {
     key: 'change_log',
@@ -59,7 +62,7 @@ function ModalHistory(props) {
             return <Button
               type={"link"}
               onClick={() => {
-                showDiffEditor(row.id)
+                showDiffEditor(row.configuration_id, row.id)
                 showHistoryModal(false)
               }}
             >
@@ -94,11 +97,12 @@ const mapDispatchToProps = dispatch => {
       type: 'config/loadHistory',
       payload: payload
     }),
-    showDiffEditor: (id) => {
+    showDiffEditor: (configID, historyID) => {
       dispatch({
         type: 'config/showDiffEditor',
         payload: {
-          id
+          configID,
+          historyID
         }
       })
     }

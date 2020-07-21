@@ -14,7 +14,10 @@
 
 package cfg
 
-import "time"
+import (
+	"go.uber.org/zap"
+	"time"
+)
 
 type Auth struct {
 	// Auth
@@ -30,6 +33,13 @@ type Auth struct {
 	ApiKeyMaxSecondsToLive           int
 }
 
+type Register struct {
+	Enable         bool
+	Endpoints      []string
+	ConnectTimeout time.Duration `json:"connectTimeout"`
+	Secure         bool          `json:"secure"`
+}
+
 type ServerSchema struct {
 	Host           string
 	Port           int
@@ -41,6 +51,7 @@ type ServerSchema struct {
 
 type App struct {
 	SecretKey string
+	Mode      string
 }
 
 // Admin Server
@@ -49,8 +60,23 @@ type Server struct {
 	Govern ServerSchema
 }
 
-// ClientProxy ..
 type ClientProxy struct {
+	HttpRouter  HttpRouter
+	SingleProxy SingleProxy
+	MultiProxy  []MultiProxy
+}
+
+type HttpRouter struct {
+	GovernConfig string
+}
+
+// MultiProxy ..
+type SingleProxy struct {
+	Etcd Etcd
+}
+
+// MultiProxy ..
+type MultiProxy struct {
 	Env      string
 	ZoneCode string
 	Stream   ProxyStream
@@ -82,12 +108,12 @@ type Gateway struct {
 
 // Etcd ..
 type Etcd struct {
-	Enable     bool     `json:"enable"`
-	ListenAddr string   `json:"listenAddr"`
-	Endpoints  []string `json:"endpoints"`
-	Namespace  string   `json:"namespace"`
-	Timeout    int      `json:"timeout"`
-	TLS        TLS      `json:"tls"`
+	Enable     bool          `json:"enable"`
+	ListenAddr string        `json:"listenAddr"`
+	Endpoints  []string      `json:"endpoints"`
+	Namespace  string        `json:"namespace"`
+	Timeout    time.Duration `json:"timeout"`
+	TLS        TLS           `json:"tls"`
 }
 
 // TLS ..
@@ -117,7 +143,12 @@ type HeartBeat struct {
 }
 
 type Pprof struct {
-	Path string
+	TmpPath     string
+	TokenHeader string
+	Token       string
+	Timeout     time.Duration
+	Debug       bool
+	StorePath   string
 }
 
 type Database struct {
@@ -146,9 +177,9 @@ type Database struct {
 
 // Configure ..
 type Configure struct {
-	Dir    string `json:"dir"`
-	Prefix string `json:"prefix"`
-	Agent  struct {
+	Dirs     []string `json:"dirs"`
+	Prefixes []string `json:"prefixes"`
+	Agent    struct {
 		Port int `json:"port"`
 	} `json:"agent"`
 }
@@ -160,6 +191,7 @@ type Casbin struct {
 	Model            string
 	AutoLoad         bool
 	AutoLoadInternal int
+	ResourceFile     string
 }
 
 // HTTPProxy ..
@@ -172,4 +204,26 @@ type HTTPProxy struct {
 	MaxIdleConns      int
 	MaxIdelPerHost    int
 	Timeout           int
+}
+
+type Logger struct {
+	Biz    LoggerInfo
+	System LoggerInfo
+}
+
+type LoggerInfo struct {
+	// Dir 日志输出目录
+	Dir string
+	// Name 日志文件名称
+	Name string
+	// Level 日志初始等级
+	Level string
+	// 日志初始化字段
+	Fields []zap.Field
+	// 是否添加调用者信息
+	AddCaller  bool
+	Interval   time.Duration
+	CallerSkip int
+	Async      bool
+	Debug      bool
 }

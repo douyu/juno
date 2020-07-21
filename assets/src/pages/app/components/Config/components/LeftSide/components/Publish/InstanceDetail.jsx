@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {connect} from "dva";
 import styles from './InstanceDetail.less'
 import {DatabaseOutlined, ReloadOutlined} from '@ant-design/icons'
-import {Button} from "antd";
+import {Button, Tag} from "antd";
 import ModalRestartInstance
   from "@/pages/app/components/Config/components/LeftSide/components/Publish/ModalRestartInstance";
 
@@ -19,7 +19,9 @@ function InstanceDetail(props) {
     config_file_synced,
     config_file_take_effect,
     config_file_path,
-    sync_at
+    sync_at,
+    version,
+    change_log
   } = currentInstance
 
   let info = [
@@ -40,7 +42,13 @@ function InstanceDetail(props) {
     },
     {
       title: '文件路径',
-      content: config_file_path
+      content: config_file_path || '---'
+    },
+    {
+      title: '配置版本',
+      content: version ? <span>
+        <Tag>{version}</Tag> {change_log}
+      </span> : "---"
     },
     {
       title: '同步时间',
@@ -67,6 +75,7 @@ function InstanceDetail(props) {
               onClick={() => {
                 setVisibleRestartModal(true)
               }}
+              disabled
             >
               重启
             </Button>

@@ -21,7 +21,7 @@ RELEASE_PATH=${4:?"release path"}
 #done < "${DIRINFO}"
 PUB_TAR=${RELEASE_PATH}/${APP_NAME}_data_${APP_VERSION}.tar.gz
 PUB_ZIP=${RELEASE_PATH}/${APP_NAME}_data_${APP_VERSION}.zip
-tar zcf ${PUB_TAR} ./config ./data ./assets
-zip -r ${PUB_ZIP} ./config ./data ./assets
+tar zcf ${PUB_TAR} ./config ./data ./assets/dist
+zip -r ${PUB_ZIP} ./config ./data ./assets/dist
 echo ${PUB_TAR}
 echo ${PUB_ZIP}

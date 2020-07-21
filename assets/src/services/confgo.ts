@@ -1,5 +1,5 @@
-import { request } from 'umi';
 import { stringify } from 'qs';
+import request from "@/utils/request";
 
 export async function ServiceConfigItemCheck(body: any) {
   const { id, caid, key, value, comment, resource_id, is_public } = body;

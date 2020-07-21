@@ -131,6 +131,10 @@ type ReqAppNodeInfo struct {
 	Id int `query:"id"`
 }
 
+type ReqAppEnvNodeList struct {
+	AppName string `query:"app_name"`
+}
+
 type ReqAppNodeList struct {
 	Aid         int    `query:"aid"`
 	Env         string `query:"env"`

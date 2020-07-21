@@ -1,0 +1,443 @@
+#菜单权限
+permission:
+  - name: 工作台
+    path: /workspace
+    icon: CrownOutlined
+    api:
+      - path: /api/admin/analysis/index
+        method: GET
+        name: 全局统计信息
+      - path: /api/admin/event/list
+        method: GET
+        name: 事件流列表
+      - path: /api/admin/resource/node/statics
+        name: 节点信息统计
+        method: GET
+
+  - name: 应用服务
+    path: /app
+    icon: RocketOutlined
+    api:
+      - name: 应用列表
+        path: /api/admin/resource/app/list
+        method: GET
+      - name: 可用区列表
+        path: /api/admin/resource/zone/list
+        method: GET
+      - path: /api/admin/resource/app_env_zone/list
+        name: 应用环境可用区列表
+        method: GET
+      - name: 应用详情信息
+        path: /api/admin/resource/app/info
+        method: GET
+      - name: 配置资源列表
+        path: /api/admin/resource/list
+        method: GET
+      - name: 创建配置资源
+        path: /api/admin/resource/create
+        method: POST
+      - name: 配置资源详情
+        path: /api/admin/resource/detail
+        method: GET
+      - name: 获取资源详情（通过名称）
+        path: /api/admin/resource/getByName
+        method: GET
+      - name: 更新资源
+        path: /api/admin/resource/createVersion
+        method: POST
+      - name: 批量检查资源版本
+        path: /api/admin/resource/batchCheckVersion
+        method: GET
+      - name: 资源标签列表
+        path: /api/admin/resource/tags
+        method: GET
+
+  - name: 功能看板
+    path: /analysis
+    icon: GlobalOutlined
+    children:
+      - name: 大盘
+        path: /analysis/dashboard
+        api:
+          - path: /api/admin/confgo/config/statics
+            method: GET
+            name: 配置统计
+          - path: /api/admin/analysis/index
+            method: GET
+            name: 全局统计信息
+          - path: /api/admin/event/list
+            method: GET
+            name: 事件流列表
+          - path: /api/admin/resource/node/statics
+            name: 节点信息统计
+            method: GET
+      - name: 依赖拓扑
+        path: /analysis/topology
+        api:
+          - path: /api/admin/analysis/topology/select
+            method: GET
+            name: 看板拓扑
+          - path: /api/admin/analysis/topology/list
+            method: GET
+            name: 应用拓扑列表
+          - path: /api/admin/analysis/topology/relationship
+            method: GET
+            name: 应用拓扑关系
+
+  - name: 资源中心
+    path: /resource
+    icon: UngroupOutlined
+    children:
+      - path: /resource/app/list
+        name: 应用列表
+        api:
+          - name: 应用列表
+            path: /api/admin/resource/app/list
+            method: GET
+          - name: 应用创建
+            path: /api/admin/resource/app/create
+            method: POST
+          - name: 更新应用
+            path: /api/admin/resource/app/update
+            method: POST
+          - name: 删除应用
+            path: /api/admin/resource/app/delete
+            method: POST
+          - path: /api/admin/resource/app_node/transfer/list
+            name: 应用节点列表
+            method: GET
+          - path: /api/admin/resource/app_node/transfer/put
+            name: 更新应用节点列表
+            method: POST
+      - path: /resource/zone/list
+        name: 可用区列表
+        api:
+          - name: 可用区列表
+            path: /api/admin/resource/zone/list
+            method: GET
+          - name: 创建可用区
+            path: /api/admin/resource/zone/create
+            method: POST
+          - name: 更新可用区
+            path: /api/admin/resource/zone/update
+            method: POST
+          - name: 删除可用区
+            path: /api/admin/resource/zone/delete
+            method: POST
+          - path: /api/admin/resource/node/transfer/list
+            name: 可用区节点列表
+            method: GET
+          - path: /api/admin/resource/node/transfer/put
+            name: 可用区节点列表更新
+            method: POST
+      - path: /resource/node/list
+        name: 节点列表
+        api:
+          - name: 节点列表
+            path: /api/admin/resource/node/list
+            method: GET
+          - path: /api/admin/resource/node/create
+            name: 创建节点
+            method: POST
+          - path: /api/admin/resource/node/delete
+            name: 删除节点
+            method: POST
+      - path: /resource/appnode/list
+        name: 应用节点关系列表
+        api:
+          - path: /api/admin/resource/app_node/list
+            name: 应用节点列表
+            method: GET
+
+  - name: 配置中心
+    path: /confgo
+    icon: FileProtectOutlined
+    children:
+      - path: /confgo/resource
+        name: 资源
+        api:
+          - name: 可用区和环境列表
+            path: /api/admin/resource/zone/zone_env
+            method: GET
+          - name: 配置资源列表
+            path: /api/admin/confgov2/resource/list
+            method: GET
+          - name: 创建配置资源
+            path: /api/admin/confgov2/resource/create
+            method: POST
+          - name: 配置资源详情
+            path: /api/admin/confgov2/resource/detail
+            method: GET
+          - name: 获取配置资源详情（通过名称）
+            path: /api/admin/confgov2/resource/getByName
+            method: GET
+          - name: 更新配置资源
+            path: /api/admin/confgov2/resource/createVersion
+            method: POST
+          - name: 批量检查配置资源版本
+            path: /api/admin/confgov2/resource/batchCheckVersion
+            method: GET
+          - name: 配置资源标签列表
+            path: /api/admin/confgov2/resource/tags
+            method: GET
+      - path: /confgo/tpl/list
+        name: 配置依赖解析模板
+        api:
+          - path: /api/admin/confgo/tpl/list
+            name: 配置依赖解析模板列表
+            method: GET
+          - path: /api/admin/confgo/tpl/create
+            name: 创建配置依赖解析模板
+            method: POST
+          - path: /api/admin/confgo/tpl/update
+            name: 更新配置依赖解析模板
+            method: POST
+          - path: /api/admin/confgo/tpl/delete
+            name: 删除配置依赖解析模板
+            method: POST
+
+  - name: 权限管理
+    path: /permission
+    icon: UserOutlined
+    children:
+      - path: /permission/user_group
+        name: 用户组
+        api:
+          - path: /api/admin/permission/user/list
+            name: 用户列表
+            method: GET
+          - path: /api/admin/permission/user/group/list
+            name: 用户组列表
+            method: GET
+          - path: /api/admin/permission/user/changeGroup
+            name: 修改用户所在组
+            method: POST
+
+      - path: /permission/menu_api_permission
+        name: 菜单接口权限
+        api:
+          - path: /api/admin/permission/user/group/list
+            name: 用户组列表
+            method: GET
+          - path: /api/admin/permission/user/group/menuPermission
+            name: 获取用户组菜单权限
+            method: GET
+          - path: /api/admin/permission/user/group/apiPermission
+            name: 获取用户组接口权限
+            method: GET
+          - path: /api/admin/permission/permissionTree
+            name: 菜单-接口权限树
+            method: GET
+          - path: /api/admin/permission/user/group/setMenuPermission
+            name: 设置用户组菜单权限
+            method: POST
+          - path: /api/admin/permission/user/group/setApiPermission
+            name: 设置用户组接口权限
+            method: GET
+      - path: /permission/app
+        name: 应用权限
+        api:
+          - path: /api/admin/permission/appPermissions
+            name: 获取用户组应用权限
+            method: GET
+          - path: /api/admin/resource/app/listWithEnv
+            name: 应用列表（带环境信息）
+            method: GET
+          - path: /api/admin/permission/user/group/list
+            name: 用户组列表
+            method: GET
+          - path: /user/group/setAppPermission
+            name: 设置用户组应用权限
+            method: POST
+
+  - name: 系统设置
+    path: /admin
+    icon: ToolOutlined
+    children:
+      - path: /admin/user
+        name: 用户管理
+        api:
+          - name: 用户创建
+            path: /api/admin/user/create
+            method: GET
+          - name: 用户删除
+            path: /api/admin/user/delete
+            method: POST
+          - name: 用户列表
+            path: /api/admin/user/list
+            method: GET
+      - path: /admin/config
+        name: 系统设置
+        api:
+          - path: /api/admin/pprof/dep/check
+            name: PProf依赖检查
+            method: GET
+          - path: /api/admin/system/setting/list
+            name: 系统设置列表
+            method: GET
+          - path: /api/admin/system/setting/update
+            name: 修改系统设置
+            method: POST
+      - path: /admin/accessTokens
+        name: Access Tokens
+        api:
+          - path: /api/admin/openAuth/accessToken/list
+            name: AccessToken列表
+            method: GET
+          - path: /api/admin/openAuth/accessToken/create
+            name: 创建AccessToken
+            method: POST
+          - path: /api/admin/openAuth/accessToken/delete
+            name: 删除AccessToken
+            method: POST
+
+# 应用权限
+app:
+  - name: 应用查看
+    key: app:read
+  - name: 配置查看
+    key: config:read
+  - name: 配置编辑
+    key: config:write
+  - name: 监控查看
+    key: monitor:read
+  - name: PProf查看
+    key: pprof:read
+  - name: PProf执行
+    key: pprof:run
+
+# 接口
+api:
+  - name: 用户管理
+    path: /api/admin/user
+    children:
+      - name: 用户创建
+        path: /api/admin/user/create
+        method: GET
+      - name: 用户删除
+        path: /api/admin/user/delete
+        method: POST
+      - name: 用户列表
+        path: /api/admin/user/list
+        method: GET
+  - name: 资源
+    path: /api/admin/resource
+    children:
+      - name: 应用
+        path: /api/admin/resource/app
+        children:
+          - name: 应用列表
+            path: /api/admin/resource/app/list
+            method: GET
+          - name: 应用详情信息
+            path: /api/admin/resource/app/info
+            method: GET
+          - name: 应用更新
+            path: /api/admin/resource/app/update
+            method: POST
+          - name: 应用创建
+            path: /api/admin/resource/app/create
+            method: POST
+          - name: 应用删除
+            path: /api/admin/resource/app/delete
+            method: POST
+      - name: 可用区
+        path: /api/admin/resource/zone
+        children:
+          - name: 可用区详情信息
+            path: /api/admin/resource/zone/info
+            method: GET
+          - name: 可用区列表
+            path: /api/admin/resource/zone/list
+            method: GET
+          - name: 创建可用区
+            path: /api/admin/resource/zone/create
+            method: POST
+          - name: 更新可用区
+            path: /api/admin/resource/zone/update
+            method: POST
+          - name: 删除可用区
+            path: /api/admin/resource/zone/delete
+            method: POST
+          - name: 可用区和环境列表
+            path: /api/admin/resource/zone/zone_env
+            method: GET
+      - name: 节点
+        path: /api/admin/resource/node
+        children:
+          - name: 节点信息
+            path: /api/admin/resource/node/info
+            method: GET
+          - name: 节点列表
+            path: /api/admin/resource/node/list
+            method: GET
+          - path: /api/admin/resource/node/create
+            name: 创建节点
+            method: POST
+          - path: /api/admin/resource/node/update
+            name: 更新节点
+            method: POST
+          - path: /api/admin/resource/node/delete
+            name: 删除节点
+            method: POST
+          - path: /api/admin/resource/node/statics
+            name: 节点信息统计
+            method: GET
+          - path: /api/admin/resource/node/transfer/list
+            name: 可用区节点列表
+            method: GET
+          - path: /api/admin/resource/node/transfer/put
+            name: 可用区节点列表更新
+            method: POST
+          - path: /api/admin/resource/app_node/info
+            name: 应用节点信息
+            method: GET
+          - path: /api/admin/resource/app_node/list
+            name: 应用节点列表
+            method: GET
+          - path: /api/admin/resource/app_node/transfer/list
+            name: 应用节点列表
+            method: GET
+          - path: /api/admin/resource/app_node/transfer/list
+            name: 应用节点列表更新
+            method: POST
+          - path: /api/admin/resource/app_env_zone/list
+            name: 应用环境可用区列表
+            method: GET
+
+  - name: 系统分析
+    path: /api/admin/analysis
+    children:
+      - path: /api/admin/analysis/index
+        method: GET
+        name: 全局统计信息
+      - path: /api/admin/analysis/topology/select
+        method: GET
+        name: 看板拓扑
+      - path: /api/admin/analysis/topology/list
+        method: GET
+        name: 应用拓扑列表
+      - path: /api/admin/analysis/topology/relationship
+        method: GET
+        name: 应用拓扑关系
+  - name: 系统
+    path: /api/admin/system
+    children:
+      - path: /api/admin/system/menu
+        method: GET
+        name: 系统菜单
+      - path: /api/admin/system/option/info
+        method: GET
+        name: 可用区信息
+      - path: /api/admin/system/option/list
+        method: GET
+        name: 可用区列表
+      - path: /api/admin/system/option/create
+        method: POST
+        name: 创建可用区
+      - path: /api/admin/system/option/update
+        method: POST
+        name: 更新可用区
+      - path: /api/admin/system/option/delete
+        method: POST
+        name: 删除可用区

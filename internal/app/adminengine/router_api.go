@@ -21,11 +21,16 @@ import (
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
+	"github.com/douyu/juno/internal/app/core"
+	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 )
 
 func apiV1(server *xecho.Server) {
-	v1 := server.Group("/api/v1")
+
+	server.POST("/api/v1/resource/node/heartbeat", resource.NodeHeartBeat)
+
+	v1 := server.Group("/api/v1", middleware.OpenAuth)
 	resourceGroup := v1.Group("/resource")
 	{
 		// 创建应用
@@ -47,7 +52,6 @@ func apiV1(server *xecho.Server) {
 		resourceGroup.GET("/node/list", resource.NodeList)
 		resourceGroup.GET("/node/transfer/list", resource.NodeTransferList)
 		resourceGroup.GET("/node/transfer/put", resource.NodeTransferPut)
-		resourceGroup.POST("/node/heartbeat", resource.NodeHeartBeat)
 
 		// 创建应用和节点关系
 		resourceGroup.POST("/app_node/put", resource.AppNodePut)
@@ -57,6 +61,8 @@ func apiV1(server *xecho.Server) {
 		// 根据应用的id或者应用名称，获取节点列表
 		// 根据节点的hostname，获取应用列表
 		resourceGroup.GET("/app_node/list", resource.AppNodeList)
+
+		resourceGroup.GET("/app_env_zone/list", resource.AppEnvZoneList)
 	}
 
 	configurationGroup := v1.Group("/confgo")
@@ -74,7 +80,7 @@ func apiV1(server *xecho.Server) {
 
 	analysisGroup := v1.Group("/analysis")
 	{
-		analysisGroup.GET("/index", analysis.Index)
+		analysisGroup.GET("/index", core.Handle(analysis.Index))
 		analysisGroup.GET("/topology/select", analysis.TopologySelect)
 		analysisGroup.GET("/topology/list", analysis.TopologyList)
 		analysisGroup.GET("/topology/relationship", analysis.TopologyRelationship)
@@ -103,7 +109,6 @@ func apiV1(server *xecho.Server) {
 		pprofGroup.POST("/run", pprofHandle.Run)
 		pprofGroup.GET("/list", pprofHandle.FileList)
 		pprofGroup.GET("/dep/check", pprofHandle.CheckDep)
-		pprofGroup.GET("/dep/install", pprofHandle.InstallDep)
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
 		//pprofGroup.POST("/config/update", pprofHandle.SetSysConfig)
 	}

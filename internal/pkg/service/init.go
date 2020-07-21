@@ -10,7 +10,9 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
+	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/parse"
+	"github.com/douyu/juno/internal/pkg/service/permission"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
@@ -49,10 +51,14 @@ func Init() (err error) {
 	configresource.Init(invoker.JunoMysql)
 
 	casbinAdapter := &casbin.CasbinAdapter{}
-	_, _, err = casbin.InitCasbin(casbinAdapter)
+	err = casbin.InitCasbin(casbinAdapter)
 	if err != nil {
 		return
 	}
-	return
 
+	permission.Init(invoker.JunoMysql)
+
+	openauth.Init(invoker.JunoMysql)
+
+	return
 }

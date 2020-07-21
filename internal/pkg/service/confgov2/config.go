@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
 	"sync"
 	"time"
@@ -13,32 +11,46 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/configresource"
+	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
+	"github.com/labstack/echo/v4"
 	"go.etcd.io/etcd/clientv3"
+	"go.uber.org/zap"
 )
 
 const (
-	// ServerProxyHTTPGetURL ..
-	ServerProxyHTTPGetURL = "/api/v1/proxy/get"
-	// ServerProxyHTTPPostURL ..
-	ServerProxyHTTPPostURL = "/api/v1/proxy/post"
-	// QueryAgentUsingConfiguration ..
-	QueryAgentUsingConfiguration = "http://%s:%s/debug/config"
+	// ServerProxyConfigurationTakeEffect ..
+	ServerProxyConfigurationTakeEffect = "/api/v1/configuration/takeEffect"
+	// ServerProxyConfigurationUsed ..
+	ServerProxyConfigurationUsed = "/api/v1/configuration/used"
+	//// QueryAgentUsingConfiguration ..
+	//QueryAgentUsingConfiguration = "/debug/config"
 	// QueryAgentUsedStatus ..
-	QueryAgentUsedStatus = "http://%s/api/v1/conf/command_line/status"
+	//QueryAgentUsedStatus = "http://%s/api/v1/conf/command_line/status"
+	QueryAgentUsedStatus = "/api/v1/conf/command_line/status"
 )
 
 func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
+	var app db.AppInfo
+
 	resp = make(view.RespListConfig, 0)
 	list := make([]db.Configuration, 0)
+
+	err = mysql.Where("app_name = ?", param.AppName).First(&app).Error
+	if err != nil {
+		return resp, err
+	}
+
 	err = mysql.Select("id, aid, name, format, env, zone, created_at, updated_at, published_at").
-		Where("aid = ?", param.AID).
+		Where("aid = ?", app.Aid).
 		Where("env = ?", param.Env).
 		Find(&list).Error
 
@@ -66,6 +78,80 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 	if err != nil {
 		return
 	}
+	resp = view.RespDetailConfig{
+		ID:          configuration.ID,
+		AID:         configuration.AID,
+		Name:        configuration.Name,
+		Content:     configuration.Content,
+		Format:      configuration.Format,
+		Env:         configuration.Env,
+		Zone:        configuration.Zone,
+		CreatedAt:   configuration.CreatedAt,
+		UpdatedAt:   configuration.UpdatedAt,
+		PublishedAt: configuration.PublishedAt,
+	}
+	return
+}
+
+// Create ..
+func Create(param view.ReqCreateConfig) (resp view.RespDetailConfig, err error) {
+	var app db.AppInfo
+	var appNode db.AppNode
+
+	// 验证应用是否存在
+	err = mysql.Where("app_name = ?", param.AppName).First(&app).Error
+	if err != nil {
+		return
+	}
+
+	// 验证Zone-env是否存在
+	err = mysql.Where("env = ? and zone_code = ?", param.Env, param.Zone).First(&appNode).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = fmt.Errorf("该应用不存在该机房-环境")
+		}
+		return
+	}
+
+	configuration := db.Configuration{
+		AID:    uint(app.Aid),
+		Name:   param.FileName, // 不带后缀
+		Format: string(param.Format),
+		Env:    param.Env,
+		Zone:   param.Zone,
+	}
+
+	tx := mysql.Begin()
+	{
+		// check if name exists
+		exists := 0
+		err = tx.Model(&db.Configuration{}).Where("aid = ?", app.Aid).
+			Where("env = ?", param.Env).
+			Where("name = ?", param.FileName).
+			Where("format = ?", param.Format).
+			Count(&exists).Error
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+
+		if exists != 0 {
+			tx.Rollback()
+			return resp, fmt.Errorf("已存在同名配置")
+		}
+
+		err = tx.Create(&configuration).Error
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
 
 	resp = view.RespDetailConfig{
 		ID:          configuration.ID,
@@ -83,54 +169,8 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 	return
 }
 
-// Create ..
-func Create(param view.ReqCreateConfig) (err error) {
-
-	tx := mysql.Begin()
-	{
-		// check if name exists
-		exists := 0
-		err = tx.Model(&db.Configuration{}).Where("aid = ?", param.AID).
-			Where("env = ?", param.Env).
-			Where("name = ?", param.FileName).
-			Where("format = ?", param.Format).
-			Count(&exists).Error
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		if exists != 0 {
-			tx.Rollback()
-			return fmt.Errorf("已存在同名配置")
-		}
-
-		configuration := db.Configuration{
-			AID:    param.AID,
-			Name:   param.FileName, // 不带后缀
-			Format: string(param.Format),
-			Env:    param.Env,
-			Zone:   param.Zone,
-		}
-
-		err = tx.Create(&configuration).Error
-		if err != nil {
-			tx.Rollback()
-			return
-		}
-	}
-
-	err = tx.Commit().Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return
-}
-
 // Update ..
-func Update(uid int, param view.ReqUpdateConfig) (err error) {
+func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	configuration := db.Configuration{}
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
 	if err != nil {
@@ -139,8 +179,10 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 		}
 		return err
 	}
+
 	newContent := configresource.FillConfigResource(param.Content)
 	oldContent := configresource.FillConfigResource(configuration.Content)
+
 	// 计算本次版本号
 	version := util.Md5Str(newContent)
 	if util.Md5Str(oldContent) == version {
@@ -148,31 +190,63 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 	}
 
 	history := db.ConfigurationHistory{
-		UID:             uint(uid),
 		ConfigurationID: configuration.ID,
 		ChangeLog:       param.Message,
 		Content:         param.Content,
 		Version:         version,
 	}
 
+	// 授权对象
+	ok, accessToken := openauth.OpenAuthAccessToken(c)
+	if ok {
+		// 获取Open Auth信息
+		history.AccessTokenID = accessToken.ID
+	} else {
+		u := user.GetUser(c)
+		if u != nil {
+			history.ID = uint(u.Uid)
+		} else {
+			err = fmt.Errorf("无法获取授权对象信息")
+			return err
+		}
+	}
+
+	// 配置/资源 关联关系
+	resourceValues, err := ParseConfigResourceValuesFromConfig(history)
+	if err != nil {
+		return
+	}
+
 	tx := mysql.Begin()
 	{
-		err = mysql.Where("version=?", version).Delete(&db.ConfigurationHistory{}).Error
+		err = tx.Where("version=?", version).Delete(&db.ConfigurationHistory{}).Error
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 
 		// 存历史版本
-		err = mysql.Save(&history).Error
+		err = tx.Save(&history).Error
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 
+		// 存资源配置关联
+		for _, value := range resourceValues {
+			err = tx.Save(&db.ConfigurationResourceRelation{
+				ConfigurationHistoryID: history.ID,
+				ConfigResourceValueID:  value.ID,
+			}).Error
+			if err != nil {
+				tx.Rollback()
+				return
+			}
+		}
+
 		configuration.Content = param.Content
 		configuration.Version = version
-		err = mysql.Save(&configuration).Error
+		err = tx.Save(&configuration).Error
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -189,31 +263,72 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 	return
 }
 
-// Instances ..
-func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceList, err error) {
-	aid := param.AID
-	env := param.Env
-	zoneCode := param.ZoneCode
-	// Get nodes data
-	nodes, err := resource.Resource.GetAllAppNodeList(db.AppNode{
-		Aid:      int(aid),
-		Env:      env,
-		ZoneCode: zoneCode,
-	})
-	if err != nil {
-		return
+func ParseConfigResourceValuesFromConfig(history db.ConfigurationHistory) ([]db.ConfigResourceValue, error) {
+	var resourceValues []db.ConfigResourceValue
+	resources := configresource.ParseResourceFromConfig(history.Content)
+	resourceValueIds := make([]uint, 0) // 版本就是资源值ID，全局唯一
+	for _, res := range resources {
+		resourceValueIds = append(resourceValueIds, res.Version)
 	}
 
-	app, err := resource.Resource.GetApp(int(aid))
+	err := mysql.Where("id in (?)", resourceValueIds).Find(&resourceValues).Error
 	if err != nil {
-		return
+		xlog.Error("confgov2.ParseConfigResourceValuesFromConfig", xlog.String("error", "query resource-values failed:"+err.Error()))
+		return nil, err
 	}
-	var configuration db.Configuration
+
+	return resourceValues, nil
+}
+
+// Instances ..
+func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceList, err error) {
+
+	// input params
+	var (
+		env      = param.Env
+		zoneCode = param.ZoneCode
+	)
+
+	// process
+	var (
+		configuration db.Configuration
+		// configurationHistory db.ConfigurationHistory
+		changeLog string
+		version   string
+
+		app   db.AppInfo
+		nodes []db.AppNode
+	)
+
+	// get configuration info
 	query := mysql.Where("id=?", param.ConfigurationID).Find(&configuration)
 	if query.Error != nil {
 		err = query.Error
 		return
 	}
+
+	// if err = mysql.Where("version=? and configuration_id=?", version, configuration.ID).Find(&configurationHistory).Error; err != nil {
+	// 	return
+	// }
+	// changeLog = configurationHistory.ChangeLog
+	// version = configurationHistory.Version
+
+	// get app info
+	if app, err = resource.Resource.GetApp(configuration.AID); err != nil {
+		return
+	}
+
+	xlog.Debug("Instances", xlog.String("step", "app"), zap.Any("app", app))
+
+	// get all node list
+	if nodes, err = resource.Resource.GetAllAppNodeList(db.AppNode{
+		Aid:      int(configuration.AID),
+		Env:      env,
+		ZoneCode: zoneCode,
+	}); err != nil {
+		return
+	}
+	xlog.Debug("Instances", xlog.String("step", "nodes"), zap.Any("nodes", nodes))
 
 	var syncFlag bool = false
 	notSyncNodes := make(map[string]db.AppNode, 0)
@@ -272,6 +387,8 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 			ConfigFileSynced:      synced,
 			ConfigFileTakeEffect:  takeEffect,
 			SyncAt:                time.Now(),
+			Version:               version,
+			ChangeLog:             changeLog,
 		})
 	}
 
@@ -300,17 +417,9 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 	}
 	// use map
 	usedMap := make(map[string]int, 0)
-	var wg sync.WaitGroup
-	wg.Add(len(junoAgentList))
 	for _, agent := range junoAgentList {
-		go func(agent view.JunoAgent) {
-			usedMap[agent.HostName] = getUsedStatus(env, zoneCode, filePath, agent.IPPort)
-			// func getUsedStatus(env, zoneCode, filePath string, ip string) int {
-
-			wg.Done()
-		}(agent)
+		usedMap[agent.HostName] = getUsedStatus(env, zoneCode, filePath, agent.IPPort)
 	}
-	wg.Wait()
 	for k, v := range resp {
 		if resp[k].ConfigFileUsed != 0 {
 			continue
@@ -324,19 +433,24 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 }
 
 func syncPublishStatus(appName, env string, zoneCode string, configuration db.Configuration, notSyncFlag map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
-	newSyncDataMap, err := configurationSynced(appName, env, zoneCode, configuration.Name, configuration.Format, notSyncFlag)
-	if err != nil {
-		return resp, err
-	}
-	var version = configuration.Version
-	for k, v := range resp {
-		if resp[k].ConfigFileSynced == 1 {
+	for _, prefix := range cfg.Cfg.Configure.Prefixes {
+		newSyncDataMap, err := configurationSynced(appName, env, zoneCode, configuration.Name, configuration.Format, prefix, notSyncFlag)
+		if err != nil {
+			xlog.Error("syncPublishStatus", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("prefix", prefix), zap.String("err", err.Error()))
 			continue
 		}
-		if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
-			if newState.Version == version {
-				resp[k].ConfigFileSynced = 1
-				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("synced", 1)
+		xlog.Debug("syncPublishStatus", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.Any("newSyncDataMap", newSyncDataMap))
+
+		var version = configuration.Version
+		for k, v := range resp {
+			if resp[k].ConfigFileSynced == 1 {
+				continue
+			}
+			if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
+				if newState.Version == version {
+					resp[k].ConfigFileSynced = 1
+					mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("synced", 1)
+				}
 			}
 		}
 	}
@@ -365,16 +479,16 @@ func syncTakeEffectStatus(appName, governPort, env string, zoneCode string, conf
 
 func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	// query proxy for used status
-	conn, err := clientproxy.ClientProxy.ServerProxyHTTPConn(env, zoneCode)
-	if err != nil {
-		return 0
-	}
-	req := view.ReqHTTPProxy{}
-	req.URL = fmt.Sprintf(QueryAgentUsedStatus, ipPort)
-	req.Params = map[string]interface{}{
-		"config": filePath,
-	}
-	resp, err := conn.R().SetBody(req).Post(ServerProxyHTTPPostURL)
+	resp, err := clientproxy.ClientProxy.HttpPost(view.UniqZone{
+		Env:  env,
+		Zone: zoneCode,
+	}, view.ReqHTTPProxy{
+		Address: ipPort,
+		URL:     QueryAgentUsedStatus,
+		Params: map[string]string{
+			"config": filePath,
+		},
+	})
 	if err != nil {
 		return 0
 	}
@@ -389,11 +503,9 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	if err = json.Unmarshal(resp.Body(), configurationUsedStatus); err != nil {
 		return 0
 	}
-
 	if configurationUsedStatus.Data.Supervisor {
 		return 1
 	}
-
 	if configurationUsedStatus.Data.Systemd {
 		return 2
 	}
@@ -417,22 +529,20 @@ func getConfigurationStatus(configurationID uint, hostName string) (res db.Confi
 	return
 }
 
-func configurationSynced(appName, env, zoneCode, filename, format string, notSyncFlag map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
+func configurationSynced(appName, env, zoneCode, filename, format, prefix string, notSyncFlag map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
 	list = make(map[string]view.ConfigurationStatus, 0)
-	fileName := fmt.Sprintf("%s.%s", filename, format)
+	fileNameWithSuffix := fmt.Sprintf("%s.%s", filename, format)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	key := fmt.Sprintf("/%s/callback/%s/%s", cfg.Cfg.Configure.Prefix, appName, fileName)
-	conn, err := clientproxy.ClientProxy.ServerProxyETCDConn(env, zoneCode)
+	key := fmt.Sprintf("/%s/callback/%s/%s", prefix, appName, fileNameWithSuffix)
 	defer cancel()
+	resp, err := clientproxy.ClientProxy.EtcdGet(view.UniqZone{Env: env, Zone: zoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
-		return
-	}
-	resp, err := conn.Get(ctx, key, clientv3.WithPrefix())
-	if err != nil {
+		xlog.Warn("configurationSynced", zap.String("step", "EtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
 		return
 	}
 	if len(resp.Kvs) == 0 {
 		err = errorconst.ParamConfigCallbackKvIsZero.Error()
+		xlog.Warn("configurationSynced", zap.String("step", "resp.Kvs"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.Any("resp", resp))
 		return
 	}
 	// publish status, synced status
@@ -441,49 +551,42 @@ func configurationSynced(appName, env, zoneCode, filename, format string, notSyn
 		if err := json.Unmarshal(item.Value, &row); err != nil {
 			continue
 		}
+		xlog.Debug("configurationSynced", zap.String("step", "for.resp.Kvs"), zap.Any("row", row), zap.Any("notSyncFlag", notSyncFlag))
+
 		if _, ok := notSyncFlag[row.Hostname]; !ok {
 			continue
 		}
 		list[row.Hostname] = row
 	}
+	xlog.Debug("configurationSynced", zap.String("step", "finish"), zap.Any("list", list))
+
 	return
 }
 
 func configurationTakeEffect(appName, env, zoneCode, filename, format, governPort string, notTakeEffectNodes map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
 	list = make(map[string]view.ConfigurationStatus, 0)
 	// take effect status
-	conn, err := clientproxy.ClientProxy.ServerProxyHTTPConn(env, zoneCode)
-	if err != nil {
-		return
-	}
 	// publish status, synced status
 	for _, node := range notTakeEffectNodes {
 		row := view.ConfigurationStatus{}
-		agentQuestResp, agentQuestError := conn.SetQueryParams(map[string]string{"url": fmt.Sprintf(QueryAgentUsingConfiguration, node.IP, governPort)}).R().Get(ServerProxyHTTPGetURL)
+		agentQuestResp, agentQuestError := clientproxy.ClientProxy.HttpGet(view.UniqZone{Env: env, Zone: zoneCode}, view.ReqHTTPProxy{
+			Address: node.IP + ":" + governPort,
+			URL:     cfg.Cfg.ClientProxy.HttpRouter.GovernConfig,
+		})
 		if agentQuestError != nil {
 			err = agentQuestError
 			continue
 		}
-		row.EffectVersion = string(agentQuestResp.Body())
-		list[row.Hostname] = row
+		var out struct {
+			JunoConfigurationVersion string `json:"juno_configuration_version"`
+			JunoAgentMD5             string `json:"juno_agent_md5"`
+		}
+		_ = json.Unmarshal(agentQuestResp.Body(), &out)
+		effectVersion := out.JunoConfigurationVersion
+		row.EffectVersion = effectVersion
+		list[node.HostName] = row
 	}
 	return
-}
-
-func getEffectVersion(url string) (res string) {
-	client := http.Client{Timeout: time.Duration(time.Second * 3)}
-	resp, err := client.Get(url)
-	if err != nil {
-		return
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-	return util.Md5Str(string(body))
 }
 
 // Publish ..
@@ -552,7 +655,7 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 		cp.ConfigurationID = configuration.ID
 		cp.ConfigurationHistoryID = confHistory.ID
 		cp.UID = uint(user.Uid)
-		cp.FilePath = strings.Join([]string{cfg.Cfg.Configure.Dir, appInfo.AppName, "config", configuration.FileName()}, "/")
+		_, cp.FilePath = genConfigurePath(appInfo.AppName, configuration.FileName())
 		if err = tx.Save(&cp).Error; err != nil {
 			tx.Rollback()
 			return
@@ -582,6 +685,19 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 	return
 }
 
+func genConfigurePath(appName string, filename string) (pathArr []string, pathStr string) {
+	for k, dir := range cfg.Cfg.Configure.Dirs {
+		path := strings.Join([]string{dir, appName, "config", filename}, "/")
+		pathArr = append(pathArr, path)
+		if k == 0 {
+			pathStr = path
+		} else {
+			pathStr = pathStr + ";" + path
+		}
+	}
+	return
+}
+
 func getPublishInstance(aid int, env string, zoneCode string) (instanceList []string, err error) {
 	nodes, _ := resource.Resource.GetAllAppNodeList(db.AppNode{
 		Aid:      aid,
@@ -597,14 +713,28 @@ func getPublishInstance(aid int, env string, zoneCode string) (instanceList []st
 	return instanceList, nil
 }
 
+func configurationHeader(content, format, version string) string {
+	if format == "toml" {
+		headerVersion := fmt.Sprintf(`juno_configuration_version = "%s"`, version)
+		content = fmt.Sprintf("%s\n%s", headerVersion, content)
+	}
+	return content
+}
+
 func publishETCD(req view.ReqConfigPublish) (err error) {
+
+	content := configurationHeader(req.Content, req.Format, req.Version)
+
+	xlog.Debug("func publishETCD", zap.String("content", content))
+
+	paths, _ := genConfigurePath(req.AppName, req.FileName)
 	data := view.ConfigurationPublishData{
-		Content: req.Content,
+		Content: content,
 		Metadata: view.Metadata{
 			Timestamp: time.Now().Unix(),
 			Format:    req.Format,
 			Version:   req.Version,
-			Path:      strings.Join([]string{cfg.Cfg.Configure.Dir, req.AppName, "config", req.FileName}, "/"),
+			Paths:     paths,
 		},
 	}
 	var buf []byte
@@ -614,16 +744,15 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
-	conn, errConn := clientproxy.ClientProxy.ServerProxyETCDConn(req.Env, req.ZoneCode)
-	if errConn != nil {
-		return errConn
-	}
+
 	for _, hostName := range req.InstanceList {
-		key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", cfg.Cfg.Configure.Prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
-		// The migration is complete, only write independent ETCD of the configuration center
-		_, err = conn.Put(ctx, key, string(buf))
-		if err != nil {
-			return
+		for _, prefix := range cfg.Cfg.Configure.Prefixes {
+			key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
+			// The migration is complete, only write independent ETCD of the configuration center
+			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, string(buf))
+			if err != nil {
+				return
+			}
 		}
 	}
 	return nil
@@ -648,7 +777,8 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 		defer wg.Done()
 
 		offset := param.Size * param.Page
-		query := query.Preload("User").Limit(param.Size).Offset(offset).Order("id desc").Find(&list)
+		query := query.Preload("AccessToken").
+			Preload("User").Limit(param.Size).Offset(offset).Order("id desc").Find(&list)
 		if query.Error != nil {
 			errChan <- query.Error
 		}
@@ -682,11 +812,18 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 	for _, item := range list {
 		configItem := view.RespHistoryConfigItem{
 			ID:              item.ID,
-			UID:             uint(uid),
+			UID:             item.UID,
+			AccessTokenID:   item.AccessTokenID,
 			ConfigurationID: item.ConfigurationID,
 			Version:         item.Version,
 			CreatedAt:       item.CreatedAt,
 			ChangeLog:       item.ChangeLog,
+		}
+
+		configItem.UID = item.UID
+
+		if item.AccessToken != nil {
+			configItem.AccessTokenName = item.AccessToken.Name
 		}
 
 		if item.User != nil {
@@ -703,17 +840,17 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 }
 
 // Diff ..
-func Diff(id uint) (resp view.RespDiffConfig, err error) {
+func Diff(configID, historyID uint) (resp view.RespDiffConfig, err error) {
 	modifiedConfig := db.ConfigurationHistory{}
 	err = mysql.Preload("Configuration").Preload("User").
-		Where("id = ?", id).First(&modifiedConfig).Error
+		Where("id = ?", historyID).First(&modifiedConfig).Error
 	if err != nil {
 		return
 	}
 
 	originConfig := db.ConfigurationHistory{}
 	err = mysql.Preload("Configuration").Preload("User").
-		Where("id < ?", id).Order("id desc").First(&originConfig).Error
+		Where("id < ? and configuration_id = ?", historyID, configID).Order("id desc").First(&originConfig).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			resp.Origin = nil

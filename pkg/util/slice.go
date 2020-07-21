@@ -1,5 +1,7 @@
 package util
 
+import "reflect"
+
 func Diff(a map[string]interface{}, b map[string]interface{}) map[string]interface{} {
 	res := make(map[string]interface{}, 0)
 	for name, id := range a {
@@ -8,4 +10,32 @@ func Diff(a map[string]interface{}, b map[string]interface{}) map[string]interfa
 		}
 	}
 	return res
+}
+
+//DiffList 求 source 和 dest 的 交/差集
+//此函数效率较低(O(n^2))，请在列表长度较小时使用
+func DiffList(source, dest interface{}, cmp func(a, b interface{}) bool) (res []interface{}) {
+	if reflect.TypeOf(source).Kind() != reflect.Array && reflect.TypeOf(source).Kind() != reflect.Slice {
+		return
+	}
+
+	lenA := reflect.ValueOf(source).Len()
+	lenB := reflect.ValueOf(dest).Len()
+	valA := reflect.ValueOf(source)
+	valB := reflect.ValueOf(dest)
+
+	for i := 0; i < lenA; i++ {
+		exist := false
+		for j := 0; j < lenB; j++ {
+			if cmp(valA.Index(i).Interface(), valB.Index(j).Interface()) {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			res = append(res, valA.Index(i).Interface())
+		}
+	}
+
+	return
 }
