@@ -17,6 +17,11 @@ func List(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
 
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+
 	list, err := confgov2.List(param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -29,6 +34,11 @@ func List(c echo.Context) (err error) {
 func Detail(c echo.Context) (err error) {
 	param := view.ReqDetailConfig{}
 	err = c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+
+	err = c.Validate(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
@@ -70,6 +80,11 @@ func Update(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+
 	err = confgov2.Update(c, param)
 	if err != nil {
 		if err == errorconst.ParamConfigNotExists.Error() {
@@ -106,6 +121,11 @@ func History(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+
 	history, err := confgov2.History(param, user.GetUser(c).Uid)
 	if err != nil {
 		if err == errorconst.ParamConfigNotExists.Error() {
@@ -138,6 +158,12 @@ func Delete(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
+
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+
 	err = confgov2.Delete(param.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
@@ -150,6 +176,11 @@ func Delete(c echo.Context) (err error) {
 func InstanceList(c echo.Context) (err error) {
 	param := view.ReqConfigInstanceList{}
 	err = c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+
+	err = c.Validate(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
