@@ -3,6 +3,7 @@ import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import React from "react";
 import {reqInfo,reqUpdate} from "@/pages/resource/app/service";
 import CommonForm from "./form"
+import {stringify} from "qs";
 
 export default class Base extends React.Component {
   state = {
@@ -24,6 +25,7 @@ export default class Base extends React.Component {
     });
 
   }
+
   render() {
     const { data,aid } = this.state;
     return (
