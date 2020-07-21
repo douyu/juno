@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/resource"
@@ -9,8 +10,8 @@ import (
 )
 
 // 统计信息
-func Index(c echo.Context) error {
-	return output.JSON(c, output.MsgOk, "success", map[string]interface{}{
+func Index(c *core.Context) error {
+	return c.OutputJSON(output.MsgOk, "success", map[string]interface{}{
 		"app_cnt":    resource.Resource.GetAppCnt(),
 		"region_cnt": resource.Resource.GetRegionCnt(),
 		"zone_cnt":   resource.Resource.GetZoneCnt(),

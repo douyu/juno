@@ -21,6 +21,7 @@ import (
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 )
@@ -77,7 +78,7 @@ func apiV1(server *xecho.Server) {
 
 	analysisGroup := v1.Group("/analysis")
 	{
-		analysisGroup.GET("/index", analysis.Index)
+		analysisGroup.GET("/index", core.Handle(analysis.Index))
 		analysisGroup.GET("/topology/select", analysis.TopologySelect)
 		analysisGroup.GET("/topology/list", analysis.TopologyList)
 		analysisGroup.GET("/topology/relationship", analysis.TopologyRelationship)

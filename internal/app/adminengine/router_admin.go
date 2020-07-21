@@ -16,6 +16,7 @@ package adminengine
 
 import (
 	"github.com/douyu/juno/api/apiv1/openauth"
+	"github.com/douyu/juno/internal/app/core"
 	"net/http"
 	"strings"
 
@@ -104,7 +105,7 @@ func apiAdmin(server *xecho.Server) {
 		// public
 		publicGroup.GET("/system/config", system.Config)
 		publicGroup.GET("/user/logout", user.Logout, loginAuthWithJSON)
-		publicGroup.GET("/user/info", user.Info, loginAuthWithJSON)
+		publicGroup.GET("/user/info", core.Handle(user.Info), loginAuthWithJSON)
 	}
 
 	userGroup := g.Group("/user")
@@ -194,7 +195,7 @@ func apiAdmin(server *xecho.Server) {
 
 	analysisGroup := g.Group("/analysis", loginAuthWithJSON)
 	{
-		analysisGroup.GET("/index", analysis.Index)
+		analysisGroup.GET("/index", core.Handle(analysis.Index))
 		analysisGroup.GET("/topology/select", analysis.TopologySelect)
 		analysisGroup.GET("/topology/list", analysis.TopologyList)
 		analysisGroup.GET("/topology/relationship", analysis.TopologyRelationship)
