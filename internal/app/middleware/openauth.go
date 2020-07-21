@@ -23,6 +23,7 @@ type OpenAuthCommonPayload struct {
 func OpenAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		bodyContent, _ := ioutil.ReadAll(c.Request().Body)
+		c.Request().Body = ioutil.NopCloser(bytes.NewReader(bodyContent))
 		authParam := OpenAuthCommonPayload{}
 
 		err := c.Bind(&authParam)
