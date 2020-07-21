@@ -5,8 +5,11 @@ import {Button, Modal, Table} from "antd";
 const historyTableColumns = [
   {
     key: 'user',
-    dataIndex: 'user_name',
-    title: '操作用户'
+    // dataIndex: 'user_name',
+    title: '操作用户',
+    render(row) {
+      return row.user_name || row.access_token_name || '---'
+    }
   },
   {
     key: 'change_log',

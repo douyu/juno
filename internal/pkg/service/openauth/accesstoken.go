@@ -7,6 +7,7 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/jinzhu/gorm"
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"github.com/labstack/gommon/random"
 	"golang.org/x/sync/errgroup"
@@ -165,4 +166,9 @@ func (o *openAuthService) GetAccessTokenByAppID(appId string) (accessToken db.Ac
 	}
 
 	return
+}
+
+func OpenAuthAccessToken(c echo.Context) (bool, db.AccessToken) {
+	openAuthInfo, ok := c.Get("OpenAuthAccessToken").(db.AccessToken)
+	return ok, openAuthInfo
 }
