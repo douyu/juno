@@ -204,7 +204,7 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	} else {
 		u := user.GetUser(c)
 		if u != nil {
-			history.ID = uint(u.Uid)
+			history.UID = uint(u.Uid)
 		} else {
 			err = fmt.Errorf("无法获取授权对象信息")
 			return err
