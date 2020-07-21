@@ -3,8 +3,8 @@
   mode = "multiple" # single without proxy, multiple with proxy
 
 [configure]
-  dirs = ["/home/www/.config/minerva-agent"]
-  prefixes = ["minerva-agent"]
+  dirs = ["/tmp/www/server", "/tmp/www/.config"]
+  prefixes = ["juno-agent", "jupiter-agent"]
 
   [configure.agent]
     port = 50010
@@ -63,21 +63,21 @@
 
 #################################### Proxy ##############################
 [[clientProxy.multiProxy]]
-  env = "pre"
-  zoneCode="HB-WHYL"
+  env = "dev"
+  zoneCode="guanggu"
 
   [clientProxy.multiProxy.stream]
     enable = true
-    proxyAddr = ["10.1.61.175:55671"]
+    proxyAddr = ["127.0.0.1:50001"]
 
   [clientProxy.multiProxy.etcd]
     enable = true
-    endpoints = ["10.1.61.175:52379"]
+    endpoints = ["127.0.0.1:5239"]
     timeout = "3s"
 
   [clientProxy.multiProxy.http]
     enable = true
-    listenAddr = "10.1.61.175:55672"
+    listenAddr = "127.0.0.1:50000"
     disableKeepAlives = true
     maxIdelPerHost = 1
     maxIdleConns = 10
