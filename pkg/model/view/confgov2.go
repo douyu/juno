@@ -17,8 +17,8 @@ var (
 type (
 	// ReqListConfig ..
 	ReqListConfig struct {
-		AppName string `query:"app_name"`
-		Env     string `query:"env"`
+		AppName string `query:"app_name" validate:"required"`
+		Env     string `query:"env" validate:"required"`
 	}
 
 	// RespListConfig ..
@@ -40,7 +40,7 @@ type (
 
 	// ReqDetailConfig ..
 	ReqDetailConfig struct {
-		ID uint `json:"id"`
+		ID uint `json:"id" validate:"required"`
 	}
 
 	// RespDetailConfig Contains configuration content
@@ -68,21 +68,21 @@ type (
 
 	// ReqUpdateConfig ..
 	ReqUpdateConfig struct {
-		ID      uint   `json:"id"`
-		Message string `json:"message" valid:"required"`
-		Content string `json:"content"`
+		ID      uint   `json:"id" validate:"required"`
+		Message string `json:"message" validate:"required"`
+		Content string `json:"content" validate:"required"`
 	}
 
 	// ReqPublishConfig ..
 	ReqPublishConfig struct {
-		ID      uint    `json:"id"`      // 配置ID
-		Version *string `json:"version"` // 版本号
+		ID      uint    `json:"id" validate:"required"`      // 配置ID
+		Version *string `json:"version" validate:"optional"` // 版本号
 	}
 
 	// ReqHistoryConfig ..
 	ReqHistoryConfig struct {
-		ID   uint `json:"id"` // 配置文件ID
-		Size uint `json:"size"`
+		ID   uint `json:"id" validate:"required"` // 配置文件ID
+		Size uint `json:"size" validate:"required"`
 		Page uint `json:"page"`
 	}
 
@@ -107,8 +107,8 @@ type (
 
 	// ReqDiffConfig ..
 	ReqDiffConfig struct {
-		ID        uint `query:"id" valid:"required"`         // 配置ID
-		HistoryID uint `query:"history_id" valid:"required"` // 版本ID
+		ID        uint `query:"id" validate:"required"`         // 配置ID
+		HistoryID uint `query:"history_id" validate:"required"` // 版本ID
 	}
 
 	// RespDiffConfig ..
@@ -119,13 +119,13 @@ type (
 
 	// ReqDeleteConfig ..
 	ReqDeleteConfig struct {
-		ID uint `json:"id"`
+		ID uint `json:"id" validate:"required"`
 	}
 
 	ReqConfigInstanceList struct {
-		ConfigurationID uint   `json:"id" query:"id"`
-		Env             string `json:"env" query:"env"`
-		ZoneCode        string `json:"zone_code"  query:"zone_code"`
+		ConfigurationID uint   `json:"id" query:"id" validate:"required"`
+		Env             string `json:"env" query:"env" validate:"required"`
+		ZoneCode        string `json:"zone_code" query:"zone_code" validate:"required"`
 	}
 
 	RespConfigInstanceList []RespConfigInstanceItem
