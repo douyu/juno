@@ -11,7 +11,9 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/configresource"
+	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/db"
@@ -19,6 +21,7 @@ import (
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
+	"github.com/labstack/echo/v4"
 	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
 )
@@ -93,9 +96,20 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 // Create ..
 func Create(param view.ReqCreateConfig) (resp view.RespDetailConfig, err error) {
 	var app db.AppInfo
+	var appNode db.AppNode
 
+	// 验证应用是否存在
 	err = mysql.Where("app_name = ?", param.AppName).First(&app).Error
 	if err != nil {
+		return
+	}
+
+	// 验证Zone-env是否存在
+	err = mysql.Where("env = ? and zone_code = ?", param.Env, param.Zone).First(&appNode).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = fmt.Errorf("该应用不存在该机房-环境")
+		}
 		return
 	}
 
@@ -156,7 +170,7 @@ func Create(param view.ReqCreateConfig) (resp view.RespDetailConfig, err error) 
 }
 
 // Update ..
-func Update(uid int, param view.ReqUpdateConfig) (err error) {
+func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	configuration := db.Configuration{}
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
 	if err != nil {
@@ -176,11 +190,25 @@ func Update(uid int, param view.ReqUpdateConfig) (err error) {
 	}
 
 	history := db.ConfigurationHistory{
-		UID:             uint(uid),
 		ConfigurationID: configuration.ID,
 		ChangeLog:       param.Message,
 		Content:         param.Content,
 		Version:         version,
+	}
+
+	// 授权对象
+	ok, accessToken := openauth.OpenAuthAccessToken(c)
+	if ok {
+		// 获取Open Auth信息
+		history.AccessTokenID = accessToken.ID
+	} else {
+		u := user.GetUser(c)
+		if u != nil {
+			history.ID = uint(u.Uid)
+		} else {
+			err = fmt.Errorf("无法获取授权对象信息")
+			return err
+		}
 	}
 
 	// 配置/资源 关联关系
@@ -749,7 +777,8 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 		defer wg.Done()
 
 		offset := param.Size * param.Page
-		query := query.Preload("User").Limit(param.Size).Offset(offset).Order("id desc").Find(&list)
+		query := query.Preload("AccessToken").
+			Preload("User").Limit(param.Size).Offset(offset).Order("id desc").Find(&list)
 		if query.Error != nil {
 			errChan <- query.Error
 		}
@@ -783,11 +812,18 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 	for _, item := range list {
 		configItem := view.RespHistoryConfigItem{
 			ID:              item.ID,
-			UID:             uint(uid),
+			UID:             item.UID,
+			AccessTokenID:   item.AccessTokenID,
 			ConfigurationID: item.ConfigurationID,
 			Version:         item.Version,
 			CreatedAt:       item.CreatedAt,
 			ChangeLog:       item.ChangeLog,
+		}
+
+		configItem.UID = item.UID
+
+		if item.AccessToken != nil {
+			configItem.AccessTokenName = item.AccessToken.Name
 		}
 
 		if item.User != nil {

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"encoding/gob"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
+	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/labstack/echo/v4"
 )
@@ -21,6 +23,8 @@ type OpenAuthCommonPayload struct {
 }
 
 func OpenAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	gob.Register(db.AccessToken{})
+
 	return func(c echo.Context) error {
 		bodyContent, _ := ioutil.ReadAll(c.Request().Body)
 		c.Request().Body = ioutil.NopCloser(bytes.NewReader(bodyContent))
@@ -49,6 +53,7 @@ func OpenAuth(next echo.HandlerFunc) echo.HandlerFunc {
 			return output.JSON(c, output.MsgOpenAuthFailed, err.Error(), nil)
 		}
 
+		c.Set("OpenAuthAccessToken", token)
 		return next(c)
 	}
 }
