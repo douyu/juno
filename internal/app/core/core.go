@@ -1,8 +1,9 @@
 package core
 
 import (
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 // JSONResult json
@@ -23,7 +24,8 @@ type HandlerFunc func(c *Context) error
 func Handle(next HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := &Context{
-			c,
+			Context: c,
+			status:  http.StatusOK,
 		}
 		return next(ctx)
 	}
@@ -31,6 +33,12 @@ func Handle(next HandlerFunc) echo.HandlerFunc {
 
 type Context struct {
 	echo.Context
+	status int
+}
+
+//SetStatusCode 设置HTTP响应状态码
+func (c *Context) SetStatusCode(status int) {
+	c.status = status
 }
 
 // Output JSON
@@ -44,5 +52,6 @@ func (c *Context) OutputJSON(Code int, message string, data ...interface{}) erro
 	} else {
 		result.Data = ""
 	}
-	return c.JSON(http.StatusOK, result)
+
+	return c.JSON(c.status, result)
 }
