@@ -1,36 +1,39 @@
-package confgo
+package configstatics
 
 import (
-	"time"
-
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
-	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/labstack/echo/v4"
+	"time"
 )
 
-// ConfigStatics ..
-func ConfigStatics(c echo.Context) error {
+// Statics ..
+func Statics(c echo.Context) error {
 	end := time.Now().Unix()
 	start := end - 86400*30
-	envCnt, cmcCnt, total, err := confgo.ConfuSrv.GetCmcStat(start, end)
+	envCnt, total, err := confgov2.StatisticsEnv()
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	cmcCnt, total, err := confgov2.StatisticsCommit(start, end)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 	resp := RespStatics{
-		EnvCnt: make([]ConfigStaticsInfo, 0),
-		CmcCnt: make([]ConfigStaticsInfo, 0),
+		EnvCnt: make([]Info, 0),
+		CmcCnt: make([]Info, 0),
 		Total:  total,
 	}
 
 	for _, v := range envCnt {
-		item := ConfigStaticsInfo{
+		item := Info{
 			Name:  v.Env,
 			Value: v.Cnt,
 		}
 		resp.EnvCnt = append(resp.EnvCnt, item)
 	}
 	for _, v := range cmcCnt {
-		item := ConfigStaticsInfo{
+		item := Info{
 			Name:  v.DayTime,
 			Value: v.Cnt,
 		}

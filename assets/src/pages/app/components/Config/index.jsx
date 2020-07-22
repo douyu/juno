@@ -12,7 +12,7 @@ function ConfigEdit(props) {
 
   useEffect(() => {
     if (!appName) return
-
+    if (!env) return
     // load config-file list
     props.dispatch({
       type: 'config/loadConfigInfo',

@@ -3,7 +3,7 @@ import { Divider, Tag } from 'antd';
 
 export default class ConfgoEventView extends React.Component {
   render() {
-    const { source, operation, metadata, user_name, app_name, env ,zone_code} = this.props.data;
+    const { source, operation, metadata, user_name, app_name, env, zone_code } = this.props.data;
     const { users = [], file_name } = JSON.parse(metadata);
     let doSome = '';
     if (operation === 'confgo_file_create') {
@@ -48,9 +48,8 @@ export default class ConfgoEventView extends React.Component {
 
     return (
       <div style={{ lineHeight: '30px' }}>
-        应用 <Tag>{app_name}</Tag> 环境 <Tag>{env}</Tag>区域 <Tag>{zone_code}</Tag> 由{' '}
-        <Tag>{user_name}</Tag> 对配置文件 <Tag>{file_name}</Tag> 进行了{' '}
-        <Tag color="blue">{doSome}</Tag>
+        <Tag>{user_name}</Tag>对应用 <Tag>{app_name}</Tag> 在 <Tag>{env}</Tag>{' '}
+        <Tag>{zone_code}</Tag>进行了 <Tag color="blue">{doSome}</Tag>
       </div>
     );
   }
@@ -61,7 +60,7 @@ export default class ConfgoEventView extends React.Component {
 
     return (
       <div style={{ lineHeight: '30px' }}>
-        应用 <Tag>{app_name}</Tag> 在 <Tag>{data.region_name}</Tag>区域 <Tag>{zone_code}</Tag>{' '}
+        应用 <Tag>{app_name}</Tag> 在 <Tag>{data.region_name}</Tag>区域 <Tag>{zone_code}</Tag>
         机房的节点 <Tag>{data.ip}</Tag> 被创建了
       </div>
     );
