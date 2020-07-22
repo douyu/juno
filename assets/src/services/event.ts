@@ -14,5 +14,5 @@ export async function ServiceNodeStatistics() {
 }
 
 export async function ServiceCmcStatistics() {
-  return request(`/api/admin/confgo/config/statics`);
+  return request(`/api/admin/confgov2/config/statics`);
 }

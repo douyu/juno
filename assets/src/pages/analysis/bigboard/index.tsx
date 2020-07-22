@@ -16,7 +16,6 @@ export default class BigBoard extends React.PureComponent {
   }
 
   componentDidMount() {
-    console.log('>>>>> props', this.props);
     this.GetStatistics();
     this.GetNodeStatistics();
     this.GetCmcStatistics();
@@ -304,7 +303,7 @@ export default class BigBoard extends React.PureComponent {
               </Card>
             </Col>
             <Col span={12}>
-              <Card title={'配置文件新增趋势'}>
+              <Card title={'配置文件提交趋势'}>
                 <ReactEcharts
                   option={this.getOption(cmc_cnt)}
                   notMerge={true}

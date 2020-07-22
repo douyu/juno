@@ -249,7 +249,7 @@ func (a *appEvent) ConfgoItemDeleteEvent(aid int, appName, zoneCode, env, metaDa
 	a.PutEvent(appEvent)
 }
 
-func (a *appEvent) ConfgoFilePublishEvent(aid int, appName, zoneCode, env, metaData string, user *db.User) {
+func (a *appEvent) ConfgoFilePublishEvent(aid int, appName, env, zoneCode, metaData string, user *db.User) {
 	// app事件
 	appEvent := db.AppEvent{
 		ZoneCode:  zoneCode,
