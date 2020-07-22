@@ -15,6 +15,7 @@
 package adminengine
 
 import (
+	configstatics "github.com/douyu/juno/api/apiv1/confgov2/configstatistics"
 	"github.com/douyu/juno/api/apiv1/openauth"
 	"github.com/douyu/juno/internal/app/core"
 	"net/http"
@@ -121,8 +122,6 @@ func apiAdmin(server *xecho.Server) {
 
 	confgoGroup := g.Group("/confgo", loginAuthWithJSON)
 	{
-		confgoGroup.GET("/config/statics", confgo.ConfigStatics)
-
 		confgoGroup.GET("/tpl/list", confgo.TplList)
 		confgoGroup.GET("/tpl/info", confgo.TplInfo)
 		confgoGroup.POST("/tpl/create", confgo.TplCreate)
@@ -147,6 +146,8 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)            // 配置删除
 		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                  // 配置文件Diif，返回两个版本的配置内容
 		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW) // 配置文件Diif，返回两个版本的配置内容
+
+		configV2G.GET("/config/statics", configstatics.Statics)
 
 		resourceG := configV2G.Group("/resource")
 		resourceG.GET("/list", configresource.List)
