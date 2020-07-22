@@ -61,6 +61,8 @@ func apiV1(server *xecho.Server) {
 		// 根据应用的id或者应用名称，获取节点列表
 		// 根据节点的hostname，获取应用列表
 		resourceGroup.GET("/app_node/list", resource.AppNodeList)
+
+		resourceGroup.GET("/app_env_zone/list", resource.AppEnvZoneList)
 	}
 
 	configurationGroup := v1.Group("/confgo")

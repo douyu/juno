@@ -3,8 +3,9 @@ package clientproxy
 import (
 	"context"
 	"fmt"
-	"go.etcd.io/etcd/clientv3"
 	"time"
+
+	"go.etcd.io/etcd/clientv3"
 )
 
 type EtcdClient struct {
@@ -25,7 +26,7 @@ func (e *EtcdClient) Put(ctx context.Context, key, val string, opts ...clientv3.
 		err = fmt.Errorf("this key is invalid, key %s", key)
 		return
 	}
-	resp, err = e.conn.Put(ctx, key, val)
+	resp, err = e.conn.Put(ctx, key, val, opts...)
 	return
 }
 
@@ -33,7 +34,7 @@ func (e *EtcdClient) Get(ctx context.Context, key string, opts ...clientv3.OpOpt
 	if !whiteKey(key) {
 		return nil, fmt.Errorf("this key is invalid, key %s", key)
 	}
-	return e.conn.Get(ctx, key)
+	return e.conn.Get(ctx, key, opts...)
 }
 
 func whiteKey(key string) bool {

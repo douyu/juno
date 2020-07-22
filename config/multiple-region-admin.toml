@@ -72,7 +72,7 @@
 
   [clientProxy.multiProxy.etcd]
     enable = true
-    endpoints = ["127.0.0.1:5239"]
+    endpoints = ["127.0.0.1:52379"]
     timeout = "3s"
 
   [clientProxy.multiProxy.http]
