@@ -1,16 +1,16 @@
 package core
 
 import (
-	"net/http"
-
 	"github.com/labstack/echo/v4"
 )
 
 // JSONResult json
 type JSONResult struct {
+	Status int `json:"-"`
+
 	Code    int         `json:"code"`
 	Message string      `json:"msg"`
-	Data    interface{} `json:"data"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 // Pagination
@@ -21,11 +21,12 @@ type Pagination struct {
 
 type HandlerFunc func(c *Context) error
 
+type JSONOption func(res *JSONResult)
+
 func Handle(next HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := &Context{
 			Context: c,
-			status:  http.StatusOK,
 		}
 		return next(ctx)
 	}
@@ -33,25 +34,34 @@ func Handle(next HandlerFunc) echo.HandlerFunc {
 
 type Context struct {
 	echo.Context
-	status int
-}
-
-//SetStatusCode 设置HTTP响应状态码
-func (c *Context) SetStatusCode(status int) {
-	c.status = status
 }
 
 // Output JSON
-func (c *Context) OutputJSON(Code int, message string, data ...interface{}) error {
+//
+// Example:
+// 		c.OutputJSON(0, "success", WithStatusCode(http.StatusOK), WithData("hello,world"))
+func (c *Context) OutputJSON(Code int, message string, options ...JSONOption) error {
 	result := new(JSONResult)
 	result.Code = Code
 	result.Message = message
 
-	if len(data) > 0 {
-		result.Data = data[0]
-	} else {
-		result.Data = ""
+	for _, opt := range options {
+		opt(result)
 	}
 
-	return c.JSON(c.status, result)
+	return c.JSON(result.Status, result)
+}
+
+//WithStatusCode set http status code
+func WithStatusCode(status int) JSONOption {
+	return func(res *JSONResult) {
+		res.Status = status
+	}
+}
+
+//WithData set "data" field
+func WithData(data interface{}) JSONOption {
+	return func(res *JSONResult) {
+		res.Data = data
+	}
 }
