@@ -153,7 +153,7 @@ func Diff(c echo.Context) (err error) {
 
 // Delete ..
 func Delete(c echo.Context) (err error) {
-	param := view.ReqDiffConfig{}
+	param := view.ReqDeleteConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
