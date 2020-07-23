@@ -39,7 +39,7 @@ type Context struct {
 // Output JSON
 //
 // Example:
-// 		c.OutputJSON(0, "success", WithStatusCode(http.StatusOK), WithData("hello,world"))
+// 		c.OutputJSON(0, "success", c.WithStatusCode(http.StatusOK), c.WithData("hello,world"))
 func (c *Context) OutputJSON(Code int, message string, options ...JSONOption) error {
 	result := new(JSONResult)
 	result.Code = Code
@@ -53,14 +53,14 @@ func (c *Context) OutputJSON(Code int, message string, options ...JSONOption) er
 }
 
 //WithStatusCode set http status code
-func WithStatusCode(status int) JSONOption {
+func (c *Context) WithStatusCode(status int) JSONOption {
 	return func(res *JSONResult) {
 		res.Status = status
 	}
 }
 
 //WithData set "data" field
-func WithData(data interface{}) JSONOption {
+func (c *Context) WithData(data interface{}) JSONOption {
 	return func(res *JSONResult) {
 		res.Data = data
 	}
