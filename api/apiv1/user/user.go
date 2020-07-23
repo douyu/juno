@@ -115,7 +115,7 @@ func Info(c *core.Context) error {
 	if !u.IsLogin() {
 		return c.OutputJSON(output.MsgErr, "err")
 	}
-	return c.OutputJSON(output.MsgOk, "", core.WithData(u))
+	return c.OutputJSON(output.MsgOk, "", c.WithData(u))
 }
 
 type login struct {
