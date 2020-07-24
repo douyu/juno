@@ -113,8 +113,9 @@ function ModalEditGateway(props) {
   }
 
   useEffect(() => {
-    form.setFieldsValue({
-      headers: props.fields.headers
+    props.visible && form.setFieldsValue({
+      ...props.fields,
+      headers: props.fields.headers || []
     })
   }, [props.visible])
 
@@ -285,7 +286,7 @@ class GatewaySetting extends React.Component {
   onDelete = (index) => {
     console.log(index)
     let gatewayValue = this.props.settings.gateway || [];
-    gatewayValue = gatewayValue.splice(index + 1, 1)
+    gatewayValue.splice(index, 1)
     this.props.dispatch({
       type: 'setting/saveSetting',
       payload: {
@@ -331,6 +332,15 @@ class GatewaySetting extends React.Component {
         name: 'gateway',
         content: JSON.stringify(settingValue)
       }
+    }).then(r => {
+      if (r.code === 0) {
+        this.setState({
+          modalEditGateway: false
+        })
+      }
+      this.props.dispatch({
+        type: 'setting/loadSettings'
+      })
     })
   }
 
@@ -339,6 +349,7 @@ class GatewaySetting extends React.Component {
 
     return <SettingBlock title={"网关设置"}>
       <Table
+        pagination={false}
         columns={[
           ...GatewayConfigColumns,
           {
