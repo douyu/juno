@@ -11,13 +11,15 @@ import (
 
 // 统计信息
 func Index(c *core.Context) error {
-	return c.OutputJSON(output.MsgOk, "success", map[string]interface{}{
-		"app_cnt":    resource.Resource.GetAppCnt(),
-		"region_cnt": resource.Resource.GetRegionCnt(),
-		"zone_cnt":   resource.Resource.GetZoneCnt(),
-		"env_cnt":    resource.Resource.GetEnvCnt(),
-		"node_cnt":   resource.Resource.GetNodeCnt(),
-	})
+	return c.OutputJSON(output.MsgOk, "success",
+		c.WithData(map[string]interface{}{
+			"app_cnt":    resource.Resource.GetAppCnt(),
+			"region_cnt": resource.Resource.GetRegionCnt(),
+			"zone_cnt":   resource.Resource.GetZoneCnt(),
+			"env_cnt":    resource.Resource.GetEnvCnt(),
+			"node_cnt":   resource.Resource.GetNodeCnt(),
+		}),
+	)
 }
 
 // 看板拓扑
