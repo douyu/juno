@@ -15,8 +15,9 @@
 package cfg
 
 import (
-	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type Auth struct {
@@ -182,6 +183,11 @@ type Configure struct {
 	Agent    struct {
 		Port int `json:"port"`
 	} `json:"agent"`
+}
+
+type Agent struct {
+	Port   int    `toml:"port"`
+	Secret string `toml:"secret"`
 }
 
 // Casbin ..

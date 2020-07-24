@@ -145,7 +145,7 @@ function Publish(props: any) {
                   key={index}
                   onClick={() => {
                     setCurrentInstance(item);
-                    showEditorMaskLayer(true, <InstanceDetail/>);
+                    showEditorMaskLayer(true, <InstanceDetail config={configFile}/>);
                   }}
                 >
                   <div className={styles.instanceInfo}>

@@ -51,7 +51,7 @@
     port = 50008
 
 [serverProxy.heartbeat]
-    enable = true
+    enable = false
     debug = true
     addr = "stream"
     internal = "120s"
@@ -73,7 +73,7 @@
       cacert = ""
 
 [serverProxy.prometheus]
-    enable = true
+    enable = false
     listenAddr = "127.0.0.1:59090"
     backend = "127.0.0.1:9090"
     disableKeepAlives = true
