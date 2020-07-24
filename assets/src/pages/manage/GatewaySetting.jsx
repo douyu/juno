@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import SettingBlock from "@/pages/manage/SettingBlock";
 import {connect} from 'dva';
-import {Button, Form, Input, InputNumber, Modal, Popconfirm, Radio, Table} from 'antd';
+import {Button, Form, Input, InputNumber, Modal, Popconfirm, Radio, Table, message} from 'antd';
 import {DeleteFilled, EditFilled, FileAddFilled} from '@ant-design/icons';
 import PlusOutlined from "@ant-design/icons/lib/icons/PlusOutlined";
 
@@ -318,9 +318,10 @@ class GatewaySetting extends React.Component {
   onUpdateGateway = (fields) => {
     console.log("updateGateway", fields)
     let index = this.state.currentEditIndex
-    let settingValue = this.props.setting.gateway || []
-    if (index <= settingValue.length) {
+    let settingValue = this.props.settings.gateway || []
+    if (index >= settingValue.length) {
       message.error("保存出错，请刷新界面重试")
+      return
     }
 
     settingValue[index] = fields
