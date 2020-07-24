@@ -56,7 +56,11 @@ const defaultState = {
   resourceCheckLoading: false,
 
   // 当前选择的实例
-  currentInstance: null
+  currentInstance: null,
+  // 当前实例实时配置内容
+  instanceConfigContent: [],
+  instanceConfigContentLoading: false,
+  visibleModalRealtimeConfig: false
 }
 
 export default {

@@ -1,6 +1,6 @@
 import {
   createConfig,
-  deleteConfig,
+  deleteConfig, fetchInstanceConfig,
   loadConfigDetail,
   loadConfigDiff,
   loadConfigs,
@@ -338,4 +338,42 @@ export default {
       },
     });
   },
+
+  * fetchInstanceConfig({payload}, {call, put}) {
+    const {id, hostName} = payload
+
+    yield put({
+      type: '_apply',
+      payload: {
+        instanceConfigContentLoading: true,
+        visibleModalRealtimeConfig: true
+      }
+    })
+
+    const res = yield call(fetchInstanceConfig, id, hostName)
+    if (res.code === 14000) return
+    if (res.code !== 0) {
+      message.error(res.msg)
+      return res
+    }
+
+    yield put({
+      type: '_apply',
+      payload: {
+        instanceConfigContentLoading: false,
+        instanceConfigContent: res.data,
+      }
+    })
+
+    return res
+  },
+
+  * showModalInstanceConfig({payload}, {call, put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        visibleModalRealtimeConfig: payload
+      }
+    })
+  }
 };
