@@ -1,5 +1,5 @@
 import { stringify } from 'qs';
-import request from "@/utils/request";
+import request from '@/utils/request';
 
 export async function ServiceConfigItemCheck(body: any) {
   const { id, caid, key, value, comment, resource_id, is_public } = body;
@@ -9,7 +9,13 @@ export async function ServiceConfigItemCheck(body: any) {
   });
 }
 
-
 export async function ServiceConfigItemList(param: any) {
   return request(`/api/admin/confgo/item/list?${stringify(param)}`);
+}
+
+export async function ServiceAppAction(body: any) {
+  return request(`/api/admin/confgov2/app/action`, {
+    method: 'POST',
+    data: body,
+  });
 }

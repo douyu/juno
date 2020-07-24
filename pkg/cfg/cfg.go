@@ -49,6 +49,7 @@ type cfg struct {
 	Pprof             Pprof
 	Register          Register
 	Logger            Logger
+	Assist            Assist
 }
 
 // DefaultConfig ...
@@ -196,6 +197,12 @@ func defaultConfig() cfg {
 			AutoLoad:         false,
 			AutoLoadInternal: 0,
 			ResourceFile:     "./config/resource.yaml",
+		},
+		Assist: Assist{
+			Action{
+				Enable: false,
+				URL:    "",
+			},
 		},
 	}
 }

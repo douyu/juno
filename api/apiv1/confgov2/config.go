@@ -1,7 +1,11 @@
 package confgov2
 
 import (
+	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/jupiter/pkg/xlog"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
+	"github.com/douyu/juno/internal/pkg/service/assist"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -191,4 +195,29 @@ func InstanceList(c echo.Context) (err error) {
 	}
 
 	return output.JSON(c, output.MsgOk, "success", resp)
+}
+
+// AppAction ..
+func AppAction(c echo.Context) (err error) {
+	param := view.ReqAppAction{}
+	err = c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+	xlog.Debug("AppAction", xlog.String("setp", "begin"), xlog.Any("param", param), xlog.String("url", cfg.Cfg.Assist.Action.URL))
+	resp, err := assist.Action(view.AppAction{
+		Action:   param.Action,
+		AppName:  param.AppName,
+		NodeName: param.NodeName,
+		Typ:      param.Typ,
+	})
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+
+	return output.JSON(c, resp.Code, resp.Msg, resp.Data)
 }

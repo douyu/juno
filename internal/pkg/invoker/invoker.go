@@ -15,9 +15,10 @@
 package invoker
 
 import (
+	"time"
+
 	"github.com/douyu/jupiter/pkg/util/xtime"
 	"github.com/go-resty/resty/v2"
-	"time"
 
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/store/gorm"
@@ -29,7 +30,7 @@ var (
 	JunoMysql *gorm.DB
 	// ConfgoEtcd for configuration
 	ConfgoEtcd *clientv3.Client
-	// Resty
+	// Resty ..
 	Resty *resty.Client
 )
 

@@ -15,11 +15,12 @@
 package adminengine
 
 import (
+	"net/http"
+	"strings"
+
 	configstatics "github.com/douyu/juno/api/apiv1/confgov2/configstatistics"
 	"github.com/douyu/juno/api/apiv1/openauth"
 	"github.com/douyu/juno/internal/app/core"
-	"net/http"
-	"strings"
 
 	"github.com/douyu/juno/api/apiv1/permission"
 	"github.com/douyu/juno/internal/pkg/service/casbin"
@@ -147,7 +148,8 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                  // 配置文件Diif，返回两个版本的配置内容
 		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW) // 配置文件Diif，返回两个版本的配置内容
 
-		configV2G.GET("/config/statics", configstatics.Statics)
+		configV2G.GET("/config/statics", configstatics.Statics, configReadQueryMW)
+		configV2G.POST("/app/action", confgov2.AppAction, configWriteBodyMW)
 
 		resourceG := configV2G.Group("/resource")
 		resourceG.GET("/list", configresource.List)
