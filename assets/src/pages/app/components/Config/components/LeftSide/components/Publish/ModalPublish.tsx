@@ -35,7 +35,6 @@ function ModalPublish(props: ModalPublishProps) {
         message.error("请选择版本")
         return
       }
-
       props.onSubmit(selectedVersion)
     }}
   >
@@ -59,9 +58,9 @@ function ModalPublish(props: ModalPublishProps) {
 }
 
 const mapStateToProps = ({config}: any) => {
-  console.log('mapStateToProps -> config', config);
   return {
     aid: config.aid,
+    appName: config.appName,
     env: config.env,
     configList: config.configList,
     configInstanceList: config.configInstanceList,

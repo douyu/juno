@@ -7,6 +7,10 @@ const (
 	ConfigFormatToml = "toml"
 	// ConfigFormatYaml ..
 	ConfigFormatYaml = "yaml"
+
+	// ConfigureUsedType ..
+	ConfigureUsedTypeSupervisor = 1
+	ConfigureUsedTypeSystemd    = 2
 )
 
 var (
@@ -128,6 +132,21 @@ type (
 		ZoneCode        string `json:"zone_code" query:"zone_code" validate:"required"`
 	}
 
+	ReqAppAction struct {
+		Action   string `json:"action" query:"action" validate:"required"`
+		Typ      uint   `json:"typ" query:"typ" validate:"required"`
+		NodeName string `json:"node_name" query:"node_name" validate:"required"`
+		AppName  string `json:"app_name" query:"app_name" validate:"required"`
+		ZoneCode string `json:"zone_code" query:"zone_code" validate:"required"`
+		Env      string `json:"env" query:"env" validate:"required"`
+	}
+
+	RespAppAction struct {
+		Code int         `json:"code"`
+		Msg  string      `json:"msg"`
+		Data interface{} `json:"data"`
+	}
+
 	RespConfigInstanceList []RespConfigInstanceItem
 
 	// RespConfigInstanceItem ..
@@ -205,6 +224,25 @@ type (
 	// UsedStatusResp ..
 	UsedStatusResp struct {
 		IsUsed int `json:"is_used"`
+	}
+
+	// EnvStatic ..
+	EnvStatic struct {
+		Env string `json:"env"`
+		Cnt int    `json:"cnt"`
+	}
+
+	// CmcCnt ..
+	CmcCnt struct {
+		DayTime string `json:"day_time" gorm:"day_time"`
+		Cnt     int    `gorm:"cnt" json:"cnt"`
+	}
+
+	AppAction struct {
+		Action   string `json:"action" query:"action"`
+		AppName  string `json:"app_name" query:"app_name"`
+		NodeName string `json:"node_name" query:"node_name"`
+		Typ      uint   `json:"typ" query:"typ"`
 	}
 )
 

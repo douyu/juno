@@ -39,6 +39,8 @@ const (
 	ConfigResourceValueNotExist myErrorConst = 10006
 	// CannotFindClientHTTP ..
 	CannotFindClientHTTP myErrorConst = 10007
+
+	AppActionFailed myErrorConst = 10008
 )
 
 // errNameMap 错误名称映射map，维护错误码的同时需维护此map
@@ -51,6 +53,7 @@ var errNameMap = map[myErrorConst]string{
 	ParamConfigCallbackKvIsZero: "配置发布同步状态回调数据为空",
 	JunoAgentQueryOverSize:      "请求的Agent超过400的数量限制",
 	ConfigResourceValueNotExist: "配置资源对应值不存在",
+	AppActionFailed:             "服务操作失败",
 }
 
 // Code 返回codes.Code类型

@@ -504,10 +504,10 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 		return 0
 	}
 	if configurationUsedStatus.Data.Supervisor {
-		return 1
+		return view.ConfigureUsedTypeSupervisor
 	}
 	if configurationUsedStatus.Data.Systemd {
-		return 2
+		return view.ConfigureUsedTypeSystemd
 	}
 	return 0
 }
