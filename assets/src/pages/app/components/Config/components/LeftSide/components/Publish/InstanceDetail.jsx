@@ -2,12 +2,14 @@ import React, {useState} from "react";
 import {connect} from "dva";
 import styles from './InstanceDetail.less'
 import {DatabaseOutlined, ReloadOutlined} from '@ant-design/icons'
-import {Button, Tag} from "antd";
+import {Button, Space, Tag} from "antd";
 import ModalRestartInstance
   from "@/pages/app/components/Config/components/LeftSide/components/Publish/ModalRestartInstance";
+import {EyeOutlined} from "@ant-design/icons";
+import ModalRealtimeConfig from "./ModalRealtimeConfig";
 
 function InstanceDetail(props) {
-  const {currentInstance} = props
+  const {currentInstance, dispatch, config} = props
   const [visibleRestartModal, setVisibleRestartModal] = useState(false)
 
   if (!currentInstance) {
@@ -21,7 +23,8 @@ function InstanceDetail(props) {
     config_file_path,
     sync_at,
     version,
-    change_log
+    change_log,
+    host_name
   } = currentInstance
 
   let info = [
@@ -69,7 +72,7 @@ function InstanceDetail(props) {
           {currentInstance.region_name} {currentInstance.zone_name} {currentInstance.ip}
         </div>
         <div style={{marginTop: '10px'}}>
-          <Button.Group>
+          <Space>
             <Button
               size={"small"} type={"primary"} icon={<ReloadOutlined/>}
               onClick={() => {
@@ -79,7 +82,22 @@ function InstanceDetail(props) {
             >
               重启
             </Button>
-          </Button.Group>
+
+            <Button
+              size={"small"} icon={<EyeOutlined/>}
+              onClick={() => {
+                dispatch({
+                  type: 'config/fetchInstanceConfig',
+                  payload: {
+                    id: config.id,
+                    hostName: host_name
+                  }
+                })
+              }}
+            >
+              实时配置
+            </Button>
+          </Space>
         </div>
       </div>
     </div>
@@ -101,12 +119,14 @@ function InstanceDetail(props) {
       onCancel={() => setVisibleRestartModal(false)}
       onOk={() => setVisibleRestartModal(false)}
     />
+
+    <ModalRealtimeConfig/>
   </div>
 }
 
 const mapStateToProps = ({config}) => {
   return {
-    currentInstance: config.currentInstance
+    currentInstance: config.currentInstance,
   }
 }
 

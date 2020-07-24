@@ -45,6 +45,7 @@ type cfg struct {
 	ServerProxy       ServerProxy
 	Database          Database
 	Configure         Configure
+	Agent             Agent
 	Casbin            Casbin
 	Pprof             Pprof
 	Register          Register

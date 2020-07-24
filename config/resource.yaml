@@ -297,6 +297,8 @@ app:
     key: app:read
   - name: 配置查看
     key: config:read
+  - name: 配置实时查看
+    key: config:readInstance
   - name: 配置编辑
     key: config:write
   - name: 监控查看

@@ -6,9 +6,9 @@
   dirs = ["/tmp/www/server", "/tmp/www/.config"]
   prefixes = ["juno-agent", "jupiter-agent"]
 
-  [configure.agent]
+[agent]
     port = 50010
-
+    secret = "12341234123412341234123412341234"
 
 [logger.system]
     debug = false          # 是否在命令行输出

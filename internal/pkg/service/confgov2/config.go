@@ -4,9 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
+	"net/http"
+	"path/filepath"
 	"sync"
 	"time"
+
+	"golang.org/x/sync/errgroup"
+
+	"github.com/go-resty/resty/v2"
+
+	"github.com/douyu/juno/internal/pkg/service/agent"
+	"github.com/pkg/errors"
 
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
@@ -515,7 +523,7 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 func assemblyJunoAgent(nodes []db.AppNode) []view.JunoAgent {
 	res := make([]view.JunoAgent, 0)
 	for _, node := range nodes {
-		res = append(res, view.JunoAgent{HostName: node.HostName, IPPort: node.IP + fmt.Sprintf(":%d", cfg.Cfg.Configure.Agent.Port)})
+		res = append(res, view.JunoAgent{HostName: node.HostName, IPPort: node.IP + fmt.Sprintf(":%d", cfg.Cfg.Agent.Port)})
 	}
 	return res
 }
@@ -687,7 +695,7 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 
 func genConfigurePath(appName string, filename string) (pathArr []string, pathStr string) {
 	for k, dir := range cfg.Cfg.Configure.Dirs {
-		path := strings.Join([]string{dir, appName, "config", filename}, "/")
+		path := filepath.Join(dir, appName, "config", filename)
 		pathArr = append(pathArr, path)
 		if k == 0 {
 			pathStr = path
@@ -892,5 +900,96 @@ func Diff(configID, historyID uint) (resp view.RespDiffConfig, err error) {
 // Delete ..
 func Delete(id uint) (err error) {
 	err = mysql.Delete(&db.Configuration{}, "id = ?", id).Error
+	return
+}
+
+func ReadInstanceConfig(param view.ReqReadInstanceConfig) (configContentList []view.RespReadInstanceConfigItem, err error) {
+	var config db.Configuration
+	var app db.AppInfo
+	var node db.AppNode
+
+	err = mysql.Where("id = ?", param.ConfigID).First(&config).Error
+	if err != nil {
+		return
+	}
+
+	err = mysql.Where("aid = ?", config.AID).First(&app).Error
+	if err != nil {
+		return
+	}
+
+	err = mysql.Where("app_name = ?", app.AppName).Where("host_name = ?", param.HostName).First(&node).Error
+	if err != nil {
+		return
+	}
+
+	zone := view.UniqZone{
+		Env:  config.Env,
+		Zone: config.Zone,
+	}
+
+	pathArr, _ := genConfigurePath(app.AppName, config.FileName())
+
+	var eg errgroup.Group
+	for _, configPath := range pathArr {
+		eg.Go(func() error {
+			var err error
+			var plainText string
+			var resp *resty.Response
+			var configItem = view.RespReadInstanceConfigItem{
+				ConfigID: config.ID,
+				FileName: configPath,
+			}
+			var fileRead struct {
+				Code int    `json:"code"`
+				Msg  string `json:"msg"`
+				Data struct {
+					Content string `json:"content"`
+				} `json:"data"`
+			}
+
+			req := view.ReqHTTPProxy{
+				Address: fmt.Sprintf("%s:%d", node.IP, cfg.Cfg.Agent.Port),
+				URL:     "/api/agent/file",
+				Type:    http.MethodGet,
+				Params: map[string]string{
+					"file_name": configPath,
+				},
+			}
+			resp, err = clientproxy.ClientProxy.HttpGet(zone, req)
+			if err != nil {
+				goto End
+			}
+
+			err = json.Unmarshal(resp.Body(), &fileRead)
+			if err != nil {
+				goto End
+			}
+
+			if fileRead.Code != 200 {
+				err = fmt.Errorf("%v", fileRead)
+				goto End
+			}
+
+			plainText, err = agent.Decrypt(fileRead.Data.Content)
+			if err != nil {
+				err = errors.Wrap(err, "config file decrypt failed")
+				goto End
+			}
+
+		End:
+			if err != nil {
+				configItem.Error = err.Error()
+			}
+			configItem.Content = plainText
+			configContentList = append(configContentList, configItem)
+
+			return nil
+		})
+	}
+
+	// ignore error
+	_ = eg.Wait()
+
 	return
 }
