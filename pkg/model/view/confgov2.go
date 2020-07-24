@@ -166,6 +166,18 @@ type (
 		Version      string   `json:"version"`
 	}
 
+	ReqReadInstanceConfig struct {
+		ConfigID uint   `query:"id" validate:"required"`
+		HostName string `query:"host_name" validate:"required"`
+	}
+
+	RespReadInstanceConfigItem struct {
+		ConfigID uint   `json:"config_id"`
+		FileName string `json:"file_name"`
+		Content  string `json:"content"`
+		Error    string `json:"error"`
+	}
+
 	// ConfigurationPublishData ..
 	ConfigurationPublishData struct {
 		Content  string   `json:"content"`

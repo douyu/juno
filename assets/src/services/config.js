@@ -63,3 +63,10 @@ export async function deleteConfig(id) {
     method: 'POST',
   });
 }
+
+export async function fetchInstanceConfig(id, hostName) {
+  return request(`/api/admin/confgov2/config/instance/configContent?${stringify({
+    id,
+    host_name: hostName
+  })}`)
+}
