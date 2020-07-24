@@ -1,4 +1,5 @@
 // 配置中心相关表
+
 package db
 
 import (

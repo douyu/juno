@@ -4,6 +4,7 @@ import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/xlog"
 
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/assist"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
@@ -183,17 +184,14 @@ func InstanceList(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-
 	err = c.Validate(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-
 	resp, err := confgov2.Instances(param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error(), resp)
 	}
-
 	return output.JSON(c, output.MsgOk, "success", resp)
 }
 
@@ -220,4 +218,22 @@ func AppAction(c echo.Context) (err error) {
 	}
 
 	return output.JSON(c, resp.Code, resp.Msg, resp.Data)
+}
+
+// InstanceConfigContent  ...
+func InstanceConfigContent(c *core.Context) (err error) {
+	param := view.ReqReadInstanceConfig{}
+	err = c.Bind(&param)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+	configContents, err := confgov2.ReadInstanceConfig(param)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+	return c.OutputJSON(output.MsgOk, "success", c.WithData(configContents))
 }

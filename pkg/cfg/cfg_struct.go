@@ -185,6 +185,11 @@ type Configure struct {
 	} `json:"agent"`
 }
 
+type Agent struct {
+	Port   int    `toml:"port"`
+	Secret string `toml:"secret"`
+}
+
 // Casbin ..
 type Casbin struct {
 	Enable           bool

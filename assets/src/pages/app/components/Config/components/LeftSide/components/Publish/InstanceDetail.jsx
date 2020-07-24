@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { connect } from 'dva';
 import styles from './InstanceDetail.less';
 import { DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Button, Tag, Modal, Spin, message } from 'antd';
+import { Button, Tag, Modal, Spin, message, Space } from 'antd';
 import { ServiceAppAction } from '@/services/confgo';
+import { EyeOutlined } from '@ant-design/icons';
+import ModalRealtimeConfig from './ModalRealtimeConfig';
 
 const { confirm } = Modal;
 
 function InstanceDetail(props) {
-  const { currentInstance, appName, env } = props;
+  const { currentInstance, dispatch, config, appName, env } = props;
   const [visibleRestartModal, setVisibleRestartModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
@@ -25,10 +27,12 @@ function InstanceDetail(props) {
     sync_at,
     version,
     change_log,
+    host_name,
   } = currentInstance;
   let cfpArr = config_file_path.split(';');
   let cfpShow = [];
   cfpArr.forEach((ele) => cfpShow.push(<Tag color="#108ee9">{ele}</Tag>));
+
   let info = [
     {
       title: '接入状态',
@@ -103,11 +107,6 @@ function InstanceDetail(props) {
   };
 
   let doAction = (action, zoneCode, hostname, usedTyp) => {
-    console.log('usedTyp11:', usedTyp);
-    usedTyp = 2;
-    hostname = 'go.a1-31-23.dev.unp';
-    console.log('usedTyp22:', usedTyp);
-
     if (usedTyp == 0) {
       setContent('配置文件未接入，无法进行重启操作');
       setLoading(false);
@@ -120,22 +119,19 @@ function InstanceDetail(props) {
       return;
     }
 
-    let app_name = appName;
     setLoading(true);
     ServiceAppAction({
       action: action,
       zone_code: zoneCode,
       node_name: hostname,
       typ: usedTyp,
-      // app_name: appName,
-      app_name: 'wsd-live-srv-roomcate-go',
+      app_name: appName,
       env: env,
     }).then((res) => {
       if (res.code != 0) {
         setContent(res.data);
         setLoading(false);
       } else {
-        console.log('console.log(JSON.stringify(nodeTmp))', JSON.stringify(res.data));
         let result = [];
         for (var itemListKey in res.data) {
           let itemList = res.data[itemListKey];
@@ -166,7 +162,7 @@ function InstanceDetail(props) {
             {currentInstance.region_name} {currentInstance.zone_name} {currentInstance.ip}
           </div>
           <div style={{ marginTop: '10px' }}>
-            <Button.Group>
+            <Space>
               <Button
                 size={'small'}
                 type={'primary'}
@@ -182,7 +178,23 @@ function InstanceDetail(props) {
               >
                 重启
               </Button>
-            </Button.Group>
+
+              <Button
+                size={'small'}
+                icon={<EyeOutlined />}
+                onClick={() => {
+                  dispatch({
+                    type: 'config/fetchInstanceConfig',
+                    payload: {
+                      id: config.id,
+                      hostName: host_name,
+                    },
+                  });
+                }}
+              >
+                实时配置
+              </Button>
+            </Space>
           </div>
         </div>
       </div>
@@ -212,6 +224,7 @@ function InstanceDetail(props) {
           <p style={{ color: 'green' }}>{content}</p>
         </div>
       </Modal>
+      <ModalRealtimeConfig />
     </div>
   );
 }

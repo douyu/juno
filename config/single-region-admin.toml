@@ -3,11 +3,12 @@
   mode = "single" # single without proxy, multiple with proxy
 
 [configure]
-  dir = "/tmp/www/server"
+  dirs = ["C:/tmp/www/server"]
   prefix = "juno-agent"
 
-  [configure.agent]
-    port = 50010
+[agent]
+  port = 60814
+  secret = "12341234123412341234123412341234"
 
 [logger.system]
     debug = false          # 是否在命令行输出
@@ -107,7 +108,7 @@
     allowedOrganizations = []
 
 [casbin]
-    enable = false
+    enable = true
     debug = true
     model = "./config/model.conf"
     autoLoad = true
