@@ -42,6 +42,7 @@ func (c *Context) Bind(i interface{}) error {
 		return err
 	}
 
+	// refer to https://github.com/go-playground/validator
 	err = c.Validate(i)
 	if err != nil {
 		return err
