@@ -144,7 +144,7 @@ func saveProtoMethod(service *desc.ServiceDescriptor, method *desc.MethodDescrip
 	option.DB.Where("service_id = ? and method_name = ?", protoService.ID, method.GetName()).Find(&protoMethod)
 	{
 		protoMethod.ServiceID = protoService.ID
-		protoMethod.MethodName = method.GetName()
+		protoMethod.Name = method.GetName()
 		protoMethod.InputName = method.GetInputType().GetName()
 		protoMethod.InputType = MessageParser(method.GetInputType())
 		protoMethod.OutputName = method.GetOutputType().GetName()

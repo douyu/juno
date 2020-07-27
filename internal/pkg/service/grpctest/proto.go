@@ -61,7 +61,7 @@ func MethodDetail(methodID uint) (resp view.RespDetailGrpcMethod, err error) {
 			ID:   method.ServiceID,
 			Name: method.Service.Name,
 		},
-		Name:       method.MethodName,
+		Name:       method.Name,
 		Comment:    method.MethodComment,
 		InputType:  method.InputType,
 		OutputType: method.OutputType,

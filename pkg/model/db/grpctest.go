@@ -32,7 +32,7 @@ type (
 		gorm.Model
 
 		ServiceID     uint        `gorm:"column:service_id;"`
-		MethodName    string      `gorm:"column:method_name;not null;"`
+		Name          string      `gorm:"column:name;not null;"`
 		MethodComment string      `gorm:"column:method_comment;"`
 		InputName     string      `gorm:"column:input_name;not null;"`
 		InputType     ProtoFields `gorm:"column:input_type;not null;type:json"`  // 入参类型描述
