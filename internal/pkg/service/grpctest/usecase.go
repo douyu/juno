@@ -30,7 +30,7 @@ func UseCases(uid uint, param view.ReqListGRPCUseCases) (resp []view.RespListMet
 		item := view.RespListMethodUseCaseItem{
 			GrpcMethodItem: view.GrpcMethodItem{
 				ID:          method.ID,
-				Name:        method.MethodName,
+				Name:        method.Name,
 				Description: method.MethodComment,
 			},
 			UseCases: make([]view.GrpcUseCaseItem, 0),
@@ -152,7 +152,7 @@ func UseCaseDetail(id uint) (resp view.GrpcUseCaseDetail, err error) {
 		Metadata:    useCase.Metadata,
 		AppName:     useCase.Method.Service.Proto.AppName,
 		ServiceName: useCase.Method.Service.Name,
-		MethodName:  useCase.Method.MethodName,
+		MethodName:  useCase.Method.Name,
 	}
 
 	return
@@ -237,7 +237,7 @@ func SendRequestCallGRPC(req view.MakeGrpcRequest) (response view.GrpcResponse, 
 	resp, err := grpcinvoker.MakeRequest(grpcinvoker.ReqProtoConfig{
 		PackageName: method.Service.Proto.PackageName,
 		ServiceName: method.Service.Name,
-		MethodName:  method.MethodName,
+		MethodName:  method.Name,
 		InputParams: req.Input,
 		MetaData:    string(metadataStr),
 		ProtoFile:   filepath.Join(option.ProtoDir, method.Service.Proto.FileName),
@@ -297,7 +297,7 @@ func RequestHistoryList(param view.ReqHistoryList, uid uint) (resp view.RespGrpc
 			resp.List = append(resp.List, view.GrpcHistoryListItem{
 				ID:         log.ID,
 				MethodID:   log.MethodID,
-				MethodName: log.Method.MethodName,
+				MethodName: log.Method.Name,
 				Status:     log.Status,
 				Error:      log.Error,
 				TimeCost:   log.TimeCost,
@@ -344,7 +344,7 @@ func RequestHistoryItem(id uint) (history view.GrpcHistoryItem, err error) {
 		MethodID:    log.MethodID,
 		AppName:     log.Method.Service.Proto.AppName,
 		ServiceName: log.Method.Service.Name,
-		MethodName:  log.Method.MethodName,
+		MethodName:  log.Method.Name,
 		Input:       log.Input,
 		Metadata:    log.Metadata,
 		Output:      log.Output,
