@@ -50,6 +50,7 @@ type cfg struct {
 	Pprof             Pprof
 	Register          Register
 	Logger            Logger
+	GrpcTest          GrpcTest
 }
 
 // DefaultConfig ...
@@ -197,6 +198,10 @@ func defaultConfig() cfg {
 			AutoLoad:         false,
 			AutoLoadInternal: 0,
 			ResourceFile:     "./config/resource.yaml",
+		},
+		GrpcTest: GrpcTest{
+			Enable:   false,
+			ProtoDir: "",
 		},
 	}
 }

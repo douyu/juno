@@ -233,3 +233,8 @@ type LoggerInfo struct {
 	Async      bool
 	Debug      bool
 }
+
+type GrpcTest struct {
+	Enable   bool
+	ProtoDir string
+}

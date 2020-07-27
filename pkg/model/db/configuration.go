@@ -87,7 +87,7 @@ func (Configuration) TableName() string {
 	return "configuration"
 }
 
-// FileName ..
+// ProtoID ..
 func (c Configuration) FileName() string {
 	return fmt.Sprintf("%s.%s", c.Name, c.Format)
 }
