@@ -15,8 +15,9 @@
 package cfg
 
 import (
-	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type Auth struct {
@@ -184,6 +185,11 @@ type Configure struct {
 	} `json:"agent"`
 }
 
+type Agent struct {
+	Port   int    `toml:"port"`
+	Secret string `toml:"secret"`
+}
+
 // Casbin ..
 type Casbin struct {
 	Enable           bool
@@ -226,4 +232,15 @@ type LoggerInfo struct {
 	CallerSkip int
 	Async      bool
 	Debug      bool
+}
+
+// Assist ..
+type Assist struct {
+	Action Action
+}
+
+// Action ..
+type Action struct {
+	Enable bool
+	URL    string
 }

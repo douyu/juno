@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import SettingBlock from "@/pages/manage/SettingBlock";
 import {connect} from 'dva';
-import {Button, Form, Input, InputNumber, Modal, Popconfirm, Radio, Table} from 'antd';
+import {Button, Form, Input, InputNumber, Modal, Popconfirm, Radio, Table, message} from 'antd';
 import {DeleteFilled, EditFilled, FileAddFilled} from '@ant-design/icons';
 import PlusOutlined from "@ant-design/icons/lib/icons/PlusOutlined";
 
@@ -113,8 +113,9 @@ function ModalEditGateway(props) {
   }
 
   useEffect(() => {
-    form.setFieldsValue({
-      headers: props.fields.headers
+    props.visible && form.setFieldsValue({
+      ...props.fields,
+      headers: props.fields.headers || []
     })
   }, [props.visible])
 
@@ -285,7 +286,7 @@ class GatewaySetting extends React.Component {
   onDelete = (index) => {
     console.log(index)
     let gatewayValue = this.props.settings.gateway || [];
-    gatewayValue = gatewayValue.splice(index + 1, 1)
+    gatewayValue.splice(index, 1)
     this.props.dispatch({
       type: 'setting/saveSetting',
       payload: {
@@ -318,9 +319,10 @@ class GatewaySetting extends React.Component {
   onUpdateGateway = (fields) => {
     console.log("updateGateway", fields)
     let index = this.state.currentEditIndex
-    let settingValue = this.props.setting.gateway || []
-    if (index <= settingValue.length) {
+    let settingValue = this.props.settings.gateway || []
+    if (index >= settingValue.length) {
       message.error("保存出错，请刷新界面重试")
+      return
     }
 
     settingValue[index] = fields
@@ -330,6 +332,15 @@ class GatewaySetting extends React.Component {
         name: 'gateway',
         content: JSON.stringify(settingValue)
       }
+    }).then(r => {
+      if (r.code === 0) {
+        this.setState({
+          modalEditGateway: false
+        })
+      }
+      this.props.dispatch({
+        type: 'setting/loadSettings'
+      })
     })
   }
 
@@ -338,6 +349,7 @@ class GatewaySetting extends React.Component {
 
     return <SettingBlock title={"网关设置"}>
       <Table
+        pagination={false}
         columns={[
           ...GatewayConfigColumns,
           {

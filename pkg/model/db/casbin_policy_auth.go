@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql/driver"
 	"encoding/json"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -29,12 +30,13 @@ var (
 	CasbinPolicyTypeApp  CasbinPolicyType = "app"
 	CasbinPolicyTypeAPI  CasbinPolicyType = "api"
 
-	AppPermAppRead     = "app:read"
-	AppPermConfigRead  = "config:read"
-	AppPermConfigWrite = "config:write"
-	AppPermMonitorRead = "monitor:read"
-	AppPermPProfRead   = "pprof:read"
-	AppPermPProfRun    = "pprof:run"
+	AppPermAppRead            = "app:read"
+	AppPermConfigRead         = "config:read"
+	AppPermConfigWrite        = "config:write"
+	AppPermConfigReadInstance = "config:readInstance"
+	AppPermMonitorRead        = "monitor:read"
+	AppPermPProfRead          = "pprof:read"
+	AppPermPProfRun           = "pprof:run"
 )
 
 func (c CasbinPolicyAuth) TableName() string {

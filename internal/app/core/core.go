@@ -36,6 +36,20 @@ type Context struct {
 	echo.Context
 }
 
+func (c *Context) Bind(i interface{}) error {
+	err := c.Context.Bind(i)
+	if err != nil {
+		return err
+	}
+
+	err = c.Validate(i)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Output JSON
 //
 // Example:
