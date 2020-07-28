@@ -5,6 +5,7 @@ import SettingBlock from "@/pages/manage/SettingBlock";
 import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import {connect} from 'dva';
 import GatewaySetting from "@/pages/manage/GatewaySetting";
+import GrafanaSetting from "@/pages/manage/GrafanaSetting";
 
 const {TextArea} = Input;
 const RadioGroup = Radio.Group;
@@ -282,6 +283,7 @@ export default class SysManage extends React.Component {
               </Form.Item>
             </Form>
           </SettingBlock>
+          <GrafanaSetting/>
 
           <GatewaySetting/>
 

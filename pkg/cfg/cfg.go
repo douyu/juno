@@ -74,7 +74,7 @@ func defaultConfig() cfg {
 			ApiKeyMaxSecondsToLive:           -1,
 		},
 		Database: Database{
-			Enable:          false,
+			Enable:          true,
 			ConnMaxLifetime: time.Duration(time.Second * 300),
 			Debug:           true,
 			DSN:             "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s",

@@ -92,12 +92,18 @@ type (
 		Content string `json:"content"`
 	}
 
-	SettingGrafana struct {
-		Host                  string `json:"host"`
-		HeaderName            string `json:"header_name"`
-		ApiDashboardAddr      string `json:"api_dashboard_addr"`      // api监控面板路径
-		InstanceDashboardAddr string `json:"instance_dashboard_addr"` // 实例监控面板
-		OverviewDashboardAddr string `json:"overview_dashboard_addr"` // 概览面板
+	SettingGrafana []SettingGrafanaItem // 多个监控版本
+
+	SettingGrafanaItem struct {
+		Version    string                    `json:"version"`
+		Host       string                    `json:"host"` // Grafana 地址
+		HeaderName string                    `json:"header_name"`
+		Field      []SettingGrafanaDashboard `json:"field"`
+	}
+
+	SettingGrafanaDashboard struct {
+		Name  string `json:"name"`  // Dashboard 名称
+		Value string `json:"value"` // Dashboard 路由
 	}
 
 	SettingConfigDep struct {

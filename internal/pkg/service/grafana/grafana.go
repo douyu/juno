@@ -43,19 +43,42 @@ func getOption() (opt Option, err error) {
 		return
 	}
 
-	setting := view.SettingGrafana{}
+	setting := make([]view.SettingGrafanaItem, 0)
 	err = json.Unmarshal([]byte(settingContent), &setting)
 	if err != nil {
 		log.Error("unmarshal grafana setting failed:" + err.Error())
 		return
 	}
 
-	if setting.Host == "" {
+	if len(setting) == 0 {
+		log.Error("grafana setting len is 0")
+		err = fmt.Errorf("grafana setting len is 0")
+		return
+	}
+
+	var (
+		host       = ""
+		headerName = ""
+	)
+
+	// 找到一个可用的
+	for _, v := range setting {
+		if v.Field == nil {
+			continue
+		}
+		if v.Host == "" || v.HeaderName == "" || len(v.Field) == 0 {
+			continue
+		}
+		host = v.Host
+		headerName = v.HeaderName
+	}
+
+	if host == "" {
 		err = ErrNotConfigured
 		return
 	}
 
-	grafanaUrl, err := url.Parse(setting.Host)
+	grafanaUrl, err := url.Parse(host)
 	if err != nil {
 		log.Error("unmarshal grafana setting failed:" + err.Error())
 		err = fmt.Errorf("无效的Grafana地址")
@@ -64,7 +87,7 @@ func getOption() (opt Option, err error) {
 
 	opt.Scheme = grafanaUrl.Scheme
 	opt.Host = grafanaUrl.Host
-	opt.AuthHeaderName = setting.HeaderName
+	opt.AuthHeaderName = headerName
 
 	return
 }
