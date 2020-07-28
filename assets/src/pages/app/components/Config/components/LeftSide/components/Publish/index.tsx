@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {connect} from 'dva';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'dva';
 import styles from './index.less';
-import {Empty, message, Select, Spin} from 'antd';
-import {DatabaseOutlined} from '@ant-design/icons';
-import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
+import { Empty, message, Select, Spin } from 'antd';
+import { DatabaseOutlined } from '@ant-design/icons';
+import OptionButton, { ButtonType } from '@/pages/app/components/Config/components/OptionButton';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
 import ScrollArea from 'react-scrollbar';
-import {ReloadOutlined, StopOutlined} from "@ant-design/icons/lib";
-import ModalPublish from "@/pages/app/components/Config/components/LeftSide/components/Publish/ModalPublish";
+import { ReloadOutlined, StopOutlined } from '@ant-design/icons/lib';
+import ModalPublish from '@/pages/app/components/Config/components/LeftSide/components/Publish/ModalPublish';
 
 function Publish(props: any) {
   const {
@@ -18,7 +18,7 @@ function Publish(props: any) {
     configPublish,
     showEditorMaskLayer,
     setCurrentInstance,
-    currentConfig
+    currentConfig,
   } = props;
 
   const [visibleModalPublish, setVisibleModalPublish] = useState(false);
@@ -32,8 +32,13 @@ function Publish(props: any) {
   useEffect(() => {
     if (!configFile) {
       if (currentConfig) {
-        setConfigFile(currentConfig)
-        loadConfigInstances(currentConfig.aid, currentConfig.env, currentConfig.zone, currentConfig.id)
+        setConfigFile(currentConfig);
+        loadConfigInstances(
+          currentConfig.aid,
+          currentConfig.env,
+          currentConfig.zone,
+          currentConfig.id,
+        );
         return;
       }
 
@@ -79,8 +84,8 @@ function Publish(props: any) {
     <div className={styles.publish}>
       <div className={styles.optionBlock}>
         <Select
-          placeholder={"选择配置文件"}
-          style={{width: '100%'}}
+          placeholder={'选择配置文件'}
+          style={{ width: '100%' }}
           loading={configInstanceListLoading}
           onChange={selectConfigFile}
           value={configFile && configFile.id}
@@ -94,8 +99,8 @@ function Publish(props: any) {
           })}
         </Select>
 
-        <div style={{marginTop: '10px'}}>
-          <OptionButton style={{width: '100%'}} onClick={publishStart}>
+        <div style={{ marginTop: '10px' }}>
+          <OptionButton style={{ width: '100%' }} onClick={publishStart}>
             发布
           </OptionButton>
         </div>
@@ -103,37 +108,42 @@ function Publish(props: any) {
 
       {!configFile && (
         <div className={styles.tipConfigNotSelect}>
-          <StopOutlined/>
+          <StopOutlined />
           请先选择配置文件
         </div>
       )}
 
       {configInstanceListLoading && (
         <div className={styles.instanceListLoading}>
-          <Spin tip={'实例加载中'}/>
+          <Spin tip={'实例加载中'} />
         </div>
       )}
 
-      {!configInstanceListLoading && !configList && (<div>
-        <Empty description={"暂无实例"}/>
-      </div>)}
+      {!configInstanceListLoading && !configList && (
+        <div>
+          <Empty description={'暂无实例'} />
+        </div>
+      )}
 
       {configFile && !configInstanceListLoading && configInstanceList && (
         <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>
           <ul className={styles.instanceList}>
             <div className={styles.instanceListOpt}>
-              <div className={styles.instanceListTitle}>
-                实例列表
-              </div>
-              <div style={{textAlign: 'right'}}>
+              <div className={styles.instanceListTitle}>实例列表</div>
+              <div style={{ textAlign: 'right' }}>
                 <OptionButton
                   onClick={() => {
-                    loadConfigInstances(configFile?.aid, configFile?.env, configFile?.zone, configFile?.id);
+                    loadConfigInstances(
+                      configFile?.aid,
+                      configFile?.env,
+                      configFile?.zone,
+                      configFile?.id,
+                    );
                   }}
                   type={ButtonType.Text}
-                  title={"刷新实例列表"}
+                  title={'刷新实例列表'}
                 >
-                  <ReloadOutlined/>
+                  <ReloadOutlined />
                 </OptionButton>
               </div>
             </div>
@@ -145,12 +155,12 @@ function Publish(props: any) {
                   key={index}
                   onClick={() => {
                     setCurrentInstance(item);
-                    showEditorMaskLayer(true, <InstanceDetail/>);
+                    showEditorMaskLayer(true, <InstanceDetail config={configFile}/>);
                   }}
                 >
                   <div className={styles.instanceInfo}>
                     <div className={styles.icon}>
-                      <DatabaseOutlined/>
+                      <DatabaseOutlined />
                     </div>
                     <div>
                       <div className={styles.instanceName}>{item.host_name}</div>
@@ -185,7 +195,6 @@ function Publish(props: any) {
               );
             })}
           </ul>
-
         </ScrollArea>
       )}
 
@@ -199,8 +208,7 @@ function Publish(props: any) {
   );
 }
 
-const mapStateToProps = ({config}: any) => {
-  console.log('mapStateToProps -> config', config);
+const mapStateToProps = ({ config }: any) => {
   return {
     aid: config.aid,
     env: config.env,

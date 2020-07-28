@@ -167,8 +167,8 @@ export default class SysManage extends React.Component {
                         cancelText="No"
                         disabled={!(item.check_res === 0 && item.can_install > 0)}
                       >
-                        <Button disabled={!(item.check_res === 0 && item.can_install > 0)} type="primary"
-                                loading={loading}>安装</Button>
+                        {/* <Button disabled={!(item.check_res === 0 && item.can_install > 0)} type="primary"
+                                loading={loading}>安装</Button> */}
                       </Popconfirm>
                     </div>
                   </Card>

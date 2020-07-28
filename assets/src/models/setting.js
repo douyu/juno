@@ -58,7 +58,7 @@ export default {
       const res = yield call(updateSetting, payload.name, payload.content)
       if (res.code !== 0) {
         message.error("保存设置失败:" + res.msg)
-        return
+        return res
       }
       message.success("保存成功")
 
@@ -69,6 +69,8 @@ export default {
           value: false
         }
       })
+
+      return res
     },
     * loadSettings({payload}, {call, put}) {
       const res = yield call(loadSettings)

@@ -1,9 +1,10 @@
 package pprofHandle
 
 import (
-	"github.com/douyu/juno/pkg/cfg"
 	"os/exec"
 	"strings"
+
+	"github.com/douyu/juno/pkg/cfg"
 
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
