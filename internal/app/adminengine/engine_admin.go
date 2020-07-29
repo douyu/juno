@@ -16,6 +16,8 @@ package adminengine
 
 import (
 	"context"
+	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"go.uber.org/zap"
 	"strconv"
 	"time"
 
@@ -97,6 +99,7 @@ func New() *Admin {
 		eng.serveHTTP,
 		eng.serveGovern,
 		eng.defers,
+		eng.initParseWorker,
 	)
 
 	if err != nil {
@@ -288,4 +291,20 @@ func (eng *Admin) initWorker() (err error) {
 		}
 	}
 	return
+}
+
+func (eng *Admin) initParseWorker() (err error) {
+	// 获取配置解析依赖时间
+	interval, err := confgo.ConfuSrv.GetConfigParseWorkerTime()
+	if err != nil {
+		xlog.Error("GetConfigParseWorkerTime", zap.Error(err))
+	}
+	// 默认值 7200s
+	if interval == 0 {
+		interval = 7200
+	}
+
+	cron := xcron.StdConfig("parse").Build()
+	cron.Schedule(xcron.Every(time.Second*time.Duration(interval)), xcron.FuncJob(confgo.ConfuSrv.ConfigParseWorker))
+	return eng.Schedule(cron)
 }

@@ -20,6 +20,10 @@ func TestParseConfig(t *testing.T) {
 			addr = "127.0.0.1:3306"
 			user = "hello"
 			password = "world"
+		[mysqlconfigs]
+			addr = "127.0.0.1:3306"
+			user = "hello"
+			password = "world"
 		[minerva.mysql.juno]
 			enable = true
 			connMaxLifetime = "300s"
@@ -28,7 +32,11 @@ func TestParseConfig(t *testing.T) {
 			level = "panic"
 	 		user = "hello"
 			password = "world"
-		[minerva.mysql.jupiter]
+ 	  [redix.roomclustersimp.shards.alpha.test]
+          addr = ["redis://:test:123456@r-xxxxxxxx.redis.rds.aliyuncs.com:6379","redis://10.1.61.15:6001"]
+`
+
+	_ = `[minerva.mysql.jupiter]
 			enable = true
 			connMaxLifetime = "300s"
 			debug = true
@@ -50,9 +58,12 @@ func TestParseConfig(t *testing.T) {
  	 
  	  [redix.roomclustersimp.shards.alpha.test]
           addr = ["redis://:test:123456@r-xxxxxxxx.redis.rds.aliyuncs.com:6379","redis://10.1.61.15:6001"]
+
+      [redix.abc.def.uvw.master]
+          addr = "redis://10.1.61.15:6001"
 	`
 
-	obj := InitCmcTpl(invoker.JunoMysql, view.RespOneConfig{
+	obj := InitCmcToml(invoker.JunoMysql, view.RespOneConfig{
 		Content: config,
 		Format:  "toml",
 	})
@@ -62,6 +73,7 @@ func TestParseConfig(t *testing.T) {
 		fmt.Println("err", err)
 	}
 	for _, v := range resp {
-		fmt.Printf("****** item: key=%v, dbname=%v, username=%v, password=%v, scheme=%v, ip=%v, port =%v\n", v.Key, v.DbName, v.UserName, v.Password, v.Scheme, v.Ip, v.Port)
+		fmt.Printf("****** item: type=%v, key=%v, dbname=%v, username=%v, password=%v, scheme=%v, ip=%v, port =%v\n",
+			v.Type, v.Key, v.DbName, v.UserName, v.Password, v.Scheme, v.Ip, v.Port)
 	}
 }

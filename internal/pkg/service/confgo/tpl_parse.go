@@ -34,14 +34,17 @@ const (
 	TPL_SYMBOL = "{{}}"
 )
 
-type CmcTpl struct {
+type CmcParse interface {
+	ParseConfig() (output []*CmcInfo, err error)
+}
+
+type CmcToml struct {
 	db    *gorm.DB
 	Viper *viper.Viper
 	view.RespOneConfig
 }
 
 type CmcInfo struct {
-	view.RespOneConfig
 	Key      string `json:"key"`
 	Ip       string `json:"ip"`
 	Port     string `json:"port"`
@@ -49,10 +52,12 @@ type CmcInfo struct {
 	Password string `json:"password"`
 	Scheme   string `json:"scheme"`
 	DbName   string `json:"db_name"`
+	Type     string `gorm:"not null;" json:"type"`
+	view.RespOneConfig
 }
 
-func InitCmcTpl(db *gorm.DB, value view.RespOneConfig) *CmcTpl {
-	obj := &CmcTpl{
+func InitCmcToml(db *gorm.DB, value view.RespOneConfig) *CmcToml {
+	obj := &CmcToml{
 		db:            db,
 		Viper:         viper.GetViper(),
 		RespOneConfig: value,
@@ -60,9 +65,9 @@ func InitCmcTpl(db *gorm.DB, value view.RespOneConfig) *CmcTpl {
 	return obj
 }
 
-func (c *CmcTpl) GetAllTpl() (resp []db.CmcTpl, err error) {
+func GetAllTpl(dbConn *gorm.DB) (resp []db.CmcTpl, err error) {
 	resp = make([]db.CmcTpl, 0)
-	err = c.db.Find(&resp).Error
+	err = dbConn.Find(&resp).Error
 	if err != nil {
 		return
 	}
@@ -126,7 +131,7 @@ func ParseTpl(tplList []db.CmcTpl) (allTplMap map[string]tplData, err error) {
 	return
 }
 
-func (c *CmcTpl) ParseConfig() (output []*CmcInfo, err error) {
+func (c *CmcToml) ParseConfig() (output []*CmcInfo, err error) {
 
 	// 其他格式 todo
 	if c.RespOneConfig.Format != "toml" {
@@ -143,7 +148,7 @@ func (c *CmcTpl) ParseConfig() (output []*CmcInfo, err error) {
 	}
 
 	// 拿到所有的模板
-	allTpl, err := c.GetAllTpl()
+	allTpl, err := GetAllTpl(c.db)
 	if err != nil {
 		xlog.Error("ParseConfig", zap.Error(err), zap.String("msg", "GetAllTpl"), zap.String("value", c.RespOneConfig.Content))
 	}
@@ -154,85 +159,164 @@ func (c *CmcTpl) ParseConfig() (output []*CmcInfo, err error) {
 		xlog.Error("ParseConfig", zap.Error(err), zap.String("msg", "ParseTpl"), zap.String("value", c.RespOneConfig.Content))
 	}
 
+	var (
+		needParseKeyMap = make(map[string]string, 0) // 需要解析的内容
+		allKey          = make(map[string]int)       // 所有的key
+	)
+
 	// 处理配置中所有的item
 	for _, item := range c.Viper.AllKeys() {
+		allKey[item] = 1
 
 		// 只有一层的item不考虑
 		if !strings.Contains(item, SEP_POINT) {
 			continue
 		}
 
-		var (
-			itemArray = strings.Split(item, SEP_POINT)
-			lenArr    = len(itemArray)                                                                               // lenArr必然大于等于2
-			key       = itemArray[lenArr-1]                                                                          // item最后一个字段即为模板里面配置的key
-			tplKey    = fmt.Sprintf("%s%s%s", strings.Join(itemArray[0:lenArr-2], SEP_POINT), SEP_POINT, TPL_SYMBOL) // 组装模板key
-			parseTpl  = ""                                                                                           //需要解析的模板具体的名称 {{DSN}}
-		)
-
-		// 特殊处理一下，只有两层的数据
-		if lenArr == 2 {
-			tplKey = TPL_SYMBOL
-		}
-
-		// 该条item在模板中存在，则需要解析
-		tplValue, ok := allTplMap[tplKey]
-		if !ok {
-			// 还需要考虑key中没有{{}}的情况
-			newTplKey := strings.Join(itemArray[0:lenArr-1], SEP_POINT)
-			tplValue, ok = allTplMap[newTplKey]
-			if !ok {
-				xlog.Debug("ParseConfig", zap.String("msg", "allTplMap no key"), zap.String("tplKey", tplKey), zap.String("item", item))
-				continue
-			}
-
-		}
-
-		for cmcTpl, field := range tplValue.TplMap {
-			// 当前key 与模板定义的一致，则需要解析
-			if field == key {
-				parseTpl = cmcTpl
-				break
-			}
-		}
-
-		if parseTpl == "" {
+		// 匹配模板与当前item flag:匹配成功   depKey:当前的key eg jupiter.mysql.juno  tplKey:jupiter.mysql.{{}}
+		depKey, tplKey, flag := matchTpl(item, allTplMap)
+		if !flag {
 			continue
 		}
 
-		// redis 需要考虑addr为数组的情况
-		if tplValue.TplType == "redis" {
-			addrList := c.Viper.GetStringSlice(item)
-			if len(addrList) > 0 {
-				for _, addr := range addrList {
-					// 处理各种配置模板的解析
-					cmcInfo, err := handleParse(tplValue.TplType, item, parseTpl, addr)
+		// 已经找到
+		if _, ok := needParseKeyMap[depKey]; ok {
+			continue
+		}
+
+		needParseKeyMap[depKey] = tplKey
+
+	}
+
+	for depKey, tplKey := range needParseKeyMap {
+
+		tplValue := allTplMap[tplKey]
+		cmcInfo := CmcInfo{
+			Type: tplValue.TplType,
+			RespOneConfig: view.RespOneConfig{
+				Env:      c.Env,
+				ZoneCode: c.ZoneCode,
+				Content:  c.Content,
+				AppName:  c.AppName,
+				Aid:      c.Aid,
+				Format:   c.Format,
+				FileName: c.FileName,
+			},
+		}
+		// 解析模板中的每一个字段
+		for cmcTpl, field := range tplValue.TplMap {
+			item := fmt.Sprintf("%s%s%s", depKey, SEP_POINT, field)
+			// 没有则不需要解析
+			if _, ok := allKey[item]; !ok {
+				continue
+			}
+
+			// 考虑为数组的情况
+			var (
+				valArray = c.Viper.GetStringSlice(item)
+				val      = c.Viper.GetString(item)
+			)
+
+			if val == "" {
+				if len(valArray) == 0 {
+					continue
+				}
+				// 只有直接获取不到值且数组长度大于0才为真正的数组
+				for _, addr := range valArray {
+					cmcInfoTmp := CmcInfo{}
+					err := util.DeepCopy(&cmcInfoTmp, &cmcInfo)
 					if err != nil {
-						xlog.Info("ParseConfig", zap.String("msg", "handleParse"), zap.String("tplKey", tplKey), zap.String("item", item))
+						xlog.Info("ParseConfig", zap.String("msg", "DeepCopy"), zap.String("tplKey", tplKey), zap.String("item", item))
 						continue
 					}
-					output = append(output, &cmcInfo)
+					// 处理各种配置模板的解析
+					err = handleParse(&cmcInfoTmp, tplValue.TplType, depKey, cmcTpl, addr)
+					if err != nil {
+						xlog.Info("ParseConfig", zap.String("msg", "handleParse array"), zap.String("tplKey", tplKey), zap.String("item", item))
+						continue
+					}
+					output = append(output, &cmcInfoTmp)
 				}
 				continue
 			}
-		}
 
-		// 处理各种配置模板的解析
-		cmcInfo, err := handleParse(tplValue.TplType, item, parseTpl, c.Viper.GetString(item))
-		if err != nil {
-			xlog.Info("ParseConfig", zap.String("msg", "handleParse"), zap.String("tplKey", tplKey), zap.String("item", item))
-			continue
+			// 处理各种配置模板的解析
+			err := handleParse(&cmcInfo, tplValue.TplType, depKey, cmcTpl, val)
+			if err != nil {
+				xlog.Info("ParseConfig", zap.String("msg", "handleParse"), zap.String("tplKey", tplKey), zap.String("item", item))
+				continue
+			}
 		}
-		output = append(output, &cmcInfo)
+		// 只添加有内容的
+		if cmcInfo.Key != "" {
+			output = append(output, &cmcInfo)
+		}
 	}
 
 	return
 }
 
-func handleParse(tplType, key, parseTpl string, value string) (cmcInfo CmcInfo, err error) {
-	cmcInfo = CmcInfo{
-		Key: key,
+// item与模板匹配
+func matchTpl(item string, allTplMap map[string]tplData) (depKey, tplKey string, flag bool) {
+	// 只有一层的item不考虑
+	if !strings.Contains(item, SEP_POINT) {
+		return
 	}
+
+	var (
+		itemArray = strings.Split(item, SEP_POINT)
+		lenArr    = len(itemArray) - 1 // lenArr必然大于等于1
+	)
+
+	depKey = strings.Join(itemArray[0:lenArr], SEP_POINT)
+
+	// 考虑特殊情况
+	if lenArr == 1 {
+		depKey = itemArray[0]
+	}
+
+	// 优先考虑绝对路径匹配成功的
+	for k := range allTplMap {
+		// 绝对路径匹配成功
+		if k == depKey {
+			flag = true
+			tplKey = k
+			return
+		}
+	}
+
+	// 匹配
+	for key := range allTplMap {
+		tplKeyArray := strings.Split(key, SEP_POINT)
+
+		// 长度不一致，不考虑
+		if len(tplKeyArray) != lenArr {
+			continue
+		}
+
+		// 拆分后逐个匹配
+		flag = true
+		for index := range tplKeyArray {
+			// 当模板字段不为{{}}，且二者不相同，说明匹配失败
+			if tplKeyArray[index] != TPL_SYMBOL && tplKeyArray[index] != itemArray[index] {
+				flag = false
+				break
+			}
+		}
+
+		// 匹配成功
+		if flag {
+			tplKey = key
+			return
+		}
+	}
+
+	// 没有找到匹配的
+	return
+}
+
+func handleParse(cmcInfo *CmcInfo, tplType, key, parseTpl string, value string) (err error) {
+	cmcInfo.Key = key
 
 	switch parseTpl {
 	case CmcIp:
