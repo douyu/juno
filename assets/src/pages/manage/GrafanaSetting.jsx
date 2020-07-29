@@ -170,7 +170,7 @@ function ModalEditGrafana(props) {
                   style={{
                     marginBottom: '10px',
                     display: 'grid',
-                    gridTemplateColumns: '100px auto 50px',
+                    gridTemplateColumns: '150px auto 50px',
                     gridColumnGap: '10px'
                   }}
                   key={field.key}
@@ -305,7 +305,7 @@ class GrafanaSetting extends React.Component {
    */
   onUpdateGrafana = (fields) => {
     console.log("updateGrafana", fields);
-    console.log("## this.props.setting", this.props.setting);
+    // console.log("## this.props.settings", this.props.settings);
     let index = this.state.currentEditIndex
     let settingValue = this.props.settings.grafana || []
     if (index >= settingValue.length) {
@@ -313,19 +313,27 @@ class GrafanaSetting extends React.Component {
     }
 
     settingValue[index] = fields;
-    console.log(">> settingValue", settingValue);
     this.props.dispatch({
       type: 'setting/saveSetting',
       payload: {
         name: 'grafana',
         content: JSON.stringify(settingValue)
       }
+    }).then(r => {
+      if (r.code === 0) {
+        this.setState({
+          modalEditGrafana: false
+        })
+      }
+      this.props.dispatch({
+        type: 'setting/loadSettings'
+      })
     })
   }
 
   render() {
     const {grafana} = this.props.settings;
-    console.log(">> grafana", grafana)
+    // console.log(">> grafana", grafana)
 
     return <SettingBlock title={"Grafana设置"}>
       <Table
