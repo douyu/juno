@@ -164,11 +164,16 @@ type ReqAppNodeDelete struct {
 	db.AppNode
 }
 
-type ReqAppGrpcAddrList struct {
+type QueryAppByAppName struct {
 	AppName string `query:"app_name"`
 }
 
 type RespAppGrpcAddrList struct {
+	Port  string        `json:"port"`
+	Hosts []AddrEnvItem `json:"hosts"`
+}
+
+type RespAppHTTPAddrList struct {
 	Port  string        `json:"port"`
 	Hosts []AddrEnvItem `json:"hosts"`
 }

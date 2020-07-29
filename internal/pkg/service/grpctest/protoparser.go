@@ -141,7 +141,7 @@ func saveProtoMethod(service *desc.ServiceDescriptor, method *desc.MethodDescrip
 	}
 
 	protoMethod := db.GrpcServiceMethod{}
-	option.DB.Where("service_id = ? and method_name = ?", protoService.ID, method.GetName()).Find(&protoMethod)
+	option.DB.Where("service_id = ? and name = ?", protoService.ID, method.GetName()).Last(&protoMethod)
 	{
 		protoMethod.ServiceID = protoService.ID
 		protoMethod.Name = method.GetName()

@@ -260,7 +260,7 @@ func SendRequestCallGRPC(req view.MakeGrpcRequest) (response view.GrpcResponse, 
 	return
 }
 
-func RequestHistoryList(param view.ReqHistoryList, uid uint) (resp view.RespGrpcHistoryList, err error) {
+func RequestHistoryList(param view.ReqGrpcHistoryList, uid uint) (resp view.RespGrpcHistoryList, err error) {
 	var logs []db.GrpcTestLog
 	var eg errgroup.Group
 

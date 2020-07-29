@@ -11,6 +11,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/grpctest"
+	"github.com/douyu/juno/internal/pkg/service/httptest"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/permission"
@@ -66,6 +67,10 @@ func Init() (err error) {
 		DB:       invoker.JunoMysql,
 		Enabled:  cfg.Cfg.GrpcTest.Enable,
 		ProtoDir: cfg.Cfg.GrpcTest.ProtoDir,
+	})
+
+	httptest.Init(httptest.Option{
+		DB: invoker.JunoMysql,
 	})
 
 	return

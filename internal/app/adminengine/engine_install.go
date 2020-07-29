@@ -103,6 +103,9 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&db.GrpcProto{},
 			&db.GrpcProtoService{},
 			&db.GrpcServiceMethod{},
+			&db.HttpTestLog{},
+			&db.HttpTestCase{},
+			&db.HttpTestCollection{},
 		}
 		gormdb = gormdb.Debug()
 		gormdb.SingularTable(true)
