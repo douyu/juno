@@ -18,6 +18,8 @@ import (
 	"net/http"
 	"strings"
 
+	http2 "github.com/douyu/juno/api/apiv1/test/http"
+
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/confgov2"
@@ -168,6 +170,7 @@ func apiAdmin(server *xecho.Server) {
 		resourceGroup.POST("/app/update", resource.AppUpdate)
 		resourceGroup.POST("/app/delete", resource.AppDelete)
 		resourceGroup.GET("/app/grpcAddrList", core.Handle(resource.GrpcAddrList))
+		resourceGroup.GET("/app/httpAddrList", core.Handle(resource.HttpAddrList))
 
 		resourceGroup.GET("/zone/info", resource.ZoneInfo)
 		resourceGroup.GET("/zone/list", resource.ZoneList)
@@ -214,6 +217,20 @@ func apiAdmin(server *xecho.Server) {
 			grpcG.POST("/request/send", core.Handle(grpc.SendRequest))                   // 发送 GRPC 请求
 			grpcG.GET("/request/history", core.Handle(grpc.RequestHistory))              // 请求历史
 			grpcG.GET("/request/history/detail", core.Handle(grpc.RequestHistoryDetail)) // 历史详情
+		}
+
+		httpG := testGroup.Group("/http")
+		{
+			httpG.POST("/collections/create", core.Handle(http2.CreateCollection)) // 创建 Collection
+			httpG.GET("/collections", core.Handle(http2.CollectionList))           // Collection->用例 列表
+			httpG.POST("/collections/delete", core.Handle(http2.DeleteCollection)) // 删除 collection
+			httpG.GET("/useCases/detail", core.Handle(http2.UseCaseDetail))        // 用例详情
+			httpG.POST("/useCases/create", core.Handle(http2.CreateUseCase))       // 创建用例
+			httpG.POST("/useCases/update", core.Handle(http2.UpdateUseCase))       // 更新用例
+			httpG.POST("/useCases/delete", core.Handle(http2.DeleteUseCase))       // 删除用例
+			httpG.POST("/request/send", core.Handle(http2.SendRequest))            // 发送请求
+			httpG.GET("/request/history", core.Handle(http2.RequestHistory))       // 请求历史
+			httpG.GET("/request/history/detail", core.Handle(http2.RequestDetail)) // 请求历史详情
 		}
 	}
 

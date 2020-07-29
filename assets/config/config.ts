@@ -185,7 +185,8 @@ export default defineConfig({
                 },
                 {
                   name: 'HTTP测试',
-                  path: '/test/http'
+                  path: '/test/http',
+                  component: './test/http/index'
                 }
               ]
             },

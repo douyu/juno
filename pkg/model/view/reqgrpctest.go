@@ -39,7 +39,7 @@ type (
 		ServiceID uint `query:"service_id" validate:"required"`
 	}
 
-	ReqHistoryList struct {
+	ReqGrpcHistoryList struct {
 		Page      uint `query:"page"`
 		PageSize  uint `query:"page_size"`
 		ServiceID uint `query:"service_id" validate:"required"`

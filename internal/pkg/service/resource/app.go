@@ -138,6 +138,7 @@ func (r *resource) GetAllApp() (resp []db.AppInfo, err error) {
 	return
 }
 
+//GetAppGrpcList 获取应用GRPC地址列表
 func (r *resource) GetAppGrpcList(appName string) (port string, appNodes []db.AppNode, err error) {
 	var app db.AppInfo
 
@@ -155,6 +156,28 @@ func (r *resource) GetAppGrpcList(appName string) (port string, appNodes []db.Ap
 	}
 
 	port = app.RPCPort
+
+	return
+}
+
+//GetAppHttpList 获取应用HTTP地址列表
+func (r *resource) GetAppHttpList(appName string) (port string, appNodes []db.AppNode, err error) {
+	var app db.AppInfo
+
+	err = r.DB.Where("app_name = ?", appName).First(&app).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			err = fmt.Errorf("应用不存在")
+		}
+		return
+	}
+
+	err = r.DB.Where("app_name = ?", appName).Find(&appNodes).Error
+	if err != nil {
+		return
+	}
+
+	port = app.HTTPPort
 
 	return
 }

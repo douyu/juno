@@ -118,7 +118,7 @@ func SendRequest(c *core.Context) (err error) {
 }
 
 func RequestHistory(c *core.Context) (err error) {
-	var param view.ReqHistoryList
+	var param view.ReqGrpcHistoryList
 
 	err = c.Bind(&param)
 	if err != nil {
