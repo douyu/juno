@@ -115,3 +115,8 @@
     autoLoadInternal = 60
     # 资源配置
     resourceFile = './config/resource.yaml'
+
+[jupiter.cron.parse]
+    withSeconds = false
+    concurrentDelay= "10s"
+    immediatelyRun = false

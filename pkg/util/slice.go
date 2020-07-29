@@ -1,6 +1,10 @@
 package util
 
-import "reflect"
+import (
+	"bytes"
+	"encoding/gob"
+	"reflect"
+)
 
 func Diff(a map[string]interface{}, b map[string]interface{}) map[string]interface{} {
 	res := make(map[string]interface{}, 0)
@@ -38,4 +42,14 @@ func DiffList(source, dest interface{}, cmp func(a, b interface{}) bool) (res []
 	}
 
 	return
+}
+
+// 深度拷贝
+
+func DeepCopy(dst, src interface{}) error {
+	var buf bytes.Buffer
+	if err := gob.NewEncoder(&buf).Encode(src); err != nil {
+		return err
+	}
+	return gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
 }

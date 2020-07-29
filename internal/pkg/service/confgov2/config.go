@@ -986,3 +986,9 @@ func ReadInstanceConfig(param view.ReqReadInstanceConfig) (configContentList []v
 
 	return
 }
+
+func GetAllConfigText() (list []db.Configuration, err error) {
+	list = make([]db.Configuration, 0)
+	err = mysql.Find(&list).Error
+	return
+}
