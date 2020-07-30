@@ -15,6 +15,12 @@ var (
 	// todo can't global config
 	// 对各项配置进行设置，设置项写到此处才能生效
 	SettingFieldConfigs = map[string]SettingFieldConfig{
+		"version": {
+			Default: `[]`,
+			Validate: func(value string) error {
+				return nil
+			},
+		},
 		"etcd": {
 			Default: `[]`,
 			Validate: func(value string) error {

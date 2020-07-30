@@ -139,6 +139,7 @@ function unMarshalSetting(name, value) {
     case 'config_dep':
     case 'gateway':
       return JSON.parse(value)
+    case 'version':
     case 'grafana':
       const tmp = JSON.parse(value);
       return tmp instanceof Array ? tmp : [];
