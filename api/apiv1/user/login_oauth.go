@@ -183,11 +183,12 @@ func LoginOauth(c echo.Context) error {
 	}
 
 	mysqlUser := &db.User{
-		Username: userInfo.Name + "_" + name,
-		Nickname: userInfo.Login + "_" + name,
-		Email:    userInfo.Email,
-		Oauth:    "oauth_" + name,
-		OauthId:  userInfo.Id,
+		Username:   userInfo.Name + "_" + name,
+		Nickname:   userInfo.Login + "_" + name,
+		Email:      userInfo.Email,
+		Oauth:      "oauth_" + name,
+		OauthId:    userInfo.Id,
+		OauthToken: db.OAuthToken{Token: token},
 	}
 
 	// create or update oauth user
