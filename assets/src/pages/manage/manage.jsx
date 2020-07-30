@@ -6,6 +6,7 @@ import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import {connect} from 'dva';
 import GatewaySetting from "@/pages/manage/GatewaySetting";
 import GrafanaSetting from "@/pages/manage/GrafanaSetting";
+import EtcdSetting from "@/pages/manage/EtcdSetting";
 
 const {TextArea} = Input;
 const RadioGroup = Radio.Group;
@@ -177,7 +178,7 @@ export default class SysManage extends React.Component {
             >
             </List>
           </SettingBlock>
-          
+
           <SettingBlock
             editable={true}
             edit={this.props.onEdit.config_dep}
@@ -210,6 +211,8 @@ export default class SysManage extends React.Component {
           <GrafanaSetting/>
 
           <GatewaySetting/>
+
+          <EtcdSetting/>
 
         </Card>
       </PageHeaderWrapper>

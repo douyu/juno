@@ -116,6 +116,7 @@
     # 资源配置
     resourceFile = './config/resource.yaml'
 
+#################################### Config Dependency Parse #########################
 [jupiter.cron.parse]
     withSeconds = false
     concurrentDelay= "10s"

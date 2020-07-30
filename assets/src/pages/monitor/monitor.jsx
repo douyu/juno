@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Alert, Card, Col, Radio, Row} from 'antd';
+import {instanceOf} from "prop-types";
 
 const RadioGroup = Radio.Group;
 
@@ -192,7 +193,7 @@ export default class Monitor extends React.PureComponent {
     const {grafana} = this.props.setting.settings;
 
     let dashboardList = [];
-    grafana && grafana.map((item) => {
+    (grafana instanceof Array) && grafana.map((item) => {
       if (item.version && item.version === monitorVersion) {
         dashboardList = item.dashboards ? item.dashboards : [];
       }

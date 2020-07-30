@@ -8,16 +8,16 @@
 export default {
   dev: {
     '/api/admin': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://127.0.0.1:50002',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://127.0.0.1:50002',
       changeOrigin: true,
     },
     '/grafana': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://127.0.0.1:50002',
     },
   },
   test: {

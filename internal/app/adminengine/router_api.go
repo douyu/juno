@@ -17,6 +17,7 @@ package adminengine
 import (
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgov2"
+	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 	"github.com/douyu/juno/api/apiv1/event"
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
@@ -111,5 +112,10 @@ func apiV1(server *xecho.Server) {
 		pprofGroup.GET("/dep/check", pprofHandle.CheckDep)
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
 		//pprofGroup.POST("/config/update", pprofHandle.SetSysConfig)
+	}
+
+	etcdGroup := v1.Group("/etcd")
+	{
+		etcdGroup.GET("/list", etcdHandle.List)
 	}
 }

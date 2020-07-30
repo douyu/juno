@@ -135,10 +135,13 @@ function loadTempSetting(settings) {
 
 function unMarshalSetting(name, value) {
   switch (name) {
-    case 'grafana':
+    case 'etcd':
     case 'config_dep':
     case 'gateway':
       return JSON.parse(value)
+    case 'grafana':
+      const tmp = JSON.parse(value);
+      return tmp instanceof Array ? tmp : [];
     default:
       return value
   }
