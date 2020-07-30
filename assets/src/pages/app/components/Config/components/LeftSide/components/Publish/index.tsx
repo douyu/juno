@@ -149,13 +149,17 @@ function Publish(props: any) {
             </div>
 
             {configInstanceList.map((item: any, index: any) => {
+              let shortVersion = '';
+              if (item.version != '') {
+                shortVersion = item.version.substring(0, 7);
+              }
               return (
                 <li
                   className={styles.instanceListItem}
                   key={index}
                   onClick={() => {
                     setCurrentInstance(item);
-                    showEditorMaskLayer(true, <InstanceDetail config={configFile}/>);
+                    showEditorMaskLayer(true, <InstanceDetail config={configFile} />);
                   }}
                 >
                   <div className={styles.instanceInfo}>
@@ -164,7 +168,7 @@ function Publish(props: any) {
                     </div>
                     <div>
                       <div className={styles.instanceName}>{item.host_name}</div>
-                      <div className={styles.version}>版本: {item.version || '---'}</div>
+                      <div className={styles.version}>版本: {shortVersion || '---'}</div>
                     </div>
                   </div>
 

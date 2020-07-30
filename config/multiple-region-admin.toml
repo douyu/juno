@@ -140,3 +140,15 @@
     [assist.action]
         enable = false
         url = "https://xxx.xxx.com/"
+
+#################################### monitor module ##############################
+[applog]
+    mode = "aliyun" # customize or aliyun
+    [applog.aliyun]
+        enable = true
+        key = ""
+        secret = ""
+        roleArn = ""
+        roleSessionName = ""
+        regionId = ""
+        loginUrl = ""

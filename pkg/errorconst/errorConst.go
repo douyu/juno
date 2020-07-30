@@ -41,6 +41,9 @@ const (
 	CannotFindClientHTTP myErrorConst = 10007
 
 	AppActionFailed myErrorConst = 10008
+
+	AppLogCustomizeDashboard myErrorConst = 10009
+	AppLogCustomizeLogStore  myErrorConst = 10010
 )
 
 // errNameMap 错误名称映射map，维护错误码的同时需维护此map
@@ -54,6 +57,8 @@ var errNameMap = map[myErrorConst]string{
 	JunoAgentQueryOverSize:      "请求的Agent超过400的数量限制",
 	ConfigResourceValueNotExist: "配置资源对应值不存在",
 	AppActionFailed:             "服务操作失败",
+	AppLogCustomizeDashboard:    "未获取到监控面板访问地址",
+	AppLogCustomizeLogStore:     "未获取到日志存储访问地址",
 }
 
 // Code 返回codes.Code类型

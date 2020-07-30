@@ -51,6 +51,7 @@ type cfg struct {
 	Register          Register
 	Logger            Logger
 	Assist            Assist
+	AppLog            AppLog
 }
 
 // DefaultConfig ...
@@ -203,6 +204,22 @@ func defaultConfig() cfg {
 			Action{
 				Enable: false,
 				URL:    "",
+			},
+		},
+		AppLog: AppLog{
+			Mode: "aliyun",
+			Aliyun: AppLogAliyun{
+				Enable:          true,
+				Secret:          "",
+				Key:             "",
+				RoleArn:         "",
+				RoleSessionName: "",
+				RegionID:        "",
+			},
+			Customize: AppLogCustomize{
+				Enable:       false,
+				DashboardUrl: "",
+				LogStoreUrl:  "",
 			},
 		},
 	}
