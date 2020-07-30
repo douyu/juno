@@ -1,6 +1,7 @@
 [app]
   secretKey = "ASDFASDFASDF" # hashStatecode
   mode = "single" # single without proxy, multiple with proxy
+  productionEnvs = ["prod"]
 
 [configure]
   dirs = ["C:/tmp/www/server"]
