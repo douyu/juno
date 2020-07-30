@@ -12,6 +12,7 @@ import Detail from './components/Detail/index';
 import ZoneSelect from '@/components/ZoneSelect';
 import Config from './components/Config';
 import {connect} from "dva";
+import Etcd from "@/pages/etcd/etcd";
 
 const {TabPane} = Tabs;
 
@@ -214,6 +215,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
     let {disable} = this.state;
 
     const {grafana} = this.props.setting.settings;
+    // const grafanaConf = grafana instanceof Array ? grafana : []
 
     if (appName != undefined && appName != '') {
       disable = false;
@@ -261,6 +263,21 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
           </TabPane>
           <TabPane tab="Pprof" key="pprof">
             <PPofList
+              aid={aid}
+              env={env}
+              appName={appName}
+              appInfo={this.state.appInfo}
+              appNodeList={this.state.appNodeList}
+              appIdcList={''}
+              zoneCode={this.state.zoneCode}
+              param={''}
+              appEnvZone={appEnvZone}
+              idcList={this.state.idcList}
+              zoneList={this.state.zoneList}
+            />
+          </TabPane>
+          <TabPane tab="Etcd查询" key="etcd">
+            <Etcd
               aid={aid}
               env={env}
               appName={appName}

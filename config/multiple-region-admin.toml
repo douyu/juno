@@ -140,3 +140,9 @@
     [assist.action]
         enable = false
         url = "https://xxx.xxx.com/"
+
+#################################### Config Dependency Parse #########################
+[jupiter.cron.parse]
+    withSeconds = false
+    concurrentDelay= "10s"
+    immediatelyRun = false

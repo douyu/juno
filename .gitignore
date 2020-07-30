@@ -33,7 +33,7 @@ bin/*
 coverage.txt
 
 # develop config
-configs/config-*
+configs/*
 
 # local pprof file
 assets/pprof_static/*
@@ -44,7 +44,9 @@ assets/pprof_static/*
 /release/*
 package-lock.json
 default.json
+biz.json.*
 biz.json
+system.json.*
 system.json
 data/pprof
 logs

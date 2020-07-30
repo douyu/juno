@@ -15,6 +15,7 @@
 package adminengine
 
 import (
+	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 	"net/http"
 	"strings"
 
@@ -276,6 +277,11 @@ func apiAdmin(server *xecho.Server) {
 
 		// 和应用无关的接口
 		pprofGroup.GET("/config/list", pprofHandle.GetSysConfig)
+	}
+
+	etcdGroup := g.Group("/etcd")
+	{
+		etcdGroup.GET("/list", etcdHandle.List)
 	}
 
 	openAuthG := g.Group("/openAuth", loginAuthWithJSON)

@@ -333,10 +333,12 @@ class GrafanaSetting extends React.Component {
 
   render() {
     const {grafana} = this.props.settings;
+    // const grafanaConf = grafana instanceof Array ? grafana : [];
     // console.log(">> grafana", grafana)
 
     return <SettingBlock title={"Grafana设置"}>
       <Table
+        pagination={false}
         columns={[
           ...GrafanaConfigColumns,
           {
