@@ -122,6 +122,6 @@
     immediatelyRun = false
 
 [grpcTest]
-    enable = true
+    enable = false
     # PB文件目录，该目录下的所有PB文件会被遍历
     protoDir = '../proto'
