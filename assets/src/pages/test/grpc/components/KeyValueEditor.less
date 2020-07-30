@@ -1,0 +1,54 @@
+@import "../var";
+
+.input {
+  // 为了防止选中后文字抖动
+  border: 0.5px solid transparent;
+  background-color: transparent;
+  outline: none;
+  padding: 5px;
+  width: 100%;
+  box-sizing: border-box;
+  color: @primaryColor;
+
+  &::placeholder {
+    color: @secondaryColor;
+  }
+
+  &:focus {
+    background-color: #fff;
+    border: @secondaryBorderStyle;
+  }
+}
+
+.table {
+  font-size: 13px;
+
+  .header {
+    font-weight: bold;
+  }
+
+  .row, .header {
+    display: grid;
+    grid-template-columns: 200px auto 200px 40px;
+    height: 42px;
+
+    .column {
+      padding: 5px 10px;
+      border-bottom: @secondaryBorderStyle;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      &:nth-child(n+2) {
+        border-left: @secondaryBorderStyle;
+      }
+    }
+  }
+}
+
+.btnDelete {
+  cursor: pointer;
+  &:hover {
+    color: #000;
+  }
+}

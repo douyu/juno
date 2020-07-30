@@ -175,6 +175,22 @@ export default defineConfig({
               ]
             },
             {
+              path: '/test',
+              name: '测试平台',
+              routes: [
+                {
+                  name: 'GRPC测试',
+                  path: '/test/grpc',
+                  component: './test/grpc/index'
+                },
+                {
+                  name: 'HTTP测试',
+                  path: '/test/http',
+                  component: './test/http/index'
+                }
+              ]
+            },
+            {
               path: '/admin',
               name: '系统设置',
               icon: 'ToolOutlined',
