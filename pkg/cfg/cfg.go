@@ -51,6 +51,7 @@ type cfg struct {
 	Register          Register
 	Logger            Logger
 	Assist            Assist
+	GrpcTest          GrpcTest
 }
 
 // DefaultConfig ...
@@ -204,6 +205,10 @@ func defaultConfig() cfg {
 				Enable: false,
 				URL:    "",
 			},
+		},
+		GrpcTest: GrpcTest{
+			Enable:   false,
+			ProtoDir: "",
 		},
 	}
 }

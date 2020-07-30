@@ -1,0 +1,138 @@
+@import "./var";
+
+:global {
+  .grpcPayload .CodeMirror-scroll {
+    height: 300px;
+    width: 100%;
+  }
+}
+
+.debugPage {
+  border-radius: 10px;
+  background-color: @secondaryBGColor;
+  overflow: hidden;
+
+  .layoutHeader {
+    border-bottom: @primaryBorderStyle;
+    padding: 15px 10px;
+    overflow: hidden;
+
+    .serviceCascader {
+      width: 380px;
+      text-align: left;
+      display: block;
+      float: left;
+    }
+
+    .settingButton {
+      float: right;
+    }
+
+    .bindServiceButton {
+      float: right;
+      margin-right: 10px;
+    }
+  }
+
+  .main {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 300px auto;
+  }
+
+  .layoutSider {
+    background-color: #fff;
+    border-right: @primaryBorderStyle;
+    height: 100%;
+  }
+
+  .layoutContent {
+    background-color: #fff;
+
+    .caseNameLine {
+      background-color: @secondaryBGColor;
+      border-bottom: @secondaryBorderStyle;
+      height: 50px;
+      padding: 10px;
+      display: grid;
+      grid-column-gap: 10px;
+      grid-template-columns: auto 100px;
+      overflow: hidden;
+    }
+
+    .caseAddrLine {
+      background-color: @secondaryBGColor;
+      border-bottom: @secondaryBorderStyle;
+      height: 50px;
+      padding: 10px;
+      display: grid;
+      grid-column-gap: 10px;
+      grid-template-columns: auto 100px;
+    }
+
+    .metadataInputLine {
+      background-color: @secondaryBGColor;
+      border-bottom: @secondaryBorderStyle;
+      //height: 50px;
+      //padding: 10px;
+
+    }
+
+    .basicInfoLine {
+      padding: 10px;
+      background-color: @secondaryBGColor;
+      border-bottom: @secondaryBorderStyle;
+    }
+
+    .payloadTitleBar {
+      border-bottom: @primaryBorderStyle;
+      background-color: @secondaryBGColor;
+      padding: 10px;
+      color: @secondaryColor;
+    }
+
+    .responseTitleBar {
+      border-top: @primaryBorderStyle;
+      border-bottom: @primaryBorderStyle;
+      background-color: @secondaryBGColor;
+      padding: 10px;
+      color: @secondaryColor;
+    }
+
+    .responseContainer {
+    }
+
+    .responseStatusBar {
+      color: @secondaryColor;
+      padding: 10px;
+      background-color: #faf8f5;
+
+      .statusBlock {
+
+        &:nth-child(n+2) {
+          margin-left: 10px;
+        }
+
+        .statusSuccess {
+          color: green;
+        }
+
+        .statusFail {
+          color: red;
+        }
+      }
+
+      &.responseStatusBarFail {
+        background-color: #fff;
+      }
+    }
+
+    .responseSuccess {
+    }
+
+    .responseFail {
+      padding: 10px;
+      height: 300px;
+    }
+  }
+}

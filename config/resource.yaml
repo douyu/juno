@@ -249,6 +249,14 @@ permission:
           - path: /user/group/setAppPermission
             name: 设置用户组应用权限
             method: POST
+  - name: 测试平台
+    path: /test
+    icon: ToolOutlined
+    children:
+      - path: /test/grpc
+        name: GRPC测试
+      - path: /test/http
+        name: HTTP测试
 
   - name: 系统设置
     path: /admin

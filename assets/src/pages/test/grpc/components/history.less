@@ -1,0 +1,50 @@
+@import "../var";
+
+.list {
+  padding: 0;
+  margin: 0;
+
+  .listItem {
+    box-sizing: content-box;
+    padding-left: 10px;
+    cursor: pointer;
+
+    &:nth-child(n+2) {
+      border-top: @secondaryBorderStyle;
+    }
+
+    .listItemBox {
+      display: grid;
+      grid-template-columns: 30px auto;
+
+      .statusIcon {
+        font-size: 18px;
+        padding: 10px 0 10px 10px;
+      }
+
+      .info {
+        padding: 10px;
+        max-width: 240px;
+
+        .methodName {
+          font-size: 14px;
+          font-weight: bold;
+          color: #515151;
+        }
+
+        .infoTitle {
+          font-weight: bold;
+        }
+      }
+    }
+
+    &:hover {
+      background-color: #e6f7ff;
+      color: #515151;
+    }
+
+    &.activeItem {
+      background-color: #ebebeb;
+    }
+  }
+}

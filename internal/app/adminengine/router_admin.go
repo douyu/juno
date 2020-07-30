@@ -18,29 +18,30 @@ import (
 	"net/http"
 	"strings"
 
-	configstatics "github.com/douyu/juno/api/apiv1/confgov2/configstatistics"
-	"github.com/douyu/juno/api/apiv1/openauth"
-	"github.com/douyu/juno/internal/app/core"
-
-	"github.com/douyu/juno/api/apiv1/permission"
-	"github.com/douyu/juno/internal/pkg/service/casbin"
-	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/juno/pkg/model/db"
-	"github.com/douyu/juno/pkg/util"
+	http2 "github.com/douyu/juno/api/apiv1/test/http"
 
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/confgov2"
 	"github.com/douyu/juno/api/apiv1/confgov2/configresource"
+	configstatics "github.com/douyu/juno/api/apiv1/confgov2/configstatistics"
 	"github.com/douyu/juno/api/apiv1/event"
+	"github.com/douyu/juno/api/apiv1/openauth"
+	"github.com/douyu/juno/api/apiv1/permission"
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/static"
 	"github.com/douyu/juno/api/apiv1/system"
+	"github.com/douyu/juno/api/apiv1/test/grpc"
 	"github.com/douyu/juno/api/apiv1/user"
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/app/middleware"
+	"github.com/douyu/juno/internal/pkg/service/casbin"
 	"github.com/douyu/juno/internal/pkg/service/grafana"
 	userSrv "github.com/douyu/juno/internal/pkg/service/user"
+	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -137,7 +138,6 @@ func apiAdmin(server *xecho.Server) {
 		configWriteBodyMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromContext, db.AppPermConfigWrite)
 		configReadByIDMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigRead)
 		configWriteByIDMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigWrite)
-		configReadInstanceMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigReadInstance)
 
 		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                 // 配置文件列表
 		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)              // 配置文件内容
@@ -148,8 +148,6 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)            // 配置删除
 		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                  // 配置文件Diif，返回两个版本的配置内容
 		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW) // 配置文件Diif，返回两个版本的配置内容
-		configV2G.GET("/config/instance/configContent",
-			core.Handle(confgov2.InstanceConfigContent), configReadInstanceMW) // 读取机器上的配置文件
 
 		configV2G.GET("/config/statics", configstatics.Statics, configReadQueryMW)
 		configV2G.POST("/app/action", confgov2.AppAction, configWriteBodyMW)
@@ -172,6 +170,8 @@ func apiAdmin(server *xecho.Server) {
 		resourceGroup.POST("/app/create", resource.AppCreate)
 		resourceGroup.POST("/app/update", resource.AppUpdate)
 		resourceGroup.POST("/app/delete", resource.AppDelete)
+		resourceGroup.GET("/app/grpcAddrList", core.Handle(resource.GrpcAddrList))
+		resourceGroup.GET("/app/httpAddrList", core.Handle(resource.HttpAddrList))
 
 		resourceGroup.GET("/zone/info", resource.ZoneInfo)
 		resourceGroup.GET("/zone/list", resource.ZoneList)
@@ -197,6 +197,42 @@ func apiAdmin(server *xecho.Server) {
 		resourceGroup.POST("/app_node/transfer/put", resource.AppNodeTransferPut)
 
 		resourceGroup.GET("/app_env_zone/list", resource.AppEnvZoneList)
+	}
+
+	// 测试平台组
+	testGroup := g.Group("/test", loginAuthWithJSON)
+	{
+		// GRPC 测试
+		grpcG := testGroup.Group("/grpc")
+		{
+			//grpcG.GET("/proto/methods", nil)        // 获取 PB Method 列表
+			grpcG.GET("/proto", core.Handle(grpc.Proto))                                 // PB 列表
+			grpcG.GET("/proto/methods/detail", core.Handle(grpc.MethodDetail))           // PB Method 详情
+			grpcG.POST("/proto/bind", core.Handle(grpc.BindProtoToApp))                  // 绑定 PB 到应用
+			grpcG.GET("/appServiceTree", core.Handle(grpc.AppServiceTree))               // app > pb-service 树
+			grpcG.GET("/useCases", core.Handle(grpc.UseCases))                           // pb-method > use-cases 树
+			grpcG.POST("/useCases/create", core.Handle(grpc.CreateUseCase))              // 创建用例
+			grpcG.POST("/useCases/update", core.Handle(grpc.UpdateUseCase))              // 更新用例
+			grpcG.POST("/useCases/delete", core.Handle(grpc.DeleteUseCase))              // 删除用例
+			grpcG.GET("/useCases/detail", core.Handle(grpc.UseCaseDetail))               // 获取用例详情
+			grpcG.POST("/request/send", core.Handle(grpc.SendRequest))                   // 发送 GRPC 请求
+			grpcG.GET("/request/history", core.Handle(grpc.RequestHistory))              // 请求历史
+			grpcG.GET("/request/history/detail", core.Handle(grpc.RequestHistoryDetail)) // 历史详情
+		}
+
+		httpG := testGroup.Group("/http")
+		{
+			httpG.POST("/collections/create", core.Handle(http2.CreateCollection)) // 创建 Collection
+			httpG.GET("/collections", core.Handle(http2.CollectionList))           // Collection->用例 列表
+			httpG.POST("/collections/delete", core.Handle(http2.DeleteCollection)) // 删除 collection
+			httpG.GET("/useCases/detail", core.Handle(http2.UseCaseDetail))        // 用例详情
+			httpG.POST("/useCases/create", core.Handle(http2.CreateUseCase))       // 创建用例
+			httpG.POST("/useCases/update", core.Handle(http2.UpdateUseCase))       // 更新用例
+			httpG.POST("/useCases/delete", core.Handle(http2.DeleteUseCase))       // 删除用例
+			httpG.POST("/request/send", core.Handle(http2.SendRequest))            // 发送请求
+			httpG.GET("/request/history", core.Handle(http2.RequestHistory))       // 请求历史
+			httpG.GET("/request/history/detail", core.Handle(http2.RequestDetail)) // 请求历史详情
+		}
 	}
 
 	analysisGroup := g.Group("/analysis", loginAuthWithJSON)
