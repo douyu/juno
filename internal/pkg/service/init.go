@@ -4,6 +4,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
+	"github.com/douyu/juno/internal/pkg/service/applog"
 	"github.com/douyu/juno/internal/pkg/service/casbin"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
@@ -60,5 +61,6 @@ func Init() (err error) {
 
 	openauth.Init(invoker.JunoMysql)
 
+	applog.Init()
 	return
 }

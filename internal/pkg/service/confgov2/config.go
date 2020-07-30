@@ -329,16 +329,9 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 
 	xlog.Debug("Instances", xlog.String("step", "nodes"), zap.Any("nodes", nodes))
 
-	var syncFlag bool = false
-	notSyncNodes := make(map[string]db.AppNode, 0)
-
-	var takeEffectFlag bool = false
-	notTakeEffectNodes := make(map[string]db.AppNode, 0)
-
-	var usedFlag bool = false
-	var notUsedNodes []db.AppNode
-
 	filePath := ""
+
+	nodesMap := make(map[string]db.AppNode, 0)
 
 	for _, node := range nodes {
 		used := uint(0)
@@ -348,29 +341,18 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 		var status db.ConfigurationStatus
 		var statusErr error
 		status, statusErr = getConfigurationStatus(param.ConfigurationID, node.HostName)
-		if statusErr == nil {
-			filePath = status.ConfigurationPublish.FilePath
-			used = status.Used
-			synced = status.Synced
-			takeEffect = status.TakeEffect
+		if statusErr != nil {
+			xlog.Error("Instances", xlog.String("step", "nodes"), zap.Any("nodes", nodes), zap.String("statusErr", statusErr.Error()))
+			continue
 		}
 
-		// value update
-		if used == 0 {
-			// Perform another synchronization check
-			usedFlag = true
-			notUsedNodes = append(notUsedNodes, node)
-		}
-		if synced == 0 {
-			// Perform another synchronization check
-			syncFlag = true
-			notSyncNodes[node.HostName] = node
-		}
-		if takeEffect == 0 {
-			// Perform another synchronization check
-			takeEffectFlag = true
-			notTakeEffectNodes[node.HostName] = node
-		}
+		nodesMap[node.HostName] = node
+
+		filePath = status.ConfigurationPublish.FilePath
+		used = status.Used
+		synced = status.Synced
+		takeEffect = status.TakeEffect
+
 		resp = append(resp, view.RespConfigInstanceItem{
 			ConfigurationStatusID: status.ID,
 			Env:                   node.Env,
@@ -392,19 +374,14 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 	}
 
 	// sync used status
-	if usedFlag {
-		resp, err = syncUsedStatus(notUsedNodes, resp, env, zoneCode, filePath)
-	}
+	resp, err = syncUsedStatus(nodes, resp, env, zoneCode, filePath)
 
 	// sync publish status
-	if syncFlag {
-		resp, err = syncPublishStatus(app.AppName, env, zoneCode, configuration, notSyncNodes, resp)
-	}
+	resp, err = syncPublishStatus(app.AppName, env, zoneCode, configuration, nodesMap, resp)
 
 	// sync take effect status
-	if takeEffectFlag {
-		resp, err = syncTakeEffectStatus(app.AppName, app.GovernPort, env, zoneCode, configuration, notTakeEffectNodes, resp)
-	}
+	resp, err = syncTakeEffectStatus(app.AppName, app.GovernPort, env, zoneCode, configuration, nodesMap, resp)
+
 	return
 }
 
@@ -623,7 +600,6 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 	if instanceList, err = getPublishInstance(aid, env, zoneCode); err != nil {
 		return
 	}
-	// TODO Configure resource replacement operations
 
 	// Obtain application management port
 	appInfo, err := resource.Resource.GetApp(aid)
@@ -754,6 +730,14 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 			if err != nil {
 				return
 			}
+
+			// for k8s
+			clusterKey := fmt.Sprintf("/%s/cluster/%s/%s/static/%s", prefix, req.AppName, req.Env, req.FileName)
+			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, clusterKey, string(buf))
+			if err != nil {
+				return
+			}
+
 		}
 	}
 	return nil

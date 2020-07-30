@@ -19,3 +19,11 @@ type RespInfo struct {
 	IsHttp     int    `json:"isHttp"`
 	IsDayu     int    `json:"isDayu"`
 }
+
+type ReqLogger struct {
+	Typ      string `json:"typ"`
+	Env      string `json:"env"`
+	Aid      string `json:"aid"`
+	AppName  string `json:"app_name"`
+	QueryTyp string `json:"query_typ"`
+}

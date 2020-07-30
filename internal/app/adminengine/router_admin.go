@@ -47,8 +47,8 @@ import (
 )
 
 func apiAdmin(server *xecho.Server) {
-	var loginAuthWithJSON echo.MiddlewareFunc // 登录授权,以JSON形式
-	var loginAuthRedirect echo.MiddlewareFunc // 登录授权,以Http跳转形式
+	var loginAuthWithJSON echo.MiddlewareFunc // Login authorization, in JSON form
+	var loginAuthRedirect echo.MiddlewareFunc // Login authorization, in the form of Http jump
 
 	// If it is a local environment, go to Debug mode
 	loginAuthWithJSON = middleware.LoginAuth("/user/login", middleware.RedirectTypeJson).Func()
@@ -62,7 +62,9 @@ func apiAdmin(server *xecho.Server) {
 	if cfg.Cfg.Casbin.Enable {
 		casbinMW = middleware.CasbinMiddleware(middleware.CasbinConfig{
 			Skipper: middleware.AllowPathPrefixSkipper("/api/admin/public",
-				"/api/admin/user/login", "/api/admin/permission/menu/list", "/api/admin/confgov2/config",
+				"/api/admin/user/login",
+				"/api/admin/permission/menu/list",
+				"/api/admin/confgov2/config",
 				"/api/admin/pprof",
 			),
 			Enforcer: casbin.Casbin.SyncedEnforcer,
@@ -139,17 +141,16 @@ func apiAdmin(server *xecho.Server) {
 		configWriteByIDMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigWrite)
 		configReadInstanceMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigReadInstance)
 
-		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                 // 配置文件列表
-		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)              // 配置文件内容
-		configV2G.POST("/config/create", confgov2.Create, configWriteBodyMW)            // 配置新建
-		configV2G.POST("/config/update", confgov2.Update, configWriteByIDMW)            // 配置更新
-		configV2G.POST("/config/publish", confgov2.Publish, configWriteByIDMW)          // 配置发布
-		configV2G.GET("/config/history", confgov2.History, configReadByIDMW)            // 配置文件历史
-		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)            // 配置删除
-		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                  // 配置文件Diif，返回两个版本的配置内容
-		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW) // 配置文件Diif，返回两个版本的配置内容
-		configV2G.GET("/config/instance/configContent",
-			core.Handle(confgov2.InstanceConfigContent), configReadInstanceMW) // 读取机器上的配置文件
+		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                                                    // 配置文件列表
+		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)                                                 // 配置文件内容
+		configV2G.POST("/config/create", confgov2.Create, configWriteBodyMW)                                               // 配置新建
+		configV2G.POST("/config/update", confgov2.Update, configWriteByIDMW)                                               // 配置更新
+		configV2G.POST("/config/publish", confgov2.Publish, configWriteByIDMW)                                             // 配置发布
+		configV2G.GET("/config/history", confgov2.History, configReadByIDMW)                                               // 配置文件历史
+		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)                                               // 配置删除
+		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                                                     // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW)                                    // 获取配置相关实例列表
+		configV2G.GET("/config/instance/configContent", core.Handle(confgov2.InstanceConfigContent), configReadInstanceMW) // 读取机器上的配置文件
 
 		configV2G.GET("/config/statics", configstatics.Statics, configReadQueryMW)
 		configV2G.POST("/app/action", confgov2.AppAction, configWriteBodyMW)
