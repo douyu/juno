@@ -1,7 +1,7 @@
 import React from 'react';
 import PPofList from '../pprof/pprof';
 import Monitor from '../monitor/monitor';
-import {Alert, Col, message, Row, Tabs} from 'antd';
+import {Alert, Col, message, Row, Tabs, Select} from 'antd';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import AppHeader from './components/AppHeader/index';
 import {ServiceAppEnvZone, ServiceAppInfo, ServiceAppList, ServiceGetAppList} from '@/services/app';
@@ -11,9 +11,13 @@ import {history} from 'umi';
 import Detail from './components/Detail/index';
 import ZoneSelect from '@/components/ZoneSelect';
 import Config from './components/Config';
+import {connect} from "dva";
 
 const {TabPane} = Tabs;
 
+@connect(({setting}) => ({
+  setting,
+}))
 export default class App extends React.Component<ConfgoBase & { location: { query: any } }, any> {
   constructor(props: any) {
     super(props);
@@ -28,6 +32,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       appEnvZone: [],
       zoneList: [],
       appNodeList: [],
+      monitorVersion: '',
       disable: true,
       zoneCode: 'all',
       tab: this.props.location.query.tab == undefined ? 'detail' : this.props.location.query.tab,
@@ -199,10 +204,16 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
     })
   };
 
+  onSelectMonitorVersion = (e) => {
+    this.setState({monitorVersion: e})
+  }
+
   render() {
     let view = null;
-    const {aid, appName, env, appEnvZone} = this.state;
+    const {aid, appName, env, appEnvZone, monitorVersion} = this.state;
     let {disable} = this.state;
+
+    const {grafana} = this.props.setting.settings;
 
     if (appName != undefined && appName != '') {
       disable = false;
@@ -248,21 +259,6 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
               zoneList={this.state.zoneList}
             />
           </TabPane>
-          <TabPane tab="监控" key="monitor">
-            <Monitor
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appNodeList={this.state.appNodeList}
-              appIdcList={''}
-              param={''}
-              appEnvZone={appEnvZone}
-              idcList={this.state.idcList}
-              zoneList={this.state.zoneList}
-              zoneCode={this.state.zoneCode}
-            />
-          </TabPane>
           <TabPane tab="Pprof" key="pprof">
             <PPofList
               aid={aid}
@@ -278,6 +274,28 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
               zoneList={this.state.zoneList}
             />
           </TabPane>
+          <TabPane tab={<Select style={{width: 160}} defaultValue={'监控'} bordered={false}
+                                onSelect={this.onSelectMonitorVersion}>
+            {(grafana || []).map(item => <Select.Option key={item.version}
+                                                        value={item.version}> {`监控 ` + item.version}</Select.Option>)}
+
+          </Select>} key="monitor">
+            <Monitor
+              monitorVersion={monitorVersion}
+              aid={aid}
+              env={env}
+              appName={appName}
+              appInfo={this.state.appInfo}
+              appNodeList={this.state.appNodeList}
+              appIdcList={''}
+              param={''}
+              appEnvZone={appEnvZone}
+              idcList={this.state.idcList}
+              zoneList={this.state.zoneList}
+              zoneCode={this.state.zoneCode}
+            />
+          </TabPane>
+
         </Tabs>
       );
     }

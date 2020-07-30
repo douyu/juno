@@ -52,6 +52,7 @@ type cfg struct {
 	Logger            Logger
 	Assist            Assist
 	AppLog            AppLog
+	GrpcTest          GrpcTest
 }
 
 // DefaultConfig ...
@@ -205,6 +206,10 @@ func defaultConfig() cfg {
 				Enable: false,
 				URL:    "",
 			},
+		},
+		GrpcTest: GrpcTest{
+			Enable:   false,
+			ProtoDir: "",
 		},
 		AppLog: AppLog{
 			Mode: "aliyun",
