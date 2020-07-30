@@ -21,6 +21,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/auth/social"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/jupiter/pkg/conf"
 )
 
 // Init service初始化。
@@ -59,7 +60,12 @@ func Init() (err error) {
 		return
 	}
 
-	permission.Init(invoker.JunoMysql)
+	permission.Init(permission.Option{
+		DB:                 invoker.JunoMysql,
+		GitlabOAuthApiUrl:  conf.GetString("auth.gitlab.apiUrl"),
+		GitlabOAuthEnabled: conf.GetBool("auth.gitlab.enable"),
+		ProductionEnvs:     cfg.Cfg.App.ProductionEnvs,
+	})
 
 	openauth.Init(invoker.JunoMysql)
 
