@@ -1,6 +1,7 @@
 package resource
 
 import (
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/model/db"
@@ -139,4 +140,60 @@ func AppDelete(c echo.Context) error {
 	}
 
 	return output.JSON(c, output.MsgOk, "success")
+}
+
+//GrpcAddrList 获取 Grpc 的地址列表
+func GrpcAddrList(c *core.Context) error {
+	var param QueryAppByAppName
+
+	err := c.Bind(&param)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+
+	port, nodes, err := resource.Resource.GetAppGrpcList(param.AppName)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+
+	resp := RespAppGrpcAddrList{
+		Port: port,
+	}
+
+	for _, node := range nodes {
+		resp.Hosts = append(resp.Hosts, AddrEnvItem{
+			Env:  node.Env,
+			Addr: node.IP,
+		})
+	}
+
+	return c.OutputJSON(output.MsgOk, "success", c.WithData(resp))
+}
+
+//HttpAddrList 获取 Http 地址列表
+func HttpAddrList(c *core.Context) error {
+	var param QueryAppByAppName
+
+	err := c.Bind(&param)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+
+	port, nodes, err := resource.Resource.GetAppHttpList(param.AppName)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+
+	resp := RespAppHTTPAddrList{
+		Port: port,
+	}
+
+	for _, node := range nodes {
+		resp.Hosts = append(resp.Hosts, AddrEnvItem{
+			Env:  node.Env,
+			Addr: node.IP,
+		})
+	}
+
+	return c.OutputJSON(output.MsgOk, "success", c.WithData(resp))
 }
