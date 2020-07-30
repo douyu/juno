@@ -57,8 +57,8 @@ export default function AppHeader(props: AppHeaderInterface) {
   }
 
   let dataSource: {} | any = [];
-  appList.forEach((value: any) => {
-    dataSource.push(<Option value={value.aid + '*' + value.app_name}>{value.app_name}</Option>);
+  appList.forEach((value: any, index: number) => {
+    dataSource.push(<Option key={index} value={value.aid + '*' + value.app_name}>{value.app_name}</Option>);
   });
 
   let appChange = (value: any) => {

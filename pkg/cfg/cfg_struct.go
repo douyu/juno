@@ -244,3 +244,8 @@ type Action struct {
 	Enable bool
 	URL    string
 }
+
+type GrpcTest struct {
+	Enable   bool
+	ProtoDir string
+}
