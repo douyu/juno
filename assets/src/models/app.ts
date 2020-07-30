@@ -72,13 +72,15 @@ const AppModel: AppModelType = {
       const res = yield call(ServiceAppList, page, pageSize)
       if (res.code !== 0) {
         message.error("加载应用列表失败:" + res.msg)
-        return
+        return res
       }
 
       yield put({
         type: 'saveList',
         payload: res.data
       })
+
+      return res
     },
     * fetchListWithEnv({payload}, {call, put}) {
       const {page, pageSize, searchText} = payload

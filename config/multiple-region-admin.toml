@@ -141,6 +141,7 @@
         enable = false
         url = "https://xxx.xxx.com/"
 
+
 #################################### monitor module ##############################
 [applog]
     mode = "aliyun" # customize or aliyun
@@ -152,3 +153,9 @@
         roleSessionName = ""
         regionId = ""
         loginUrl = ""
+
+[grpcTest]
+    enable = false
+    # PB文件目录，该目录下的所有PB文件会被遍历
+    protoDir = '../proto'
+

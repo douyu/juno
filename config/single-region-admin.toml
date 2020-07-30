@@ -115,3 +115,13 @@
     autoLoadInternal = 60
     # 资源配置
     resourceFile = './config/resource.yaml'
+
+[jupiter.cron.parse]
+    withSeconds = false
+    concurrentDelay= "10s"
+    immediatelyRun = false
+
+[grpcTest]
+    enable = false
+    # PB文件目录，该目录下的所有PB文件会被遍历
+    protoDir = '../proto'

@@ -74,7 +74,7 @@ var _ = Describe("Publish", func() {
 				IsPick    bool     `json:"is_pick"`
 			})
 			cmcHistory.Aid = int(cmcApp.Aid)
-			cmcHistory.FileName = cmcApp.FileName
+			cmcHistory.ProtoID = cmcApp.ProtoID
 			cmcHistory.ZoneCode = cmcApp.ZoneCode
 			cmcHistory.Text = templateToml
 			cmcHistory.OriginText = originToml
@@ -91,7 +91,7 @@ var _ = Describe("Publish", func() {
 			}
 
 			if len(instanceList) == 0 { // 容器发布没有部署组
-				log.Warn("no instance list", "appName", cmcApp.App, "file", cmcApp.FileName)
+				log.Warn("no instance list", "appName", cmcApp.App, "file", cmcApp.ProtoID)
 				// return handler.JSON(c, handler.MsgErr, "未选择实例或该机房未部署")
 			}*/
 

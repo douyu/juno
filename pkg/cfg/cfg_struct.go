@@ -246,6 +246,11 @@ type Action struct {
 	URL    string
 }
 
+type GrpcTest struct {
+	Enable   bool
+	ProtoDir string
+}
+
 // AppLog ..
 type AppLog struct {
 	Mode      string

@@ -151,7 +151,46 @@ func Md5Bytes(data []byte) string {
 }
 
 // ParseAddr ...
-func ParseAddr(addr string) (ip string, port string) {
+func ParseAddr(tplType, addr string) (ip string, port, user, psw string) {
+	// grpc:wsd-live-srv-hours-go:v1:live
+	if tplType == "grpc" {
+		if !strings.Contains(addr, ":") {
+			return
+		}
+		addrArr := strings.Split(addr, ":")
+		if len(addrArr) == 4 {
+			ip = addrArr[1]
+			port = addrArr[3]
+		}
+		return
+	}
+	if tplType == "redis" {
+		if !strings.Contains(addr, ":") {
+			return
+		}
+		// addr = "redis://10.1.61.15:6001"
+		addrArr := strings.Split(addr, ":")
+		if len(addrArr) == 3 {
+			ip = strings.TrimPrefix(addrArr[1], "//")
+			port = addrArr[2]
+		}
+		// redis://:test:123456@r-xxxxxxxx.redis.rds.aliyuncs.com:6379
+		if len(addrArr) == 5 {
+			user = addrArr[2]
+			ip = addrArr[3]
+			// 账号密码
+			if strings.Contains(ip, "@") {
+				ipArr := strings.Split(ip, "@")
+				if len(ipArr) == 2 {
+					ip = ipArr[1]
+					psw = ipArr[0]
+				}
+			}
+			port = addrArr[4]
+		}
+		return
+
+	}
 	if strings.Contains(addr, ":") {
 		addrArr := strings.Split(addr, ":")
 		if len(addrArr) == 2 {

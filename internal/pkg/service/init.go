@@ -11,6 +11,8 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
+	"github.com/douyu/juno/internal/pkg/service/grpctest"
+	"github.com/douyu/juno/internal/pkg/service/httptest"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/permission"
@@ -19,6 +21,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/auth/social"
+	"github.com/douyu/juno/pkg/cfg"
 )
 
 // Init service初始化。
@@ -62,5 +65,15 @@ func Init() (err error) {
 	openauth.Init(invoker.JunoMysql)
 
 	applog.Init()
+	grpctest.Init(grpctest.Option{
+		DB:       invoker.JunoMysql,
+		Enabled:  cfg.Cfg.GrpcTest.Enable,
+		ProtoDir: cfg.Cfg.GrpcTest.ProtoDir,
+	})
+
+	httptest.Init(httptest.Option{
+		DB: invoker.JunoMysql,
+	})
+
 	return
 }
