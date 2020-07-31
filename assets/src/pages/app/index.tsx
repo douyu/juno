@@ -1,7 +1,7 @@
 import React from 'react';
 import PPofList from '../pprof/pprof';
 import Monitor from '../monitor/monitor';
-import {Alert, Col, message, Row, Tabs, Select} from 'antd';
+import {Alert, Col, message, Row, Tabs, Select, Empty} from 'antd';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import AppHeader from './components/AppHeader/index';
 import {ServiceAppEnvZone, ServiceAppInfo, ServiceAppList, ServiceGetAppList} from '@/services/app';
@@ -230,14 +230,15 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
 
     if (aid == undefined || isNaN(aid) || aid == 0) {
       view = (
-        <Col span={24} style={{marginTop: 20}}>
-          <Alert
-            style={{marginLeft: 10, marginRight: 20, marginBottom: 20}}
-            message="优先选择应用"
-            description=""
-            type="info"
-          />
-        </Col>
+        <div style={{marginTop: 10, width:'100%'}}>
+           <Empty description={"请选择应用"} style={{padding: '100px'}}/>
+        </div>
+      );
+    } else if (env == undefined  || env == "") {
+      view = (
+        <div style={{marginTop: 10, width:'100%'}}>
+          <Empty description={"请选择环境"} style={{padding: '100px'}}/>
+        </div>
       );
     } else {
       view = (

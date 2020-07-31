@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'dva';
-import {Alert, Card, Col, message, Radio, Row, Form, Input, Button, Table, Select} from 'antd';
+import {Alert, Card, Col, message, Radio, Row, Form, Input, Button, Table, Select, Empty} from 'antd';
 import {etcdList} from './services';
 
 
@@ -228,14 +228,14 @@ export default class Etcd extends React.PureComponent {
     if (!env || !zoneCode) {
       return (
         <div style={{marginTop: 10}}>
-          <Alert message="Warning" description="请选择环境和可用区." type="warning" showIcon/>
+          <Empty description={"请选择环境和可用区"} style={{padding: '100px'}}/>
         </div>
       );
     }
     if (zoneCode === 'all') {
       return (
         <div style={{marginTop: 10}}>
-          <Alert message="可用区不要选择全部" description="" type="warning" showIcon/>
+          <Empty description={"请选择可用区"} style={{padding: '100px'}}/>
         </div>
       );
     }

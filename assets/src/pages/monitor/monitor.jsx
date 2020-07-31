@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'dva';
-import {Alert, Card, Col, Radio, Row} from 'antd';
+import {Alert, Card, Col, Empty, Radio, Row} from 'antd';
 import {instanceOf} from "prop-types";
 
 const RadioGroup = Radio.Group;
@@ -131,7 +131,7 @@ export default class Monitor extends React.PureComponent {
     if (!dashboardPath) {
       return (
         <div style={{marginTop: 10}}>
-          <Alert message="请选择监控类型" description="" type="warning" showIcon/>
+          <Empty description={"请选择Dashboard"} style={{padding: '100px'}}/>
         </div>
       );
     }
@@ -139,7 +139,7 @@ export default class Monitor extends React.PureComponent {
     if (zoneCode == '' || zoneCode == 'all') {
       return (
         <div style={{marginTop: 10}}>
-          <Alert message="请选择可用区" description="" type="warning" showIcon/>
+          <Empty description={"请选择可用区"} style={{padding: '100px'}}/>
         </div>
       );
     }
