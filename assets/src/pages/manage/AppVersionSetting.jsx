@@ -84,9 +84,6 @@ function ModalAddVersion(props) {
                     <Input placeholder={"Dashboard名称"}/>
                   </Form.Item>
                   <Form.Item {...field} name={[field.name, 'value']} key={[field.fieldKey, 'value']}
-                             rules={[
-                               {pattern: /^\/grafana\/[a-zA-Z0-9\.\/]{3,}$/, message: "无效的监控面板地址，应该以 /grafana/ 开头"}
-                             ]}
                              noStyle>
                     <Input placeholder={"Dashboard地址"}/>
                   </Form.Item>
@@ -207,9 +204,6 @@ function ModalEditVersion(props) {
                     <Input placeholder={"Dashboard名称"}/>
                   </Form.Item>
                   <Form.Item {...field} name={[field.name, 'value']} key={[field.fieldKey, 'value']}
-                             rules={[
-                               {pattern: /^\/grafana\/[a-zA-Z0-9\.\/]{3,}$/, message: "无效的监控面板地址，应该以 /grafana/ 开头"}
-                             ]}
                              noStyle>
                     <Input placeholder={"Dashboard地址"}/>
                   </Form.Item>
