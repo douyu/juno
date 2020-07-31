@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/douyu/juno/pkg/util"
+
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -27,7 +29,7 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 	usedMap := make(map[string]int, 0)
 	for _, ag := range junoAgentList {
 		usedMap[ag.HostName] = 0
-		for _, fp := range strings.Split(filePath, ",") {
+		for _, fp := range strings.Split(filePath, ";") {
 			if status := getUsedStatus(env, zoneCode, fp, ag.IPPort); status > 0 {
 				usedMap[ag.HostName] = status
 			}
@@ -56,12 +58,10 @@ func syncPublishStatus(appName, env string, zoneCode string, configuration db.Co
 
 		var version = configuration.Version
 		for k, v := range resp {
-			if resp[k].ConfigFileSynced == 1 {
-				continue
-			}
 			if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
 				resp[k].Version = newState.Version
 				resp[k].ChangeLog = commitMsg(newState.Version, configuration.ID)
+				resp[k].SyncAt = util.Timestamp2String64(newState.Timestamp)
 				if newState.Version == version {
 					resp[k].ConfigFileSynced = 1
 					mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("synced", 1)

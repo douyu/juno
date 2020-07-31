@@ -356,7 +356,7 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 			ConfigFileUsed:        used,
 			ConfigFileSynced:      synced,
 			ConfigFileTakeEffect:  takeEffect,
-			SyncAt:                time.Now(),
+			SyncAt:                "",
 			Version:               version,
 			ChangeLog:             changeLog,
 		})
