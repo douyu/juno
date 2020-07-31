@@ -143,3 +143,4 @@ func (c *confu) ParseToMysql(aid int, appName string, items []*CmcInfo) (err err
 	tx.Commit()
 	return
 }
+

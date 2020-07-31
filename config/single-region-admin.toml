@@ -126,3 +126,9 @@
     enable = false
     # PB文件目录，该目录下的所有PB文件会被遍历
     protoDir = '../proto'
+
+#################################### Go Dep Auth #########################
+[godep.gitlab]
+host="https://gitlab.com"
+token="RgZev8zy6dtP2y8EA4sB"
+frameName="gitlab.com/douyu/jupiter"

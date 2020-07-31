@@ -168,6 +168,7 @@ func apiAdmin(server *xecho.Server) {
 		resourceGroup.GET("/app/info", resource.AppInfo)
 		resourceGroup.GET("/app/list", resource.AppList)
 		resourceGroup.GET("/app/listWithEnv", resource.AppListWithEnv)
+		resourceGroup.GET("/app/frameVersion", resource.GetFrameVersion)
 		resourceGroup.POST("/app/create", resource.AppCreate)
 		resourceGroup.POST("/app/update", resource.AppUpdate)
 		resourceGroup.POST("/app/delete", resource.AppDelete)
