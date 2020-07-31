@@ -99,6 +99,10 @@ export default {
   },
   * create({payload}, {call, put}) {
     const res = yield call(createConfig, payload);
+    if (res.ok === false) {
+      return res
+    }
+
     if (res.code !== 0) {
       message.error('创建失败: ' + res.msg);
       return res;
