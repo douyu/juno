@@ -124,7 +124,7 @@ function MenuTreeItem(props: MenuTreeItemProps) {
               let getSubAPI = (children: PermissionItem[]) => {
                 let subAPI : APIItem[] = []
                 children.map(child => {
-                  subAPI.push(...child.api)
+                  subAPI.push(...(child.api || []))
                   if (child.children) {
                     subAPI.push(...getSubAPI(child.children))
                   }

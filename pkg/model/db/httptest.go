@@ -73,7 +73,7 @@ func (h *HttpTestParam) Scan(val interface{}) error {
 
 func (h HttpTestParam) Value() (val driver.Value, err error) {
 	if h == nil {
-		val = "{}"
+		val = "[]"
 		return
 	}
 	val, err = json.Marshal(&h)

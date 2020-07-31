@@ -119,8 +119,6 @@ export default class SysManage extends React.Component {
       },
     }).then(() => {
       this.setState({})
-
-      this.grafanaFormRef.current.resetFields()
     })
   }
 
