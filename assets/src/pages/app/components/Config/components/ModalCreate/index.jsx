@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {connect} from 'dva'
-import {Form, Input, Modal, Radio, Select} from "antd";
+import {Form, Input, message, Modal, Radio, Select} from "antd";
 
 function ModalCreate(props) {
   const [form] = Form.useForm()
@@ -33,14 +33,15 @@ function ModalCreate(props) {
 
     props.createConfig(data).then(r => {
       const {data} = r
+
       if (r.code === 0) {
         showCreateModal(false)
+
+        // 加载新建的文件
+        loadConfigDetail(data.id)
+        loadConfigList(appName, env)
       }
 
-      // 加载新建的文件
-      loadConfigDetail(data.id)
-
-      loadConfigList(appName, env)
     })
   }
 
