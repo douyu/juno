@@ -189,6 +189,16 @@ export default class CollectionsTab extends React.Component {
     })
   }
 
+  showModalCreateTestCase = visible => {
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'HttpDebug/showModalNewTestCase',
+      payload: {
+        visible
+      }
+    })
+  }
+
   render() {
     const {
       modalNewRequestVisible,
@@ -214,9 +224,7 @@ export default class CollectionsTab extends React.Component {
           />
           <Button
             onClick={() => {
-              this.setState({
-                modalNewRequestVisible: true
-              })
+              this.showModalCreateTestCase(true)
             }}
             type={"link"} icon={<FileAddOutlined/>} size={"small"} title={"New File"}/>
         </div>

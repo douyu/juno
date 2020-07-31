@@ -15,9 +15,10 @@
 package adminengine
 
 import (
-	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 	"net/http"
 	"strings"
+
+	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 
 	http2 "github.com/douyu/juno/api/apiv1/test/http"
 
@@ -151,9 +152,9 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)            // 配置删除
 		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                  // 配置文件Diif，返回两个版本的配置内容
 		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW) // 配置文件Diif，返回两个版本的配置内容
-
-		configV2G.GET("/config/statics", configstatics.Statics, configReadQueryMW)
 		configV2G.POST("/app/action", confgov2.AppAction, configWriteBodyMW)
+
+		configV2G.GET("/config/statics", configstatics.Statics) // 全局的统计信息，不走应用权限
 
 		resourceG := configV2G.Group("/resource")
 		resourceG.GET("/list", configresource.List)

@@ -118,7 +118,6 @@ function Editor(props) {
     }
   };
 
-
   return <div className={styles.httpDebugContainer}>
     <div className={styles.nameBar}>
       {!nameEditing ? <>

@@ -35,7 +35,7 @@ function NewTestCaseModal(props) {
           ...fields,
         }
 
-        if (!currentRequest.id) {
+        if (currentRequest && !currentRequest.id) {
           payload = {...currentRequest, ...payload}
         }
 

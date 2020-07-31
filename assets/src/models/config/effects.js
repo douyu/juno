@@ -170,6 +170,7 @@ export default {
   * saveConfigFile({payload}, {call, put}) {
     const {id, content} = payload;
     const res = yield call(saveConfig, id, payload.message, content);
+    if (res.ok === false) return res;
     if (res.code !== 0) {
       message.error('保存失败:' + res.msg);
       return res;
