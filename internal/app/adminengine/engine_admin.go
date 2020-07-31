@@ -16,6 +16,7 @@ package adminengine
 
 import (
 	"context"
+	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"go.uber.org/zap"
 	"strconv"
@@ -100,6 +101,7 @@ func New() *Admin {
 		eng.serveGovern,
 		eng.defers,
 		eng.initParseWorker,
+		eng.initVersionWorker,
 	)
 
 	if err != nil {
@@ -306,5 +308,11 @@ func (eng *Admin) initParseWorker() (err error) {
 
 	cron := xcron.StdConfig("parse").Build()
 	cron.Schedule(xcron.Every(time.Second*time.Duration(interval)), xcron.FuncJob(confgo.ConfuSrv.ConfigParseWorker))
+	return eng.Schedule(cron)
+}
+
+func (eng *Admin) initVersionWorker() (err error) {
+	cron := xcron.StdConfig("parse").Build()
+	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(appDep.AppDep.SyncAppVersion))
 	return eng.Schedule(cron)
 }

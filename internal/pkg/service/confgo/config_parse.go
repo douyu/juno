@@ -49,6 +49,7 @@ func (c *confu) GetConfigParseWorkerTime() (interval int, err error) {
 }
 
 func (c *confu) ConfigParseWorker() (err error) {
+	xlog.Info("ConfigParseWorker", zap.String("run", "start"))
 	// 拿到所有配置文件
 	list, err := confgov2.GetAllConfigText()
 	if err != nil {
@@ -93,6 +94,7 @@ func (c *confu) ConfigParseWorker() (err error) {
 			continue
 		}
 	}
+	xlog.Info("ConfigParseWorker", zap.String("run", "end"))
 	return
 }
 

@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
+	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/applog"
 	"github.com/douyu/juno/internal/pkg/service/casbin"
@@ -80,6 +81,8 @@ func Init() (err error) {
 	httptest.Init(httptest.Option{
 		DB: invoker.JunoMysql,
 	})
+
+	appDep.Init()
 
 	return
 }
