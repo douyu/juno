@@ -29,7 +29,7 @@ type User struct {
 	CurrentAuthority string `json:"currentAuthority"`
 	Access           string `json:"access"`
 
-	OauthToken OAuthToken `gorm:"type:json,comment:'OAuth Token 信息'"`
+	OauthToken OAuthToken `gorm:"type:json;comment:'OAuth Token 信息'"`
 
 	UserGroup *CasbinPolicyGroup `gorm:"foreignKey:Uid;association_foreignkey:Uid"`
 }
