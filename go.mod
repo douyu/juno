@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/alibaba/sentinel-golang v0.4.0
+	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190802083043-4cd0c391755e
 	github.com/bojand/ghz v0.56.0
 	github.com/casbin/casbin/v2 v2.7.2
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
