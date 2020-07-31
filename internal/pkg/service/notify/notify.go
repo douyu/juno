@@ -10,12 +10,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/douyu/jupiter/pkg/xlog"
+	"go.uber.org/zap"
+
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/pb"
-	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -112,10 +113,10 @@ func (c *proxyStream) syncProxy(client pb.ProxyClient) {
 			if err != nil && reply_status.Code() == codes.Unavailable {
 				log.Error("与服务器的连接被断开, 进行重试")
 				time.Sleep(time.Second)
+				xlog.Error("syncProxy", zap.String("error", "与服务器的连接被断开, 进行重试"))
 				c.stream = nil
 				continue
 			}
-			xlog.Info("sync proxy info", zap.Uint32("msg id", reply.MsgId), zap.String("msg info", string(reply.Msg)))
 			if reply.Code == 0 {
 				StreamStore.PostForm(reply.Msg)
 				//switch reply.MsgId {

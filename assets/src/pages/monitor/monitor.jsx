@@ -176,7 +176,7 @@ export default class Monitor extends React.PureComponent {
       monitorHost,
       dashboardSelected,
       monitorVersion,
-      versionName, frameVersion
+      versionName
     } = this.state;
 
 

@@ -46,7 +46,7 @@ function InstanceDetail(props) {
     },
     {
       title: '生效状态',
-      help: '配置是否在应用上生效',
+      help: '配置是否在应用上生效（依赖Go框架支持）',
       content: config_file_take_effect ? '已生效' : '未生效',
     },
     {

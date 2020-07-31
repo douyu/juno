@@ -151,22 +151,22 @@ type (
 
 	// RespConfigInstanceItem ..
 	RespConfigInstanceItem struct {
-		ConfigurationStatusID uint      `json:"configuration_status_id"`
-		Env                   string    `json:"env"`
-		IP                    string    `json:"ip"`
-		HostName              string    `json:"host_name"`
-		DeviceID              int       `json:"device_id"`
-		RegionCode            string    `json:"region_code"`
-		RegionName            string    `json:"region_name"`
-		ZoneCode              string    `json:"zone_code"`
-		ZoneName              string    `json:"zone_name"`
-		ConfigFilePath        string    `json:"config_file_path"`
-		ConfigFileUsed        uint      `json:"config_file_used"` // 1 supervisor 2 systemd
-		ConfigFileSynced      uint      `json:"config_file_synced"`
-		ConfigFileTakeEffect  uint      `json:"config_file_take_effect"`
-		SyncAt                time.Time `json:"sync_at"`
-		ChangeLog             string    `json:"change_log"`
-		Version               string    `json:"version"` // 发布到Juno Proxy的版本号
+		ConfigurationStatusID uint   `json:"configuration_status_id"`
+		Env                   string `json:"env"`
+		IP                    string `json:"ip"`
+		HostName              string `json:"host_name"`
+		DeviceID              int    `json:"device_id"`
+		RegionCode            string `json:"region_code"`
+		RegionName            string `json:"region_name"`
+		ZoneCode              string `json:"zone_code"`
+		ZoneName              string `json:"zone_name"`
+		ConfigFilePath        string `json:"config_file_path"`
+		ConfigFileUsed        uint   `json:"config_file_used"` // 1 supervisor 2 systemd
+		ConfigFileSynced      uint   `json:"config_file_synced"`
+		ConfigFileTakeEffect  uint   `json:"config_file_take_effect"`
+		SyncAt                string `json:"sync_at"`
+		ChangeLog             string `json:"change_log"`
+		Version               string `json:"version"` // 发布到Juno Proxy的版本号
 	}
 
 	// ConfigFormat ..

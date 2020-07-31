@@ -4,12 +4,12 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/douyu/juno/pkg/cfg"
-
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
 
@@ -88,7 +88,7 @@ func CheckDep(c echo.Context) error {
 }
 
 func Run(c echo.Context) error {
-	reqModel := db.ReqProfile{}
+	reqModel := view.ReqRunProfile{}
 	if err := c.Bind(&reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -114,7 +114,7 @@ func Run(c echo.Context) error {
 
 // 查询已经存储的pprof文件
 func FileList(c echo.Context) error {
-	req := db.PProfReqList{}
+	req := view.ReqListPProf{}
 	showData := make([]db.PProf, 0)
 
 	err := c.Bind(&req)
