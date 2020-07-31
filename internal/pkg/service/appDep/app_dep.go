@@ -45,7 +45,7 @@ type FileContent struct {
 }
 
 func (p *appDep) SyncAppVersion() error {
-	//fmt.Println("cron SyncAppVersion", time.Now())
+	xlog.Info("SyncAppVersion", zap.String("run", "start"))
 
 	// 拿到app信息
 	apps, err := resource.Resource.GetAllApp()
@@ -61,6 +61,8 @@ func (p *appDep) SyncAppVersion() error {
 			xlog.Info("handleOneApp success", zap.String("appName", app.AppName))
 		}
 	}
+
+	xlog.Info("SyncAppVersion", zap.String("run", "end"))
 
 	return nil
 }
