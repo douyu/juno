@@ -161,6 +161,8 @@ func ParseAddr(tplType, addr string) (ip string, port, user, psw string) {
 		if len(addrArr) == 4 {
 			ip = addrArr[1]
 			port = addrArr[3]
+		} else {
+			ip = addr
 		}
 		return
 	}
@@ -191,7 +193,13 @@ func ParseAddr(tplType, addr string) (ip string, port, user, psw string) {
 		return
 
 	}
+
 	if strings.Contains(addr, ":") {
+		if strings.HasPrefix(addr, "http:") || strings.HasPrefix(addr, "https:") {
+			ip = addr
+			return
+		}
+
 		addrArr := strings.Split(addr, ":")
 		if len(addrArr) == 2 {
 			ip = addrArr[0]
@@ -199,6 +207,7 @@ func ParseAddr(tplType, addr string) (ip string, port, user, psw string) {
 		}
 		return
 	}
+	ip = addr
 	return
 }
 
