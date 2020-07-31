@@ -1,6 +1,7 @@
 [app]
   secretKey = "ASDFASDFASDF" # hashStatecode
   mode = "multiple" # single without proxy, multiple with proxy
+  productionEnvs = ["production"]
 
 [configure]
   dirs = ["/tmp/www/server", "/tmp/www/.config"]
@@ -147,6 +148,19 @@
     concurrentDelay= "10s"
     immediatelyRun = false
 
+
+
+#################################### monitor module ##############################
+[applog]
+    mode = "aliyun" # customize or aliyun
+    [applog.aliyun]
+        enable = true
+        key = ""
+        secret = ""
+        roleArn = ""
+        roleSessionName = ""
+        regionId = ""
+        loginUrl = ""
 
 [grpcTest]
     enable = false

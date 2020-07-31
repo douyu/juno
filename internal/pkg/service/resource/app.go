@@ -327,8 +327,11 @@ func (r *resource) GetFrameVersion(appName string) (string, error) {
 		return "", errors.New("appInfo.Aid为0")
 	}
 	appPackage := db.AppPackage{}
-	if err := r.DB.Where("aid = ? and name = ? ", appInfo.Aid, conf.GetString("godep.gitlab.frameName")).First(&appPackage).Error; err != nil {
+	if err := r.DB.Where("aid = ? and name = ? ", appInfo.Aid, conf.GetString("godep.gitlab.frameName")).First(&appPackage).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return "", err
+	}
+	if appPackage.ID == 0 {
+		return "", fmt.Errorf("db no find frame version")
 	}
 	return appPackage.Version, nil
 }

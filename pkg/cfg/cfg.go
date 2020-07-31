@@ -51,6 +51,7 @@ type cfg struct {
 	Register          Register
 	Logger            Logger
 	Assist            Assist
+	AppLog            AppLog
 	GrpcTest          GrpcTest
 }
 
@@ -77,7 +78,7 @@ func defaultConfig() cfg {
 			ApiKeyMaxSecondsToLive:           -1,
 		},
 		Database: Database{
-			Enable:          true,
+			Enable:          false,
 			ConnMaxLifetime: time.Duration(time.Second * 300),
 			Debug:           true,
 			DSN:             "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s",
@@ -209,6 +210,22 @@ func defaultConfig() cfg {
 		GrpcTest: GrpcTest{
 			Enable:   false,
 			ProtoDir: "",
+		},
+		AppLog: AppLog{
+			Mode: "aliyun",
+			Aliyun: AppLogAliyun{
+				Enable:          true,
+				Secret:          "",
+				Key:             "",
+				RoleArn:         "",
+				RoleSessionName: "",
+				RegionID:        "",
+			},
+			Customize: AppLogCustomize{
+				Enable:       false,
+				DashboardUrl: "",
+				LogStoreUrl:  "",
+			},
 		},
 	}
 }

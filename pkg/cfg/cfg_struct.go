@@ -20,6 +20,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// Auth ...
 type Auth struct {
 	// Auth
 	LoginCookieName                  string
@@ -51,11 +52,12 @@ type ServerSchema struct {
 }
 
 type App struct {
-	SecretKey string
-	Mode      string
+	Mode           string
+	SecretKey      string
+	ProductionEnvs []string
 }
 
-// Admin Server
+// Server Server
 type Server struct {
 	Http   ServerSchema
 	Govern ServerSchema
@@ -71,7 +73,7 @@ type HttpRouter struct {
 	GovernConfig string
 }
 
-// MultiProxy ..
+// SingleProxy ..
 type SingleProxy struct {
 	Etcd Etcd
 }
@@ -248,4 +250,28 @@ type Action struct {
 type GrpcTest struct {
 	Enable   bool
 	ProtoDir string
+}
+
+// AppLog ..
+type AppLog struct {
+	Mode      string
+	Aliyun    AppLogAliyun
+	Customize AppLogCustomize
+}
+
+// AppLogAliyun ...
+type AppLogAliyun struct {
+	Enable          bool
+	Key             string
+	Secret          string
+	RoleArn         string
+	RoleSessionName string
+	RegionID        string `json:"regionId" toml:"regionId"`
+	LoginURL        string `json:"loginUrl" toml:"loginUrl"`
+}
+
+type AppLogCustomize struct {
+	Enable       bool
+	DashboardUrl string
+	LogStoreUrl  string
 }

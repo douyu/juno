@@ -15,9 +15,10 @@
 package adminengine
 
 import (
-	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 	"net/http"
 	"strings"
+
+	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 
 	http2 "github.com/douyu/juno/api/apiv1/test/http"
 
@@ -49,8 +50,8 @@ import (
 )
 
 func apiAdmin(server *xecho.Server) {
-	var loginAuthWithJSON echo.MiddlewareFunc // 登录授权,以JSON形式
-	var loginAuthRedirect echo.MiddlewareFunc // 登录授权,以Http跳转形式
+	var loginAuthWithJSON echo.MiddlewareFunc // Login authorization, in JSON form
+	var loginAuthRedirect echo.MiddlewareFunc // Login authorization, in the form of Http jump
 
 	// If it is a local environment, go to Debug mode
 	loginAuthWithJSON = middleware.LoginAuth("/user/login", middleware.RedirectTypeJson).Func()
@@ -64,7 +65,9 @@ func apiAdmin(server *xecho.Server) {
 	if cfg.Cfg.Casbin.Enable {
 		casbinMW = middleware.CasbinMiddleware(middleware.CasbinConfig{
 			Skipper: middleware.AllowPathPrefixSkipper("/api/admin/public",
-				"/api/admin/user/login", "/api/admin/permission/menu/list", "/api/admin/confgov2/config",
+				"/api/admin/user/login",
+				"/api/admin/permission/menu/list",
+				"/api/admin/confgov2/config",
 				"/api/admin/pprof",
 			),
 			Enforcer: casbin.Casbin.SyncedEnforcer,
@@ -149,9 +152,9 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)            // 配置删除
 		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                  // 配置文件Diif，返回两个版本的配置内容
 		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW) // 配置文件Diif，返回两个版本的配置内容
-
-		configV2G.GET("/config/statics", configstatics.Statics, configReadQueryMW)
 		configV2G.POST("/app/action", confgov2.AppAction, configWriteBodyMW)
+
+		configV2G.GET("/config/statics", configstatics.Statics) // 全局的统计信息，不走应用权限
 
 		resourceG := configV2G.Group("/resource")
 		resourceG.GET("/list", configresource.List)
