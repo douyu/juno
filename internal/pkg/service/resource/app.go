@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/douyu/jupiter/pkg/conf"
 	"strconv"
 	"strings"
 	"sync"
@@ -314,6 +315,22 @@ func (r *resource) GetAppIDCListOld(appName string) (idcs []db.AppNode, err erro
 		return idcs, err
 	}
 	return idcs, nil
+}
+
+// 获取框架版本信息
+func (r *resource) GetFrameVersion(appName string) (string, error) {
+	appInfo := db.AppInfo{}
+	if err := r.DB.Where("app_name = ?", appName).First(&appInfo).Error; err != nil {
+		return "", err
+	}
+	if appInfo.Aid == 0 {
+		return "", errors.New("appInfo.Aid为0")
+	}
+	appPackage := db.AppPackage{}
+	if err := r.DB.Where("aid = ? and name = ? ", appInfo.Aid, conf.GetString("godep.gitlab.frameName")).First(&appPackage).Error; err != nil {
+		return "", err
+	}
+	return appPackage.Version, nil
 }
 
 // 获取jupiter版本信息

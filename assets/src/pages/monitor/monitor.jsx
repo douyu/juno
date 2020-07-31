@@ -1,7 +1,9 @@
 import React from 'react';
 import {connect} from 'dva';
-import {Alert, Card, Col, Radio, Row} from 'antd';
+import {Alert, Card, Col, message, Radio, Row} from 'antd';
 import {instanceOf} from "prop-types";
+import {getFrameVersion} from './services';
+
 
 const RadioGroup = Radio.Group;
 
@@ -23,6 +25,7 @@ export default class Monitor extends React.PureComponent {
       mapSys: new Map(),
       monitorType: 1,
       monitorHost: '',
+      frameVersion: '',
     };
   }
 
@@ -73,29 +76,16 @@ export default class Monitor extends React.PureComponent {
   getList = () => {
     const {appName, zoneCode, env, monitorType} = this.state;
 
-    // getSysConfig({ sysType: 1 }).then((res) => {
-    //   const { code, msg, data } = res;
-    //   if (code !== 0) {
-    //     message.error(msg);
-    //     return false;
-    //   }
-    //   let mapSys = new Map();
-    //   let typeList = [];
-    //   data.map((v) => {
-    //     if (v.sysType === 2) {
-    //       mapSys.set(v.setCate, v.setStr);
-    //       typeList.push(<Radio value={v.setCate}>{v.setCate}</Radio>);
-    //     }
-    //   });
-    //   let monitorHost = mapSys.get(monitorType);
-    //   this.setState({
-    //     sysConfig: data,
-    //     mapSys: mapSys,
-    //     monitorHost: monitorHost,
-    //     typeList,
-    //   });
-    //   return true;
-    // });
+    getFrameVersion({appName}).then((res) => {
+      const {code, msg, data} = res;
+      if (code !== 0) {
+        // message.error(msg);
+        return;
+      }
+      this.setState({
+        frameVersion: data,
+      });
+    });
   };
 
 
@@ -186,7 +176,7 @@ export default class Monitor extends React.PureComponent {
       monitorHost,
       dashboardSelected,
       monitorVersion,
-      versionName
+      versionName, frameVersion
     } = this.state;
 
 

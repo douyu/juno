@@ -16,7 +16,7 @@ export interface AppHeaderInterface extends ConfgoBase {
 }
 
 export default function AppHeader(props: AppHeaderInterface) {
-  const {appInfo, appList, getAppInfoAction, setEnvAction, env, idcList, initDisable, versionConfig, changeVersion,versionName} = props;
+  const {appInfo, appList, getAppInfoAction, setEnvAction, env, idcList, initDisable, versionConfig, changeVersion, versionName} = props;
 
   const [disable, setDisable] = useState(initDisable);
   const [visible, setVisible] = useState(false);

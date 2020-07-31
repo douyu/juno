@@ -14,6 +14,7 @@ import Config from './components/Config';
 import {connect} from "dva";
 import Etcd from "@/pages/etcd/etcd";
 import VersionSelect from '@/components/VersionSelect';
+import {getFrameVersion} from "@/pages/monitor/services";
 
 const {TabPane} = Tabs;
 
@@ -38,6 +39,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       disable: true,
       zoneCode: 'all',
       versionName: '',
+      frameVersion: '',
       tab: this.props.location.query.tab == undefined ? 'detail' : this.props.location.query.tab,
     };
   }
@@ -66,6 +68,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       this.getAppInfo(aid, appName);
       this.GetList(this.state.aid, this.state.env);
       this.getAppEnvZone(appName);
+      this.getFrameVersion(appName);
     }
 
     let queries = this.props.location.query;
@@ -105,6 +108,22 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       } else {
         message.error(res.msg);
       }
+    });
+  };
+
+  getFrameVersion = (appName: string) => {
+    getFrameVersion({appName}).then((res) => {
+      const {code, msg, data} = res;
+      if (code !== 0) {
+        // message.error(msg);
+        return;
+      }
+      const {frameVersion, versionKey} = data;
+
+      this.setState({
+        versionName: versionKey,
+      });
+
     });
   };
 
@@ -220,8 +239,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
     let view = null;
     const {aid, appName, env, appEnvZone, monitorVersion, versionName} = this.state;
     let {disable} = this.state;
-
-    const {grafana, version} = this.props.setting.settings;
+    const {version} = this.props.setting.settings;
     // const grafanaConf = grafana instanceof Array ? grafana : []
 
     if (appName != undefined && appName != '') {
