@@ -21,17 +21,19 @@ export default {
     const res = yield call(loadConfigs, appName, env);
     yield put({type: '_apply', payload: {configListLoading: false}});
 
-    if (res.status >= 300) return
+    let configList = []
+    if (res.status >= 300) {
 
-    if (res.code !== 0) {
+    } else if (res.code !== 0) {
       message.error(res.msg);
-      return
+    } else  {
+      configList = res.data
     }
 
     yield put({
       type: '_apply',
       payload: {
-        configList: res.data,
+        configList: configList
       },
     });
   },
