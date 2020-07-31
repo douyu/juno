@@ -130,7 +130,7 @@ export default class PPofList extends React.PureComponent {
 
     this.props.dispatch({
       type: 'pprofModel/list',
-      payload: {appName, zoneCode: zoneCode === 'all' ? null : zoneCode, env},
+      payload: {app_name: appName, zone_code: zoneCode === 'all' ? null : zoneCode, env},
     });
 
     this.props.dispatch({
@@ -161,7 +161,7 @@ export default class PPofList extends React.PureComponent {
     const {appName, idcCode, env} = this.state;
     this.props.dispatch({
       type: 'pprofModel/list',
-      payload: {appName, idcCode, hostName, env},
+      payload: {app_name: appName, idc_code: idcCode, host_name: hostName, env},
     });
   };
 
@@ -192,9 +192,9 @@ export default class PPofList extends React.PureComponent {
     dispatch({
       type: 'pprofModel/run',
       payload: {
-        zoneCode,
-        appName,
-        hostName,
+        zone_code: zoneCode,
+        app_name: appName,
+        host_name: hostName,
         env,
       },
       callback: (resp) => {
