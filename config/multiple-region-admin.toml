@@ -1,6 +1,7 @@
 [app]
   secretKey = "ASDFASDFASDF" # hashStatecode
   mode = "multiple" # single without proxy, multiple with proxy
+  productionEnvs = ["production"]
 
 [configure]
   dirs = ["/tmp/www/server", "/tmp/www/.config"]
@@ -141,6 +142,13 @@
         enable = false
         url = "https://xxx.xxx.com/"
 
+#################################### Config Dependency Parse #########################
+[jupiter.cron.parse]
+    withSeconds = false
+    concurrentDelay= "10s"
+    immediatelyRun = false
+
+
 
 #################################### monitor module ##############################
 [applog]
@@ -158,4 +166,3 @@
     enable = false
     # PB文件目录，该目录下的所有PB文件会被遍历
     protoDir = '../proto'
-

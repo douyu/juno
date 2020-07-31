@@ -52,8 +52,9 @@ type ServerSchema struct {
 }
 
 type App struct {
-	SecretKey string
-	Mode      string
+	Mode           string
+	SecretKey      string
+	ProductionEnvs []string
 }
 
 // Server Server

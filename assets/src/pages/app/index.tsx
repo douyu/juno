@@ -12,6 +12,8 @@ import Detail from './components/Detail/index';
 import ZoneSelect from '@/components/ZoneSelect';
 import Config from './components/Config';
 import {connect} from "dva";
+import Etcd from "@/pages/etcd/etcd";
+import VersionSelect from '@/components/VersionSelect';
 
 const {TabPane} = Tabs;
 
@@ -35,6 +37,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       monitorVersion: '',
       disable: true,
       zoneCode: 'all',
+      versionName: '',
       tab: this.props.location.query.tab == undefined ? 'detail' : this.props.location.query.tab,
     };
   }
@@ -204,16 +207,22 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
     })
   };
 
+  changeVersion = (e: any) => {
+    const versionName = e;
+    this.setState({versionName});
+  };
+
   onSelectMonitorVersion = (e) => {
     this.setState({monitorVersion: e})
   }
 
   render() {
     let view = null;
-    const {aid, appName, env, appEnvZone, monitorVersion} = this.state;
+    const {aid, appName, env, appEnvZone, monitorVersion, versionName} = this.state;
     let {disable} = this.state;
 
-    const {grafana} = this.props.setting.settings;
+    const {grafana, version} = this.props.setting.settings;
+    // const grafanaConf = grafana instanceof Array ? grafana : []
 
     if (appName != undefined && appName != '') {
       disable = false;
@@ -274,12 +283,28 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
               zoneList={this.state.zoneList}
             />
           </TabPane>
-          <TabPane tab={<Select style={{width: 160}} defaultValue={'监控'} bordered={false}
+          <TabPane tab="Etcd查询" key="etcd">
+            <Etcd
+              aid={aid}
+              env={env}
+              appName={appName}
+              appInfo={this.state.appInfo}
+              appNodeList={this.state.appNodeList}
+              appIdcList={''}
+              zoneCode={this.state.zoneCode}
+              param={''}
+              appEnvZone={appEnvZone}
+              idcList={this.state.idcList}
+              zoneList={this.state.zoneList}
+            />
+          </TabPane>
+          {/*     <TabPane tab={<Select style={{width: 160}} defaultValue={'监控'} bordered={false}
                                 onSelect={this.onSelectMonitorVersion}>
             {(grafana || []).map(item => <Select.Option key={item.version}
                                                         value={item.version}> {`监控 ` + item.version}</Select.Option>)}
 
-          </Select>} key="monitor">
+          </Select>} key="monitor">*/}
+          <TabPane tab="监控" key="monitor">
             <Monitor
               monitorVersion={monitorVersion}
               aid={aid}
@@ -293,6 +318,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
               idcList={this.state.idcList}
               zoneList={this.state.zoneList}
               zoneCode={this.state.zoneCode}
+              versionName={versionName}
             />
           </TabPane>
 
@@ -315,6 +341,9 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
                 zone_code={''}
                 idcList={this.state.idcList}
                 initDisable={disable}
+                versionConfig={version}
+                versionName={versionName}
+                changeVersion={this.changeVersion}
               />
             </Row>
             <Row>
