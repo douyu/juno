@@ -181,7 +181,7 @@ export default function AppHeader(props: AppHeaderInterface) {
             showSearch
             size="large"
             style={{width: '100%'}}
-            placeholder="框架版本"
+            placeholder="应用版本切换"
             optionFilterProp="children"
             onChange={changeVersion}
             value={versionName}

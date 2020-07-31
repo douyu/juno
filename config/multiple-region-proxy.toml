@@ -2,20 +2,13 @@
 [app]
   secretKey = "ASDFASDFASDF"
 
-[confgo]
-  dir = "/tmp/www/server"
-  prefix = "juno-agent"
-
-  [confgo.agent]
-    port = 50010
-
-
 [logger.system]
     debug = false          # 是否在命令行输出
     level = "debug"
     async = true
     name = "system.json" # 日志名称
     dir = "."
+
 [logger.biz]
     debug = false          # 是否在命令行输出
     level = "debug"
