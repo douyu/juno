@@ -1,12 +1,17 @@
 package resource
 
 import (
+	"encoding/json"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
+	"strings"
 )
 
 // 应用信息
@@ -66,6 +71,79 @@ func AppListWithEnv(c echo.Context) error {
 	}
 
 	return output.JSON(c, output.MsgOk, "success", appList)
+}
+
+type configVersion struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
+func GetFrameVersion(c echo.Context) error {
+	resp := view.RespGetFrameVersion{}
+
+	var param view.ReqGetFrameVersion
+	err := c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+
+	if param.AppName == "" {
+		return output.JSON(c, output.MsgErr, "必须传appName")
+	}
+
+	frameVersion, err := resource.Resource.GetFrameVersion(param.AppName)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+
+	resp.FrameVersion = frameVersion
+
+	if frameVersion == "" {
+		return output.JSON(c, output.MsgOk, "success", resp)
+	}
+
+	if strings.Contains(frameVersion, ".") {
+		ind := strings.LastIndex(frameVersion, ".")
+		frameVersion = frameVersion[0:ind]
+	}
+
+	settings, err := system.System.Setting.GetAll()
+	if err != nil {
+		xlog.Error("Setting.GetAll", zap.Error(err))
+	}
+	tmp, ok := settings["version"]
+	if !ok {
+		xlog.Warn("GetFrameVersion", zap.String("no key", "version"))
+		return output.JSON(c, output.MsgOk, "success", resp)
+	}
+
+	versionStruct := make([]configVersion, 0)
+	if err := json.Unmarshal([]byte(tmp), &versionStruct); err != nil {
+		xlog.Warn("GetFrameVersion", zap.String("json unmarshall", "version"), zap.Error(err))
+		return output.JSON(c, output.MsgOk, "success", resp)
+	}
+
+	for _, v := range versionStruct {
+		// v.version [v1.7, v1.8]
+		if v.Version == "" {
+			continue
+		}
+		version := v.Version
+		version = strings.TrimPrefix(version, "[")
+		version = strings.TrimPrefix(version, "]")
+		versionArray := strings.Split(version, ",")
+		for _, versionStr := range versionArray {
+			versionStr = strings.TrimSpace(versionStr)
+			if versionStr == frameVersion {
+				resp.VersionKey = v.Version
+				break
+			}
+		}
+		if resp.VersionKey != "" {
+			break
+		}
+	}
+	return output.JSON(c, output.MsgOk, "success", resp)
 }
 
 // 创建数据或者修改数据

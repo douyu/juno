@@ -18,4 +18,13 @@ type (
 		db.AppInfo
 		Envs []string `json:"envs"`
 	}
+
+	ReqGetFrameVersion struct {
+		AppName string `json:"appName"`
+	}
+
+	RespGetFrameVersion struct {
+		FrameVersion string `json:"frameVersion"`
+		VersionKey   string `json:"versionKey"`
+	}
 )
