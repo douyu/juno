@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Alert, Card, Col, Radio, Row} from 'antd';
+import {instanceOf} from "prop-types";
 
 const RadioGroup = Radio.Group;
 
@@ -17,6 +18,7 @@ export default class Monitor extends React.PureComponent {
       zoneCode: props.zoneCode,
       env: props.env,
       monitorVersion: props.monitorVersion,
+      versionName: props.versionName,
       typeList: [],
       mapSys: new Map(),
       monitorType: 1,
@@ -40,7 +42,7 @@ export default class Monitor extends React.PureComponent {
     if (nextProps.zoneCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const {zoneCode, appName, mode, env, monitorVersion} = this.state;
+    const {zoneCode, appName, mode, env, versionName} = this.state;
 
     // 内容一样就不在渲染
     if (
@@ -48,7 +50,7 @@ export default class Monitor extends React.PureComponent {
       nextProps.appName === appName &&
       nextProps.mode === mode &&
       nextProps.env === env &&
-      nextProps.monitorVersion === monitorVersion
+      nextProps.versionName === versionName
     ) {
       return;
     }
@@ -60,7 +62,7 @@ export default class Monitor extends React.PureComponent {
         appName: nextProps.appName,
         env: nextProps.env,
         mode: nextProps.mode,
-        monitorVersion: nextProps.monitorVersion,
+        versionName: nextProps.versionName,
       },
       () => {
         this.getList();
@@ -100,18 +102,17 @@ export default class Monitor extends React.PureComponent {
   monitorTypeTChange = (e) => {
     // console.log("---> monitorTypeTChange", e);
     const dashboardKey = e.target.value;
-    const {grafana} = this.props.setting.settings;
-    //  console.log("---> dashboardKey", dashboardKey);
-    if (!grafana) {
+
+    const {version} = this.props.setting.settings;
+    if (!version) {
       return;
     }
 
     let dashboardPath = '';
-    const {monitorVersion} = this.state;
+    const {versionName} = this.state;
 
-    let dashboardList = '';
-    grafana && grafana.map((item) => {
-      if (item.version && item.version === monitorVersion) {
+    (version instanceof Array) && version.map((item) => {
+      if (item.version && item.version === versionName && item.host) {
         dashboardPath = item.host + dashboardKey
       }
     })
@@ -184,16 +185,18 @@ export default class Monitor extends React.PureComponent {
       mapSys,
       monitorHost,
       dashboardSelected,
-      monitorVersion
+      monitorVersion,
+      versionName
     } = this.state;
 
-    console.log("监控 --- monitorVersion", monitorVersion);
 
-    const {grafana} = this.props.setting.settings;
+    const {version} = this.props.setting.settings;
+    console.log("监控 --- version", version);
+    console.log("监控 --- versionName", versionName);
 
     let dashboardList = [];
-    grafana && grafana.map((item) => {
-      if (item.version && item.version === monitorVersion) {
+    (version instanceof Array) && version.map((item) => {
+      if (item.version && item.version === versionName) {
         dashboardList = item.dashboards ? item.dashboards : [];
       }
     })

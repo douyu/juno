@@ -84,7 +84,8 @@ func (u *user) GetNameByUID(uid int) string {
 
 // 根据oauth获取用户
 func (u *user) CreateOrUpdateOauthUser(info *db.User) (err error) {
-	err = u.DB.Where("oauth = ? and oauth_id = ?", info.Oauth, info.OauthId).Find(&info).Error
+	var user db.User
+	err = u.DB.Where("oauth = ? and oauth_id = ?", info.Oauth, info.OauthId).First(&user).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		// system error
 		return
@@ -97,10 +98,12 @@ func (u *user) CreateOrUpdateOauthUser(info *db.User) (err error) {
 		}
 	}
 
-	err = u.Update(info.Uid, info)
+	err = u.Update(user.Uid, info)
 	if err != nil {
 		return
 	}
+
+	u.DB.Where("oauth = ? and oauth_id = ?", info.Oauth, info.OauthId).First(info)
 	return
 }
 
@@ -141,7 +144,7 @@ func (u *user) Create(item *db.User) (err error) {
 
 func (u *user) Update(uid int, user *db.User) (err error) {
 	var info db.User
-	err = u.DB.Where("uid = ?", uid).Find(&info).Error
+	err = u.DB.Where("uid = ?", uid).First(&info).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}

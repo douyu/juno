@@ -5,7 +5,7 @@ import {Button, Form, Input, InputNumber, Modal, Popconfirm, Radio, Table} from 
 import {DeleteFilled, EditFilled, FileAddFilled} from '@ant-design/icons';
 import PlusOutlined from "@ant-design/icons/lib/icons/PlusOutlined";
 
-function ModalAddGrafana(props) {
+function ModalAddVersion(props) {
   let [form] = Form.useForm();
 
   let onFinish = (vals) => {
@@ -13,21 +13,34 @@ function ModalAddGrafana(props) {
   }
 
   return <Modal
-    title={"新增Grafana代理"} {...props} width={600}
+    title={"新增应用版本相关设置"} {...props} width={600}
     onOk={() => form.submit()}
   >
     <Form form={form} labelCol={{span: 5}} onFinish={onFinish}>
 
       <Form.Item
-        label={"监控版本"}
-        name={"version"}
+        label={"应用版本名称"}
+        name={"name"}
         rules={[
           {required: true, message: "请填写版本名称"},
           // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
         ]}
       >
         <Input
-          placeholder={"示例: 监控1.0"}
+          placeholder={"示例: 支持v1.6-v1.7"}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label={"应用版本号"}
+        name={"version"}
+        rules={[
+          {required: true, message: "请填写版本号"},
+          // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
+        ]}
+      >
+        <Input
+          placeholder={"示例: [v1.0,v1.2]"}
         />
       </Form.Item>
 
@@ -101,7 +114,7 @@ function ModalAddGrafana(props) {
   </Modal>
 }
 
-function ModalEditGrafana(props) {
+function ModalEditVersion(props) {
   let [form] = Form.useForm();
 
   let onFinish = (vals) => {
@@ -117,24 +130,39 @@ function ModalEditGrafana(props) {
 
 
   return <Modal
-    title={"修改Grafana设置"} {...props} width={600}
+    title={"修改应用版本相关配置"} {...props} width={600}
     onOk={() => form.submit()}
   >
     <Form form={form} labelCol={{span: 5}} onFinish={onFinish}>
 
       <Form.Item
-        label={"监控版本"}
-        name={"version"}
-        initialValue={props.fields.version}
+        label={"应用版本名称"}
+        name={"name"}
+        initialValue={props.fields.name}
         rules={[
           {required: true, message: "请填写版本名称"},
           // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
         ]}
       >
         <Input
-          placeholder={"示例: 监控1.0"}
+          placeholder={"示例: 支持v1.6-v1.7"}
         />
       </Form.Item>
+
+      <Form.Item
+        label={"应用版本号"}
+        name={"version"}
+        initialValue={props.fields.version}
+        rules={[
+          {required: true, message: "请填写版本号"},
+          // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
+        ]}
+      >
+        <Input
+          placeholder={"示例: [v1.0,v1.2]"}
+        />
+      </Form.Item>
+
 
       <Form.Item
         label={"Grafana地址"}
@@ -209,10 +237,15 @@ function ModalEditGrafana(props) {
   </Modal>
 }
 
-const GrafanaConfigColumns = [
+const VersionConfigColumns = [
+  {
+    dataIndex: 'name',
+    title: '版本名称',
+    key: 'name'
+  },
   {
     dataIndex: 'version',
-    title: '版本',
+    title: '版本号',
     key: 'version'
   },
   {
@@ -230,55 +263,55 @@ const GrafanaConfigColumns = [
 @connect(({setting}) => ({
   settings: setting.settings
 }))
-class GrafanaSetting extends React.Component {
+class VersionSetting extends React.Component {
 
   state = {
-    modalAddGrafana: false,
+    modalAddVersion: false,
     currentEditIndex: 0,
-    modalEditGrafana: false,
+    modalEditVersion: false,
     currentEditFields: {}
   }
 
   onAddConfig = () => {
     this.setState({
-      modalAddGrafana: true,
+      modalAddVersion: true,
       currentEditFields: {},
     })
   }
 
-  onAddGrafana = (fields) => {
+  onAddVersion = (fields) => {
     console.log(fields)
 
-    console.log("## onAddGrafana this.props.setting", this.props.settings);
+    console.log("## onAddVersion this.props.setting", this.props.settings);
 
-    let grafanaValue = this.props.settings.grafana || [];
-    grafanaValue = [...grafanaValue, fields]
+    let versionValue = this.props.settings.version || [];
+    versionValue = [...versionValue, fields]
 
     this.props.dispatch({
       type: 'setting/saveSetting',
       payload: {
-        name: 'grafana',
-        content: JSON.stringify(grafanaValue)
+        name: 'version',
+        content: JSON.stringify(versionValue)
       }
     }).then(() => {
       this.props.dispatch({
         type: 'setting/loadSettings'
       })
       this.setState({
-        modalAddGrafana: false
+        modalAddVersion: false
       })
     })
   }
 
   onDelete = (index) => {
     console.log(index)
-    let grafanaValue = this.props.settings.grafana || [];
-    grafanaValue.splice(index, 1);
+    let versionValue = this.props.settings.version || [];
+    versionValue.splice(index, 1);
     this.props.dispatch({
       type: 'setting/saveSetting',
       payload: {
-        name: 'grafana',
-        content: JSON.stringify(grafanaValue)
+        name: 'version',
+        content: JSON.stringify(versionValue)
       }
     }).then(() => {
       this.props.dispatch({
@@ -292,22 +325,22 @@ class GrafanaSetting extends React.Component {
    * @param index
    */
   onEdit = (index) => {
-    let fields = this.props.settings.grafana[index]
+    let fields = this.props.settings.version[index]
     this.setState({
       currentEditIndex: index,
-      modalEditGrafana: true,
+      modalEditVersion: true,
       currentEditFields: fields
     })
   }
 
   /**
-   * 编辑Grafana窗口提交时触发
+   * 编辑Version窗口提交时触发
    */
-  onUpdateGrafana = (fields) => {
-    console.log("updateGrafana", fields);
+  onUpdateVersion = (fields) => {
+    console.log("updateVersion", fields);
     // console.log("## this.props.settings", this.props.settings);
     let index = this.state.currentEditIndex
-    let settingValue = this.props.settings.grafana || []
+    let settingValue = this.props.settings.version || []
     if (index >= settingValue.length) {
       message.error("保存出错，请刷新界面重试")
     }
@@ -316,13 +349,13 @@ class GrafanaSetting extends React.Component {
     this.props.dispatch({
       type: 'setting/saveSetting',
       payload: {
-        name: 'grafana',
+        name: 'version',
         content: JSON.stringify(settingValue)
       }
     }).then(r => {
       if (r.code === 0) {
         this.setState({
-          modalEditGrafana: false
+          modalEditVersion: false
         })
       }
       this.props.dispatch({
@@ -332,15 +365,15 @@ class GrafanaSetting extends React.Component {
   }
 
   render() {
-    const {grafana} = this.props.settings;
-    // const grafanaConf = grafana instanceof Array ? grafana : [];
-    // console.log(">> grafana", grafana)
+    const {version} = this.props.settings;
+    // const versionConf = version instanceof Array ? version : [];
+    // console.log(">> version", version)
 
-    return <SettingBlock title={"Grafana设置"}>
+    return <SettingBlock title={"应用版本相关设置"}>
       <Table
         pagination={false}
         columns={[
-          ...GrafanaConfigColumns,
+          ...VersionConfigColumns,
           {
             title: '操作',
             render: (_, record, index) => {
@@ -360,7 +393,7 @@ class GrafanaSetting extends React.Component {
             }
           }
         ]}
-        dataSource={grafana}
+        dataSource={version}
         footer={() => <div style={{textAlign: 'center'}}>
           <Button onClick={this.onAddConfig}>
             <FileAddFilled/>
@@ -369,20 +402,20 @@ class GrafanaSetting extends React.Component {
         </div>}
       />
 
-      <ModalAddGrafana
-        visible={this.state.modalAddGrafana}
-        onCancel={() => this.setState({modalAddGrafana: false})}
-        onSubmit={this.onAddGrafana}
+      <ModalAddVersion
+        visible={this.state.modalAddVersion}
+        onCancel={() => this.setState({modalAddVersion: false})}
+        onSubmit={this.onAddVersion}
       />
 
-      <ModalEditGrafana
-        visible={this.state.modalEditGrafana}
-        onCancel={() => this.setState({modalEditGrafana: false})}
-        onSubmit={this.onUpdateGrafana}
+      <ModalEditVersion
+        visible={this.state.modalEditVersion}
+        onCancel={() => this.setState({modalEditVersion: false})}
+        onSubmit={this.onUpdateVersion}
         fields={this.state.currentEditFields}
       />
     </SettingBlock>
   }
 }
 
-export default GrafanaSetting
+export default VersionSetting

@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/douyu/juno/internal/pkg/service/permission"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	casbin2 "github.com/douyu/juno/internal/pkg/service/casbin"
@@ -174,7 +176,12 @@ func CasbinAppMW(parserFn AppEnvParser, action string) echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			return AuthFailedResp(c, "当前用户没有应用权限，请联系管理员", obj, action)
+			err = permission.Permission.CheckGitlabAuth(uint(u.Uid), appName, env)
+			if err != nil {
+				return AuthFailedResp(c, "当前用户没有应用权限，请联系管理员", obj, action)
+			}
+
+			return next(c)
 		}
 	}
 }
@@ -203,8 +210,13 @@ func GrafanaAuthMW(next echo.HandlerFunc) echo.HandlerFunc {
 				return next(c)
 			}
 
-			return c.HTML(http.StatusForbidden,
-				"<div style=\"text-align:center;\">当前用户无应用权限</div>")
+			err = permission.Permission.CheckGitlabAuth(uint(u.Uid), param.AppName, param.Env)
+			if err != nil {
+				return c.HTML(http.StatusForbidden,
+					fmt.Sprintf("<div style=\"text-align:center;\">%s</div>", err.Error()))
+			}
+
+			return next(c)
 		}
 
 		return next(c)
