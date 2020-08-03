@@ -182,6 +182,9 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
   };
 
   genZoneList = (list: any, env: string) => {
+    this.setState({
+      zoneList: []
+    })
     list.forEach((element: any) => {
       if (element.env == env) {
         this.setState({
