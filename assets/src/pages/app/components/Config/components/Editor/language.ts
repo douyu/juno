@@ -1,85 +1,45 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import {INI, Toml, Yaml} from "@/pages/app/components/Config/components/Editor/languages";
 
-export const LanguageDYConf = "dy/conf"
-
-export function registerLanguage() {
-  monaco.languages.register({
-    id: LanguageDYConf
-  })
-
-  monaco.languages.setLanguageConfiguration(LanguageDYConf, {
-    brackets: [
-      ['[', ']']
-    ],
-    comments: {
-      lineComment: '#'
-    }
-  })
-}
-
-function initTokens() {
-
-  monaco.languages.setMonarchTokensProvider(LanguageDYConf, {
-    tokenPostfix: '.toml',
-    // @ts-ignore
-    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-    tokenizer: {
-      root: [
-        //variable
-        [/(\{\{)([\w\@]+)(\}\})/, ['', 'variable', '']],
-
-        // sections
-        [/\[[^\]]*\]/, 'metatag'],
-
-        // keys
-        [/(^\w+)(\s*)(\=)/, ['key', '', 'delimiter']],
-
-        [/([\w\.]+)(\s*)(\=)/, ['key', '', 'delimiter']],
-
-        [/\d+/, 'number'],
-
-        // [/"([^"\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
-        // [/'([^'\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
-        // [/"/, 'string', '@string."'],
-        // [/'/, 'string', '@string.\''],
-
-        [/"([^"\\])"/, 'string'],
-        [/'([^"\\])'/, 'string'],
-
-        {include: '@whitespace'},
-
-      ],
-      whitespace: [
-        [/[ \t\r\n]+/, ''],
-        [/^\s*[#;].*$/, 'comment'],
-        [/(#.*)$/, 'comment'],
-      ],
-      string: [
-        [/[^\\"']+/, 'string'],
-        [/@escapes/, 'string.escape'],
-        [/\\./, 'string.escape.invalid'],
-        [/["']/, {
-          cases: {
-            '$#==$S2': {token: 'string', next: '@pop'},
-            '@default': 'string'
-          }
-        }],
-      ],
-      variable: [
-        [/[\{]/, {
-          cases: {
-            '$#==$S2': {token: 'variable', next: '@pop'},
-            '@default': 'variable'
-          }
-        }]
-      ]
-    }
-  })
-}
+const languages = [
+  Toml,
+  INI,
+  Yaml
+]
 
 export default function initLanguage() {
+  monaco.editor.defineTheme('dy-vs-dark', {
+    colors: {},
+    inherit: true,
+    base: 'vs-dark',
+    rules: [
+      {
+        token: 'variable',
+        foreground: '#8fd9ff',
+        fontStyle: 'bold'
+      },
+      {
+        token: 'string.escape',
+        foreground: '#668658',
+        fontStyle: 'bold'
+      }
+    ]
+  })
 
-  registerLanguage()
-  initTokens()
+  for (let lang of languages) {
+    monaco.languages.register({
+      id: lang.id()
+    })
+
+    monaco.languages.setLanguageConfiguration(
+      lang.id(),
+      lang.configuration(),
+    )
+
+    monaco.languages.setMonarchTokensProvider(
+      lang.id(),
+      lang.tokensProvider()
+    )
+  }
 
 }
