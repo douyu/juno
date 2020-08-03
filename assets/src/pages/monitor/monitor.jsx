@@ -1,13 +1,12 @@
 import React from 'react';
-import {connect} from 'dva';
-import {Alert, Card, Col, message, Radio, Row} from 'antd';
-import {instanceOf} from "prop-types";
-import {getFrameVersion} from './services';
-
+import { connect } from 'dva';
+import { Alert, Card, Col, message, Radio, Row, Empty } from 'antd';
+import { instanceOf } from 'prop-types';
+import { getFrameVersion } from './services';
 
 const RadioGroup = Radio.Group;
 
-@connect(({setting}) => ({
+@connect(({ setting }) => ({
   setting,
 }))
 export default class Monitor extends React.PureComponent {
@@ -16,6 +15,7 @@ export default class Monitor extends React.PureComponent {
     this.state = {
       sysConfig: [],
       appName: props.appName,
+      aid: props.aid,
       mode: props.mode,
       zoneCode: props.zoneCode,
       env: props.env,
@@ -45,7 +45,7 @@ export default class Monitor extends React.PureComponent {
     if (nextProps.zoneCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const {zoneCode, appName, mode, env, versionName} = this.state;
+    const { zoneCode, appName, mode, env, versionName } = this.state;
 
     // 内容一样就不在渲染
     if (
@@ -74,10 +74,10 @@ export default class Monitor extends React.PureComponent {
   }
 
   getList = () => {
-    const {appName, zoneCode, env, monitorType} = this.state;
+    const { appName, zoneCode, env, monitorType } = this.state;
 
-    getFrameVersion({appName}).then((res) => {
-      const {code, msg, data} = res;
+    getFrameVersion({ appName }).then((res) => {
+      const { code, msg, data } = res;
       if (code !== 0) {
         // message.error(msg);
         return;
@@ -88,52 +88,63 @@ export default class Monitor extends React.PureComponent {
     });
   };
 
-
   monitorTypeTChange = (e) => {
     // console.log("---> monitorTypeTChange", e);
     const dashboardKey = e.target.value;
 
-    const {version} = this.props.setting.settings;
+    const { version } = this.props.setting.settings;
     if (!version) {
       return;
     }
 
     let dashboardPath = '';
-    const {versionName} = this.state;
+    const { versionName } = this.state;
 
-    (version instanceof Array) && version.map((item) => {
-      if (item.version && item.version === versionName && item.host) {
-        dashboardPath = item.host + dashboardKey
-      }
-    })
+    version instanceof Array &&
+      version.map((item) => {
+        if (item.version && item.version === versionName && item.host) {
+          dashboardPath = item.host + dashboardKey;
+        }
+      });
 
     // let dashboardPath = grafana[dashboardKey];
     this.setState({
       dashboardPath,
       dashboardSelected: dashboardKey,
     });
-
   };
 
   renderGrafana = () => {
-    const {appName, zoneCode, env, monitorHost} = this.state;
+    const { appName, zoneCode, env, monitorHost, versionName, aid } = this.state;
+
+    let versionRealName = '';
+    const { version } = this.props.setting.settings;
+    version instanceof Array &&
+      version.map((item) => {
+        if (item.version && item.version === versionName) {
+          versionRealName = item.name;
+        }
+      });
+
+    console.log('renderGrafana---aid', aid);
+
     let dashboardPath = this.state.dashboardPath;
     if (!dashboardPath) {
       return (
-        <div style={{marginTop: 10}}>
-          <Alert message="请选择监控类型" description="" type="warning" showIcon/>
+        <div style={{ marginTop: 10 }}>
+          <Empty description={'请选择监控类型'} style={{ padding: '100px' }} />
         </div>
       );
     }
 
     if (zoneCode == '' || zoneCode == 'all') {
       return (
-        <div style={{marginTop: 10}}>
-          <Alert message="请选择可用区" description="" type="warning" showIcon/>
+        <div style={{ marginTop: 10 }}>
+          <Empty description={'请选择可用区'} style={{ padding: '100px' }} />
         </div>
       );
     }
-    let datasource = env + '.' + zoneCode;
+    let datasource = env + '.' + zoneCode + '.' + versionRealName;
 
     console.log('renderGrafana -> zoneCode', zoneCode);
     let url =
@@ -145,20 +156,20 @@ export default class Monitor extends React.PureComponent {
       env +
       '&var-datasource=' +
       datasource +
+      '&var-aid=' +
+      aid +
       // '&from=now-30m&to=now&kiosk';
       '&from=now-30m&to=now';
-    console.log('>>>>>>>>>> url', url);
-    // let url = 'ss1111111111111';
 
     return (
-      <div style={{display: 'block', overflow: 'hidden', marginLeft: '10px'}}>
+      <div style={{ display: 'block', overflow: 'hidden', marginLeft: '10px' }}>
         <iframe
           src={url}
           scrolling="no"
           width="104%"
           height={2000}
           frameBorder={0}
-          style={{marginLeft: '-72px', overflow: 'hidden'}}
+          style={{ marginLeft: '-72px', overflow: 'hidden' }}
         />
       </div>
     );
@@ -176,41 +187,41 @@ export default class Monitor extends React.PureComponent {
       monitorHost,
       dashboardSelected,
       monitorVersion,
-      versionName
+      versionName,
     } = this.state;
 
-
-    const {version} = this.props.setting.settings;
-    console.log("监控 --- version", version);
-    console.log("监控 --- versionName", versionName);
-
+    const { version } = this.props.setting.settings;
+    console.log('监控 --- version', version);
+    console.log('监控 --- versionName', versionName);
+    console.log('this.props.setting.settings', this.props.setting.settings);
     let dashboardList = [];
-    (version instanceof Array) && version.map((item) => {
-      if (item.version && item.version === versionName) {
-        dashboardList = item.dashboards ? item.dashboards : [];
-      }
-    })
-    console.log("监控 --- dashboardList", dashboardList);
+    version instanceof Array &&
+      version.map((item) => {
+        if (item.version && item.version === versionName) {
+          dashboardList = item.dashboards ? item.dashboards : [];
+        }
+      });
+    console.log('监控 --- dashboardList', dashboardList);
     let dashboardRadios = [];
     dashboardList &&
-    dashboardList.map((item) => {
-      dashboardRadios.push(
-        <Radio.Button key={item.name} value={item.value}>
-          {item.name}
-        </Radio.Button>,
-      );
-    });
+      dashboardList.map((item) => {
+        dashboardRadios.push(
+          <Radio.Button key={item.name} value={item.value}>
+            {item.name}
+          </Radio.Button>,
+        );
+      });
     if (!env) {
       return (
-        <div style={{marginTop: 10}}>
-          <Alert message="Warning" description="请选择环境." type="warning" showIcon/>
+        <div style={{ marginTop: 10 }}>
+          <Alert message="Warning" description="请选择环境." type="warning" showIcon />
         </div>
       );
     }
-    console.log("dashboardSelected", dashboardSelected)
-    console.log("dashboardRadios", dashboardRadios)
+    console.log('dashboardSelected', dashboardSelected);
+    console.log('dashboardRadios', dashboardRadios);
     return (
-      <div style={{backgroundColor: '#f7f8fa'}}>
+      <div style={{ backgroundColor: '#f7f8fa' }}>
         <div
           style={{
             marginLeft: 10,
@@ -222,7 +233,7 @@ export default class Monitor extends React.PureComponent {
           }}
         >
           <Row gutter={24} className="top">
-            <Col span={22}>
+            <Col span={22} style={{ marginLeft: '10px', paddingBottom: '10px' }}>
               {dashboardRadios ? (
                 <RadioGroup
                   defaultValue={''}
