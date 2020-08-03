@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import styles from './index.less';
 import {Menu} from "./components/Menu";
-import {FileOutlined, CloudServerOutlined} from '@ant-design/icons'
+import {CloudServerOutlined, FileOutlined} from '@ant-design/icons'
 import Files from "./components/Files";
 import {connect} from 'dva'
 import ModalCreate from "@/pages/app/components/Config/components/ModalCreate";
@@ -21,8 +21,7 @@ const MenuItems = [
 ]
 
 function LeftSide(props) {
-  const {visibleModalCreate} = props
-  const [activeMenuKey, setActiveMenuKey] = useState('config-edit')
+  const {visibleModalCreate, activeMenuKey, setActiveMenuKey} = props
 
   let renderMain = () => {
     switch (activeMenuKey) {
@@ -55,13 +54,15 @@ function LeftSide(props) {
 const mapStateToProps = ({config}) => {
   return {
     configList: config.configList,
-    visibleModalCreate: config.visibleModalCreate
+    visibleModalCreate: config.visibleModalCreate,
+    activeMenuKey: config.leftSideActiveMenu,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    showCreateModal: visible => dispatch({type: 'config/showCreateModal', payload: visible})
+    showCreateModal: visible => dispatch({type: 'config/showCreateModal', payload: visible}),
+    setActiveMenuKey: key => dispatch({type: 'config/setLeftSideActiveMenu', payload: key})
   }
 }
 

@@ -10,6 +10,9 @@ const defaultState = {
 
   zoneList: [],
 
+  // 左侧菜单
+  leftSideActiveMenu: 'config-edit', // 当前选择的菜单项
+
   // 实例列表
   configInstanceList: [],
   configInstanceListLoading: false,
