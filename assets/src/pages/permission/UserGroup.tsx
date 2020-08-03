@@ -99,7 +99,10 @@ function UserGroup(props: UserGroupProps) {
         <Table
           dataSource={users}
           columns={userListColumns}
-          pagination={pagination}
+          pagination={{
+            ...pagination,
+            current: pagination.current + 1
+          }}
           loading={usersLoading}
           onChange={(pagination) => {
             fetchUserList({
@@ -119,7 +122,7 @@ function UserGroup(props: UserGroupProps) {
 const mapStateToProps = ({userGroup, user}: ConnectState) => {
   return {
     users: userGroup.users,
-    usersPagination: userGroup.usersPagination,
+    pagination: userGroup.usersPagination,
     usersLoading: userGroup.usersLoading,
     searchText: userGroup.userSearchText,
     userGroups: userGroup.userGroups,
