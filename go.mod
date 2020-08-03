@@ -12,6 +12,7 @@ require (
 	github.com/coreos/etcd v3.3.22+incompatible
 	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc // indirect
 	github.com/douyu/jupiter v0.0.0-20200709073817-3e760e50d665
+	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/go-playground/validator/v10 v10.3.0
 	github.com/go-resty/resty/v2 v2.2.0
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
