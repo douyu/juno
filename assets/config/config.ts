@@ -3,6 +3,7 @@ import {defineConfig} from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const {REACT_APP_ENV} = process.env;
 export default defineConfig({
@@ -238,4 +239,12 @@ export default defineConfig({
   manifest: {
     basePath: '/ant/',
   },
+  chainWebpack(config, {env, webpack, createCSSRule}) {
+    config.plugin('MonacoWebpackPlugin').use(MonacoWebpackPlugin, [
+      {
+        languages: ["json", "ini", "yaml", "toml"],
+        features: ["coreCommands", "find"]
+      }
+    ])
+  }
 });
