@@ -242,7 +242,7 @@ export default defineConfig({
   chainWebpack(config, {env, webpack, createCSSRule}) {
     config.plugin('MonacoWebpackPlugin').use(MonacoWebpackPlugin, [
       {
-        languages: ["json", "ini", "yaml", "toml"],
+        languages: [],
         features: ["coreCommands", "find"]
       }
     ])
