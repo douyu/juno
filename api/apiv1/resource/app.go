@@ -74,8 +74,9 @@ func AppListWithEnv(c echo.Context) error {
 }
 
 type configVersion struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
+	Name       string `json:"name"`
+	Version    string `json:"version"`
+	VersionKey string `json:"versionKey"` // 版本key
 }
 
 func GetFrameVersion(c echo.Context) error {
@@ -102,6 +103,7 @@ func GetFrameVersion(c echo.Context) error {
 		return output.JSON(c, output.MsgOk, "success", resp)
 	}
 
+	// v1.7.1 去掉最后的.1
 	if strings.Contains(frameVersion, ".") {
 		ind := strings.LastIndex(frameVersion, ".")
 		frameVersion = frameVersion[0:ind]
@@ -118,24 +120,24 @@ func GetFrameVersion(c echo.Context) error {
 	}
 
 	versionStruct := make([]configVersion, 0)
-	if err := json.Unmarshal([]byte(tmp), &versionStruct); err != nil {
+	if err := json.Unmarshal([]byte(strings.TrimSpace(tmp)), &versionStruct); err != nil {
 		xlog.Warn("GetFrameVersion", zap.String("json unmarshall", "version"), zap.Error(err))
 		return output.JSON(c, output.MsgOk, "success", resp)
 	}
 
 	for _, v := range versionStruct {
-		// v.version [v1.7, v1.8]
+		// v.version v1.7, v1.8
 		if v.Version == "" {
 			continue
 		}
-		version := v.Version
-		version = strings.TrimPrefix(version, "[")
-		version = strings.TrimPrefix(version, "]")
+		version := strings.TrimSpace(v.Version)
+		//version = strings.TrimPrefix(version, "[")
+		//version = strings.TrimPrefix(version, "]")
 		versionArray := strings.Split(version, ",")
 		for _, versionStr := range versionArray {
 			versionStr = strings.TrimSpace(versionStr)
 			if versionStr == frameVersion {
-				resp.VersionKey = v.Version
+				resp.VersionKey = v.VersionKey
 				break
 			}
 		}

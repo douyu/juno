@@ -3,6 +3,7 @@ package confgov2
 import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/xlog"
+	"regexp"
 
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
@@ -67,6 +68,11 @@ func Create(c echo.Context) (err error) {
 	err = c.Validate(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
+	}
+
+	fileNameRegex := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_-]{5,15}$")
+	if !fileNameRegex.MatchString(param.FileName) {
+		return output.JSON(c, output.MsgErr, "无效的文件名")
 	}
 
 	resp, err := confgov2.Create(param)

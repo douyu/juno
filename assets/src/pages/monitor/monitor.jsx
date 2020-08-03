@@ -20,12 +20,11 @@ export default class Monitor extends React.PureComponent {
       zoneCode: props.zoneCode,
       env: props.env,
       monitorVersion: props.monitorVersion,
-      versionName: props.versionName,
+      versionKey: props.versionKey,
       typeList: [],
       mapSys: new Map(),
       monitorType: 1,
       monitorHost: '',
-      frameVersion: '',
     };
   }
 
@@ -45,7 +44,7 @@ export default class Monitor extends React.PureComponent {
     if (nextProps.zoneCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const { zoneCode, appName, mode, env, versionName } = this.state;
+    const { zoneCode, appName, mode, env, versionKey } = this.state;
 
     // 内容一样就不在渲染
     if (
@@ -53,7 +52,7 @@ export default class Monitor extends React.PureComponent {
       nextProps.appName === appName &&
       nextProps.mode === mode &&
       nextProps.env === env &&
-      nextProps.versionName === versionName
+      nextProps.versionKey === versionKey
     ) {
       return;
     }
@@ -65,7 +64,7 @@ export default class Monitor extends React.PureComponent {
         appName: nextProps.appName,
         env: nextProps.env,
         mode: nextProps.mode,
-        versionName: nextProps.versionName,
+        versionKey: nextProps.versionKey,
       },
       () => {
         this.getList();
@@ -74,18 +73,6 @@ export default class Monitor extends React.PureComponent {
   }
 
   getList = () => {
-    const { appName, zoneCode, env, monitorType } = this.state;
-
-    getFrameVersion({ appName }).then((res) => {
-      const { code, msg, data } = res;
-      if (code !== 0) {
-        // message.error(msg);
-        return;
-      }
-      this.setState({
-        frameVersion: data,
-      });
-    });
   };
 
   monitorTypeTChange = (e) => {
@@ -98,11 +85,11 @@ export default class Monitor extends React.PureComponent {
     }
 
     let dashboardPath = '';
-    const { versionName } = this.state;
+    const { versionKey } = this.state;
 
     version instanceof Array &&
       version.map((item) => {
-        if (item.version && item.version === versionName && item.host) {
+        if (item.version && item.versionKey === versionKey && item.host) {
           dashboardPath = item.host + dashboardKey;
         }
       });
@@ -115,13 +102,13 @@ export default class Monitor extends React.PureComponent {
   };
 
   renderGrafana = () => {
-    const { appName, zoneCode, env, monitorHost, versionName, aid } = this.state;
+    const { appName, zoneCode, env, monitorHost, versionKey, aid } = this.state;
 
     let versionRealName = '';
     const { version } = this.props.setting.settings;
     version instanceof Array &&
       version.map((item) => {
-        if (item.version && item.version === versionName) {
+        if (item.versionKey && item.versionKey === versionKey) {
           versionRealName = item.name;
         }
       });
@@ -187,17 +174,17 @@ export default class Monitor extends React.PureComponent {
       monitorHost,
       dashboardSelected,
       monitorVersion,
-      versionName,
+      versionKey,
     } = this.state;
 
     const { version } = this.props.setting.settings;
     console.log('监控 --- version', version);
-    console.log('监控 --- versionName', versionName);
+    console.log('监控 --- versionKey', versionKey);
     console.log('this.props.setting.settings', this.props.setting.settings);
     let dashboardList = [];
     version instanceof Array &&
       version.map((item) => {
-        if (item.version && item.version === versionName) {
+        if (item.versionKey && item.versionKey === versionKey) {
           dashboardList = item.dashboards ? item.dashboards : [];
         }
       });

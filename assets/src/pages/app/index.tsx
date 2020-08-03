@@ -68,7 +68,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       this.getAppInfo(aid, appName);
       this.GetList(this.state.aid, this.state.env);
       this.getAppEnvZone(appName);
-      this.getFrameVersion(appName);
+      // this.getFrameVersion(appName);
     }
 
     let queries = this.props.location.query;
@@ -80,12 +80,28 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       },
     });
 
-    const {zone} = queries
+    const {zone, versionKey} = queries
     if (zone) {
       this.setState({
         zoneCode: zone
       })
     }
+
+    // 加载设置
+    this.props.dispatch({
+      type: 'setting/loadSettings',
+    });
+
+    if (versionKey) {
+      this.setState({
+        versionKey
+      })
+    } else {
+      if (appName != undefined && appName != 0) {
+        this.getFrameVersion(appName);
+      }
+    }
+
   }
 
   getAppInfo = (aid: number, appName: string) => {
@@ -123,8 +139,16 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       const {versionKey} = data;
 
       this.setState({
-        versionName: versionKey,
+        versionKey,
       });
+
+      let queries = this.props.location.query;
+      history.push({
+        query: {
+          ...queries,
+          versionKey
+        }
+      })
 
     });
   };
@@ -158,6 +182,9 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
   };
 
   genZoneList = (list: any, env: string) => {
+    this.setState({
+      zoneList: []
+    })
     list.forEach((element: any) => {
       if (element.env == env) {
         this.setState({
@@ -228,8 +255,15 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
   };
 
   changeVersion = (e: any) => {
-    const versionName = e;
-    this.setState({versionName});
+    const versionKey = e;
+    this.setState({versionKey});
+    let queries = this.props.location.query;
+    history.push({
+      query: {
+        ...queries,
+        versionKey
+      }
+    })
   };
 
   onSelectMonitorVersion = (e) => {
@@ -238,7 +272,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
 
   render() {
     let view = null;
-    const {aid, appName, env, appEnvZone, monitorVersion, versionName} = this.state;
+    const {aid, appName, env, appEnvZone, monitorVersion, versionKey} = this.state;
     let {disable} = this.state;
     const {version} = this.props.setting.settings;
     // const grafanaConf = grafana instanceof Array ? grafana : []
@@ -249,13 +283,13 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
 
     if (aid == undefined || isNaN(aid) || aid == 0) {
       view = (
-        <div style={{marginTop: 10, width:'100%'}}>
-           <Empty description={"请选择应用"} style={{padding: '100px'}}/>
+        <div style={{marginTop: 10, width: '100%'}}>
+          <Empty description={"请选择应用"} style={{padding: '100px'}}/>
         </div>
       );
-    } else if (env == undefined  || env == "") {
+    } else if (env == undefined || env == "") {
       view = (
-        <div style={{marginTop: 10, width:'100%'}}>
+        <div style={{marginTop: 10, width: '100%'}}>
           <Empty description={"请选择环境"} style={{padding: '100px'}}/>
         </div>
       );
@@ -341,7 +375,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
               idcList={this.state.idcList}
               zoneList={this.state.zoneList}
               zoneCode={this.state.zoneCode}
-              versionName={versionName}
+              versionKey={versionKey}
             />
           </TabPane>
 
@@ -365,7 +399,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
                 idcList={this.state.idcList}
                 initDisable={disable}
                 versionConfig={version}
-                versionName={versionName}
+                versionKey={versionKey}
                 changeVersion={this.changeVersion}
               />
             </Row>
