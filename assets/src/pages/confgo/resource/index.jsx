@@ -9,7 +9,7 @@ import ModalEditResource from "@/pages/confgo/resource/components/ModalEditResou
 import moment from "moment";
 
 function ResourcePage(props) {
-  const {zoneEnv, list, loadZoneEnvTree, listLoading, loadList, showModalCreateResource} = props
+  const {zoneEnv, list, loadZoneEnvTree, listLoading, loadList, showModalCreateResource, pagination} = props
   const {page = 0, pageSize = 10, env = null, zone = null, query = ''} = props.location.query
 
   useEffect(() => {
@@ -157,6 +157,10 @@ function ResourcePage(props) {
               }
             ]}
           dataSource={list}
+          pagination={{
+            ...pagination,
+            current: pagination.current + 1
+          }}
           onChange={handleTableChange}
         />
       </Space>
