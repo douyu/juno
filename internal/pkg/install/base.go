@@ -31,7 +31,7 @@ func MockData() {
 	mockAppNode(urlAppNodePut, router)
 	//mockTplCreate(urlConfigTplCreate, router)
 	//mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
-	//mockParse(urlConfigGeneratorParse, router)
+	// mockParse(urlConfigGeneratorParse, router)
 	mockCreateUser(urlUserCreate, router)
 }
 

@@ -154,6 +154,7 @@ export default class ServiceTopology extends Component {
         message.error(res.msg);
         return false;
       }
+      console.log("-------> res.data",res.data);
       this.setState({
         listData: res.data,
       });

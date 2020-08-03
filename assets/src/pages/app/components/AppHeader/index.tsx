@@ -16,7 +16,18 @@ export interface AppHeaderInterface extends ConfgoBase {
 }
 
 export default function AppHeader(props: AppHeaderInterface) {
-  const {appInfo, appList, getAppInfoAction, setEnvAction, env, idcList, initDisable, versionConfig, changeVersion, versionName} = props;
+  const {
+    appInfo,
+    appList,
+    getAppInfoAction,
+    setEnvAction,
+    env,
+    idcList,
+    initDisable,
+    versionConfig,
+    changeVersion,
+    versionKey,
+  } = props;
 
   const [disable, setDisable] = useState(initDisable);
   const [visible, setVisible] = useState(false);
@@ -59,7 +70,11 @@ export default function AppHeader(props: AppHeaderInterface) {
 
   let dataSource: {} | any = [];
   appList.forEach((value: any, index: number) => {
-    dataSource.push(<Option key={index} value={value.aid + '*' + value.app_name}>{value.app_name}</Option>);
+    dataSource.push(
+      <Option key={index} value={value.aid + '*' + value.app_name}>
+        {value.app_name}
+      </Option>,
+    );
   });
 
   let appChange = (value: any) => {
@@ -70,14 +85,16 @@ export default function AppHeader(props: AppHeaderInterface) {
 
   let versionOpt: {} | any = [];
 
-  (versionConfig instanceof Array) && versionConfig.map((item) => {
-    if (item.version && item.name) {
-      versionOpt.push(<Option value={item.version}>
-        <Tag color="#87d068">{item.name}</Tag>
-      </Option>)
+  versionConfig instanceof Array &&
+  versionConfig.map((item) => {
+    if (item.name && item.versionKey) {
+      versionOpt.push(
+        <Option value={item.versionKey}>
+          <Tag color="#87d068">{item.name}</Tag>
+        </Option>,
+      );
     }
-  })
-
+  });
 
   let envOpt: {} | any = [];
   let envRepeatMap: {} | any = [];
@@ -181,10 +198,10 @@ export default function AppHeader(props: AppHeaderInterface) {
             showSearch
             size="large"
             style={{width: '100%'}}
-            placeholder="框架版本"
+            placeholder="服务版本切换"
             optionFilterProp="children"
             onChange={changeVersion}
-            value={versionName}
+            value={versionKey}
             disabled={disable}
             filterOption={(input, option) =>
               option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -194,9 +211,6 @@ export default function AppHeader(props: AppHeaderInterface) {
           </Select>
         </Col>
         <Col>
-          {/* <div className={styles.cube}>HTTP: {http_port}</div>
-          <div className={styles.cube}>gRPC: {rpc_port}</div>
-          <div className={styles.cube}>Govern: {govern_port}</div> */}
           <div className={styles.cube}>
             <a type="primary" onClick={showDrawer}>
               <DesktopOutlined/>
