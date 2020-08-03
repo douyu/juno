@@ -327,7 +327,7 @@ class Search extends React.Component {
                     htmlType="submit"
                     loading={loading}
                 >
-                    筛选
+                    查询
                 </Button>
             </Form.Item>;
         },
@@ -348,7 +348,7 @@ class Search extends React.Component {
                       this.formRef.current.resetFields()
                     }}
                 >
-                    清空筛选
+                    清空条件
                 </Button>
             </Form.Item>;
         }
