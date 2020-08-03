@@ -41,7 +41,8 @@ const pprofBtn = {
 
 const {TextArea} = Input;
 
-@connect(({pprofModel, loading}) => ({
+@connect(({pprofModel, setting, loading}) => ({
+  setting,
   pprofList: pprofModel.pprofList,
   //appNodeList: appModel.appNodeList
 }))
@@ -75,6 +76,10 @@ export default class PPofList extends React.PureComponent {
     console.log('>>>>> props', this.props);
     this.getList();
     this.GetCheckDep();
+    // 加载设置
+    this.props.dispatch({
+      type: 'setting/loadSettings',
+    });
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
