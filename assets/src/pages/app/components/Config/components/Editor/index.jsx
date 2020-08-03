@@ -35,6 +35,7 @@ function Editor(props) {
       }
 
       let editorInstance = createEditor(editorRef, {
+        format: currentConfig?.format || "toml",
         onInsertResource: (callback) => {
           showModalInsertResource(true)
           setInsertModalCB({callback})
