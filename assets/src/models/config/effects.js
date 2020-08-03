@@ -382,5 +382,14 @@ export default {
         visibleModalRealtimeConfig: payload
       }
     })
+  },
+
+  * setLeftSideActiveMenu({payload}, {call, put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        leftSideActiveMenu: payload
+      }
+    })
   }
 };
