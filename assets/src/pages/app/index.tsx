@@ -89,7 +89,9 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
   }
 
   getAppInfo = (aid: number, appName: string) => {
+    const {env} = this.state
     this.getAppEnvZone(appName);
+    this.GetList(aid, env)
     ServiceAppInfo(aid, appName).then((res) => {
       if (res.code === 0) {
         this.setState({
@@ -113,12 +115,12 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
 
   getFrameVersion = (appName: string) => {
     getFrameVersion({appName}).then((res) => {
-      const {code, msg, data} = res;
+      const {code, data} = res;
       if (code !== 0) {
         // message.error(msg);
         return;
       }
-      const {frameVersion, versionKey} = data;
+      const {versionKey} = data;
 
       this.setState({
         versionName: versionKey,
@@ -142,7 +144,6 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       },
     });
   };
-
   getAppEnvZone = (appName: string) => {
     ServiceAppEnvZone(appName).then((res) => {
       if (res.code === 0) {
@@ -271,6 +272,9 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
               aid={aid}
               env={env}
               appNodeList={this.state.appNodeList}
+              onEditAppNode={() => {
+                this.getAppInfo(this.state.aid, this.state.appName)
+              }}
             />
           </TabPane>
           <TabPane tab="配置" key="confgo">
