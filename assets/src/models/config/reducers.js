@@ -2,7 +2,7 @@ export default {
   _setZoneList(state, {payload}) {
     return {
       ...state,
-      zoneList: payload
+      zoneList: payload || []
     }
   },
   _apply(state, {payload}) {
