@@ -27,7 +27,7 @@ function ModalAddVersion(props) {
         ]}
       >
         <Input
-          placeholder={"示例: 支持v1.6-v1.7"}
+          placeholder={"示例: 支持v1.6~v1.7"}
         />
       </Form.Item>
 
@@ -40,7 +40,20 @@ function ModalAddVersion(props) {
         ]}
       >
         <Input
-          placeholder={"示例: [v1.0,v1.2]"}
+          placeholder={"示例: v1.0,v1.2"}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label={"应用版本Key"}
+        name={"versionKey"}
+        rules={[
+          {required: true, message: "请填写框架版本Key"},
+          // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
+        ]}
+      >
+        <Input
+          placeholder={"示例: jupiter1.0series"}
         />
       </Form.Item>
 
@@ -142,7 +155,7 @@ function ModalEditVersion(props) {
         ]}
       >
         <Input
-          placeholder={"示例: 支持v1.6-v1.7"}
+          placeholder={"示例: 支持v1.6~v1.7"}
         />
       </Form.Item>
 
@@ -156,7 +169,21 @@ function ModalEditVersion(props) {
         ]}
       >
         <Input
-          placeholder={"示例: [v1.0,v1.2]"}
+          placeholder={"示例: v1.0,v1.2"}
+        />
+      </Form.Item>
+
+      <Form.Item
+        label={"应用版本Key"}
+        name={"versionKey"}
+        initialValue={props.fields.versionKey}
+        rules={[
+          {required: true, message: "请填写框架版本Key"},
+          // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
+        ]}
+      >
+        <Input
+          placeholder={"示例: jupiter1.0series"}
         />
       </Form.Item>
 
@@ -241,6 +268,11 @@ const VersionConfigColumns = [
     dataIndex: 'version',
     title: '版本号',
     key: 'version'
+  },
+  {
+    dataIndex: 'versionKey',
+    title: '版本Key',
+    key: 'versionKey'
   },
   {
     dataIndex: 'host',
