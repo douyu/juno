@@ -3,7 +3,7 @@ import {languages, Thenable} from "monaco-editor";
 
 export const Toml: Language = {
   id() {
-    return "toml"
+    return "dy/toml"
   },
   configuration() {
     return {
@@ -53,7 +53,7 @@ export const Toml: Language = {
           [/(^\w+)(\s*)(\=)/, ['key', '', 'delimiter']],
 
           // whitespace
-          { include: '@whitespace' },
+          {include: '@whitespace'},
 
           // numbers
           [/\d+/, 'number'],
@@ -77,7 +77,7 @@ export const Toml: Language = {
           [/\\./, 'string.escape.invalid'],
           [/["']/, {
             cases: {
-              '$#==$S2': { token: 'string', next: '@pop' },
+              '$#==$S2': {token: 'string', next: '@pop'},
               '@default': 'string'
             }
           }]
