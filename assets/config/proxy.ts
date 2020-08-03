@@ -22,12 +22,12 @@ export default {
   },
   test: {
     '/api/admin': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://192.168.56.101:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/grafana': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://192.168.56.101:50000',
     },
   },
   pre: {
