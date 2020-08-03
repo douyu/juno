@@ -14,25 +14,37 @@ import (
 
 func MockData() {
 	router := echo.New()
-	urlAppPut := "/app/put"
-	urlAppNodePut := "/app_node/put"
-	urlConfigTplCreate := "/config/tpl/create"
-	//urlConfigFileCreate := "/config/file/create"
-	//urlConfigContentUpdate := "/config/content/update"
-	//urlConfigGeneratorParse := "/config/parse"
-	urlUserCreate := "/user/create"
+	var (
+		urlAppPut          = "/app/put"
+		urlAppNodePut      = "/app_node/put"
+		urlConfigTplCreate = "/config/tpl/create"
+		//urlConfigFileCreate := "/config/file/create"
+		//urlConfigContentUpdate := "/config/content/update"
+		//urlConfigGeneratorParse := "/config/parse"
+		urlSystemSetUpdate = "/system/setting/create"
+		urlUserCreate      = "/user/create"
+	)
 
 	router.POST(urlAppPut, resource.AppPut)
 	router.POST(urlAppNodePut, resource.AppNodePut)
 	router.POST(urlConfigTplCreate, confgo.TplCreate)
 	router.POST(urlUserCreate, user.Create)
+	router.POST(urlSystemSetUpdate, system.SettingCreate)
 
 	mockApp(urlAppPut, router)
 	mockAppNode(urlAppNodePut, router)
 	//mockTplCreate(urlConfigTplCreate, router)
-	//mockConfig(urlConfigFileCreate, urlConfigContentUpdate, router)
+	mockSystemSet(urlSystemSetUpdate, router)
 	// mockParse(urlConfigGeneratorParse, router)
 	mockCreateUser(urlUserCreate, router)
+}
+
+func MustMockSysTemSetData() {
+	router := echo.New()
+	urlSystemSetUpdate := "/system/setting/create"
+	router.POST(urlSystemSetUpdate, system.SettingCreate)
+	mockSystemSet(urlSystemSetUpdate, router)
+	mockAdminUser()
 }
 
 func MustMockData() {

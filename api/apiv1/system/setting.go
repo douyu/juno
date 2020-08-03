@@ -53,6 +53,7 @@ func SettingCreate(c echo.Context) error {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "无效的参数:"+err.Error())
 	}
+	fmt.Println(">>>> req", req)
 
 	settingName := req.Name
 	config, ok := view.GetSettingFieldConfig(settingName)
