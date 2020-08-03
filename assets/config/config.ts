@@ -240,7 +240,7 @@ export default defineConfig({
     basePath: '/ant/',
   },
   chainWebpack(config, {env, webpack, createCSSRule}) {
-    config.plugin('MonacoWebpackPlugin').use(MonacoWebpackPlugin, [
+    config.plugin('monaco-webpack-editor').use(MonacoWebpackPlugin, [
       {
         languages: [],
         features: ["coreCommands", "find"]

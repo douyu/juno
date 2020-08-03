@@ -1,5 +1,7 @@
-import * as monaco from "monaco-editor";
-import initLanguage, {LanguageDYConf} from "./language";
+import {editor, languages, Range} from "monaco-editor";
+const monaco = {editor, languages, Range}
+
+import initLanguage from "./language";
 
 let languageInitialized = false
 let conditionWhenSelect = null
@@ -17,7 +19,7 @@ export function createEditor(ref, option) {
     ref.current,
     {
       theme: 'dy-vs-dark',
-      language: option.format,
+      language: 'dy/' + option.format,
       automaticLayout: true
     }
   )
@@ -89,9 +91,9 @@ function registerHover() {
     }
   }
 
-  monaco.languages.registerHoverProvider("toml", provider)
-  monaco.languages.registerHoverProvider("yaml", provider)
-  monaco.languages.registerHoverProvider("ini", provider)
+  monaco.languages.registerHoverProvider("dy/toml", provider)
+  monaco.languages.registerHoverProvider("dy/yaml", provider)
+  monaco.languages.registerHoverProvider("dy/ini", provider)
 }
 
 function registerConditions(e) {

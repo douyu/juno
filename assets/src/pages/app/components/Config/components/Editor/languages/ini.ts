@@ -2,8 +2,9 @@ import {Language} from "./language";
 import {languages, Thenable} from "monaco-editor";
 
 export const INI: Language = {
+
   id() {
-    return "ini"
+    return "dy/ini"
   },
   configuration() {
     return {
@@ -28,7 +29,7 @@ export const INI: Language = {
         {open: '(', close: ')'},
         {open: '"', close: '"'},
         {open: '\'', close: '\''},
-      ]
+      ],
     } as languages.LanguageConfiguration
   },
   tokensProvider() {
@@ -38,12 +39,13 @@ export const INI: Language = {
 
       // we include these common regular expressions
       escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+      var: /x(?:[abfnrtv\\"'])/,
 
       // The main tokenizer for our languages
       tokenizer: {
         root: [
           //variable
-          [/(\{\{)([^\{]+)(\}\})/, ['', 'variable', '']],
+          [/(\{\{)([\w\@]+)(\}\})/, ['', 'variable', '']],
 
           // sections
           [/^\[[^\]]*\]/, 'metatag'],
@@ -79,7 +81,7 @@ export const INI: Language = {
               '$#==$S2': {token: 'string', next: '@pop'},
               '@default': 'string'
             }
-          }],
+          }]
         ],
 
         variableCounting: [
