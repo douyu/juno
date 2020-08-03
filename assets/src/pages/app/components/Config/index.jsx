@@ -13,6 +13,19 @@ function ConfigEdit(props) {
   useEffect(() => {
     if (!appName) return
     if (!env) return
+
+    // reset
+    props.dispatch({
+      type: 'config/showEditorMaskLayer',
+      payload: {
+        visible: false,
+      }
+    })
+    props.dispatch({
+      type: 'config/setLeftSideActiveMenu',
+      payload: 'config-edit'
+    })
+
     // load config-file list
     props.dispatch({
       type: 'config/loadConfigInfo',

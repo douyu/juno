@@ -31,7 +31,8 @@ function Files(props) {
           onClick={() => props.loadConfigDetail(cfg.id)}
         >{cfg.name}.{cfg.format}</div>
         <div>
-          {currentConfig && currentConfig.content !== currentContent &&cfg.id === currentConfig.id&& <span className={styles.notSavedTip}>
+          {currentConfig && currentConfig.content !== currentContent && cfg.id === currentConfig.id &&
+          <span className={styles.notSavedTip}>
             未保存
           </span>}
         </div>
@@ -90,6 +91,13 @@ function Files(props) {
           </ul>
         </li>
       })}
+
+      {!configListLoading && (!zoneList || !zoneList.length) && <div
+        className={styles.noConfigTip}
+      >
+        <StopOutlined/>
+        当前应用环境无机房
+      </div>}
     </ul>
   </div>
 }

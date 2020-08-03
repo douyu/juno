@@ -66,8 +66,8 @@ type (
 		AppName  string       `json:"app_name" validate:"required"`
 		Env      string       `json:"env" validate:"required"`
 		Zone     string       `json:"zone" validate:"required"`
-		FileName string       `json:"file_name" validate:"required"` // 文件名(不带后缀)
-		Format   ConfigFormat `json:"format" validate:"required"`    // 格式后缀名(比如: toml, yaml)
+		FileName string       `json:"file_name" validate:"required"`                  // 文件名(不带后缀)
+		Format   ConfigFormat `json:"format" validate:"required,oneof=yaml toml ini"` // 格式后缀名(比如: toml, yaml)
 	}
 
 	// ReqUpdateConfig ..
