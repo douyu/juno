@@ -28,6 +28,8 @@ function Editor(props) {
 
   useEffect(() => {
     if (mode === 'code') {
+      if (!currentConfig) return
+
       if (editor) {
         editor.dispose()
         let model = editor.getModel()
@@ -35,6 +37,7 @@ function Editor(props) {
       }
 
       let editorInstance = createEditor(editorRef, {
+        format: currentConfig?.format || "toml",
         onInsertResource: (callback) => {
           showModalInsertResource(true)
           setInsertModalCB({callback})
