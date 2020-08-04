@@ -247,6 +247,7 @@ func apiAdmin(server *xecho.Server) {
 		analysisGroup.GET("/topology/select", analysis.TopologySelect)
 		analysisGroup.GET("/topology/list", analysis.TopologyList)
 		analysisGroup.GET("/topology/relationship", analysis.TopologyRelationship)
+		analysisGroup.GET("/deppkg/list", analysis.DependenceList)
 	}
 
 	systemGroup := g.Group("/system", loginAuthWithJSON)

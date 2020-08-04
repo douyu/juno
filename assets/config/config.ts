@@ -76,6 +76,11 @@ export default defineConfig({
                   path: '/analysis/topology',
                   component: './analysis/topology/index',
                 },
+                {
+                  name: '版本管理',
+                  path: '/analysis/deppkg',
+                  component: './analysis/deppkg/index',
+                },
               ],
             },
             {
