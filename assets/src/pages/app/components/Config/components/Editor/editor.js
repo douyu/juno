@@ -1,5 +1,7 @@
-import * as monaco from "monaco-editor";
-import initLanguage, {LanguageDYConf} from "./language";
+import {editor, languages, Range} from "monaco-editor";
+const monaco = {editor, languages, Range}
+
+import initLanguage from "./language";
 
 let languageInitialized = false
 let conditionWhenSelect = null
@@ -16,8 +18,8 @@ export function createEditor(ref, option) {
   let editorInstance = monaco.editor.create(
     ref.current,
     {
-      theme: 'vs-dark',
-      language: 'dy/conf',
+      theme: 'dy-vs-dark',
+      language: 'dy/' + option.format,
       automaticLayout: true
     }
   )
@@ -40,8 +42,8 @@ export function createDiffEditor(ref, origin, modified) {
   let editorInstance = monaco.editor.createDiffEditor(
     ref.current,
     {
-      theme: 'vs-dark',
-      language: 'dy/conf',
+      theme: 'dy-vs-dark',
+      language: 'toml',
       automaticLayout: true,
       enableSplitViewResizing: false
     }
@@ -59,7 +61,7 @@ export function createDiffEditor(ref, origin, modified) {
 }
 
 function registerHover() {
-  monaco.languages.registerHoverProvider(LanguageDYConf, {
+  let provider = {
     //@ts-ignore
     provideHover(model, position) {
       if (conditionWhenMouseOnVar && conditionWhenMouseOnVar.get() && _option.onLoadResourceDetail) {
@@ -87,7 +89,11 @@ function registerHover() {
       }
       return undefined;
     }
-  })
+  }
+
+  monaco.languages.registerHoverProvider("dy/toml", provider)
+  monaco.languages.registerHoverProvider("dy/yaml", provider)
+  monaco.languages.registerHoverProvider("dy/ini", provider)
 }
 
 function registerConditions(e) {
