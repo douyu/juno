@@ -28,6 +28,8 @@ function Editor(props) {
 
   useEffect(() => {
     if (mode === 'code') {
+      if (!currentConfig) return
+
       if (editor) {
         editor.dispose()
         let model = editor.getModel()

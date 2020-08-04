@@ -1,5 +1,5 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
-import {INI, Toml, Yaml} from "@/pages/app/components/Config/components/Editor/languages";
+import * as monaco from 'monaco-editor'
+import {INI, Toml, Yaml} from "./languages";
 
 const languages = [
   Toml,

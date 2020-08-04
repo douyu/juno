@@ -3,7 +3,7 @@ import {languages, Thenable} from "monaco-editor";
 
 export const Yaml: Language = {
   id() {
-    return "yaml"
+    return "dy/yaml"
   },
   configuration() {
     return {
