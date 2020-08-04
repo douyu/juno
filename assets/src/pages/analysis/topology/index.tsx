@@ -4,7 +4,7 @@ import { message, Card, Tag, Divider, Modal, Radio, Row } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageList from '@/components/PageList';
 import { reqSelect, reqList } from './service';
-import moment from '@/pages/resource/app/list';
+import moment from 'moment';
 import { history } from '@@/core/history';
 import { reqDelete } from '@/pages/resource/app/service';
 
@@ -29,8 +29,8 @@ export default class ServiceTopology extends Component {
       addr_select: [],
       listData: [],
       view: '',
-      showChart: 'none',
-      showTable: 'block',
+      showChart: 'block',
+      showTable: 'none',
     };
     this.topology = null;
   }
@@ -240,6 +240,17 @@ export default class ServiceTopology extends Component {
         dataIndex: 'addr',
         key: 'addr',
       },
+      {
+        title: '更新时间',
+        dataIndex: 'update_time',
+        key: 'update_time',
+        render: (text) => {
+          if (typeof text === 'number') {
+              return moment(text * 1000).format('YYYY-MM-DD HH:mm:ss');
+          }
+          return text;
+      },
+      }
     ];
     return (
       <PageHeaderWrapper>

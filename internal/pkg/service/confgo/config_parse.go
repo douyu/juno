@@ -49,11 +49,15 @@ func (c *confu) GetConfigParseWorkerTime() (interval int, err error) {
 }
 
 func (c *confu) ConfigParseWorker() (err error) {
-	xlog.Info("ConfigParseWorker", zap.String("run", "start"))
+	// 记录更新时间，清理数据库时以该时间为基准
+	updateTime := time.Now().Unix()
+
+	xlog.Info("ConfigParseWorker", zap.String("run", "start"), zap.Any("updateTime", updateTime))
 	// 拿到所有配置文件
 	list, err := confgov2.GetAllConfigText()
 	if err != nil {
 		xlog.Error("GetAllConfigText", zap.Error(err))
+		return err
 	}
 	for _, config := range list {
 		// 拿到app信息
@@ -85,23 +89,24 @@ func (c *confu) ConfigParseWorker() (err error) {
 		resp, err := parseConfig.ParseConfig()
 		if err != nil {
 			xlog.Error("parseConfig.ParseConfig", zap.Error(err))
+			continue
 		}
 
 		// 写入mysql
-		err = c.ParseToMysql(appInfo.Aid, appInfo.AppName, resp)
+		err = c.ParseToMysql(appInfo.Aid, appInfo.AppName, resp, updateTime)
 		if err != nil {
 			xlog.Error("ParseToMysql", zap.Error(err))
 			continue
 		}
 	}
-	xlog.Info("ConfigParseWorker", zap.String("run", "end"))
+	xlog.Info("ConfigParseWorker", zap.String("run", "end"), zap.Any("updateTime", updateTime))
 	return
 }
 
-func (c *confu) ParseToMysql(aid int, appName string, items []*CmcInfo) (err error) {
+func (c *confu) ParseToMysql(aid int, appName string, items []*CmcInfo, updateTime int64) (err error) {
 	// 删除该服务的全部配置
 	tx := c.DB.Begin()
-	err = tx.Model(db.AppTopology{}).Where("aid = ?", aid).Delete(&db.AppTopology{}).Error
+	err = tx.Model(db.AppTopology{}).Where("aid = ? AND update_time < ?", aid, updateTime).Delete(&db.AppTopology{}).Error
 	if err != nil {
 		tx.Rollback()
 		return
@@ -131,7 +136,7 @@ func (c *confu) ParseToMysql(aid int, appName string, items []*CmcInfo) (err err
 			Name:       value.Key,
 			Type:       value.Type,
 			Info:       "",
-			UpdateTime: time.Now().Unix(),
+			UpdateTime: updateTime,
 			UpdatedBy:  0,
 			Extra:      "",
 			AppName:    appName,
