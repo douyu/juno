@@ -7,6 +7,8 @@ const (
 	ConfigFormatToml = "toml"
 	// ConfigFormatYaml ..
 	ConfigFormatYaml = "yaml"
+	// INI格式
+	ConfigFormatINI = "ini"
 
 	// ConfigureUsedType ..
 	ConfigureUsedTypeSupervisor = 1
@@ -15,7 +17,7 @@ const (
 
 var (
 	// ConfigFormats Verified list
-	ConfigFormats = []ConfigFormat{ConfigFormatToml, ConfigFormatYaml}
+	ConfigFormats = []ConfigFormat{ConfigFormatToml, ConfigFormatYaml, ConfigFormatINI}
 )
 
 type (
@@ -79,8 +81,9 @@ type (
 
 	// ReqPublishConfig ..
 	ReqPublishConfig struct {
-		ID      uint    `json:"id" validate:"required"`      // 配置ID
-		Version *string `json:"version" validate:"optional"` // 版本号
+		ID       uint     `json:"id" validate:"required"` // 配置ID
+		HostName []string `json:"host_name"`              // 发布的实例机器名称的列表，如果为空，则发布所有机器
+		Version  *string  `json:"version"`                // 版本号
 	}
 
 	// ReqHistoryConfig ..
