@@ -107,10 +107,12 @@ type (
 	SettingGrafana []SettingGrafanaItem // 多个监控版本
 
 	SettingGrafanaItem struct {
+		Name       string                    `json:"name"`
 		Version    string                    `json:"version"`
+		VersionKey string                    `json:"versionKey"`
 		Host       string                    `json:"host"` // Grafana 地址
 		HeaderName string                    `json:"header_name"`
-		Field      []SettingGrafanaDashboard `json:"field"`
+		Dashboards []SettingGrafanaDashboard `json:"dashboards"`
 	}
 
 	SettingGrafanaDashboard struct {

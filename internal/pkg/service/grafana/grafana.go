@@ -63,18 +63,19 @@ func getOption() (opt Option, err error) {
 
 	// 找到一个可用的
 	for _, v := range setting {
-		if v.Field == nil {
+		if v.Dashboards == nil {
 			continue
 		}
-		if v.Host == "" || v.HeaderName == "" || len(v.Field) == 0 {
+		if v.Host == "" || v.HeaderName == "" {
 			continue
 		}
 		host = v.Host
 		headerName = v.HeaderName
+		break
 	}
 
 	if host == "" {
-		err = ErrNotConfigured
+		err = fmt.Errorf("未找到可用的Grafana地址")
 		return
 	}
 

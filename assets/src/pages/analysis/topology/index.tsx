@@ -158,6 +158,7 @@ export default class ServiceTopology extends Component {
       this.setState({
         listData: res.data,
       });
+      //this.renderTopology(res.data || []);
       return true;
     });
   };
