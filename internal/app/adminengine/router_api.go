@@ -68,15 +68,15 @@ func apiV1(server *xecho.Server) {
 
 	configurationGroup := v1.Group("/confgo")
 	{
-		configurationGroup.GET("/config/list", confgov2.List)                  // 配置文件列表
-		configurationGroup.GET("/config/detail", confgov2.Detail)              // 配置文件内容
-		configurationGroup.GET("/config/diff", confgov2.Diff)                  // 配置文件Diif，返回两个版本的配置内容
-		configurationGroup.GET("/config/instance/list", confgov2.InstanceList) // 配置发布后各实例同步状态
-		configurationGroup.GET("/config/history", confgov2.History)            // 配置文件历史
-		configurationGroup.POST("/config/create", confgov2.Create)             // 配置新建
-		configurationGroup.POST("/config/update", confgov2.Update)             // 配置更新
-		configurationGroup.POST("/config/publish", confgov2.Publish)           // 配置发布
-		configurationGroup.POST("/config/delete", confgov2.Delete)             // 配置删除
+		configurationGroup.GET("/config/list", confgov2.List)                     // 配置文件列表
+		configurationGroup.GET("/config/detail", confgov2.Detail)                 // 配置文件内容
+		configurationGroup.GET("/config/diff", confgov2.Diff)                     // 配置文件Diif，返回两个版本的配置内容
+		configurationGroup.GET("/config/instance/list", confgov2.InstanceList)    // 配置发布后各实例同步状态
+		configurationGroup.GET("/config/history", confgov2.History)               // 配置文件历史
+		configurationGroup.POST("/config/create", confgov2.Create)                // 配置新建
+		configurationGroup.POST("/config/update", confgov2.Update)                // 配置更新
+		configurationGroup.POST("/config/publish", core.Handle(confgov2.Publish)) // 配置发布
+		configurationGroup.POST("/config/delete", confgov2.Delete)                // 配置删除
 	}
 
 	analysisGroup := v1.Group("/analysis")

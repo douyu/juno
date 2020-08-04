@@ -293,6 +293,8 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 
 		app   db.AppInfo
 		nodes []db.AppNode
+
+		instanceNotPublished = make(view.RespConfigInstanceList, 0)
 	)
 	// get configuration info
 	query := mysql.Where("id=?", param.ConfigurationID).Find(&configuration)
@@ -332,6 +334,25 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 		status, statusErr = getConfigurationStatus(param.ConfigurationID, node.HostName)
 		if statusErr != nil {
 			xlog.Error("Instances", xlog.String("step", "nodes"), zap.Any("nodes", nodes), zap.String("statusErr", statusErr.Error()))
+
+			instanceNotPublished = append(instanceNotPublished, view.RespConfigInstanceItem{
+				Env:                  node.Env,
+				IP:                   node.IP,
+				HostName:             node.HostName,
+				DeviceID:             node.DeviceID,
+				RegionCode:           node.RegionCode,
+				RegionName:           node.RegionName,
+				ZoneCode:             node.ZoneCode,
+				ZoneName:             node.ZoneName,
+				ConfigFilePath:       filePath,
+				ConfigFileUsed:       used,
+				ConfigFileSynced:     synced,
+				ConfigFileTakeEffect: takeEffect,
+				SyncAt:               "",
+				Version:              version,
+				ChangeLog:            changeLog,
+			})
+
 			continue
 		}
 
@@ -362,14 +383,45 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 		})
 	}
 
-	// sync used status
-	resp, err = syncUsedStatus(nodes, resp, env, zoneCode, filePath)
+	eg := errgroup.Group{}
+	respMtx := sync.Mutex{}
 
-	// sync publish status
-	resp, err = syncPublishStatus(app.AppName, env, zoneCode, configuration, nodesMap, resp)
+	eg.Go(func() error {
+		respNew, err := syncUsedStatus(nodes, resp, env, zoneCode, filePath)
 
-	// sync take effect status
-	resp, err = syncTakeEffectStatus(app.AppName, app.GovernPort, env, zoneCode, configuration, nodesMap, resp)
+		respMtx.Lock()
+		defer respMtx.Unlock()
+
+		resp = respNew
+
+		return err
+	})
+
+	eg.Go(func() error {
+		respNew, err := syncPublishStatus(app.AppName, env, zoneCode, configuration, nodesMap, resp)
+
+		respMtx.Lock()
+		defer respMtx.Unlock()
+
+		resp = respNew
+
+		return err
+	})
+
+	eg.Go(func() error {
+		respNew, err := syncTakeEffectStatus(app.AppName, app.GovernPort, env, zoneCode, configuration, nodesMap, resp)
+
+		respMtx.Lock()
+		defer respMtx.Unlock()
+
+		resp = respNew
+
+		return err
+	})
+
+	err = eg.Wait()
+
+	resp = append(resp, instanceNotPublished...)
 
 	return
 }
@@ -410,10 +462,31 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 
 	// resource filter
 	content = configresource.FillConfigResource(content)
+
 	// Get nodes data
-	var instanceList []string
-	if instanceList, err = getPublishInstance(aid, env, zoneCode); err != nil {
+	var instanceList = param.HostName
+	var totalInstanceList []string
+	if totalInstanceList, err = getPublishInstance(aid, env, zoneCode); err != nil {
 		return
+	}
+
+	if len(instanceList) == 0 { // 如果没有传机器列表，则发布所有机器
+		instanceList = totalInstanceList
+	} else { // 否则发布选择的机器
+		// check node list valid
+		for _, hostName := range instanceList {
+			exists := false
+			for _, item := range totalInstanceList {
+				if item == hostName {
+					exists = true
+					break
+				}
+			}
+
+			if !exists {
+				return fmt.Errorf("机器 %s 不存在", hostName)
+			}
+		}
 	}
 
 	// Obtain application management port

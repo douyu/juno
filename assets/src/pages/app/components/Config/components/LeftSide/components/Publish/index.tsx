@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { connect } from 'dva';
+import React, {useEffect, useState} from 'react';
+import {connect} from 'dva';
 import styles from './index.less';
-import { Empty, message, Select, Spin } from 'antd';
-import { DatabaseOutlined } from '@ant-design/icons';
-import OptionButton, { ButtonType } from '@/pages/app/components/Config/components/OptionButton';
+import {Checkbox, Empty, message, Select, Spin} from 'antd';
+import {DatabaseOutlined} from '@ant-design/icons';
+import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
 import ScrollArea from 'react-scrollbar';
-import { ReloadOutlined, StopOutlined } from '@ant-design/icons/lib';
+import {ReloadOutlined, StopOutlined, BorderOutlined, CheckSquareOutlined} from '@ant-design/icons/lib';
 import ModalPublish from '@/pages/app/components/Config/components/LeftSide/components/Publish/ModalPublish';
+import {CheckboxChangeEvent} from "antd/es/checkbox";
 
 function Publish(props: any) {
   const {
@@ -28,6 +29,7 @@ function Publish(props: any) {
     zone: string;
     id: number;
   }>();
+  const [checkedInstances, setCheckedInstances] = useState<string[]>([])
 
   useEffect(() => {
     if (!configFile) {
@@ -65,7 +67,7 @@ function Publish(props: any) {
   };
 
   let handlePublishConfig = (version: string) => {
-    configPublish(configFile?.id, version);
+    configPublish(configFile?.id, version, checkedInstances);
     loadConfigInstances(configFile?.aid, configFile?.env, configFile?.zone, configFile?.id);
     setVisibleModalPublish(false);
   };
@@ -80,12 +82,26 @@ function Publish(props: any) {
     );
   };
 
+  const isCheckedInstance = (hostName: string) : boolean => {
+    return checkedInstances.findIndex(item => item === hostName) > -1
+  }
+
+  const onToggleInstanceCheck = (ev: CheckboxChangeEvent) => {
+    let checked = checkedInstances.filter(hostName => hostName != ev.target.name)
+
+    if (ev.target.checked) {
+      checked = [...checked, ev.target.name || '']
+    }
+
+    setCheckedInstances(checked)
+  }
+
   return (
     <div className={styles.publish}>
       <div className={styles.optionBlock}>
         <Select
           placeholder={'选择配置文件'}
-          style={{ width: '100%' }}
+          style={{width: '100%'}}
           loading={configInstanceListLoading}
           onChange={selectConfigFile}
           value={configFile && configFile.id}
@@ -99,29 +115,32 @@ function Publish(props: any) {
           })}
         </Select>
 
-        <div style={{ marginTop: '10px' }}>
-          <OptionButton style={{ width: '100%' }} onClick={publishStart}>
+        <div style={{marginTop: '10px'}}>
+          {checkedInstances.length === 0 && <OptionButton style={{width: '100%'}} disabled>
+            请先选择发布的实例
+          </OptionButton>}
+          {checkedInstances.length > 0 && <OptionButton style={{width: '100%'}} onClick={publishStart}>
             发布
-          </OptionButton>
+          </OptionButton>}
         </div>
       </div>
 
       {!configFile && (
         <div className={styles.tipConfigNotSelect}>
-          <StopOutlined />
+          <StopOutlined/>
           请先选择配置文件
         </div>
       )}
 
       {configInstanceListLoading && (
         <div className={styles.instanceListLoading}>
-          <Spin tip={'实例加载中'} />
+          <Spin tip={'实例加载中'}/>
         </div>
       )}
 
       {!configInstanceListLoading && !configList && (
         <div>
-          <Empty description={'暂无实例'} />
+          <Empty description={'暂无实例'}/>
         </div>
       )}
 
@@ -130,7 +149,25 @@ function Publish(props: any) {
           <ul className={styles.instanceList}>
             <div className={styles.instanceListOpt}>
               <div className={styles.instanceListTitle}>实例列表</div>
-              <div style={{ textAlign: 'right' }}>
+              <div style={{textAlign: 'right'}}>
+                {configInstanceList.length === checkedInstances.length && <OptionButton
+                  type={ButtonType.Text}
+                  title={"取消选中所有实例"}
+                  onClick={() => {
+                    setCheckedInstances([])
+                  }}
+                >
+                  <CheckSquareOutlined/>
+                </OptionButton>}
+                {configInstanceList.length !== checkedInstances.length && <OptionButton
+                  type={ButtonType.Text}
+                  title={"选中所有实例"}
+                  onClick={() => {
+                    setCheckedInstances(configInstanceList.map((item: any) => item.host_name))
+                  }}
+                >
+                  <BorderOutlined/>
+                </OptionButton>}
                 <OptionButton
                   onClick={() => {
                     loadConfigInstances(
@@ -143,7 +180,7 @@ function Publish(props: any) {
                   type={ButtonType.Text}
                   title={'刷新实例列表'}
                 >
-                  <ReloadOutlined />
+                  <ReloadOutlined/>
                 </OptionButton>
               </div>
             </div>
@@ -159,16 +196,19 @@ function Publish(props: any) {
                   key={index}
                   onClick={() => {
                     setCurrentInstance(item);
-                    showEditorMaskLayer(true, <InstanceDetail config={configFile} />);
+                    showEditorMaskLayer(true, <InstanceDetail config={configFile}/>);
                   }}
                 >
                   <div className={styles.instanceInfo}>
                     <div className={styles.icon}>
-                      <DatabaseOutlined />
+                      <DatabaseOutlined/>
                     </div>
                     <div>
                       <div className={styles.instanceName}>{item.host_name}</div>
                       <div className={styles.version}>版本: {shortVersion || '---'}</div>
+                    </div>
+                    <div className={styles.instanceCheckBox}>
+                      <Checkbox onChange={onToggleInstanceCheck} name={item.host_name} checked={isCheckedInstance(item.host_name)}/>
                     </div>
                   </div>
 
@@ -178,21 +218,21 @@ function Publish(props: any) {
                         item.config_file_used ? styles.statusSynced : styles.statusNotSynced
                       }
                     >
-                      接入状态
+                      {item.config_file_used ? '已接入' : '未接入'}
                     </div>
                     <div
                       className={
                         item.config_file_synced ? styles.statusSynced : styles.statusNotSynced
                       }
                     >
-                      发布状态
+                      {item.config_file_synced ? '已发布' : '未发布'}
                     </div>
                     <div
                       className={
                         item.config_file_take_effect ? styles.statusSynced : styles.statusNotSynced
                       }
                     >
-                      生效状态
+                      {item.config_file_take_effect ? '已生效' : '未生效'}
                     </div>
                   </div>
                 </li>
@@ -212,7 +252,7 @@ function Publish(props: any) {
   );
 }
 
-const mapStateToProps = ({ config }: any) => {
+const mapStateToProps = ({config}: any) => {
   return {
     aid: config.aid,
     env: config.env,
@@ -249,12 +289,13 @@ const mapDispatchToProps = (dispatch: any) => {
         },
       }),
 
-    configPublish: (id: number, version: string) =>
+    configPublish: (id: number, version: string, instances: string[]) =>
       dispatch({
         type: 'config/configPublish',
         payload: {
           id,
           version,
+          host_name: instances
         },
       }),
     showEditorMaskLayer: (visible: boolean, child?: Element) =>

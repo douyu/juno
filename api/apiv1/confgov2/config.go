@@ -108,20 +108,21 @@ func Update(c echo.Context) (err error) {
 }
 
 // Publish ..
-func Publish(c echo.Context) (err error) {
+func Publish(c *core.Context) (err error) {
 	param := view.ReqPublishConfig{}
 	err = c.Bind(&param)
 	if err != nil {
-		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
+		return c.OutputJSON(output.MsgErr, "参数无效: "+err.Error())
 	}
+
 	err = confgov2.Publish(param, user.GetUser(c))
 	if err != nil {
 		if err == errorconst.ParamConfigNotExists.Error() {
-			return output.JSON(c, output.MsgErr, "当前配置不存在，无法发布")
+			return c.OutputJSON(output.MsgErr, "当前配置不存在，无法发布")
 		}
-		return output.JSON(c, output.MsgErr, err.Error())
+		return c.OutputJSON(output.MsgErr, err.Error())
 	}
-	return output.JSON(c, output.MsgOk, "发布成功")
+	return c.OutputJSON(output.MsgOk, "发布成功")
 }
 
 // History ..

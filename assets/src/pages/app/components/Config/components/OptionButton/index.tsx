@@ -11,6 +11,7 @@ export interface OptionButtonProps {
   title?: string
   style?: CSSProperties
   type?: ButtonType
+  disabled?: boolean
 }
 
 export default function OptionButton(props: React.PropsWithChildren<OptionButtonProps>) {
@@ -21,11 +22,16 @@ export default function OptionButton(props: React.PropsWithChildren<OptionButton
     buttonStyle = [...buttonStyle, styles.defaultBtn]
   }
 
+  if (props.disabled) {
+    buttonStyle.push(styles.btnDisabled)
+  }
+
   return <button
     style={props.style}
     title={props.title}
     className={buttonStyle.join(' ')}
     onClick={props.onClick}
+    disabled={props.disabled}
   >
     {props.children}
   </button>

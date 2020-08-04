@@ -144,15 +144,15 @@ func apiAdmin(server *xecho.Server) {
 		configWriteByIDMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigWrite)
 		configReadInstanceMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigReadInstance)
 
-		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                 // 配置文件列表
-		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)              // 配置文件内容
-		configV2G.POST("/config/create", confgov2.Create, configWriteBodyMW)            // 配置新建
-		configV2G.POST("/config/update", confgov2.Update, configWriteByIDMW)            // 配置更新
-		configV2G.POST("/config/publish", confgov2.Publish, configWriteByIDMW)          // 配置发布
-		configV2G.GET("/config/history", confgov2.History, configReadByIDMW)            // 配置文件历史
-		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)            // 配置删除
-		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                  // 配置文件Diif，返回两个版本的配置内容
-		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW) // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                     // 配置文件列表
+		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)                  // 配置文件内容
+		configV2G.POST("/config/create", confgov2.Create, configWriteBodyMW)                // 配置新建
+		configV2G.POST("/config/update", confgov2.Update, configWriteByIDMW)                // 配置更新
+		configV2G.POST("/config/publish", core.Handle(confgov2.Publish), configWriteByIDMW) // 配置发布
+		configV2G.GET("/config/history", confgov2.History, configReadByIDMW)                // 配置文件历史
+		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)                // 配置删除
+		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                      // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW)     // 配置文件Diif，返回两个版本的配置内容
 		configV2G.POST("/app/action", confgov2.AppAction, configWriteBodyMW)
 		configV2G.GET("/config/instance/configContent", core.Handle(confgov2.InstanceConfigContent), configReadInstanceMW) // 读取机器上的配置文件
 		configV2G.GET("/config/statics", configstatics.Statics)                                                            // 全局的统计信息，不走应用权限
