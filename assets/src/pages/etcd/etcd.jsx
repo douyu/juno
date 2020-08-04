@@ -28,8 +28,10 @@ export default class Etcd extends React.PureComponent {
 
   componentDidMount() {
     console.log('>>>>> props', this.props);
-    // this.getList();
-    // this.getEtcdList();
+    const {prefix} = this.state;
+    if (prefix&&prefix!==""){
+      this.getList();
+    }
     // 加载设置
     this.props.dispatch({
       type: 'setting/loadSettings',
@@ -63,32 +65,28 @@ export default class Etcd extends React.PureComponent {
         mode: nextProps.mode,
       },
       () => {
-        // this.getList();
+        const {prefix} = this.state;
+        if (prefix&&prefix!==""){
+          this.getList();
+        }
       },
     );
   }
 
-  getEtcdList = () => {
-    etcdList({installType: 1}).then((res) => {
-      if (res.code !== 0) {
-        message.error(res.msg);
-        return false;
-      }
-      this.setState({
-        depRes: res.data,
-      });
-      message.success(res.msg);
-      ;
-    });
-  };
-
   getList = () => {
     const {appName, zoneCode, env, prefix, suffix} = this.state;
+    if (!prefix){
+      message.error("必须选择查询前缀");
+      return;
+    }
     const app = prefix === '/dubbo/' ? '' : appName;
     etcdList({appName: app, zoneCode, env, prefix, suffix}).then((res) => {
       const {code, msg, data} = res;
       if (code !== 0) {
         message.error(msg);
+        this.setState({
+          records: [],
+        });
         return;
       }
       this.setState({
