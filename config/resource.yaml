@@ -92,6 +92,15 @@ permission:
           - path: /api/admin/analysis/topology/relationship
             method: GET
             name: 应用拓扑关系
+      - name: 版本管理
+        path: /analysis/deppkg
+        api:
+          - path: /api/admin/analysis/topology/select
+            method: GET
+            name: 看板拓扑
+          - path: /api/admin/analysis/deppkg/list
+            method: GET
+            name: 应用版本列表
 
   - name: 资源中心
     path: /resource

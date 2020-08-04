@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/conf"
 	"strconv"
 	"strings"
@@ -334,6 +335,44 @@ func (r *resource) GetFrameVersion(appName string) (string, error) {
 		return "", fmt.Errorf("db no find frame version")
 	}
 	return appPackage.Version, nil
+}
+
+// 查询所有包依赖数据
+// http://juno.com/api/deppkg/list?appName=juno-admin&pkgQs=github.com/douyu/jupiter&operate=>=&ver=v1.8.0
+func (a *resource) AllPkgList(appName string, pkgQs, operate, version string) (list []view.RespAppPkgAllList, err error) {
+	search := ""
+	if len(pkgQs) > 2 {
+		search = "%" + pkgQs + "%"
+	}
+
+	isPkg, depth := util.StringPkg(pkgQs)
+
+	sql := invoker.JunoMysql.Table("app_package as a").
+		Select("a.name as dep_name, a.branch as dep_branch, a.version as dep_version, a.aid, c.app_name, a.update_time").
+		Joins("LEFT JOIN  app as c ON a.aid = c.aid").
+		Where("c.app_name <> ''")
+
+	if appName != "" {
+		sql = sql.Where("c.app_name=?", appName)
+	}
+
+	if search != "" {
+		if isPkg == true && depth >= 2 {
+			//输入的是一个完整包则精准匹配
+			sql = sql.Where("a.name = ?", pkgQs)
+		} else {
+			sql = sql.Where("a.name like ?", search)
+		}
+	}
+	if operate != "" && version != "" {
+		sql = sql.Where(" a.version "+operate+" ? ", "v"+version)
+	}
+
+	if err = sql.Find(&list).Error; err != nil {
+		return list, err
+	}
+
+	return list, nil
 }
 
 // 获取jupiter版本信息
