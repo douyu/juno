@@ -243,7 +243,7 @@ export default defineConfig({
     config.plugin('monaco-webpack-editor').use(MonacoWebpackPlugin, [
       {
         languages: [],
-        features: ["coreCommands", "find"]
+        features: ["coreCommands", "find", "format"]
       }
     ])
   }
