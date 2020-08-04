@@ -17,6 +17,8 @@ func init() {
 }
 
 func TestAppDep(t *testing.T) {
+	// var depApp DepApp
+
 	appDepHandle := appDep{
 		DB:     invoker.JunoMysql,
 		Client: resty.New().SetHostURL("https://git.dz11.com").SetDebug(false).SetTimeout(time.Second * 3).SetAuthToken("RgZev8zy6dtP2y8EA4sB"),

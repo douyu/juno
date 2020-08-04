@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
-	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	depModel "github.com/douyu/juno/pkg/model"
 	"github.com/douyu/juno/pkg/model/db"
@@ -23,8 +22,8 @@ const (
 )
 
 type DepApp interface {
-	GetDepFile() ([]byte, error)                                           // 获取依赖文件内容
-	ParseDepFile(content []byte, fileType string) ([]db.AppPackage, error) // 解析依赖文件
+	ParseDepFile(app db.AppInfo) ([]*db.AppPackage, error) // 获取依赖文件内容并解析
+	SaveToMysql(aid int, records []*db.AppPackage) error   // 解析结果存储到mysql
 }
 
 type appDep struct {
@@ -55,11 +54,29 @@ func (p *appDep) SyncAppVersion() error {
 	}
 
 	for _, app := range apps {
-		if err := p.handleOneApp(app); err != nil {
-			xlog.Error("handleOneApp", zap.Error(err), zap.String("appName", app.AppName))
+
+		var depApp DepApp
+
+		depApp = p
+
+		appPackages, err := depApp.ParseDepFile(app)
+		if err != nil {
+			xlog.Error("ParseDepFile", zap.Error(err), zap.String("appName", app.AppName))
 		} else {
-			xlog.Info("handleOneApp success", zap.String("appName", app.AppName))
+			xlog.Info("ParseDepFile success", zap.String("appName", app.AppName))
 		}
+
+		if err = depApp.SaveToMysql(app.Aid, appPackages); err != nil {
+			xlog.Error("SaveToMysql", zap.Error(err), zap.String("appName", app.AppName))
+		} else {
+			xlog.Info("SaveToMysql success", zap.String("appName", app.AppName))
+		}
+
+		/*		if err := p.handleOneApp(app); err != nil {
+					xlog.Error("handleOneApp", zap.Error(err), zap.String("appName", app.AppName))
+				} else {
+					xlog.Info("handleOneApp success", zap.String("appName", app.AppName))
+				}*/
 	}
 
 	xlog.Info("SyncAppVersion", zap.String("run", "end"))
@@ -67,31 +84,33 @@ func (p *appDep) SyncAppVersion() error {
 	return nil
 }
 
-func (p *appDep) handleOneApp(app db.AppInfo) error {
+func (p *appDep) ParseDepFile(app db.AppInfo) ([]*db.AppPackage, error) {
+	resp := make([]*db.AppPackage, 0)
+
 	// 先查询是否有 go.mod 文件
 	fc, err := p.RepoRawFileRefParse(app.Gid, "master", "go.mod")
 	// 如果存在 go.mod 文件，优先以 go.mod 文件解析包依赖
 	if err == nil {
 		content, err := p.decode(fc)
 		if err != nil {
-			return err
+			return resp, err
 		}
-		return p.ParseGoModPkg(content, app.Aid)
+		return parseGoModPkg(content, app.Aid)
 	}
 
 	xlog.Warn("RepoRawFileRefParse", zap.Error(err), zap.Any("app", app), zap.Int("gid", app.Gid), zap.String("file name", "go.mod"))
 
 	fc, err = p.RepoRawFileRefParse(app.Gid, "master", "Gopkg.lock")
 	if err != nil {
-		return err
+		return resp, err
 	}
 
 	content, err := p.decode(fc)
 	if err != nil {
-		return err
+		return resp, err
 	}
 
-	return p.ParseGoDepPkg(content, app.Aid)
+	return parseGoDepPkg(content, app.Aid)
 }
 
 func (p *appDep) decode(fc *FileContent) ([]byte, error) {
@@ -105,22 +124,17 @@ func (p *appDep) decode(fc *FileContent) ([]byte, error) {
 	return content, nil
 }
 
-// parse packages dependencies
-// ParseGoDepPkg parse content of Gopkg.lock
-func (p *appDep) ParseGoDepPkg(content []byte, aid int) error {
+func parseGoDepPkg(content []byte, aid int) ([]*db.AppPackage, error) {
+	resp := make([]*db.AppPackage, 0)
 	deps := struct {
 		Projects []depModel.GoDepProject `toml:"projects"`
 	}{}
 	if err := toml.Unmarshal(content, &deps); err != nil {
-		return err
+		return resp, err
 	}
-	tx := invoker.JunoMysql.Begin()
-	if err := tx.Where("aid = ?", aid).Delete(db.AppPackage{}).Error; err != nil && err != gorm.ErrRecordNotFound {
-		tx.Rollback()
-		return err
-	}
+
 	for _, p := range deps.Projects {
-		if err := tx.Create(&db.AppPackage{
+		item := db.AppPackage{
 			Aid:        aid,
 			Name:       p.Name,
 			Branch:     p.Branch,
@@ -128,30 +142,31 @@ func (p *appDep) ParseGoDepPkg(content []byte, aid int) error {
 			Revision:   p.Revision,
 			Packages:   strings.Join(p.Packages, ","),
 			UpdateTime: time.Now().Unix(),
-		}).Error; err != nil {
-			tx.Rollback()
-			return err
 		}
+		resp = append(resp, &item)
 	}
-	tx.Commit()
-
-	return nil
+	return resp, nil
 }
 
-func (p *appDep) ParseGoModPkg(content []byte, aid int) error {
+func parseGoModPkg(content []byte, aid int) ([]*db.AppPackage, error) {
+	pkgs := make([]*db.AppPackage, 0)
 	l, r := bytesIndex(content)
 	if l < 0 || r < 0 || l == len(content)-1 {
-		return errors.New("can't find packages content in go.mod")
+		return pkgs, errors.New("can't find packages content in go.mod")
 	}
 	strs := strings.TrimSpace(string(content[l+1 : r-1]))
 	lines := strings.Split(strs, "\n")
-	pkgs := parseModLines(lines)
+	pkgs = parseModLines(lines)
+	return pkgs, nil
+}
+
+func (p *appDep) SaveToMysql(aid int, records []*db.AppPackage) error {
 	tx := p.DB.Begin()
 	if err := tx.Where("aid = ?", aid).Delete(db.AppPackage{}).Error; err != nil && err != gorm.ErrRecordNotFound {
 		tx.Rollback()
 		return err
 	}
-	for _, p := range pkgs {
+	for _, p := range records {
 		p.Aid = aid
 		if err := tx.Create(p).Error; err != nil {
 			tx.Rollback()
