@@ -43,9 +43,9 @@ export function createDiffEditor(ref, origin, modified) {
     ref.current,
     {
       theme: 'dy-vs-dark',
-      language: 'toml',
       automaticLayout: true,
-      enableSplitViewResizing: false
+      enableSplitViewResizing: false,
+      readOnly: true,
     }
   )
 
@@ -151,6 +151,15 @@ function registerActions(e) {
   //
   //   },
   // })
+
+  e.addAction({
+    id: 'FormatDocument',
+    label: '格式化',
+    run(editor) {
+      // let model = editor.getModel()
+      // model.setValue(prettier.format(model.getValue()))
+    }
+  })
 
   e.addAction({
     id: 'insertResource',
