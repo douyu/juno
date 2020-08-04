@@ -57,12 +57,10 @@ export default {
     return res
   },
   * configPublish({payload}, {call, put}) {
-    const {id, version} = payload;
-    console.log('id', id);
-    console.log('version', version);
+    const {id, version, host_name} = payload;
     yield put({type: '_apply', payload: {configPublishLoading: true}});
 
-    const res = yield call(srvConfigPublish, id, version);
+    const res = yield call(srvConfigPublish, id, version, host_name);
     yield put({type: '_apply', payload: {configPublishLoading: false}});
 
     if (res.code !== 0) {
