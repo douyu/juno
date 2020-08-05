@@ -2,7 +2,6 @@ import * as monaco from "monaco-editor";
 import prettier from "prettier/standalone";
 import prettierYaml from "prettier/parser-yaml"
 import tomlParser from "./parsers/parser-toml/api"
-import iniParser from './parsers/parser-ini/api'
 import iniPrettierPlugin from 'prettier-plugin-ini'
 import initLanguage from "./language";
 import {message} from "antd";
@@ -196,8 +195,10 @@ function onParseError(editor, err) {
   decorations = editor.deltaDecorations(
     decorations,
     err.map(e => {
+      let {startLine, endLine, startColumn, endColumn} = e.token
+      if (endColumn === startColumn) endColumn = startColumn + 1
       return {
-        range: new monaco.Range(e.token.startLine, e.token.startColumn, e.token.endLine, e.token.endColumn),
+        range: new monaco.Range(startLine, startColumn, endLine, endColumn),
         options: {
           hoverMessage: [{value: e.message}],
           inlineClassName: 'editor-error-line'

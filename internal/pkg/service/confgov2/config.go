@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/douyu/juno/pkg/model"
 	"net/http"
 	"path/filepath"
 	"sync"
@@ -179,6 +180,11 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 
 	newContent := configresource.FillConfigResource(param.Content)
 	oldContent := configresource.FillConfigResource(configuration.Content)
+
+	err = CheckSyntax(model.ConfigFormat(configuration.Format), newContent)
+	if err != nil {
+		return
+	}
 
 	// 计算本次版本号
 	version := util.Md5Str(newContent)
