@@ -60,6 +60,9 @@ permission:
       - path: /api/admin/system/setting/list
         name: 系统设置列表
         method: GET
+      - path: /api/admin/etcd/list
+        name: ETCD查询
+        method: GET
 
   - name: 功能看板
     path: /analysis
