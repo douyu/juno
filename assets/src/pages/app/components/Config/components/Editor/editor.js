@@ -235,7 +235,12 @@ function registerActions(e, format) {
 
   e.addAction({
     id: 'FormatDocument',
+    contextMenuGroupId: 'navigation',
+    contextMenuOrder: 2,
     label: '格式化',
+    keybindings: [
+      monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KEY_F
+    ],
     run(editor) {
       formatCode(editor, format)
     }
