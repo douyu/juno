@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import {Tooltip, Descriptions, Row, Col, Select, Tag, Drawer, Button} from 'antd';
+import {Col, Descriptions, Drawer, Row, Select, Tag, Tooltip} from 'antd';
 import {ConfgoBase} from '../../../confgo/config/view';
-
-const {Option} = Select;
 import styles from './style.less';
 import {DesktopOutlined} from '@ant-design/icons';
+
+const {Option} = Select;
 
 export interface AppHeaderInterface extends ConfgoBase {
   getAppInfoAction: (aid: number, appName: string) => void;
@@ -98,62 +98,21 @@ export default function AppHeader(props: AppHeaderInterface) {
 
   let envOpt: {} | any = [];
   let envRepeatMap: {} | any = [];
-  idcList.forEach((value: any) => {
+  let tagColor = {
+    dev: '#87d068',
+    live: '#2db7f5',
+    pre: '#108ee9',
+    stress: '#f50',
+    gray: '#f50',
+    pub: '#f50',
+  }
+  idcList.forEach((value: any, index: number) => {
     if (!isRepeat(envRepeatMap, value.env)) {
       envRepeatMap.push(value.env);
-      switch (value.env) {
-        case 'dev':
-          envOpt.push(
-            <Option value={value.env}>
-              <Tag color="#87d068">{value.env}</Tag>
-            </Option>,
-          );
-          break;
-        case 'live':
-          envOpt.push(
-            <Option value={value.env}>
-              <Tag color="#2db7f5">{value.env}</Tag>
-            </Option>,
-          );
-          break;
-        case 'pre':
-          envOpt.push(
-            <Option value={value.env}>
-              <Tag color="#108ee9">{value.env}</Tag>
-            </Option>,
-          );
-          break;
-        case 'stress':
-          envOpt.push(
-            <Option value={value.env}>
-              <Tag color="#f50">{value.env}</Tag>
-            </Option>,
-          );
-          break;
-        case 'gray':
-          envOpt.push(
-            <Option value={value.env}>
-              <Tag color="#f50">{value.env}</Tag>
-            </Option>,
-          );
-          break;
-        case 'pub':
-          envOpt.push(
-            <Option value={value.env}>
-              <Tag color="#f50">{value.env}</Tag>
-            </Option>,
-          );
-          break;
-        case 'prod':
-          envOpt.push(
-            <Option value={value.env}>
-              <Tag color="#f50">{value.env}</Tag>
-            </Option>,
-          );
-          break;
-        default:
-          envOpt.push(<Option value={value.env}>{value.env}</Option>);
-      }
+      let color = tagColor[value.env] || null
+      envOpt.push(<Option value={value.env} key={index}>
+        <Tag color={color}>{value.env}</Tag>
+      </Option>)
     }
   });
 

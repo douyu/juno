@@ -47,7 +47,7 @@ export const Toml: Language = {
           [/(\{\{)([\w\@]+)(\}\})/, ['', 'variable', '']],
 
           // sections
-          [/^\[[^\]]*\]/, 'metatag'],
+          [/^[\s]*\[[^\]]*\]/, 'metatag'],
 
           // keys
           [/(^\w+)(\s*)(\=)/, ['key', '', 'delimiter']],
@@ -66,7 +66,7 @@ export const Toml: Language = {
         ],
 
         whitespace: [
-          [/[ \t\r\n]+/, ''],
+          [/[ \s\t\r\n]+/, ''],
           [/^\s*[#;].*$/, 'comment'],
         ],
 

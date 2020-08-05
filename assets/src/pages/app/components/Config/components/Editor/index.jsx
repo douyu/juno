@@ -91,7 +91,6 @@ function Editor(props) {
   }, [mode, currentConfig])
 
   useEffect(() => {
-    console.log(currentConfig)
     if (currentConfig && mode === 'code' && editor) {
       editor.setValue(currentConfig.content)
       editor.focus()

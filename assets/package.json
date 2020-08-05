@@ -55,6 +55,7 @@
     "antd": "^4.4.0",
     "bizcharts": "^3.5.9",
     "bizcharts-plugin-slider": "^2.1.1",
+    "chevrotain": "^7.0.1",
     "classnames": "^2.2.6",
     "codemirror": "^5.53.2",
     "echarts": "^4.7.0",
@@ -109,7 +110,9 @@
     "husky": "^4.0.7",
     "lint-staged": "^10.0.0",
     "mockjs": "^1.0.1-beta3",
-    "prettier": "2.0.5",
+    "prettier": "^2.0.5",
+    "prettier-plugin-ini": "^0.3.0",
+    "prettier-plugin-toml": "0.3.1",
     "pro-download": "1.0.1",
     "puppeteer-core": "^2.1.1",
     "stylelint": "^13.0.0"
