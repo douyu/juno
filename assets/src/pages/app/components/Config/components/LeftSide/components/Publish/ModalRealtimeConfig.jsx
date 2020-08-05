@@ -41,7 +41,7 @@ function ModalRealtimeConfig (props) {
             }
           })
         }}>
-          {(props.content || []).map(item => <Select.Option value={item.file_name}>
+          {(props.content || []).map(item => <Select.Option key={item.file_name} value={item.file_name}>
             {item.file_name}
           </Select.Option>)}
         </Select>

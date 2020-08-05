@@ -557,7 +557,8 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 }
 
 func genConfigurePath(appName string, filename string) (pathArr []string, pathStr string) {
-	for k, dir := range cfg.Cfg.Configure.Dirs {
+	dirs := cfg.Cfg.Configure.Dirs
+	for k, dir := range dirs {
 		path := filepath.Join(dir, appName, "config", filename)
 		pathArr = append(pathArr, path)
 		if k == 0 {
@@ -803,13 +804,14 @@ func ReadInstanceConfig(param view.ReqReadInstanceConfig) (configContentList []v
 
 	var eg errgroup.Group
 	for _, configPath := range pathArr {
+		fileName := configPath
 		eg.Go(func() error {
 			var err error
 			var plainText string
 			var resp *resty.Response
 			var configItem = view.RespReadInstanceConfigItem{
 				ConfigID: config.ID,
-				FileName: configPath,
+				FileName: fileName,
 			}
 			var fileRead struct {
 				Code int    `json:"code"`
@@ -824,7 +826,7 @@ func ReadInstanceConfig(param view.ReqReadInstanceConfig) (configContentList []v
 				URL:     "/api/agent/file",
 				Type:    http.MethodGet,
 				Params: map[string]string{
-					"file_name": configPath,
+					"file_name": fileName,
 				},
 			}
 			resp, err = clientproxy.ClientProxy.HttpGet(zone, req)
