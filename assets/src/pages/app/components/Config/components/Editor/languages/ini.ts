@@ -48,7 +48,7 @@ export const INI: Language = {
           [/(\{\{)([\w\@]+)(\}\})/, ['', 'variable', '']],
 
           // sections
-          [/^\[[^\]]*\]/, 'metatag'],
+          [/^[\s]*\[[^\]]*\]/, 'metatag'],
 
           // keys
           [/(^\w+)(\s*)(\=)/, ['key', '', 'delimiter']],

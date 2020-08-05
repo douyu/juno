@@ -1,7 +1,11 @@
-import {editor, languages, Range} from "monaco-editor";
-const monaco = {editor, languages, Range}
-
+import * as monaco from "monaco-editor";
+import prettier from "prettier/standalone";
+import prettierYaml from "prettier/parser-yaml"
+import tomlParser from "./parsers/parser-toml/api"
+import iniParser from './parsers/parser-ini/api'
+import iniPrettierPlugin from 'prettier-plugin-ini'
 import initLanguage from "./language";
+import {message} from "antd";
 
 let languageInitialized = false
 let conditionWhenSelect = null
@@ -11,6 +15,26 @@ let _option = {
   onInsertResource: null,
   onLoadResourceDetail: null
 }
+let tomlPrettierPlugin = null
+let decorations = []
+
+monaco.editor.defineTheme('dy-vs-dark', {
+  colors: {},
+  inherit: true,
+  base: 'vs-dark',
+  rules: [
+    {
+      token: 'variable',
+      foreground: '#8fd9ff',
+      fontStyle: 'bold'
+    },
+    {
+      token: 'string.escape',
+      foreground: '#668658',
+      fontStyle: 'bold'
+    }
+  ]
+})
 
 export function createEditor(ref, option) {
   _option = option
@@ -24,8 +48,20 @@ export function createEditor(ref, option) {
     }
   )
 
+  {
+    tomlPrettierPlugin = tomlParser({
+      onParseError: err => onParseError(editorInstance, err),
+      onLexError: err => onLexError(editorInstance, err)
+    })
+  }
+
+  editorInstance.onDidChangeModelContent(ev => {
+    decorations = editorInstance.deltaDecorations(decorations, [])
+    formatCode(editorInstance, option.format, false)
+  })
+
   registerConditions(editorInstance)
-  registerActions(editorInstance)
+  registerActions(editorInstance, option.format)
 
   if (!languageInitialized) {
     languageInitialized = true
@@ -139,25 +175,69 @@ function registerSelectCondition(e) {
   })
 }
 
-function registerActions(e) {
+function onLexError(editor, err) {
+  console.debug(err)
+  decorations = editor.deltaDecorations(
+    decorations,
+    err.map(e => {
+      return {
+        range: new monaco.Range(e.line, e.column, e.line, e.column + e.length),
+        options: {
+          hoverMessage: [{value: e.message}],
+          inlineClassName: 'editor-error-line'
+        }
+      }
+    })
+  )
+}
 
-  // e.addAction({
-  //   id: 'changeResource',
-  //   label: '修改资源',
-  //   contextMenuGroupId: 'navigation',
-  //   contextMenuOrder: 1,
-  //   precondition: 'whenMouseOnVar',
-  //   run: (e) => {
-  //
-  //   },
-  // })
+function onParseError(editor, err) {
+  console.debug(err)
+  decorations = editor.deltaDecorations(
+    decorations,
+    err.map(e => {
+      return {
+        range: new monaco.Range(e.token.startLine, e.token.startColumn, e.token.endLine, e.token.endColumn),
+        options: {
+          hoverMessage: [{value: e.message}],
+          inlineClassName: 'editor-error-line'
+        }
+      }
+    })
+  )
+}
+
+function formatCode(editor, fileFormat, format = true) {
+  let model = editor.getModel()
+  let content = model.getValue()
+  let resourceReg = /\{\{[^\}]+\}\}/
+  if (content.match(resourceReg) && fileFormat === 'yaml') {
+    if (!format) return
+    return message.warn("YAML格式暂不支持资源语法格式化")
+  }
+
+  try {
+    let formatted = prettier.format(model.getValue(), {
+      parser: fileFormat,
+      plugins: [
+        tomlPrettierPlugin,
+        iniPrettierPlugin,
+        prettierYaml,
+      ],
+    })
+    format && model.setValue(formatted)
+  } catch (e) {
+    console.debug(e)
+  }
+}
+
+function registerActions(e, format) {
 
   e.addAction({
     id: 'FormatDocument',
     label: '格式化',
     run(editor) {
-      // let model = editor.getModel()
-      // model.setValue(prettier.format(model.getValue()))
+      formatCode(editor, format)
     }
   })
 

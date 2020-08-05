@@ -83,7 +83,6 @@ export default {
       Object.keys(settings).map(name => {
         settings[name] = unMarshalSetting(name, settings[name])
       })
-      console.log(settings)
 
       yield put({
         type: '_setSettings',

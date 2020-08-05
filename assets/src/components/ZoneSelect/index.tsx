@@ -7,11 +7,11 @@ import {Radio} from 'antd';
 const ZoneSelect = (props: any) => {
   const {onChange, appEnvZone, env, zoneCode} = props;
   let data = [];
-  data.push(<Radio.Button value="all">全部</Radio.Button>);
+  data.push(<Radio.Button value="all" key={"all"}>全部</Radio.Button>);
   appEnvZone.forEach((envItem: any) => {
     if (env != undefined && envItem.env == env) {
-      envItem.zone_list.forEach((zoneItem: any) => {
-        data.push(<Radio.Button value={zoneItem.zone_code}>{zoneItem.zone_name}</Radio.Button>);
+      envItem.zone_list.forEach((zoneItem: any, index: number) => {
+        data.push(<Radio.Button key={index} value={zoneItem.zone_code}>{zoneItem.zone_name}</Radio.Button>);
       });
     }
   });
