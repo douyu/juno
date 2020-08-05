@@ -104,7 +104,7 @@ function registerHover() {
         return _option.onLoadResourceDetail(currentResourceVar).then(r => {
           console.log(r)
           let contents = [
-            {value: `**${r.name}**`},
+            {value: `资源变量: **${r.name}**`},
           ]
 
           let content = `**Description:** ${r.description}\n\n**Value:** \`${r.value}\`\n\n**Author:** ${r.user_name}`

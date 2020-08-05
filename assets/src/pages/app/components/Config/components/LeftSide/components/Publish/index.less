@@ -3,6 +3,37 @@
 
 @optionBlockH: 95px;
 
+:global {
+  .publishConfigSelect:not(.ant-select-customize-input) {
+    color: @primaryColor;
+
+    .ant-select-selector {
+      border: none;
+      background-color: #3c3c3c;
+    }
+
+    .ant-select-arrow {
+      color: @secondColor;
+    }
+  }
+
+  .publishConfigSelectDropDown {
+    background-color: #3c3c3c;
+
+    .ant-select-item {
+      color: @secondColor;
+
+      &.ant-select-item-option-selected, &.ant-select-item-option-active {
+        background-color: #4e4e4e;
+      }
+    }
+  }
+
+  .ant-empty-description {
+    color: #fff;
+  }
+}
+
 .publish {
 
   .optionBlock {
