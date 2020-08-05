@@ -105,6 +105,7 @@ export default function AppHeader(props: AppHeaderInterface) {
     stress: '#f50',
     gray: '#f50',
     pub: '#f50',
+    prod: '#f50',
   }
   idcList.forEach((value: any, index: number) => {
     if (!isRepeat(envRepeatMap, value.env)) {
