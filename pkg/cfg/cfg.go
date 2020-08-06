@@ -133,18 +133,6 @@ func defaultConfig() cfg {
 						Enable:    false,
 						ProxyAddr: nil,
 					},
-					Etcd: Etcd{
-						Enable:     true,
-						ListenAddr: "127.0.0.1:52370",
-						Endpoints:  []string{"127.0.0.1:2370"},
-						Namespace:  "",
-						Timeout:    xtime.Duration("3s"), // 3 second
-						TLS: TLS{
-							Cert:   "",
-							Key:    "",
-							CaCert: "",
-						},
-					},
 					HTTP: HTTPProxy{
 						Enable:            true,
 						ListenAddr:        "127.0.0.1:50000",
@@ -246,6 +234,9 @@ func InitCfg() {
 	}
 	config.parseHeartBeat()
 	Cfg = config
+
+	xlog.Info("InitCfg parse", zap.Any("config", config))
+
 }
 
 func parseAppAndSubURL(rootURL string) (string, string, error) {

@@ -48,6 +48,8 @@ func Init() {
 		ConfgoEtcd, err = clientv3.New(clientv3.Config{
 			Endpoints:   cfg.Cfg.ServerProxy.Etcd.Endpoints,
 			DialTimeout: 2 * time.Second,
+			Username:    cfg.Cfg.ServerProxy.Etcd.UserName,
+			Password:    cfg.Cfg.ServerProxy.Etcd.Password,
 		})
 		if err != nil {
 			panic(err.Error())
