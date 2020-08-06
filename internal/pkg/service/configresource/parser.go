@@ -16,7 +16,7 @@ type (
 
 // GetAllConfigResource ..
 func GetAllConfigResource(content string) (res []string) {
-	reg := regexp.MustCompile(`{{[\w\W]*\@[0-9]*}}`)
+	reg := regexp.MustCompile(`{{[\w\-_]*@[0-9]+}}`)
 	return reg.FindAllString(content, -1)
 }
 

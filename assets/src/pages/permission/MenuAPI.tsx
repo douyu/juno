@@ -126,11 +126,9 @@ const MenuAPI = (props: MenuProps) => {
               disabled={isAdmin}
               onMenuChange={(menu) => {
                 setCheckedMenu(menu)
-                console.log(menu)
               }}
               onAPIChange={(checkedAPI) => {
                 setCheckedAPI(checkedAPI)
-                console.log(checkedAPI)
               }}
               checkedMenu={checkedMenu}
               checkedAPI={checkedAPI}

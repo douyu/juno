@@ -157,7 +157,7 @@ function Editor(props) {
           onFieldChange({url: val})
         }}
       >
-        {addrList.map(item => {
+        {(addrList||[]).map(item => {
           return <AutoComplete.Option value={`http://${item.addr}:${httpPort}`}>
             <Tag>{item.env}</Tag> {`http://${item.addr}:${httpPort}`}
           </AutoComplete.Option>

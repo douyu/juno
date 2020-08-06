@@ -191,54 +191,35 @@ func (u *userGroup) SetAPIPerm(param view.ReqSetGroupAPIPerm) (err error) {
 		return
 	}
 
-	// filter perm
-	filteredAPIList := make([]db.CasbinPolicyAuth, 0)
-	removedAPIList := make([]db.CasbinPolicyAuth, 0)
+	targetPolicies := make([]db.CasbinPolicyAuth, 0)
 	for _, item := range param.APIList {
-		exists := false
-		for _, policy := range polices {
-			if item.Method == policy.Act && item.Path == policy.Obj {
-				exists = true
-				break
-			}
-		}
-
-		policyItem := db.CasbinPolicyAuth{
+		targetPolicies = append(targetPolicies, db.CasbinPolicyAuth{
 			Sub:  sub,
 			Obj:  item.Path,
 			Act:  item.Method,
 			Type: db.CasbinPolicyTypeAPI,
-		}
-
-		if !exists {
-			filteredAPIList = append(filteredAPIList, policyItem)
-		}
+		})
 	}
 
-	for _, policy := range polices {
-		exists := false
-		for _, item := range param.APIList {
-			if item.Method == policy.Act && item.Path == policy.Obj {
-				exists = true
-				break
-			}
-		}
-
-		if !exists {
-			removedAPIList = append(removedAPIList, policy)
-		}
-	}
+	newPolicies := util.DiffListToSlice(targetPolicies, polices, func(a, b interface{}) bool {
+		pA, pB := a.(db.CasbinPolicyAuth), b.(db.CasbinPolicyAuth)
+		return pA.Act == pB.Act && pA.Obj == pB.Obj && pA.Sub == pA.Sub && pA.Type == pB.Type
+	})
+	removedPolices := util.DiffListToSlice(polices, targetPolicies, func(a, b interface{}) bool {
+		pA, pB := a.(db.CasbinPolicyAuth), b.(db.CasbinPolicyAuth)
+		return pA.Act == pB.Act && pA.Obj == pB.Obj && pA.Sub == pA.Sub && pA.Type == pB.Type
+	})
 
 	tx := u.db.Begin()
 	{
 		// create new perm
-		err = u.createPerms(tx, filteredAPIList)
+		err = u.createPerms(tx, newPolicies.([]db.CasbinPolicyAuth))
 		if err != nil {
 			tx.Rollback()
 			return
 		}
 		// remove old perm
-		err = u.deletePerms(tx, removedAPIList)
+		err = u.deletePerms(tx, removedPolices.([]db.CasbinPolicyAuth))
 		if err != nil {
 			tx.Rollback()
 			return
@@ -344,7 +325,7 @@ func (u *userGroup) createPerms(mysql *gorm.DB, list []db.CasbinPolicyAuth) (err
 		err = mysql.Where("sub = ? and obj = ? and act = ? and type = ?", item.Sub, item.Obj, item.Act, item.Type).
 			First(&policy).Error
 		if err != gorm.ErrRecordNotFound {
-			return
+			continue
 		}
 
 		err = mysql.Save(&item).Error
