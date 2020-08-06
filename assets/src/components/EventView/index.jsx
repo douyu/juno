@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { Avatar, Icon, Tag } from 'antd';
 import GitEventView from './git';
 import DevopsEventView from './devops';
@@ -7,6 +7,7 @@ import RegisterEventView from './register';
 import TianoEventView from './tiano';
 import styles from './style.css';
 import CMDBEventView from '@/components/EventView/cmdb';
+import moment from "moment";
 
 /**
  * 该组件负责处理事件信息的显示方式
@@ -14,16 +15,35 @@ import CMDBEventView from '@/components/EventView/cmdb';
  */
 export default class EventView extends Component {
   render() {
-    let { source, operation, metadata, user_name } = this.props.data;
+    let { metadata, user_name, create_time, zone_code, env, operator_type } = this.props.data;
     try {
       metadata = JSON.parse(metadata);
     } catch (e) {
-      return '---';
+      return null;
     }
-    const { user_avatar } = metadata;
-    let avatar;
 
-    return <span>{this.renderEvent()}</span>;
+    return <div className={styles.listItem}>
+      <div>
+        <Avatar size={"small"}>
+          {user_name?.substr(0, 1)}
+        </Avatar>
+        <span className={styles.username}>
+          {operator_type === 'openapi' && <Tag>Open API</Tag>}
+          {user_name}
+        </span>
+        <span className={styles.createTime}>- {moment(create_time * 1000).fromNow()}</span>
+
+        <span className={styles.envInfo}>
+          {zone_code && <Tag color={"green"}>{zone_code}</Tag>}
+          {env && <Tag color={"red"}>{env}</Tag>}
+        </span>
+
+        <div className={styles.absoluteTime}>
+          {moment(create_time * 1000).format('YYYY-MM-DD HH:mm:ss')}
+        </div>
+      </div>
+      {this.renderEvent()}
+    </div>;
   }
 
   renderEvent() {
@@ -203,63 +223,6 @@ export default class EventView extends Component {
               </Popover>
             </Col>
           </Row>
-        </div>
-      );
-    }
-
-    //发布中心
-    if (source === 'tiano') {
-      const {
-        aid,
-        commit_id,
-        ip,
-        host_name,
-        pub_id,
-        rollback,
-        supervisor_param,
-        gitlab_addr,
-      } = JSON.parse(metadata);
-      let isRoll = null;
-      if (rollback === 'true') {
-        isRoll = <Tag color={'red'}>回滚</Tag>;
-      }
-      let params = null;
-      if (supervisor_param !== '') {
-        params = (
-          <Row style={{ marginTop: '4px' }}>
-            <Col span={24}>supervisor启动参数:{supervisor_param}</Col>
-          </Row>
-        );
-      }
-      let commit = commit_id;
-      if (gitlab_addr) {
-        commit = (
-          <a href={`${gitlab_addr}/commit/${commit_id}`} target={'_blank'}>
-            {commit_id}
-          </a>
-        );
-      }
-      let pubFLow = null;
-      if (aid) {
-        pubFLow = (
-          <a
-            href={`http://tiano.xxxx.com/app/publishFormExec?id=${aid}&pubFlowTicketId=${pub_id}`}
-            target={'_blank'}
-          >
-            {pub_id}
-          </a>
-        );
-      }
-
-      return (
-        <div>
-          <Row>
-            <Col span={12}>发布实例：{host_name}</Col>
-            <Col span={4}>发布版本:{commit}</Col>
-            <Col span={4}>发布单:{pubFLow}</Col>
-            <Col span={4}>{isRoll}</Col>
-          </Row>
-          <Row>{params}</Row>
         </div>
       );
     }

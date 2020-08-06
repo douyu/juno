@@ -30,6 +30,8 @@ const (
 	EventConfgoWatchHttpPush = "confgo_watch_http_push" // juno-agent 回调事件，http长轮询配置推送后触发
 	EventConfgoWatchFileSync = "confgo_watch_file_sync" // juno-agent 回调事件，文件同步成功后触发
 
+	EventAppRestart = "app_node_restart"
+
 	// user
 	EventCMDBUserCreate = "cmdb_user_create"
 	EventCMDBUserDelete = "cmdb_user_delete"
@@ -103,6 +105,7 @@ var OperationMap = map[string]string{
 	EventGovernRegister:           "节点注册",
 	EventDevopsUnregister:         "节点注销",
 	EventGrafanaAlertNotification: "Grafana报警",
+	EventAppRestart:               "应用重启",
 }
 
 var SourceMap = map[string]string{

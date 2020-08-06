@@ -1,6 +1,8 @@
 package appevent
 
 import (
+	"time"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/event"
 )
@@ -142,6 +144,23 @@ func (a *appEvent) NodeDeleteEvent(zoneCode, env, hostName, metaData string, use
 	a.PutEvent(appEvent)
 }
 
+func (a *appEvent) OpenAPIConfigFileCreate(aid int, appName, zoneCode, env, metaData string, tk db.AccessToken) {
+	appEvent := db.AppEvent{
+		ZoneCode:     zoneCode,
+		Env:          env,
+		Aid:          aid,
+		AppName:      appName,
+		Operation:    event.EventConfgoFileCreate,
+		Source:       event.SourceConfgo,
+		Metadata:     metaData,
+		UserName:     tk.Name,
+		UID:          int(tk.ID),
+		OperatorType: "openapi",
+	}
+
+	a.PutEvent(appEvent)
+}
+
 func (a *appEvent) ConfgoFileCreateEvent(aid int, appName, zoneCode, env, metaData string, user *db.User) {
 	// app事件
 	appEvent := db.AppEvent{
@@ -156,6 +175,23 @@ func (a *appEvent) ConfgoFileCreateEvent(aid int, appName, zoneCode, env, metaDa
 	if user != nil {
 		appEvent.UserName = user.Username
 		appEvent.UID = user.Uid
+	}
+	a.PutEvent(appEvent)
+}
+
+func (a *appEvent) OpenAPIConfigFileUpdate(aid int, appName, zoneCode, env, metaData string, tk db.AccessToken) {
+	// app事件
+	appEvent := db.AppEvent{
+		ZoneCode:     zoneCode,
+		Env:          env,
+		Aid:          aid,
+		AppName:      appName,
+		Operation:    event.EventConfgoFileUpdate,
+		Source:       event.SourceConfgo,
+		Metadata:     metaData,
+		UserName:     tk.Name,
+		UID:          int(tk.ID),
+		OperatorType: "openapi",
 	}
 	a.PutEvent(appEvent)
 }
@@ -178,10 +214,28 @@ func (a *appEvent) ConfgoFileUpdateEvent(aid int, appName, zoneCode, env, metaDa
 	a.PutEvent(appEvent)
 }
 
-func (a *appEvent) ConfgoFileDeleteEvent(aid int, appName, zoneCode, metaData string, user *db.User) {
+func (a *appEvent) OpenAPIConfigDelete(aid int, appName, zoneCode, env, metaData string, tk db.AccessToken) {
+	// app事件
+	appEvent := db.AppEvent{
+		ZoneCode:     zoneCode,
+		Env:          env,
+		Aid:          aid,
+		AppName:      appName,
+		Operation:    event.EventConfgoFileDelete,
+		Source:       event.SourceConfgo,
+		Metadata:     metaData,
+		UserName:     tk.Name,
+		UID:          int(tk.ID),
+		OperatorType: "openapi",
+	}
+	a.PutEvent(appEvent)
+}
+
+func (a *appEvent) ConfgoFileDeleteEvent(aid int, appName, zoneCode, env, metaData string, user *db.User) {
 	// app事件
 	appEvent := db.AppEvent{
 		ZoneCode:  zoneCode,
+		Env:       env,
 		Aid:       aid,
 		AppName:   appName,
 		Operation: event.EventConfgoFileDelete,
@@ -245,6 +299,23 @@ func (a *appEvent) ConfgoItemDeleteEvent(aid int, appName, zoneCode, env, metaDa
 	if user != nil {
 		appEvent.UserName = user.Username
 		appEvent.UID = user.Uid
+	}
+	a.PutEvent(appEvent)
+}
+
+func (a *appEvent) OpenAPIConfigPublish(aid int, appName, env, zoneCode, metaData string, token db.AccessToken) {
+	// app事件
+	appEvent := db.AppEvent{
+		ZoneCode:     zoneCode,
+		Env:          env,
+		Aid:          aid,
+		AppName:      appName,
+		Operation:    event.EventConfgoFilePublish,
+		Source:       event.SourceConfgo,
+		Metadata:     metaData,
+		UserName:     token.Name,
+		UID:          int(token.ID),
+		OperatorType: "openapi",
 	}
 	a.PutEvent(appEvent)
 }
@@ -357,4 +428,44 @@ func (a *appEvent) UserDeleteEvent(metaData string, user *db.User) {
 		appEvent.UID = user.Uid
 	}
 	a.PutEvent(appEvent)
+}
+
+func (a *appEvent) UserAppRestart(aid int, appName, zoneCode, env, hostName, metadata string, user *db.User) {
+	ev := db.AppEvent{
+		AppName:      appName,
+		Aid:          aid,
+		ZoneCode:     zoneCode,
+		Env:          env,
+		HostName:     hostName,
+		Operation:    event.EventAppRestart,
+		CreateTime:   time.Now().Unix(),
+		Source:       event.SourceConfgo,
+		Metadata:     metadata,
+		OperatorType: "user",
+	}
+
+	if user != nil {
+		ev.UserName = user.Username
+		ev.UID = user.Uid
+	}
+
+	a.PutEvent(ev)
+}
+
+func (a *appEvent) OpenAPIAppRestart(aid int, appName, zoneCode, env, hostName, metadata string, tk db.AccessToken) {
+	ev := db.AppEvent{
+		AppName:      appName,
+		Aid:          aid,
+		ZoneCode:     zoneCode,
+		Env:          env,
+		HostName:     hostName,
+		Operation:    event.EventAppRestart,
+		CreateTime:   time.Now().Unix(),
+		Source:       event.SourceConfgo,
+		Metadata:     metadata,
+		OperatorType: "openapi",
+		UserName:     tk.Name,
+		UID:          int(tk.ID),
+	}
+	a.PutEvent(ev)
 }
