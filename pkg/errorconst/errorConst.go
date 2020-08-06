@@ -44,6 +44,7 @@ const (
 
 	AppLogCustomizeDashboard myErrorConst = 10009
 	AppLogCustomizeLogStore  myErrorConst = 10010
+	AppNotExists             myErrorConst = 10011
 )
 
 // errNameMap 错误名称映射map，维护错误码的同时需维护此map
@@ -59,6 +60,7 @@ var errNameMap = map[myErrorConst]string{
 	AppActionFailed:             "服务操作失败",
 	AppLogCustomizeDashboard:    "未获取到监控面板访问地址",
 	AppLogCustomizeLogStore:     "未获取到日志存储访问地址",
+	AppNotExists:                "应用不存在",
 }
 
 // Code 返回codes.Code类型
