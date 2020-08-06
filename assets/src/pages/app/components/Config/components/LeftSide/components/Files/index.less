@@ -20,11 +20,17 @@
       padding: 0;
 
       li.configItem {
-        padding: 5px;
+        padding: 3px 5px;
         cursor: pointer;
+        border-radius: 10px;
+        margin-top: 5px;
 
-        &:hover {
+        &.configItemActive {
           background-color: #424242;
+        }
+
+        &:not(.configItemActive):hover {
+          background-color: #333;
         }
 
         display: grid;

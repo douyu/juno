@@ -44,6 +44,40 @@ func DiffList(source, dest interface{}, cmp func(a, b interface{}) bool) (res []
 	return
 }
 
+//DiffListToSlice 求 source 和 dest 的 交/差集，返回类型和 source 相同
+func DiffListToSlice(source, dest interface{}, cmp func(a, b interface{}) bool) (res interface{}) {
+	if reflect.TypeOf(source).Kind() != reflect.Array && reflect.TypeOf(source).Kind() != reflect.Slice {
+		return
+	}
+
+	lenA := reflect.ValueOf(source).Len()
+	lenB := reflect.ValueOf(dest).Len()
+	valA := reflect.ValueOf(source)
+	valB := reflect.ValueOf(dest)
+
+	tmpSlice := make([]reflect.Value, 0)
+	for i := 0; i < lenA; i++ {
+		exist := false
+		for j := 0; j < lenB; j++ {
+			if cmp(valA.Index(i).Interface(), valB.Index(j).Interface()) {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			//res = append(res, valA.Index(i).Interface())
+			tmpSlice = append(tmpSlice, valA.Index(i))
+		}
+	}
+
+	resSlice := reflect.MakeSlice(reflect.TypeOf(source), len(tmpSlice), len(tmpSlice))
+	for idx, value := range tmpSlice {
+		resSlice.Index(idx).Set(value)
+	}
+
+	return resSlice.Interface()
+}
+
 // 深度拷贝
 
 func DeepCopy(dst, src interface{}) error {

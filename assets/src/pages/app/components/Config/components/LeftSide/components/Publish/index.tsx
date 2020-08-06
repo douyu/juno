@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {connect} from 'dva';
-import styles from './index.less';
 import {Checkbox, Empty, message, Select, Spin} from 'antd';
 import {DatabaseOutlined} from '@ant-design/icons';
 import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
@@ -9,6 +8,7 @@ import ScrollArea from 'react-scrollbar';
 import {ReloadOutlined, StopOutlined, BorderOutlined, CheckSquareOutlined} from '@ant-design/icons/lib';
 import ModalPublish from '@/pages/app/components/Config/components/LeftSide/components/Publish/ModalPublish';
 import {CheckboxChangeEvent} from "antd/es/checkbox";
+import styles from './index.less';
 
 function Publish(props: any) {
   const {
@@ -105,6 +105,8 @@ function Publish(props: any) {
           loading={configInstanceListLoading}
           onChange={selectConfigFile}
           value={configFile && configFile.id}
+          dropdownClassName={'publishConfigSelectDropDown'}
+          className={'publishConfigSelect'}
         >
           {configList.map((item: any, index: any) => {
             return (
