@@ -40,6 +40,9 @@ type Register struct {
 	Endpoints      []string
 	ConnectTimeout time.Duration `json:"connectTimeout"`
 	Secure         bool          `json:"secure"`
+	BasicAuth      bool          `json:"basicAuth" toml:"basicAuth"`
+	Password       string        `json:"password" toml:"password"`
+	UserName       string        `json:"userName" toml:"userName"`
 }
 
 type ServerSchema struct {
@@ -117,6 +120,9 @@ type Etcd struct {
 	Namespace  string        `json:"namespace"`
 	Timeout    time.Duration `json:"timeout"`
 	TLS        TLS           `json:"tls"`
+	BasicAuth  bool          `json:"basicAuth"`
+	Password   string        `json:"password"`
+	UserName   string        `json:"userName"`
 }
 
 // TLS ..

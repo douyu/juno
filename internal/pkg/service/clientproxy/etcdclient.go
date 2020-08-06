@@ -12,11 +12,14 @@ type EtcdClient struct {
 	conn *clientv3.Client
 }
 
-func NewEtcdClient(endpoints []string, timeout time.Duration) (obj *EtcdClient, err error) {
+// NewEtcdClient ..
+func NewEtcdClient(endpoints []string, timeout time.Duration, basicAuth bool, username, password string) (obj *EtcdClient, err error) {
 	obj = &EtcdClient{}
 	obj.conn, err = clientv3.New(clientv3.Config{
 		Endpoints:   endpoints,
 		DialTimeout: timeout,
+		Username:    username,
+		Password:    password,
 	})
 	return
 }
