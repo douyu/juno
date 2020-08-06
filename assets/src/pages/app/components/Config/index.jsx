@@ -6,6 +6,7 @@ import {connect} from 'dva';
 import ModalSave from "@/pages/app/components/Config/components/ModalSave";
 import ModalHistory from "@/pages/app/components/Config/components/ModalHistory";
 import EditorMaskLayer from "@/pages/app/components/Config/components/EditorMaskLayer";
+import ModalDiff from "@/pages/app/components/Config/components/ModalDiff";
 
 function ConfigEdit(props) {
   const {aid, env, zoneList, zoneCode, appName} = props;
@@ -71,6 +72,8 @@ function ConfigEdit(props) {
       <ModalSave/>
 
       <ModalHistory/>
+
+      <ModalDiff/>
     </div>
   );
 }

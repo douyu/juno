@@ -4,7 +4,7 @@ import styles from './index.less';
 import {connect} from 'dva'
 import {Spin} from "antd";
 import {EditOutlined} from '@ant-design/icons'
-import {createDiffEditor, createEditor} from "@/pages/app/components/Config/components/Editor/editor";
+import {createEditor} from "@/pages/app/components/Config/components/Editor/editor";
 import ModalInsertResource from "@/pages/app/components/Config/components/ModalInsertResource";
 import {loadResourceByNameVersion, loadResourceDetail} from "@/services/config_resource";
 
@@ -13,10 +13,8 @@ let editor = null
 function Editor(props) {
   const {
     currentConfig, mode, configFileLoading, currentContent,
-    diffOriginConfig, diffModifiedConfig,
   } = props
 
-  const [diffEditor, setDiffEditor] = useState(null)
   const [insertModalCB, setInsertModalCB] = useState(null)
   const editorRef = useRef(null)
   const diffEditorRef = useRef(null)
@@ -27,66 +25,57 @@ function Editor(props) {
   })
 
   useEffect(() => {
-    if (mode === 'code') {
-      if (!currentConfig) return
+    if (!currentConfig) return
 
-      if (editor) {
-        editor.dispose()
-        let model = editor.getModel()
-        if (model) model.dispose()
-      }
-
-      let editorInstance = createEditor(editorRef, {
-        format: currentConfig?.format || "toml",
-        onInsertResource: (callback) => {
-          showModalInsertResource(true)
-          setInsertModalCB({callback})
-        },
-        onLoadResourceDetail: (resource) => {
-          return new Promise((resolve, reject) => {
-            if (!currentConfig) {
-              console.log("currentConfig", currentConfig)
-              reject()
-              return
-            }
-
-            if (!resource || !resource.length) {
-              reject()
-              return
-            }
-
-            const name = resource.split('@')[0]
-            loadResourceByNameVersion(currentConfig.env, currentConfig.zone, name).then(r => {
-              if (r.code !== 0) {
-                console.error("loadResourceByNameVersion failed:", r)
-                reject()
-                return
-              }
-
-              resolve(r.data)
-            })
-
-          })
-        }
-      })
-
-      editor = editorInstance
-      editorInstance.setValue(currentContent)
-      editorInstance.onDidChangeModelContent(ev => {
-        props.dispatch({
-          type: 'config/setCurrentContent',
-          payload: editorInstance.getValue()
-        })
-      })
-
-    } else if (mode === 'diff') {
-      // createDiffEditor()
-
-      let editorInstance = createDiffEditor(diffEditorRef,
-        diffOriginConfig ? diffOriginConfig.content : '', diffModifiedConfig.content)
-
-      setDiffEditor(editorInstance)
+    if (editor) {
+      editor.dispose()
+      let model = editor.getModel()
+      if (model) model.dispose()
     }
+
+    let editorInstance = createEditor(editorRef, {
+      format: currentConfig?.format || "toml",
+      onInsertResource: (callback) => {
+        showModalInsertResource(true)
+        setInsertModalCB({callback})
+      },
+      onLoadResourceDetail: (resource) => {
+        return new Promise((resolve, reject) => {
+          if (!currentConfig) {
+            console.log("currentConfig", currentConfig)
+            reject()
+            return
+          }
+
+          if (!resource || !resource.length) {
+            reject()
+            return
+          }
+
+          const name = resource.split('@')[0]
+          loadResourceByNameVersion(currentConfig.env, currentConfig.zone, name).then(r => {
+            if (r.code !== 0) {
+              console.error("loadResourceByNameVersion failed:", r)
+              reject()
+              return
+            }
+
+            resolve(r.data)
+          })
+
+        })
+      }
+    })
+
+    editor = editorInstance
+    editorInstance.setValue(currentContent)
+    editorInstance.onDidChangeModelContent(ev => {
+      props.dispatch({
+        type: 'config/setCurrentContent',
+        payload: editorInstance.getValue()
+      })
+    })
+
 
   }, [mode, currentConfig])
 
@@ -97,22 +86,8 @@ function Editor(props) {
     }
   }, [currentConfig])
 
-  useEffect(() => {
-    if (mode === 'diff' && diffEditor) {
-      const originModel = monaco.editor.createModel(diffOriginConfig ? diffOriginConfig.content : '')
-      const modifiedModel = monaco.editor.createModel(diffModifiedConfig.content)
-
-      diffEditor.setModel({
-        original: originModel,
-        modified: modifiedModel
-      })
-    }
-  }, [diffOriginConfig, diffModifiedConfig])
-
   return <div className={styles.editorContainer}>
     <div ref={editorRef} className={styles.editor}/>
-
-    {mode === 'diff' && <div ref={diffEditorRef} className={styles.diffEditor}/>}
 
     {/*配置文件加载提示*/}
     {configFileLoading && <div className={styles.loadingMask}>
@@ -139,10 +114,7 @@ const mapStateToProps = ({config}) => {
     currentConfig: config.currentConfig,
     configFileLoading: config.configFileLoading,
     editor: config.editorInstance,
-    mode: config.editorMode,
     currentContent: config.currentContent,
-    diffOriginConfig: config.diffOriginConfig,
-    diffModifiedConfig: config.diffModifiedConfig,
   }
 }
 
