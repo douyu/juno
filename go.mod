@@ -35,6 +35,7 @@ require (
 	github.com/onsi/gomega v1.10.1
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff
 	github.com/sirupsen/logrus v1.6.0
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/spf13/cast v1.3.1
@@ -56,6 +57,7 @@ require (
 	google.golang.org/grpc v1.29.1
 	gopkg.in/fsnotify.v1 v1.4.7
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
+	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 	sigs.k8s.io/yaml v1.2.0 // indirect

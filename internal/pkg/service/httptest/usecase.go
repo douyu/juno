@@ -25,6 +25,7 @@ func GetUseCase(id uint) (useCase view.HttpTestCase, err error) {
 		Headers:     testCase.Headers,
 		ContentType: testCase.ContentType,
 		Body:        testCase.Body,
+		Script:      testCase.Script,
 	}
 
 	return
@@ -113,6 +114,7 @@ func UpdateUseCase(uid uint, useCase view.HttpTestCase) (err error) {
 		testCase.Headers = useCase.Headers
 		testCase.ContentType = useCase.ContentType
 		testCase.Body = useCase.Body
+		testCase.Script = useCase.Script
 	}
 
 	err = option.DB.Save(&testCase).Error

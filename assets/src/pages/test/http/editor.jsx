@@ -1,16 +1,18 @@
 import styles from "./index.less";
-import {AutoComplete, Button, Icon, Input, Select, Spin, Tabs, Tag, message} from "antd";
+import {AutoComplete, Button, Input, message, Select, Spin, Tabs, Tag} from "antd";
 import KeyValueEditor from "@/pages/test/http/components/KeyValueEditor";
 import BodyTabPane from "@/pages/test/http/components/BodyTabPane";
-import React, {useState} from "react";
+import React from "react";
 import {connect} from "dva";
-import {UnControlled as CodeMirror} from "react-codemirror2";
-import {EditOutlined} from "@ant-design/icons";
+import MonacoEditor from 'react-monaco-editor'
+import {EditOutlined, RocketOutlined} from "@ant-design/icons";
 import {useBoolean} from "ahooks";
 import ReactScroll from 'react-scrollbar'
+import ResponseHeaders from "@/pages/test/http/components/ResponseHeaders";
+import TestLog from "@/pages/test/http/components/TestLog";
 
 function Editor(props) {
-  const {request, dispatch, httpPort, addrList, currentAppName} = props
+  const {request, dispatch, httpPort, addrList, currentAppName, response, sendStatus} = props
 
   const [nameEditing, nameEditAction] = useBoolean(false)
 
@@ -62,37 +64,56 @@ function Editor(props) {
   }
 
   const renderRequestResult = () => {
-    const {response, sendStatus, responseStatus, responseError} = props;
+    const {response, responseStatus, responseError} = props;
     if (sendStatus === 'done') {
       if (responseStatus === 'success') {
         let success = isSuccessCode(response.code)
         return <div>
-          <div
-            className={styles.responseStatusBar + (success ? '' : ' ' + styles.responseStatusBarFail)}>
-                <span className={styles.statusBlock}>
-                  <span>Status: </span>
-                  <span>
-                    {success ? <span className={styles.statusSuccess}>{response.code}</span>
-                      : <span className={styles.statusFail}>{response.code}</span>}
-                  </span>
-                </span>
-            <span className={styles.statusBlock}>
-                  <span>Time: </span>
-                  <span className={styles.statusSuccess}>
-                    {response.time_cost}ms
-                  </span>
-                </span>
-          </div>
+          {/*<div*/}
+          {/*  className={styles.responseStatusBar + (success ? '' : ' ' + styles.responseStatusBarFail)}>*/}
+          {/*  <span className={styles.statusBlock}>*/}
+          {/*    <span>Status: </span>*/}
+          {/*    <span>*/}
+          {/*      {success ? <span className={styles.statusSuccess}>{response.code}</span>*/}
+          {/*        : <span className={styles.statusFail}>{response.code}</span>}*/}
+          {/*    </span>*/}
+          {/*  </span>*/}
+          {/*  <span className={styles.statusBlock}>*/}
+          {/*    <span>Time: </span>*/}
+          {/*    <span className={styles.statusSuccess}>*/}
+          {/*      {response.time_cost}ms*/}
+          {/*    </span>*/}
+          {/*  </span>*/}
+          {/*</div>*/}
           <div className={styles.responseSuccess}>
-            <CodeMirror
-              value={response.body}
-              className={"responseCM"}
-              options={{
-                readOnly: true,
-                mode: 'javascript',
-                theme: 'duotone-light',
-                lineNumbers: false
-              }}/>
+            <Tabs
+              size={"small"}
+              renderTabBar={(props, DefaultTabBar) => {
+                return <DefaultTabBar
+                  {...props}
+                  style={{paddingLeft: '10px', margin: '0px'}}
+                />
+              }}>
+              <Tabs.TabPane tab={"Body"} key={"body"}>
+                <MonacoEditor
+                  width={"100%"}
+                  height={"348px"}
+                  language={"javascript"}
+                  value={response.body}
+                  theme={"vs"}
+                  options={{
+                    readOnly: true,
+                    automaticLayout: true
+                  }}
+                />
+              </Tabs.TabPane>
+              <Tabs.TabPane tab={"Header"} key={"header"}>
+                <ResponseHeaders headers={response.headers} style={{height: '340px'}}/>
+              </Tabs.TabPane>
+              <Tabs.TabPane tab={"Logs"} key={"logs"}>
+                <TestLog logs={response.logs} style={{height: '340px'}}/>
+              </Tabs.TabPane>
+            </Tabs>
           </div>
         </div>
       } else {
@@ -107,7 +128,7 @@ function Editor(props) {
     }
     if (sendStatus === 'not_start') {
       return <div style={{textAlign: 'center', padding: '40px', color: '#c3c3c3'}}>
-        <Icon style={{fontSize: "48px"}} type="rocket"/>
+        <RocketOutlined/>
         <p style={{marginTop: '20px'}}>发起请求获取响应</p>
       </div>
     }
@@ -157,7 +178,7 @@ function Editor(props) {
           onFieldChange({url: val})
         }}
       >
-        {(addrList||[]).map(item => {
+        {(addrList || []).map(item => {
           return <AutoComplete.Option value={`http://${item.addr}:${httpPort}`}>
             <Tag>{item.env}</Tag> {`http://${item.addr}:${httpPort}`}
           </AutoComplete.Option>
@@ -173,11 +194,27 @@ function Editor(props) {
     <div className={styles.requestParamEditBox}>
       <Tabs
         size={"small"}
-        renderTabBar={(props, DefaultTabBar) => {
-          return <DefaultTabBar {...props} style={{
-            backgroundColor: 'rgb(250,250,250)',
-            padding: '10px 0 0 10px'
-          }}/>
+        renderTabBar={(tabBarProps, DefaultTabBar) => {
+          return <div style={{position: 'relative'}}>
+            <div style={{
+              position: 'absolute', width: '100px', height: '50px',
+              right: '10px', top: '0px', zIndex: 1, paddingTop: '10px'
+            }}>
+              <Button
+                type={"link"}
+                onClick={() => {
+                  props.dispatch({
+                    type: 'HttpDebug/showModalScriptEditor',
+                    payload: true
+                  })
+                }}
+              >Test Script</Button>
+            </div>
+            <DefaultTabBar {...tabBarProps} style={{
+              backgroundColor: 'rgb(250,250,250)',
+              padding: '10px 0 0 10px',
+            }}/>
+          </div>
         }}
       >
         <Tabs.TabPane tab={"Params"} key={"params"}>
@@ -208,7 +245,25 @@ function Editor(props) {
       </Tabs>
     </div>
     <div className={styles.responseTitleBar}>
-      Response
+      <span>Response</span>
+      {response && sendStatus === 'done' && <div style={{textAlign: 'right'}}>
+        <span>
+          {response.success ? <span className={styles.statusSuccess}>Test Passed</span> :
+            <span className={styles.statusFail}>Test Failed</span>}
+        </span>
+        <span className={styles.statusBlock}>
+              <span>Status: </span>
+              <span>
+                {response.code}
+              </span>
+            </span>
+        <span className={styles.statusBlock}>
+              <span>Time: </span>
+              <span className={styles.statusSuccess}>
+                {response.time_cost}ms
+              </span>
+            </span>
+      </div>}
     </div>
     <div>
       {renderRequestResult()}

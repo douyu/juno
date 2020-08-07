@@ -4,7 +4,7 @@
   productionEnvs = ["production"]
 
 [configure]
-  dirs = ["C:/tmp/www/server"]
+  dirs = ["C:/tmp/www/server", "C:/xxxx/www/server"]
   prefix = "juno-agent"
 
 [agent]

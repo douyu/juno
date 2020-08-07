@@ -29,6 +29,7 @@ type (
 		Headers     db.HttpTestParam `json:"headers"`
 		ContentType string           `json:"content_type"`
 		Body        string           `json:"body"`
+		Script      string           `json:"script"`
 	}
 
 	HttpTestResponse struct {
@@ -37,6 +38,9 @@ type (
 		Headers  map[string][]string `json:"headers"`
 		Size     int64               `json:"size"`
 		TimeCost int64               `json:"time_cost"`
+		Success  bool                `json:"success"`
+		Logs     db.MapStringString  `json:"logs"`
+		Error    string              `json:"error"`
 	}
 
 	HttpTestLog struct {

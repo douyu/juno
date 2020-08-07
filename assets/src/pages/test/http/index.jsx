@@ -8,6 +8,7 @@ import {createRequest} from "@/services/httptest";
 import Editor from "@/pages/test/http/editor";
 import {routerRedux} from "dva/router";
 import {stringify} from "qs";
+import ModalScriptEditor from "@/pages/test/http/components/ModelScriptEditor";
 
 @connect(({HttpDebug, app}) => ({
   model: HttpDebug,
@@ -174,13 +175,15 @@ export default class HttpTestPage extends React.Component {
             <LeftSider {...this.props}/>
           </div>
 
-          <Spin tip={"加载中"} spinning={currentRequestLoading}>
-            {request ? <Editor/>
-              : <Empty
-                description={"请先选择测试用例"}
-                style={{padding: '100px'}}
-              />}
-          </Spin>
+          <div className={styles.rightBlock}>
+            <Spin tip={"加载中"} spinning={currentRequestLoading}>
+              {request ? <Editor/>
+                : <Empty
+                  description={"请先选择测试用例"}
+                  style={{padding: '100px'}}
+                />}
+            </Spin>
+          </div>
         </div> : <Empty
           description={"请先选择应用"}
           style={{margin: '0', padding: '100px', backgroundColor: "#fff"}}
@@ -196,6 +199,8 @@ export default class HttpTestPage extends React.Component {
           })
         }}
       />
+
+      <ModalScriptEditor/>
     </div>
   }
 }

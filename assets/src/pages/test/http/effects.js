@@ -263,4 +263,13 @@ export default {
 
     return res
   },
+
+  * showModalScriptEditor({payload}, {call, put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        visibleModalScriptEditor: payload
+      }
+    })
+  }
 }
