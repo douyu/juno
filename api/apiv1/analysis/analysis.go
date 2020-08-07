@@ -138,6 +138,9 @@ func DependenceList(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, "参数错误:"+err.Error(), result)
 	}
 
+	req.PkgQs = strings.TrimSpace(req.PkgQs)
+	req.Ver = strings.TrimSpace(req.Ver)
+
 	rgIsOk := util.StringInArray(req.Operate, verRg)
 
 	// 去掉v字段
