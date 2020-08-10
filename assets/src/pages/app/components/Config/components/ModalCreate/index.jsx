@@ -87,7 +87,7 @@ function ModalCreate(props) {
         name={"file_name"}
         rules={[
           {required: true, message: "请输入文件名"},
-          {min: 6, max: 16, message: '文件名长度在6到16之间'},
+          {min: 1, max: 20, message: '文件名长度在1到20之间'},
           {pattern: new RegExp(/^[a-zA-Z][a-zA-Z0-9_-]+$/), message: '文件名只能包含字母数字 _ 和 -，并且只能以字母开头'}
         ]}
       >
