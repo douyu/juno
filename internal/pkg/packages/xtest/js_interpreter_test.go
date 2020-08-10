@@ -2,9 +2,10 @@ package xtest
 
 import (
 	"context"
-	"github.com/robertkrimen/otto"
 	"testing"
 	"time"
+
+	"github.com/robertkrimen/otto"
 )
 
 func TestJSInterpreter_Success(t *testing.T) {
@@ -213,4 +214,52 @@ test.preRequest = function() {
 		}
 	}
 
+}
+
+func TestJSInterpreter_RegisterFuncWithMap(t *testing.T) {
+	gs := NewGlobalStore()
+	{
+		jsi := NewJSInterpreter(gs)
+
+		script := TestScript{
+			Source: `
+test.onResponse = function() {
+	var a = test.getData("a");
+	test.setData("a", a + " a2");
+};
+
+test.preRequest = function() {
+	var payload = {
+		name: "duanlv",
+		body: "hello",
+		user: {
+			"name": "duanlv"
+		}
+	}
+	test.setMap(payload)
+};`,
+		}
+
+		req := map[string]interface{}{}
+
+		_ = jsi.RegisterFunc("setMap", func(content map[string]interface{}) {
+			req = content
+		})
+
+		result := jsi.Execute(context.Background(), script, func() (data Response, err error) {
+			return
+		})
+
+		if result.Error != nil {
+			t.Logf("err = %s", result.Error.Error())
+			t.FailNow()
+		}
+
+		t.Logf("req[body] = %s", req["body"])
+		if req["body"] != "hello" {
+			t.FailNow()
+		}
+
+		t.Logf("req[user] = %s", req["user"])
+	}
 }

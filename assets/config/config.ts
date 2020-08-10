@@ -245,8 +245,8 @@ export default defineConfig({
   },
   chainWebpack(config, {env, webpack, createCSSRule}) {
     config.plugin("monaco-editor").use(MonacoEditorWebpackPlugin, [{
-      languages: ["javascript", "typescript"],
-      features: ["coreCommands", "find", 'comment', 'bracketMatching', 'wordOperations', 'suggest', 'multicursor', 'links']
+      languages: ["javascript", "typescript", "json"],
+      features: ["coreCommands", "find", 'comment', "format", 'bracketMatching', 'wordOperations', 'suggest', 'multicursor', 'links']
     }])
   }
 });

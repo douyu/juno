@@ -1,21 +1,33 @@
 @import "./var";
 
-:global {
-  .grpcPayload .CodeMirror-scroll {
-    height: 300px;
-    width: 100%;
-  }
-}
-
 .debugPage {
   border-radius: 10px;
   background-color: @secondaryBGColor;
   overflow: hidden;
+  height: 944px;
+  flex-direction: column;
+  display: flex;
+
+  .leftTabs {
+    display: flex;
+    height: 100%;
+
+    :global {
+      .ant-tabs-content-holder {
+        flex: 1 1 auto;
+      }
+
+      .ant-tabs-content {
+        height: 100%;
+      }
+    }
+  }
 
   .layoutHeader {
     border-bottom: @primaryBorderStyle;
     padding: 15px 10px;
     overflow: hidden;
+    flex: 0 0 64px;
 
     .serviceCascader {
       width: 380px;
@@ -36,18 +48,35 @@
 
   .main {
     width: 100%;
-    display: grid;
-    grid-template-columns: 300px auto;
+    flex: 1 1 auto;
+
+    display: flex;
+    flex-direction: row;
   }
 
   .layoutSider {
     background-color: #fff;
     border-right: @primaryBorderStyle;
     height: 100%;
+    flex: 0 0 300px;
+  }
+
+  .formSpin {
+    flex: 1 1 auto;
+
+    :global {
+      .ant-spin-container {
+        height: 100%;
+      }
+    }
   }
 
   .layoutContent {
     background-color: #fff;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 
     .caseNameLine {
       background-color: @secondaryBGColor;
@@ -58,6 +87,8 @@
       grid-column-gap: 10px;
       grid-template-columns: auto 100px;
       overflow: hidden;
+
+      flex: 0 0 50px;
     }
 
     .caseAddrLine {
@@ -68,20 +99,65 @@
       display: grid;
       grid-column-gap: 10px;
       grid-template-columns: auto 100px;
-    }
 
-    .metadataInputLine {
-      background-color: @secondaryBGColor;
-      border-bottom: @secondaryBorderStyle;
-      //height: 50px;
-      //padding: 10px;
-
+      flex: 0 0 50px;
     }
 
     .basicInfoLine {
       padding: 10px;
       background-color: @secondaryBGColor;
       border-bottom: @secondaryBorderStyle;
+
+      flex: 0 0 50px;
+    }
+
+    .inputOutputLayout {
+      display: grid;
+      grid-template-columns: 50% 50%;
+
+      flex: 1 1 auto;
+
+      .inputContainer {
+        border-right: @secondaryBorderStyle;
+
+        .inputTabs {
+          display: flex;
+          height: 100%;
+
+          :global {
+            .ant-tabs-content {
+              height: 100%;
+            }
+          }
+        }
+
+        .metadataInputLine {
+          background-color: @secondaryBGColor;
+          border-bottom: @secondaryBorderStyle;
+        }
+
+        .grpcPayload {
+          height: 100%;
+          display: flex;
+        }
+      }
+
+      .outputContainer {
+        .outputTabs {
+          display: flex;
+          height: 100%;
+
+          :global {
+            .ant-tabs-content {
+              height: 100%;
+            }
+          }
+
+          .inputTabPanel {
+            height: 100%;
+          }
+        }
+      }
     }
 
     .payloadTitleBar {
@@ -92,11 +168,12 @@
     }
 
     .responseTitleBar {
-      border-top: @primaryBorderStyle;
+      //border-top: @primaryBorderStyle;
       border-bottom: @primaryBorderStyle;
       background-color: @secondaryBGColor;
       padding: 10px;
       color: @secondaryColor;
+      height: 46px;
     }
 
     .responseContainer {
@@ -105,7 +182,6 @@
     .responseStatusBar {
       color: @secondaryColor;
       padding: 10px;
-      background-color: #faf8f5;
 
       .statusBlock {
 
