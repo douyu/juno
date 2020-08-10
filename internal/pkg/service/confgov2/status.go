@@ -22,8 +22,11 @@ import (
 func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env, zoneCode, filePath string) ([]view.RespConfigInstanceItem, error) {
 	// get junoAgentList
 	junoAgentList := assemblyJunoAgent(nodes)
-	if len(junoAgentList) > 400 || len(junoAgentList) <= 0 {
+	if len(junoAgentList) > 400 || len(junoAgentList) < 0 {
 		return resp, errorconst.JunoAgentQueryOverSize.Error()
+	}
+	if len(junoAgentList) == 0 {
+		return resp, nil
 	}
 	// use map
 	usedMap := make(map[string]int, 0)
