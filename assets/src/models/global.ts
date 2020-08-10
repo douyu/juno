@@ -147,8 +147,8 @@ const GlobalModel: GlobalModelType = {
     },
     saveNotices(state = DefaultGlobalModelState, {payload}): GlobalModelState {
       return {
-        collapsed: false,
         ...state,
+        collapsed: false,
         notices: payload
       };
     },

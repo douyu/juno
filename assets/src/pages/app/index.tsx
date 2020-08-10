@@ -13,12 +13,12 @@ import ZoneSelect from '@/components/ZoneSelect';
 import Config from './components/Config';
 import {connect} from "dva";
 import Etcd from "@/pages/etcd/etcd";
-import VersionSelect from '@/components/VersionSelect';
 import {getFrameVersion} from "@/pages/monitor/services";
+import Event from "@/pages/app/components/Event";
 
 const {TabPane} = Tabs;
 
-@connect(({setting}) => ({
+@connect(({setting}: any) => ({
   setting,
 }))
 export default class App extends React.Component<ConfgoBase & { location: { query: any } }, any> {
@@ -266,13 +266,13 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
     })
   };
 
-  onSelectMonitorVersion = (e) => {
+  onSelectMonitorVersion = (e: any) => {
     this.setState({monitorVersion: e})
   }
 
   render() {
     let view = null;
-    const {aid, appName, env, appEnvZone, monitorVersion, versionKey} = this.state;
+    const {aid, appName, env, appEnvZone, monitorVersion, versionKey, tab} = this.state;
     let {disable} = this.state;
     const {version} = this.props.setting.settings;
     // const grafanaConf = grafana instanceof Array ? grafana : []
@@ -297,6 +297,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
       view = (
         <Tabs
           defaultActiveKey={this.state.tab}
+          activeKey={tab}
           onChange={this.onChangeTab}
           style={{width: '100%', marginTop: '-10px'}}
           tabBarStyle={{paddingLeft: '10px', marginBottom: 0}}
@@ -355,12 +356,6 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
               zoneList={this.state.zoneList}
             />
           </TabPane>
-          {/*     <TabPane tab={<Select style={{width: 160}} defaultValue={'监控'} bordered={false}
-                                onSelect={this.onSelectMonitorVersion}>
-            {(grafana || []).map(item => <Select.Option key={item.version}
-                                                        value={item.version}> {`监控 ` + item.version}</Select.Option>)}
-
-          </Select>} key="monitor">*/}
           <TabPane tab="监控" key="monitor">
             <Monitor
               monitorVersion={monitorVersion}
@@ -377,6 +372,10 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
               zoneCode={this.state.zoneCode}
               versionKey={versionKey}
             />
+          </TabPane>
+
+          <TabPane tab={"事件"} key={"event"}>
+            <Event active={tab === 'event'} appName={appName} env={env}/>
           </TabPane>
 
         </Tabs>
