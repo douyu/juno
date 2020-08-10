@@ -66,6 +66,9 @@ permission:
       - path: /api/admin/resource/app/frameVersion
         name: 应用框架版本
         method: GET
+      - path: /api/admin/event/list
+        name: 事件流列表
+        method: GET
 
   - name: 功能看板
     path: /analysis

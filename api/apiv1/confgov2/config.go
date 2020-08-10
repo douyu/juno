@@ -76,7 +76,7 @@ func Create(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "无效的文件名")
 	}
 
-	resp, err := confgov2.Create(param)
+	resp, err := confgov2.Create(c, param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -116,7 +116,7 @@ func Publish(c *core.Context) (err error) {
 		return c.OutputJSON(output.MsgErr, "参数无效: "+err.Error())
 	}
 
-	err = confgov2.Publish(param, user.GetUser(c))
+	err = confgov2.Publish(param, c)
 	if err != nil {
 		if err == errorconst.ParamConfigNotExists.Error() {
 			return c.OutputJSON(output.MsgErr, "当前配置不存在，无法发布")
@@ -177,7 +177,7 @@ func Delete(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
 
-	err = confgov2.Delete(param.ID)
+	err = confgov2.Delete(c, param.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -214,13 +214,16 @@ func AppAction(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
+
 	xlog.Debug("AppAction", xlog.String("setp", "begin"), xlog.Any("param", param), xlog.String("url", cfg.Cfg.Assist.Action.URL))
-	resp, err := assist.Action(view.AppAction{
-		Action:   param.Action,
-		AppName:  param.AppName,
-		NodeName: param.NodeName,
-		Typ:      param.Typ,
-	})
+	resp, err := assist.Action(
+		c,
+		view.AppAction{
+			Action:   param.Action,
+			AppName:  param.AppName,
+			NodeName: param.NodeName,
+			Typ:      param.Typ,
+		})
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}

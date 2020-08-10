@@ -5,6 +5,7 @@ import {StateType} from './login';
 import {UserGroupModelState} from "@/models/user_group";
 import {AppModelState} from "@/models/app";
 import {AccessTokenState} from "@/models/access_token";
+import {AppEventState} from "@/models/app_event";
 
 export {GlobalModelState, UserModelState};
 
@@ -34,7 +35,8 @@ export interface ConnectState {
   login: StateType;
   userGroup: UserGroupModelState;
   app: AppModelState
-  accessToken: AccessTokenState
+  accessToken: AccessTokenState,
+  appEvent: AppEventState,
 }
 
 export interface Route extends MenuDataItem {

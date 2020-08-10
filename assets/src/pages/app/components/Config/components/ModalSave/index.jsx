@@ -81,7 +81,6 @@ function ModalSave(props) {
               content: currentContent,
               ...fields,
             }
-            console.log(data)
             saveConfig(data).then(r => {
               if (r && r.code === 0) {
                 // success
@@ -111,7 +110,7 @@ function ModalSave(props) {
       </Col>
       <Col flex={"auto"}>
         <div ref={editorRef} style={{
-          height: '800px'
+          height: '700px'
         }}/>
       </Col>
     </Row>

@@ -1,10 +1,32 @@
+.listItem {
+  width: 100%;
+}
+
+.envInfo {
+  margin-left: 10px;
+}
+
 .username {
-    margin-left: 6px;
-    font-weight: bolder;
+  margin: 0 6px 0 6px;
+  font-weight: bolder;
 }
+
+.createTime {
+  font-size: 12px;
+}
+
+.absoluteTime {
+  float: right;
+}
+
 .eventInfo {
-    padding-left: 10px;
+  padding-left: 10px;
 }
+
 .cmLine {
-    margin-top: 10px;
+  margin-top: 10px;
+}
+
+.infoLine {
+
 }
