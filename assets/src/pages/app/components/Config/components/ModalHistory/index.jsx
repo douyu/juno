@@ -16,6 +16,11 @@ const historyTableColumns = [
     dataIndex: 'change_log',
     title: 'Change Log'
   },
+  {
+    key: 'created_at',
+    dataIndex: 'created_at',
+    title: '提交时间'
+  },
 ]
 
 function ModalHistory(props) {
