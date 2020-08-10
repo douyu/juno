@@ -16,11 +16,12 @@ package adminengine
 
 import (
 	"context"
+	"strconv"
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"go.uber.org/zap"
-	"strconv"
-	"time"
 
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/app/middleware"
@@ -149,6 +150,9 @@ func (eng *Admin) initRegister() (err error) {
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
+	config.BasicAuth = cfg.Cfg.Register.BasicAuth
+	config.UserName = cfg.Cfg.Register.UserName
+	config.Password = cfg.Cfg.Register.Password
 	eng.SetRegistry(
 		compound_registry.New(
 			config.BuildRegistry(),

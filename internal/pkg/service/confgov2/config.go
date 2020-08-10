@@ -92,7 +92,7 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 }
 
 // Create ..
-func Create(param view.ReqCreateConfig) (resp view.RespDetailConfig, err error) {
+func Create(c echo.Context, param view.ReqCreateConfig) (resp view.RespDetailConfig, err error) {
 	var app db.AppInfo
 	var appNode db.AppNode
 
@@ -117,6 +117,20 @@ func Create(param view.ReqCreateConfig) (resp view.RespDetailConfig, err error) 
 		Format: string(param.Format),
 		Env:    param.Env,
 		Zone:   param.Zone,
+	}
+
+	u := user.GetUser(c)
+	authWithOpenAPI, accessToken := openauth.GetAccessToken(c)
+	if authWithOpenAPI {
+		// 获取Open Auth信息
+		configuration.AccessTokenID = accessToken.ID
+	} else {
+		if u != nil && u.Uid != 0 {
+			configuration.UID = uint(u.Uid)
+		} else {
+			err = fmt.Errorf("无法获取授权对象信息")
+			return
+		}
 	}
 
 	tx := mysql.Begin()
@@ -164,16 +178,35 @@ func Create(param view.ReqCreateConfig) (resp view.RespDetailConfig, err error) 
 		PublishedAt: configuration.PublishedAt,
 	}
 
+	metadata, _ := json.Marshal(&configuration)
+	if authWithOpenAPI {
+		appevent.AppEvent.OpenAPIConfigFileCreate(app.Aid, app.AppName, configuration.Zone, configuration.Env,
+			string(metadata), accessToken)
+	} else if u != nil {
+		appevent.AppEvent.ConfgoFileCreateEvent(app.Aid, app.AppName, configuration.Zone, configuration.Env,
+			string(metadata), u)
+	}
+
 	return
 }
 
 // Update ..
 func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
-	configuration := db.Configuration{}
+	var configuration db.Configuration
+	var app db.AppInfo
+
 	err = mysql.Where("id = ?", param.ID).First(&configuration).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return errorconst.ParamConfigNotExists.Error()
+		}
+		return err
+	}
+
+	err = mysql.Where("aid = ?", configuration.AID).First(&app).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errorconst.AppNotExists.Error()
 		}
 		return err
 	}
@@ -200,14 +233,42 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	}
 
 	// 授权对象
-	ok, accessToken := openauth.OpenAuthAccessToken(c)
+	ok, accessToken := openauth.GetAccessToken(c)
 	if ok {
 		// 获取Open Auth信息
 		history.AccessTokenID = accessToken.ID
+		eventMetadata, _ := json.Marshal(map[string]interface{}{
+			"id":               history.ID,
+			"access_token_id":  history.AccessTokenID,
+			"uid":              history.UID,
+			"configuration_id": history.ConfigurationID,
+			"change_log":       history.ChangeLog,
+			"version":          history.Version,
+			"name":             configuration.Name,
+			"format":           configuration.Format,
+		})
+
+		appevent.AppEvent.OpenAPIConfigFileUpdate(int(configuration.AID), app.AppName, configuration.Zone, configuration.Env,
+			string(eventMetadata), accessToken)
 	} else {
 		u := user.GetUser(c)
-		if u != nil {
+		if u != nil && u.Uid != 0 {
 			history.UID = uint(u.Uid)
+			// 配置内容可能会很长，metadata会被前端完整获取到，不保存配置内容
+			eventMetadata, _ := json.Marshal(map[string]interface{}{
+				"id":               history.ID,
+				"access_token_id":  history.AccessTokenID,
+				"uid":              history.UID,
+				"configuration_id": history.ConfigurationID,
+				"change_log":       history.ChangeLog,
+				"version":          history.Version,
+				"name":             configuration.Name,
+				"format":           configuration.Format,
+			})
+
+			appevent.AppEvent.ConfgoFileUpdateEvent(int(configuration.AID), app.AppName, configuration.Zone, configuration.Env,
+				string(eventMetadata), user.GetUser(c))
+
 		} else {
 			err = fmt.Errorf("无法获取授权对象信息")
 			return err
@@ -441,8 +502,13 @@ func assemblyJunoAgent(nodes []db.AppNode) []view.JunoAgent {
 }
 
 // Publish ..
-func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
+func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 	// Complete configuration release logic
+	u := user.GetUser(c)
+	authWithToken, token := openauth.GetAccessToken(c)
+	if (u == nil || u.Uid == 0) && !authWithToken {
+		return fmt.Errorf("无法获取授权信息")
+	}
 
 	// Get configuration
 	var configuration db.Configuration
@@ -515,18 +581,22 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 	}); err != nil {
 		return
 	}
+	// Publish record
+	instanceListJSON, _ := json.Marshal(instanceList)
+
+	var cp db.ConfigurationPublish
+	cp.ApplyInstance = string(instanceListJSON)
+	cp.ConfigurationID = configuration.ID
+	cp.ConfigurationHistoryID = confHistory.ID
+	if authWithToken {
+		cp.AccessTokenID = token.ID
+	} else {
+		cp.UID = uint(u.Uid)
+	}
+	_, cp.FilePath = genConfigurePath(appInfo.AppName, configuration.FileName())
 
 	tx := mysql.Begin()
 	{
-		// Publish record
-		instanceListJSON, _ := json.Marshal(instanceList)
-
-		var cp db.ConfigurationPublish
-		cp.ApplyInstance = string(instanceListJSON)
-		cp.ConfigurationID = configuration.ID
-		cp.ConfigurationHistoryID = confHistory.ID
-		cp.UID = uint(user.Uid)
-		_, cp.FilePath = genConfigurePath(appInfo.AppName, configuration.FileName())
 		if err = tx.Save(&cp).Error; err != nil {
 			tx.Rollback()
 			return
@@ -547,10 +617,29 @@ func Publish(param view.ReqPublishConfig, user *db.User) (err error) {
 				return
 			}
 		}
-		meta, _ := json.Marshal(cp)
-		appevent.AppEvent.ConfgoFilePublishEvent(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), user)
 
 		tx.Commit()
+	}
+
+	meta, _ := json.Marshal(map[string]interface{}{
+		"id":                       cp.ID,
+		"uid":                      cp.UID,
+		"access_token_id":          cp.AccessTokenID,
+		"configuration_id":         cp.ConfigurationID,
+		"configuration_history_id": cp.ConfigurationHistoryID,
+		"apply_instance":           cp.ApplyInstance,
+		"file_path":                cp.FilePath,
+		"created_at":               cp.CreatedAt,
+		"user":                     cp.User,
+		"configuration":            cp.Configuration,
+		"configuration_history":    cp.ConfigurationHistory,
+		"name":                     configuration.Name,
+		"format":                   configuration.Format,
+	})
+	if authWithToken {
+		appevent.AppEvent.OpenAPIConfigPublish(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), token)
+	} else {
+		appevent.AppEvent.ConfgoFilePublishEvent(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), u)
 	}
 
 	return
@@ -770,8 +859,42 @@ func Diff(configID, historyID uint) (resp view.RespDiffConfig, err error) {
 }
 
 // Delete ..
-func Delete(id uint) (err error) {
+func Delete(c echo.Context, id uint) (err error) {
+	var config db.Configuration
+
+	u := user.GetUser(c)
+	authWithAccessToken, token := openauth.GetAccessToken(c)
+	if (u == nil || u.Uid == 0) && !authWithAccessToken {
+		return fmt.Errorf("无法获取授权信息")
+	}
+
+	err = mysql.Preload("App").Where("id = ?", id).First(&config).Error
+	if err != nil {
+		return
+	}
+
 	err = mysql.Delete(&db.Configuration{}, "id = ?", id).Error
+	if err != nil {
+		return err
+	}
+
+	metadata, _ := json.Marshal(&map[string]interface{}{
+		"id":        config.ID,
+		"aid":       config.AID,
+		"name":      config.Name,
+		"format":    config.Format,
+		"env":       config.Env,
+		"zone":      config.Zone,
+		"version":   config.Version,
+		"uid":       config.UID,
+		"createdAt": config.CreatedAt,
+	})
+	if authWithAccessToken {
+		appevent.AppEvent.OpenAPIConfigDelete(int(config.AID), config.App.AppName, config.Zone, config.Env, string(metadata), token)
+	} else {
+		appevent.AppEvent.ConfgoFileDeleteEvent(int(config.AID), config.App.AppName, config.Zone, config.Env, string(metadata), u)
+	}
+
 	return
 }
 

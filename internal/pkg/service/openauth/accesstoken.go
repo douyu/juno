@@ -168,7 +168,7 @@ func (o *openAuthService) GetAccessTokenByAppID(appId string) (accessToken db.Ac
 	return
 }
 
-func OpenAuthAccessToken(c echo.Context) (bool, db.AccessToken) {
+func GetAccessToken(c echo.Context) (bool, db.AccessToken) {
 	openAuthInfo, ok := c.Get("OpenAuthAccessToken").(db.AccessToken)
 	return ok, openAuthInfo
 }

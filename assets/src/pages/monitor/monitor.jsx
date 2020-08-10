@@ -25,6 +25,7 @@ export default class Monitor extends React.PureComponent {
       mapSys: new Map(),
       monitorType: 1,
       monitorHost: '',
+      dashboardPath:'',
     };
   }
 
@@ -65,6 +66,7 @@ export default class Monitor extends React.PureComponent {
         env: nextProps.env,
         mode: nextProps.mode,
         versionKey: nextProps.versionKey,
+        dashboardPath:'',
       },
       () => {
         this.getList();
@@ -205,6 +207,7 @@ export default class Monitor extends React.PureComponent {
         </div>
       );
     }
+
     console.log('dashboardSelected', dashboardSelected);
     console.log('dashboardRadios', dashboardRadios);
     return (

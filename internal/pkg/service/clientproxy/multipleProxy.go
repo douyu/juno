@@ -56,7 +56,7 @@ func (c *multiProxy) initProxyEtcdMap() {
 			Env:  cp.Env,
 			Zone: cp.ZoneCode,
 		}
-		conn, err := NewEtcdClient(cp.Etcd.Endpoints, cp.Etcd.Timeout)
+		conn, err := NewEtcdClient(cp.Etcd.Endpoints, cp.Etcd.Timeout, cp.Etcd.BasicAuth, cp.Etcd.UserName, cp.Etcd.Password)
 		if err != nil {
 			xlog.Error("init proxy etcd error", zap.String("unicode", uniqZone.String()), zap.Error(err))
 			continue
@@ -147,7 +147,7 @@ func (c *multiProxy) reload() {
 		if _, ok := c.proxyEtcdMap[uniqZone.String()]; ok {
 			continue
 		}
-		conn, err := NewEtcdClient(cp.Etcd.Endpoints, cp.Etcd.Timeout)
+		conn, err := NewEtcdClient(cp.Etcd.Endpoints, cp.Etcd.Timeout, cp.Etcd.BasicAuth, cp.Etcd.UserName, cp.Etcd.Password)
 		if err != nil {
 			xlog.Error("init proxy etcd error", zap.String("unicode", uniqZone.String()), zap.Error(err))
 			continue

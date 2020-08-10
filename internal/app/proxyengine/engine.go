@@ -17,11 +17,12 @@ package proxyengine
 import (
 	"context"
 	"errors"
+	"strconv"
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/jupiter/pkg"
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
-	"strconv"
-	"time"
 
 	apiproxy "github.com/douyu/juno/api/apiv1/proxy"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
@@ -90,6 +91,10 @@ func (eng *Proxy) initRegister() (err error) {
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
+	config.BasicAuth = cfg.Cfg.Register.BasicAuth
+	config.UserName = cfg.Cfg.Register.UserName
+	config.Password = cfg.Cfg.Register.Password
+
 	eng.SetRegistry(
 		compound_registry.New(
 			config.BuildRegistry(),
@@ -153,6 +158,9 @@ func (eng *Proxy) serveGovern() (err error) {
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
+	config.UserName = cfg.Cfg.Register.UserName
+	config.Password = cfg.Cfg.Register.Password
+	config.BasicAuth = cfg.Cfg.Register.BasicAuth
 
 	client := config.Build()
 

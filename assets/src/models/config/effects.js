@@ -1,6 +1,7 @@
 import {
   createConfig,
-  deleteConfig, fetchInstanceConfig,
+  deleteConfig,
+  fetchInstanceConfig,
   loadConfigDetail,
   loadConfigDiff,
   loadConfigs,
@@ -26,7 +27,7 @@ export default {
 
     } else if (res.code !== 0) {
       message.error(res.msg);
-    } else  {
+    } else {
       configList = res.data
     }
 
@@ -140,7 +141,6 @@ export default {
     yield put({
       type: '_apply',
       payload: {
-        editorMode: 'code',
         currentConfig: res.data,
         currentContent: res.data.content,
       },
@@ -244,8 +244,7 @@ export default {
     yield put({
       type: '_apply',
       payload: {
-        configFileLoading: true,
-        visibleEditorMaskLayer: false,
+        diffContentLoading: true,
       },
     });
 
@@ -254,7 +253,7 @@ export default {
     yield put({
       type: '_apply',
       payload: {
-        configFileLoading: false,
+        diffContentLoading: false,
       },
     });
 
@@ -266,13 +265,21 @@ export default {
     yield put({
       type: '_apply',
       payload: {
-        editorMode: 'diff',
         diffOriginConfig: res.data.origin,
         diffModifiedConfig: res.data.modified,
+        visibleModalDiff: true,
       },
     });
 
     return res;
+  },
+  * closeModalDiff(_, {put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        visibleModalDiff: false
+      }
+    })
   },
   * deleteConfig({payload}, {call, put}) {
     const res = yield call(deleteConfig, payload);

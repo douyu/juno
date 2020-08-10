@@ -21,7 +21,6 @@ export default class EventList extends React.Component {
         <Panel title="" style={{ ...style }}>
           <List
             dataSource={list}
-            split={false}
             style={{ marginLeft: '15px' }}
             pagination={{
               pageSize: pagination.pageSize,
@@ -34,10 +33,6 @@ export default class EventList extends React.Component {
                 <List.Item className={styles.listItem}>
                   <div style={{ width: '100%' }}>
                     <EventView data={item} />
-                    <div className={styles.date}>
-                      {moment(item.create_time * 1000).fromNow()}{' '}
-                      {moment(item.create_time * 1000).format('YYYY-MM-DD HH:mm:ss')}
-                    </div>
                   </div>
                 </List.Item>
               );
