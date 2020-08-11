@@ -37,14 +37,16 @@ function ConfigEdit(props) {
     });
 
     props.dispatch({
+      type: 'config/clearCurrentConfig',
+    })
+  }, [appName, env]);
+
+  useEffect(() => {
+    props.dispatch({
       type: 'config/setZoneList',
       payload: zoneList
     })
-
-    props.dispatch({
-      type: 'config/clearCurrentConfig',
-    })
-  }, [appName, env, zoneList]);
+  }, [zoneList])
 
   useEffect(() => {
     // 从上级拿到数据后写到 "config" model 里面
