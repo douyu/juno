@@ -101,7 +101,7 @@ func defaultConfig() cfg {
 		},
 		GrafanaProxy: GrafanaProxy{
 			Enable: false,
-			Name:   "version",
+			Name:   "grafana",
 		},
 		Gateway: Gateway{
 			Enable: false,

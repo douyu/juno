@@ -1,11 +1,10 @@
 import React from 'react';
-import {Button, Card, Form, Input, List, message, Popconfirm, Radio, Tag} from 'antd';
+import {Card, Form, Input, List, message, Popconfirm, Radio, Tag} from 'antd';
 import {checkDep, getSysConfig, installDep} from './services';
 import SettingBlock from "@/pages/manage/SettingBlock";
 import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import {connect} from 'dva';
 import GatewaySetting from "@/pages/manage/GatewaySetting";
-import GrafanaSetting from "@/pages/manage/GrafanaSetting";
 import EtcdSetting from "@/pages/manage/EtcdSetting";
 import VersionSetting from "@/pages/manage/AppVersionSetting";
 
@@ -138,7 +137,7 @@ export default class SysManage extends React.Component {
 
   render() {
     const {depRes = [], loading} = this.state;
-    const {grafanaConfig} = this.props;
+    const {settings} = this.props;
 
     return (
       <PageHeaderWrapper>
@@ -208,7 +207,63 @@ export default class SysManage extends React.Component {
             </Form>
           </SettingBlock>
 
-          {/*      <GrafanaSetting/>*/}
+          <SettingBlock
+            editable={true}
+            edit={this.props.onEdit.grafana}
+            title={"Grafana设置"}
+            onEdit={() => {
+              this.setEdit("grafana", true)
+            }}
+            onCancel={() => {
+              this.setEdit("grafana", false)
+              this.grafanaFormRef.current.resetFields()
+            }}
+            onSave={() => {
+              this.grafanaFormRef.current.submit()
+            }}
+          >
+            <Form
+              ref={this.grafanaFormRef}
+              placeholder={"grafana的IP地址或者域名，比如：example.com"}
+              onFinish={(vals) => {
+                this.saveSetting("grafana", JSON.stringify(vals))
+              }}
+            >
+              <Form.Item
+                initialValue={settings.grafana?.host}
+                label={"Host"}
+                name={"host"}
+                rules={[
+                  {required: true, message: '请输入grafana host'},
+                ]}
+              >
+                <Input placeholder={"Grafana 的IP地址或者域名，比如 example.com"} disabled={!this.props.onEdit.grafana}/>
+              </Form.Item>
+              <Form.Item
+                initialValue={settings.grafana?.scheme}
+                label={"Scheme"}
+                name={"scheme"}
+                rules={[
+                  {required: true, message: '请选择协议'},
+                ]}
+              >
+                <Radio.Group disabled={!this.props.onEdit.grafana}>
+                  <Radio.Button value={"http"}>HTTP</Radio.Button>
+                  <Radio.Button value={"https"}>HTTPS</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item
+                initialValue={settings.grafana?.header_name}
+                label={"Header 名称"}
+                name={"header_name"}
+                rules={[
+                  {required: true, message: '请输入grafana进行Header授权的header名称'},
+                ]}
+              >
+                <Input placeholder={"Grafana 进行代理授权的 header 字段名称，比如 X-WEBAUTH-USER"} disabled={!this.props.onEdit.grafana}/>
+              </Form.Item>
+            </Form>
+          </SettingBlock>
 
           <GatewaySetting/>
 

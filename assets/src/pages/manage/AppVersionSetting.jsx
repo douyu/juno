@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import SettingBlock from "@/pages/manage/SettingBlock";
 import {connect} from 'dva';
-import {Button, Form, Input, InputNumber, Modal, Popconfirm, Radio, Table} from 'antd';
+import {Button, Form, Input, Modal, Popconfirm, Table} from 'antd';
 import {DeleteFilled, EditFilled, FileAddFilled} from '@ant-design/icons';
 import PlusOutlined from "@ant-design/icons/lib/icons/PlusOutlined";
 
@@ -57,28 +57,6 @@ function ModalAddVersion(props) {
         />
       </Form.Item>
 
-      <Form.Item
-        label={"Grafana地址"}
-        name={"host"}
-        rules={[
-          {required: true, message: "请填写Grafana地址"},
-          // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
-        ]}
-      >
-        <Input
-          placeholder={"示例: http://1.2.3.4:3000"}
-        />
-      </Form.Item>
-      <Form.Item
-        label={"Header名称"} name={"header_name"}
-        rules={[
-          {required: true, message: "请填写Header名称"},
-        ]}
-      >
-        <Input
-          placeholder={"用于Grafana授权的Header名称，可在Grafana配置文件中查看"}/>
-      </Form.Item>
-
       <Form.List name={"dashboards"}>
         {(fields, {add, remove}) => {
           return (<div>
@@ -96,8 +74,15 @@ function ModalAddVersion(props) {
                   <Form.Item {...field} name={[field.name, 'name']} key={[field.fieldKey, 'name']} noStyle>
                     <Input placeholder={"Dashboard名称"}/>
                   </Form.Item>
-                  <Form.Item {...field} name={[field.name, 'value']} key={[field.fieldKey, 'value']}
-                             noStyle>
+                  <Form.Item
+                    {...field} name={[field.name, 'value']}
+                    key={[field.fieldKey, 'value']}
+                    noStyle
+                    rules={[
+                      {required: true, message: '请填写面板路径'},
+                      {pattern: /^\/grafana\/.*/, message: '面板路径必须以 /grafana 开头'}
+                    ]}
+                  >
                     <Input placeholder={"Dashboard地址"}/>
                   </Form.Item>
                   <Button onClick={() => remove(index)}>
@@ -185,30 +170,6 @@ function ModalEditVersion(props) {
         <Input
           placeholder={"示例: jupiter1.0series"}
         />
-      </Form.Item>
-
-
-      <Form.Item
-        label={"Grafana地址"}
-        name={"host"}
-        initialValue={props.fields.host}
-        rules={[
-          {required: true, message: "请填写Grafana地址"},
-          // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
-        ]}
-      >
-        <Input
-          placeholder={"示例: http://1.2.3.4:3000"}
-        />
-      </Form.Item>
-      <Form.Item
-        label={"Header名称"} name={"header_name"} initialValue={props.fields.header_name}
-        rules={[
-          {required: true, message: "请填写Header名称"},
-        ]}
-      >
-        <Input
-          placeholder={"用于Grafana授权的Header名称，可在Grafana配置文件中查看"}/>
       </Form.Item>
 
       <Form.List
