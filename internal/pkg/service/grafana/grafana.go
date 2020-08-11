@@ -3,6 +3,9 @@ package grafana
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httputil"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
@@ -10,9 +13,6 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
 )
 
 type (
@@ -43,52 +43,18 @@ func getOption() (opt Option, err error) {
 		return
 	}
 
-	setting := make([]view.SettingGrafanaItem, 0)
+	setting := view.SettingGrafana{}
 	err = json.Unmarshal([]byte(settingContent), &setting)
 	if err != nil {
 		log.Error("unmarshal grafana setting failed:" + err.Error())
 		return
 	}
 
-	if len(setting) == 0 {
-		log.Error("grafana setting len is 0")
-		err = fmt.Errorf("grafana setting len is 0")
-		return
+	opt = Option{
+		Host:           setting.Host,
+		Scheme:         setting.Scheme,
+		AuthHeaderName: setting.HeaderName,
 	}
-
-	var (
-		host       = ""
-		headerName = ""
-	)
-
-	// 找到一个可用的
-	for _, v := range setting {
-		if v.Dashboards == nil {
-			continue
-		}
-		if v.Host == "" || v.HeaderName == "" {
-			continue
-		}
-		host = v.Host
-		headerName = v.HeaderName
-		break
-	}
-
-	if host == "" {
-		err = fmt.Errorf("未找到可用的Grafana地址")
-		return
-	}
-
-	grafanaUrl, err := url.Parse(host)
-	if err != nil {
-		log.Error("unmarshal grafana setting failed:" + err.Error())
-		err = fmt.Errorf("无效的Grafana地址")
-		return
-	}
-
-	opt.Scheme = grafanaUrl.Scheme
-	opt.Host = grafanaUrl.Host
-	opt.AuthHeaderName = headerName
 
 	return
 }
@@ -100,7 +66,7 @@ func Proxy(c echo.Context) (err error) {
 	}
 
 	u := user.GetUser(c)
-	if u == nil {
+	if u == nil || u.Uid == 0 {
 		return c.Redirect(http.StatusTemporaryRedirect, "/user/login")
 	}
 
