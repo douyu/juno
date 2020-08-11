@@ -66,7 +66,6 @@ export default class Monitor extends React.PureComponent {
         env: nextProps.env,
         mode: nextProps.mode,
         versionKey: nextProps.versionKey,
-        dashboardPath:'',
       },
       () => {
         this.getList();
@@ -81,24 +80,15 @@ export default class Monitor extends React.PureComponent {
     // console.log("---> monitorTypeTChange", e);
     const dashboardKey = e.target.value;
 
-    const { version } = this.props.setting.settings;
-    if (!version) {
+    const { version, grafana } = this.props.setting.settings;
+    if (!version || !grafana) {
       return;
     }
 
-    let dashboardPath = '';
     const { versionKey } = this.state;
 
-    version instanceof Array &&
-      version.map((item) => {
-        if (item.version && item.versionKey === versionKey && item.host) {
-          dashboardPath = item.host + dashboardKey;
-        }
-      });
-
-    // let dashboardPath = grafana[dashboardKey];
     this.setState({
-      dashboardPath,
+      dashboardPath: dashboardKey,
       dashboardSelected: dashboardKey,
     });
   };

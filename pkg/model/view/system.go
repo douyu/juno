@@ -3,6 +3,7 @@ package view
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/douyu/juno/pkg/model/db"
 )
@@ -28,8 +29,19 @@ var (
 			},
 		},
 		"grafana": {
-			Default: `{"host":"","header_name":"","api_dashboard_addr":"","instance_dashboard_addr":"","overview_dashboard_addr":""}`,
+			Default: `{"host":"","header_name":"",scheme:""}`,
 			Validate: func(value string) error {
+				setting := SettingGrafana{}
+				err := json.Unmarshal([]byte(value), &setting)
+				if err != nil {
+					return err
+				}
+
+				scheme := strings.ToLower(setting.Scheme)
+				if scheme != "http" && scheme != "https" {
+					return fmt.Errorf("无效的协议: %s", scheme)
+				}
+
 				return nil
 			},
 		},
@@ -104,15 +116,10 @@ type (
 		Content string `json:"content"`
 	}
 
-	SettingGrafana []SettingGrafanaItem // 多个监控版本
-
-	SettingGrafanaItem struct {
-		Name       string                    `json:"name"`
-		Version    string                    `json:"version"`
-		VersionKey string                    `json:"versionKey"`
-		Host       string                    `json:"host"` // Grafana 地址
-		HeaderName string                    `json:"header_name"`
-		Dashboards []SettingGrafanaDashboard `json:"dashboards"`
+	SettingGrafana struct {
+		Host       string `json:"host"`
+		Scheme     string `json:"scheme"`
+		HeaderName string `json:"header_name"`
 	}
 
 	SettingGrafanaDashboard struct {
