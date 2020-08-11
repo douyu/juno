@@ -44,6 +44,7 @@ func MustMockSysTemSetData() {
 	urlSystemSetUpdate := "/system/setting/create"
 	router.POST(urlSystemSetUpdate, system.SettingCreate)
 	mockSystemSet(urlSystemSetUpdate, router)
+	mockGrafanaSetting(urlSystemSetUpdate, router)
 	mockAdminUser()
 }
 
