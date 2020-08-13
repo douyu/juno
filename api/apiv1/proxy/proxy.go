@@ -1,15 +1,10 @@
-//
-// @Date: 2020-07-08 11:07:37
-// @LastEditors: MEX7
-// @LastEditTime: 2020-07-09 10:00:30
-// @FilePath: /juno/api/apiv1/proxy/proxy.go
-//
-
 package proxy
 
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
@@ -18,9 +13,9 @@ import (
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
+//ProxyPost ..
 func ProxyPost(c echo.Context) (err error) {
 	if c.Request().URL.String() == "/api/v1/resource/node/heartbeat" {
 		return NodeHeartBeat(c)

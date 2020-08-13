@@ -1,10 +1,11 @@
 package configstatics
 
 import (
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/labstack/echo/v4"
-	"time"
 )
 
 // Statics ..
@@ -24,7 +25,6 @@ func Statics(c echo.Context) error {
 		CmcCnt: make([]Info, 0),
 		Total:  total,
 	}
-
 	for _, v := range envCnt {
 		item := Info{
 			Name:  v.Env,
@@ -39,6 +39,5 @@ func Statics(c echo.Context) error {
 		}
 		resp.CmcCnt = append(resp.CmcCnt, item)
 	}
-
 	return output.JSON(c, output.MsgOk, "success", resp)
 }

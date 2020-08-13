@@ -1,6 +1,8 @@
 package analysis
 
 import (
+	"strings"
+
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
@@ -10,10 +12,9 @@ import (
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-	"strings"
 )
 
-// 统计信息
+// Index statistical information
 func Index(c *core.Context) error {
 	return c.OutputJSON(output.MsgOk, "success",
 		c.WithData(map[string]interface{}{
@@ -26,9 +27,9 @@ func Index(c *core.Context) error {
 	)
 }
 
-// 看板拓扑
+// TopologySelect Kanban topology
 func TopologySelect(c echo.Context) error {
-	region_select, zone_select, env_select := resource.Resource.GetSelectData()
+	regionSelect, zoneSelect, envSelect := resource.Resource.GetSelectData()
 
 	// 依赖类型，如mysql，redis等
 	typeArr, _ := analysis.Analysis.ListAllCfgType()
@@ -58,16 +59,16 @@ func TopologySelect(c echo.Context) error {
 	}
 
 	return output.JSON(c, output.MsgOk, "success", map[string]interface{}{
-		"region_select": region_select,
-		"zone_select":   zone_select,
-		"env_select":    env_select,
-		"type_select":   typeSelect,
-		"app_select":    appSelect,
-		"addr_select":   addrSelect,
+		"regionSelect": regionSelect,
+		"zoneSelect":   zoneSelect,
+		"envSelect":    envSelect,
+		"type_select":  typeSelect,
+		"app_select":   appSelect,
+		"addr_select":  addrSelect,
 	})
 }
 
-// 应用列表
+// TopologyList AppList
 func TopologyList(c echo.Context) error {
 	var err error
 	reqModel := ReqTopologyList{}

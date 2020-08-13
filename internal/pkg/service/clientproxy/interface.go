@@ -2,6 +2,7 @@ package clientproxy
 
 import (
 	"context"
+
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/go-resty/resty/v2"
 	"go.etcd.io/etcd/clientv3"

@@ -13,7 +13,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// GetSysConfig
+// GetSysConfig ..
 func GetSysConfig(c echo.Context) error {
 	reqModel := db.ReqSysConfig{}
 	if err := c.Bind(&reqModel); err != nil {
@@ -87,6 +87,7 @@ func CheckDep(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success", res)
 }
 
+// Run ..
 func Run(c echo.Context) error {
 	reqModel := view.ReqRunProfile{}
 	if err := c.Bind(&reqModel); err != nil {
@@ -94,7 +95,7 @@ func Run(c echo.Context) error {
 	}
 
 	if reqModel.AppName == "" || reqModel.HostName == "" || reqModel.Env == "" {
-		return output.JSON(c, output.MsgErr, "参数缺失")
+		return output.JSON(c, output.MsgErr, "请选择具体的实例")
 	}
 
 	if reqModel.ZoneCode == "" {
@@ -102,7 +103,7 @@ func Run(c echo.Context) error {
 	}
 
 	if reqModel.ZoneCode == "all" {
-		return output.JSON(c, output.MsgErr, "请选择具体的可用区，不要选择全部")
+		return output.JSON(c, output.MsgErr, "请选择具体的可用区")
 	}
 
 	if err := pprof.Pprof.RunPprof(reqModel.Env, reqModel.ZoneCode, reqModel.AppName, reqModel.HostName); err != nil {
@@ -112,7 +113,7 @@ func Run(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
-// 查询已经存储的pprof文件
+// FileList Query the pprof files that have been stored
 func FileList(c echo.Context) error {
 	req := view.ReqListPProf{}
 	showData := make([]db.PProf, 0)

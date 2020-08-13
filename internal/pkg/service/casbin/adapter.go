@@ -2,6 +2,7 @@ package casbin
 
 import (
 	"fmt"
+
 	casbinModel "github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
 	"github.com/douyu/juno/pkg/model/db"
@@ -17,7 +18,7 @@ const (
 	ActSwitchOn = 1      // single 000, group 001
 )
 
-// CasbinAdapter
+// CasbinAdapter ..
 type CasbinAdapter struct{}
 
 // LoadPolicy loads all policy rules from the storage.

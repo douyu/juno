@@ -2,6 +2,9 @@ package etcdHandle
 
 import (
 	"context"
+	"strings"
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -10,11 +13,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
-	"strings"
-	"time"
 )
 
-//
+//List ..
 func List(c echo.Context) error {
 	req := view.ReqGetEtcdList{}
 	resp := make([]view.RespEtcdInfo, 0)

@@ -17,11 +17,10 @@ package invoker
 import (
 	"time"
 
-	"github.com/douyu/jupiter/pkg/util/xtime"
-	"github.com/go-resty/resty/v2"
-
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/douyu/jupiter/pkg/util/xtime"
+	"github.com/go-resty/resty/v2"
 	"go.etcd.io/etcd/clientv3"
 )
 

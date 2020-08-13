@@ -3,6 +3,9 @@ package confgo
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/resource"
@@ -11,15 +14,13 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
-	"strconv"
-	"time"
 )
 
 type configTime struct {
 	Interval string `json:"interval"`
 }
 
-// 获取配置依赖解析间隔时间
+// GetConfigParseWorkerTime 获取配置依赖解析间隔时间
 func (c *confu) GetConfigParseWorkerTime() (interval int, err error) {
 	settings, err := system.System.Setting.GetAll()
 	if err != nil {

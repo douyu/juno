@@ -103,7 +103,6 @@ export default class Base extends React.Component<HomeProps, any> {
       });
     });
 
-    console.log('targetMap', target);
     ServiceTransferPut({
       target: target,
       zone_id: zoneInfo.id,
@@ -112,6 +111,7 @@ export default class Base extends React.Component<HomeProps, any> {
         message.error(res.msg);
       } else {
         message.success(res.msg);
+        this.initList();
       }
     });
   };
@@ -279,7 +279,7 @@ export default class Base extends React.Component<HomeProps, any> {
             columns={columns}
             rowKey={(record) => record.id}
             onChange={({ current }) => {
-               this.search.setPage(current).push();
+              this.search.setPage(current).push();
             }}
           />
           <Modal
@@ -287,13 +287,13 @@ export default class Base extends React.Component<HomeProps, any> {
             visible={visible}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
-            width={600}
+            width={800}
           >
             <Transfer
               dataSource={dataSource}
               showSearch
               listStyle={{
-                width: 250,
+                width: 350,
                 height: 300,
               }}
               titles={['未关联', '已关联']}

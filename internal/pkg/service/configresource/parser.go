@@ -1,13 +1,15 @@
 package configresource
 
 import (
-	"github.com/douyu/jupiter/pkg/xlog"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/douyu/jupiter/pkg/xlog"
 )
 
 type (
+	// ResourceItem ..
 	ResourceItem struct {
 		Name    string `json:"name"`
 		Version uint   `json:"version"`

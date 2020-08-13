@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/douyu/jupiter/pkg/xlog"
-	"go.uber.org/zap"
 	"net/url"
 	"strings"
 
@@ -13,7 +11,9 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 var (

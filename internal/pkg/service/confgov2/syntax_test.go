@@ -1,8 +1,9 @@
 package confgov2
 
 import (
-	"github.com/douyu/juno/pkg/model"
 	"testing"
+
+	"github.com/douyu/juno/pkg/model"
 )
 
 func TestCheckSyntax(t *testing.T) {
