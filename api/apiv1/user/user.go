@@ -2,9 +2,9 @@ package user
 
 import (
 	"encoding/json"
-	"github.com/douyu/juno/internal/app/core"
 	"time"
 
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/user"
@@ -115,7 +115,7 @@ func Info(c *core.Context) error {
 	if !u.IsLogin() {
 		return c.OutputJSON(output.MsgErr, "err")
 	}
-	return c.OutputJSON(output.MsgOk, "", u)
+	return c.OutputJSON(output.MsgOk, "", c.WithData(u))
 }
 
 type login struct {

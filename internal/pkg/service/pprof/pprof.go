@@ -3,12 +3,6 @@ package pprof
 import (
 	"errors"
 	"fmt"
-	"github.com/douyu/juno/internal/pkg/service/clientproxy"
-	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/juno/pkg/model/view"
-	"github.com/douyu/juno/pkg/util"
-	"github.com/douyu/jupiter/pkg/xlog"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -16,12 +10,18 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
 	torchPprof "github.com/uber-archive/go-torch/pprof"
 	"github.com/uber-archive/go-torch/renderer"
+	"go.uber.org/zap"
 )
 
 type pprof struct {

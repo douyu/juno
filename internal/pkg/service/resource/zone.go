@@ -147,13 +147,13 @@ func (r *resource) GetZoneCnt() (cnt int) {
 	return
 }
 
-// 获取环境个数
+// GetEnvCnt 获取环境个数
 func (r *resource) GetEnvCnt() (cnt int) {
 	r.DB.Model(db.Zone{}).Group("env").Count(&cnt)
 	return
 }
 
-// 获取tree data数据，用于ant design筛选
+// GetSelectData 获取tree data数据，用于ant design筛选
 func (r *resource) GetSelectData() (respRegion, respZone, respEnv []view.SelectData) {
 	// 找到所有的Region
 	var regionArr []db.Zone

@@ -27,7 +27,7 @@ class PageList {
   };
   defaultParam = {};
   submit = (values) => {
-    //console.log("### submit 1", values);
+    console.log("### submit 1", values);
     this.param = values;
     this.setPage(1);
     this.push();
@@ -72,6 +72,7 @@ class PageList {
   };
 
   constructor(options) {
+    // console.log("########### options",options);
     const params = parse(window.location.href.split('?')[1]);
     if (typeof options['currentPage'] !== 'undefined') {
       this.currentPage = options['currentPage'];

@@ -3,6 +3,7 @@ package view
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/douyu/juno/pkg/model/db"
 )
@@ -15,9 +16,32 @@ var (
 	// todo can't global config
 	// 对各项配置进行设置，设置项写到此处才能生效
 	SettingFieldConfigs = map[string]SettingFieldConfig{
-		"grafana": {
-			Default: `{"host":"","header_name":"","api_dashboard_addr":"","instance_dashboard_addr":"","overview_dashboard_addr":""}`,
+		"version": {
+			Default: `[]`,
 			Validate: func(value string) error {
+				return nil
+			},
+		},
+		"etcd": {
+			Default: `[]`,
+			Validate: func(value string) error {
+				return nil
+			},
+		},
+		"grafana": {
+			Default: `{"host":"","header_name":"",scheme:""}`,
+			Validate: func(value string) error {
+				setting := SettingGrafana{}
+				err := json.Unmarshal([]byte(value), &setting)
+				if err != nil {
+					return err
+				}
+
+				scheme := strings.ToLower(setting.Scheme)
+				if scheme != "http" && scheme != "https" {
+					return fmt.Errorf("无效的协议: %s", scheme)
+				}
+
 				return nil
 			},
 		},
@@ -93,11 +117,14 @@ type (
 	}
 
 	SettingGrafana struct {
-		Host                  string `json:"host"`
-		HeaderName            string `json:"header_name"`
-		ApiDashboardAddr      string `json:"api_dashboard_addr"`      // api监控面板路径
-		InstanceDashboardAddr string `json:"instance_dashboard_addr"` // 实例监控面板
-		OverviewDashboardAddr string `json:"overview_dashboard_addr"` // 概览面板
+		Host       string `json:"host"`
+		Scheme     string `json:"scheme"`
+		HeaderName string `json:"header_name"`
+	}
+
+	SettingGrafanaDashboard struct {
+		Name  string `json:"name"`  // Dashboard 名称
+		Value string `json:"value"` // Dashboard 路由
 	}
 
 	SettingConfigDep struct {

@@ -6,21 +6,13 @@ import {loadSettings, updateSetting} from "@/pages/manage/services";
 import {message} from "antd";
 
 const defaultStates = {
-  grafanaEdit: false,
-  grafanaConfig: {
-    host: '',
-    header_name: '',
-    api_dashboard_addr: '',
-    instance_dashboard_addr: '',
-    overview_dashboard_addr: '',
-  },
-
   configDepSetting: {
     interval: 720, // 间隔时间，单位分钟
   },
 
   // 原始设置内容
   settings: {},
+  tmpSetting: {},
 
   onEdit: {
     grafana: false,
@@ -38,13 +30,6 @@ export default {
     * setEdit(action, context) {
       const {payload} = action
 
-      if (!payload.value) {
-        context.put({
-          type: '_resetSettingField',
-          payload: payload.name
-        })
-      }
-
       yield context.put({
         type: '_setEdit',
         payload: {
@@ -58,7 +43,7 @@ export default {
       const res = yield call(updateSetting, payload.name, payload.content)
       if (res.code !== 0) {
         message.error("保存设置失败:" + res.msg)
-        return
+        return res
       }
       message.success("保存成功")
 
@@ -69,6 +54,8 @@ export default {
           value: false
         }
       })
+
+      return res
     },
     * loadSettings({payload}, {call, put}) {
       const res = yield call(loadSettings)
@@ -81,7 +68,6 @@ export default {
       Object.keys(settings).map(name => {
         settings[name] = unMarshalSetting(name, settings[name])
       })
-      console.log(settings)
 
       yield put({
         type: '_setSettings',
@@ -103,40 +89,29 @@ export default {
       return {
         ...state,
         settings: payload,
-        ...loadTempSetting(payload)
       }
     },
-    _resetSettings(state,) {
-      return {
-        ...state,
-        ...loadTempSetting(state.settings)
-      }
-    },
-    _resetSettingField(state, {payload}) {
-      let settings = {}
-      settings[payload] = state.settings[payload]
-      return {
-        ...state,
-        ...loadTempSetting(settings)
-      }
-    }
   }
 }
 
 // 从临时配置
 function loadTempSetting(settings) {
   return {
-    grafanaConfig: settings.grafana,
-    configDepSetting: settings.config_dep
+    grafana: settings.grafana,
+    config_dep: settings.config_dep
   }
 }
 
 function unMarshalSetting(name, value) {
   switch (name) {
-    case 'grafana':
+    case 'etcd':
     case 'config_dep':
+    case 'grafana':
     case 'gateway':
       return JSON.parse(value)
+    case 'version':
+      const tmp = JSON.parse(value);
+      return tmp instanceof Array ? tmp : [];
     default:
       return value
   }

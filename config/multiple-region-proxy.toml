@@ -2,20 +2,13 @@
 [app]
   secretKey = "ASDFASDFASDF"
 
-[confgo]
-  dir = "/tmp/www/server"
-  prefix = "juno-agent"
-
-  [confgo.agent]
-    port = 50010
-
-
 [logger.system]
     debug = false          # 是否在命令行输出
     level = "debug"
     async = true
     name = "system.json" # 日志名称
     dir = "."
+
 [logger.biz]
     debug = false          # 是否在命令行输出
     level = "debug"
@@ -51,7 +44,7 @@
     port = 50008
 
 [serverProxy.heartbeat]
-    enable = true
+    enable = false
     debug = true
     addr = "stream"
     internal = "120s"
@@ -73,7 +66,7 @@
       cacert = ""
 
 [serverProxy.prometheus]
-    enable = true
+    enable = false
     listenAddr = "127.0.0.1:59090"
     backend = "127.0.0.1:9090"
     disableKeepAlives = true

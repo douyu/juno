@@ -1,5 +1,10 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import initLanguage, {LanguageDYConf} from "./language";
+import * as monaco from "monaco-editor";
+import prettier from "prettier/standalone";
+import prettierYaml from "prettier/parser-yaml"
+import tomlParser from "./parsers/parser-toml/api"
+import iniPrettierPlugin from 'prettier-plugin-ini'
+import initLanguage from "./language";
+import {message} from "antd";
 
 let languageInitialized = false
 let conditionWhenSelect = null
@@ -9,6 +14,26 @@ let _option = {
   onInsertResource: null,
   onLoadResourceDetail: null
 }
+let tomlPrettierPlugin = null
+let decorations = []
+
+monaco.editor.defineTheme('dy-vs-dark', {
+  colors: {},
+  inherit: true,
+  base: 'vs-dark',
+  rules: [
+    {
+      token: 'variable',
+      foreground: '#8fd9ff',
+      fontStyle: 'bold'
+    },
+    {
+      token: 'string.escape',
+      foreground: '#668658',
+      fontStyle: 'bold'
+    }
+  ]
+})
 
 export function createEditor(ref, option) {
   _option = option
@@ -16,14 +41,26 @@ export function createEditor(ref, option) {
   let editorInstance = monaco.editor.create(
     ref.current,
     {
-      theme: 'vs-dark',
-      language: 'dy/conf',
+      theme: 'dy-vs-dark',
+      language: 'dy/' + option.format,
       automaticLayout: true
     }
   )
 
+  {
+    tomlPrettierPlugin = tomlParser({
+      onParseError: err => onParseError(editorInstance, err),
+      onLexError: err => onLexError(editorInstance, err)
+    })
+  }
+
+  editorInstance.onDidChangeModelContent(ev => {
+    decorations = editorInstance.deltaDecorations(decorations, [])
+    formatCode(editorInstance, option.format, false)
+  })
+
   registerConditions(editorInstance)
-  registerActions(editorInstance)
+  registerActions(editorInstance, option.format)
 
   if (!languageInitialized) {
     languageInitialized = true
@@ -40,10 +77,10 @@ export function createDiffEditor(ref, origin, modified) {
   let editorInstance = monaco.editor.createDiffEditor(
     ref.current,
     {
-      theme: 'vs-dark',
-      language: 'dy/conf',
+      theme: 'dy-vs-dark',
       automaticLayout: true,
-      enableSplitViewResizing: false
+      enableSplitViewResizing: false,
+      readOnly: true,
     }
   )
 
@@ -59,14 +96,14 @@ export function createDiffEditor(ref, origin, modified) {
 }
 
 function registerHover() {
-  monaco.languages.registerHoverProvider(LanguageDYConf, {
+  let provider = {
     //@ts-ignore
     provideHover(model, position) {
       if (conditionWhenMouseOnVar && conditionWhenMouseOnVar.get() && _option.onLoadResourceDetail) {
         return _option.onLoadResourceDetail(currentResourceVar).then(r => {
           console.log(r)
           let contents = [
-            {value: `**${r.name}**`},
+            {value: `资源变量: **${r.name}**`},
           ]
 
           let content = `**Description:** ${r.description}\n\n**Value:** \`${r.value}\`\n\n**Author:** ${r.user_name}`
@@ -87,7 +124,11 @@ function registerHover() {
       }
       return undefined;
     }
-  })
+  }
+
+  monaco.languages.registerHoverProvider("dy/toml", provider)
+  monaco.languages.registerHoverProvider("dy/yaml", provider)
+  monaco.languages.registerHoverProvider("dy/ini", provider)
 }
 
 function registerConditions(e) {
@@ -133,18 +174,78 @@ function registerSelectCondition(e) {
   })
 }
 
-function registerActions(e) {
+function onLexError(editor, err) {
+  console.debug(err)
+  decorations = editor.deltaDecorations(
+    decorations,
+    err.map(e => {
+      return {
+        range: new monaco.Range(e.line, e.column, e.line, e.column + e.length),
+        options: {
+          hoverMessage: [{value: e.message}],
+          inlineClassName: 'editor-error-line'
+        }
+      }
+    })
+  )
+}
 
-  // e.addAction({
-  //   id: 'changeResource',
-  //   label: '修改资源',
-  //   contextMenuGroupId: 'navigation',
-  //   contextMenuOrder: 1,
-  //   precondition: 'whenMouseOnVar',
-  //   run: (e) => {
-  //
-  //   },
-  // })
+function onParseError(editor, err) {
+  console.debug(err)
+  decorations = editor.deltaDecorations(
+    decorations,
+    err.map(e => {
+      let {startLine, endLine, startColumn, endColumn} = e.token
+      if (endColumn === startColumn) endColumn = startColumn + 1
+      return {
+        range: new monaco.Range(startLine, startColumn, endLine, endColumn),
+        options: {
+          hoverMessage: [{value: e.message}],
+          inlineClassName: 'editor-error-line'
+        }
+      }
+    })
+  )
+}
+
+function formatCode(editor, fileFormat, format = true) {
+  let model = editor.getModel()
+  let content = model.getValue()
+  let resourceReg = /\{\{[^\}]+\}\}/
+  if (content.match(resourceReg) && fileFormat === 'yaml') {
+    if (!format) return
+    return message.warn("YAML格式暂不支持资源语法格式化")
+  }
+
+  try {
+    let formatted = prettier.format(model.getValue(), {
+      parser: fileFormat,
+      plugins: [
+        tomlPrettierPlugin,
+        iniPrettierPlugin,
+        prettierYaml,
+      ],
+    })
+    format && model.setValue(formatted)
+  } catch (e) {
+    console.debug(e)
+  }
+}
+
+function registerActions(e, format) {
+
+  e.addAction({
+    id: 'FormatDocument',
+    contextMenuGroupId: 'navigation',
+    contextMenuOrder: 2,
+    label: '格式化',
+    keybindings: [
+      monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KEY_F
+    ],
+    run(editor) {
+      formatCode(editor, format)
+    }
+  })
 
   e.addAction({
     id: 'insertResource',

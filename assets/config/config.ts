@@ -3,6 +3,7 @@ import {defineConfig} from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const {REACT_APP_ENV} = process.env;
 export default defineConfig({
@@ -16,7 +17,7 @@ export default defineConfig({
     // default zh-CN
     default: 'zh-CN',
     // default true, when it is true, will use `navigator.language` overwrite default
-    antd: true,
+    antd: false,
     baseNavigator: true,
   },
   dynamicImport: {
@@ -74,6 +75,11 @@ export default defineConfig({
                   name: '依赖拓扑',
                   path: '/analysis/topology',
                   component: './analysis/topology/index',
+                },
+                {
+                  name: '版本管理',
+                  path: '/analysis/deppkg',
+                  component: './analysis/deppkg/index',
                 },
               ],
             },
@@ -175,6 +181,22 @@ export default defineConfig({
               ]
             },
             {
+              path: '/test',
+              name: '测试平台',
+              routes: [
+                {
+                  name: 'GRPC测试',
+                  path: '/test/grpc',
+                  component: './test/grpc/index'
+                },
+                {
+                  name: 'HTTP测试',
+                  path: '/test/http',
+                  component: './test/http/index'
+                }
+              ]
+            },
+            {
               path: '/admin',
               name: '系统设置',
               icon: 'ToolOutlined',
@@ -222,4 +244,12 @@ export default defineConfig({
   manifest: {
     basePath: '/ant/',
   },
+  chainWebpack(config, {env, webpack, createCSSRule}) {
+    config.plugin('monaco-webpack-editor').use(MonacoWebpackPlugin, [
+      {
+        languages: [],
+        features: ["coreCommands", "find", "format"]
+      }
+    ])
+  }
 });

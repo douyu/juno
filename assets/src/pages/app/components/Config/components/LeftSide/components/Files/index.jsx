@@ -23,32 +23,35 @@ function Files(props) {
     }
 
     return configs.map((cfg, index) => {
+      const active = cfg.id === currentConfig?.id
       return <li
         key={index}
-        className={styles.configItem}
+        className={[styles.configItem, active && styles.configItemActive ].join(' ')}
+        onClick={() => props.loadConfigDetail(cfg.id)}
       >
-        <div
-          onClick={() => props.loadConfigDetail(cfg.id)}
-        >{cfg.name}.{cfg.format}</div>
+        <div>{cfg.name}.{cfg.format}</div>
         <div>
-          {currentConfig && currentConfig.content !== currentContent &&cfg.id === currentConfig.id&& <span className={styles.notSavedTip}>
+          {currentConfig && currentConfig.content !== currentContent && cfg.id === currentConfig.id &&
+          <span className={styles.notSavedTip}>
             未保存
           </span>}
         </div>
         <div>
-          <Popconfirm
-            title={"谨慎操作，删除后无法找回.确定删除?"}
-            onConfirm={() => {
-              deleteConfig(cfg.id).then(r => {
-                loadConfigList(props.appName, props.env)
-              })
-            }}
-          >
-            <OptionButton
-              type={"text"}>
-              <DeleteOutlined/>
-            </OptionButton>
-          </Popconfirm>
+          <div onClick={ev => ev.stopPropagation()}>
+            <Popconfirm
+              title={"谨慎操作，删除后无法找回.确定删除?"}
+              onConfirm={ev => {
+                deleteConfig(cfg.id).then(r => {
+                  loadConfigList(props.appName, props.env)
+                })
+              }}
+            >
+              <OptionButton
+                type={"text"}>
+                <DeleteOutlined/>
+              </OptionButton>
+            </Popconfirm>
+          </div>
         </div>
       </li>;
     })
@@ -90,6 +93,13 @@ function Files(props) {
           </ul>
         </li>
       })}
+
+      {!configListLoading && (!zoneList || !zoneList.length) && <div
+        className={styles.noConfigTip}
+      >
+        <StopOutlined/>
+        当前应用环境无机房
+      </div>}
     </ul>
   </div>
 }

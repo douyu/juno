@@ -10,16 +10,3 @@ type ReqTplList struct {
 	CurrentPage  int    `query:"currentPage"`
 	PageSize     int    `query:"pageSize"`
 }
-
-// ConfigStaticsInfo ..
-type ConfigStaticsInfo struct {
-	Value int    `json:"value"`
-	Name  string `json:"name"`
-}
-
-// RespStatics ..
-type RespStatics struct {
-	EnvCnt []ConfigStaticsInfo `json:"env_cnt"`
-	CmcCnt []ConfigStaticsInfo `json:"cmc_cnt"`
-	Total  int                 `json:"total"`
-}

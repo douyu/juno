@@ -15,10 +15,12 @@
 package cfg
 
 import (
-	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
 )
 
+// Auth ...
 type Auth struct {
 	// Auth
 	LoginCookieName                  string
@@ -38,6 +40,9 @@ type Register struct {
 	Endpoints      []string
 	ConnectTimeout time.Duration `json:"connectTimeout"`
 	Secure         bool          `json:"secure"`
+	BasicAuth      bool          `json:"basicAuth" toml:"basicAuth"`
+	Password       string        `json:"password" toml:"password"`
+	UserName       string        `json:"userName" toml:"userName"`
 }
 
 type ServerSchema struct {
@@ -50,11 +55,12 @@ type ServerSchema struct {
 }
 
 type App struct {
-	SecretKey string
-	Mode      string
+	Mode           string
+	SecretKey      string
+	ProductionEnvs []string
 }
 
-// Admin Server
+// Server Server
 type Server struct {
 	Http   ServerSchema
 	Govern ServerSchema
@@ -70,7 +76,7 @@ type HttpRouter struct {
 	GovernConfig string
 }
 
-// MultiProxy ..
+// SingleProxy ..
 type SingleProxy struct {
 	Etcd Etcd
 }
@@ -114,6 +120,9 @@ type Etcd struct {
 	Namespace  string        `json:"namespace"`
 	Timeout    time.Duration `json:"timeout"`
 	TLS        TLS           `json:"tls"`
+	BasicAuth  bool          `json:"basicAuth"`
+	Password   string        `json:"password"`
+	UserName   string        `json:"userName"`
 }
 
 // TLS ..
@@ -184,6 +193,11 @@ type Configure struct {
 	} `json:"agent"`
 }
 
+type Agent struct {
+	Port   int    `toml:"port"`
+	Secret string `toml:"secret"`
+}
+
 // Casbin ..
 type Casbin struct {
 	Enable           bool
@@ -226,4 +240,44 @@ type LoggerInfo struct {
 	CallerSkip int
 	Async      bool
 	Debug      bool
+}
+
+// Assist ..
+type Assist struct {
+	Action Action
+}
+
+// Action ..
+type Action struct {
+	Enable bool
+	URL    string
+}
+
+type GrpcTest struct {
+	Enable   bool
+	ProtoDir string
+}
+
+// AppLog ..
+type AppLog struct {
+	Mode      string
+	Aliyun    AppLogAliyun
+	Customize AppLogCustomize
+}
+
+// AppLogAliyun ...
+type AppLogAliyun struct {
+	Enable          bool
+	Key             string
+	Secret          string
+	RoleArn         string
+	RoleSessionName string
+	RegionID        string `json:"regionId" toml:"regionId"`
+	LoginURL        string `json:"loginUrl" toml:"loginUrl"`
+}
+
+type AppLogCustomize struct {
+	Enable       bool
+	DashboardUrl string
+	LogStoreUrl  string
 }

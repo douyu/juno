@@ -1,8 +1,13 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useRef} from "react";
 import {connect} from "dva";
-import {Badge, Form, Input, Modal, Table} from "antd";
+import {Badge, Col, Form, Input, Modal, Row, Table} from "antd";
+import {createDiffEditor} from "../Editor/editor";
+
+let editor = null
 
 function ModalSave(props) {
+  const editorRef = useRef(null)
+
   const [form] = Form.useForm();
   const {
     currentConfig, currentContent, visible, showSaveModal, saveConfig,
@@ -16,6 +21,18 @@ function ModalSave(props) {
         zone: currentConfig.zone,
         content: currentContent
       })
+
+      setTimeout(() => {
+        if (editor) {
+          editor.dispose()
+        }
+
+        editor = createDiffEditor(
+          editorRef,
+          currentConfig.content,
+          currentContent
+        )
+      }, 100)
     }
 
   }, [visible, currentConfig])
@@ -42,6 +59,10 @@ function ModalSave(props) {
 
   return <Modal
     visible={visible}
+    width={"95vw"}
+    style={{
+      maxWidth: '1900px'
+    }}
     title={"保存配置文件"}
     onOk={() => {
       form.submit()
@@ -50,40 +71,49 @@ function ModalSave(props) {
       showSaveModal(false)
     }}
   >
-    <Form
-      form={form}
-      onFinish={(fields) => {
-        let data = {
-          id: currentConfig.id,
-          content: currentContent,
-          ...fields,
-        }
-        console.log(data)
-        saveConfig(data).then(r => {
-          if (r && r.code === 0) {
-            // success
-            showSaveModal(false)
-          }
-        })
-      }}
-    >
-      <Form.Item
-        label={"Message"} name={"message"}
-        rules={[
-          {required: true, message: '请填写Message'}
-        ]}
-      >
-        <Input.TextArea placeholder={"简单描述一下本次修改发生的改变"}/>
-      </Form.Item>
+    <Row gutter={16}>
+      <Col flex={"500px"}>
+        <Form
+          form={form}
+          onFinish={(fields) => {
+            let data = {
+              id: currentConfig.id,
+              content: currentContent,
+              ...fields,
+            }
+            saveConfig(data).then(r => {
+              if (r && r.code === 0) {
+                // success
+                showSaveModal(false)
+              }
+            })
+          }}
+        >
+          <Form.Item
+            label={"Message"} name={"message"}
+            rules={[
+              {required: true, message: '请填写Message'}
+            ]}
+          >
+            <Input.TextArea placeholder={"简单描述一下本次修改发生的改变"}/>
+          </Form.Item>
 
-      <Form.Item>
-        <Table
-          dataSource={resourceCheckResult}
-          loading={resourceCheckLoading}
-          columns={resourceCheckColumns}
-        />
-      </Form.Item>
-    </Form>
+          <Form.Item>
+            <Table
+              bordered
+              dataSource={resourceCheckResult}
+              loading={resourceCheckLoading}
+              columns={resourceCheckColumns}
+            />
+          </Form.Item>
+        </Form>
+      </Col>
+      <Col flex={"auto"}>
+        <div ref={editorRef} style={{
+          height: '700px'
+        }}/>
+      </Col>
+    </Row>
   </Modal>
 }
 

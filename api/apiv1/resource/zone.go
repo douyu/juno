@@ -29,7 +29,7 @@ func ZoneInfo(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success", info)
 }
 
-// 可用区列表
+// ZoneList List of available areas
 func ZoneList(c echo.Context) error {
 	var (
 		err error
@@ -54,7 +54,7 @@ func ZoneList(c echo.Context) error {
 	})
 }
 
-// 可用区自动创建，如果没有就创建，如果有就更新
+// ZonePut The available areas are automatically created, if not created, and updated if there are
 func ZonePut(c echo.Context) error {
 	var (
 		err error

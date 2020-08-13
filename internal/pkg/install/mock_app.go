@@ -57,6 +57,31 @@ func mockTplByFile(tplType, fileName string, url string, router *echo.Echo) {
 	PostForm(url, string(paramByte), router)
 }
 
+func mockSystemSet(url string, router *echo.Echo) {
+	versionContent := `[{"name":"jupiter1.0","version":"v1.0","versionKey":"jupiter1.0","host":"http://127.0.0.1:3000","header_name":"X-WEBAUTH-USER","dashboards":[{"name":"API监控面板地址","value":"/grafana/d/api"},{"name":"实例监控面板","value":"/grafana/d/instance"},{"name":"概览监控面板","value":"/grafana/d/overview"}]}]`
+	// 此处需提取序列化一下，否则会解析不出来
+	versionContentTmp, _ := json.Marshal(versionContent)
+	// 发起post请求，以表单形式传递参数
+	param := fmt.Sprintf(`{
+	"name": "version",
+	"content": %s
+}`, string(versionContentTmp))
+	body := PostForm(url, param, router)
+	fmt.Println("mockSystemSet version result:\n", string(body))
+
+	etcdContent := `[{"prefix":"/prometheus/job/","info":"监控查询"}]`
+	// 此处需提取序列化一下，否则会解析不出来
+	etcdContentTmp, _ := json.Marshal(etcdContent)
+	// 发起post请求，以表单形式传递参数
+	param = fmt.Sprintf(`{
+	"name": "etcd",
+	"content": %s
+}`, string(etcdContentTmp))
+	body = PostForm(url, param, router)
+	fmt.Println("mockSystemSet etcd result:\n", string(body))
+
+}
+
 func mockParse(url string, router *echo.Echo) {
 	// 发起post请求，以表单形式传递参数
 	PostForm(url, "", router)

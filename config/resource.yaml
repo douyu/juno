@@ -10,6 +10,9 @@ permission:
       - path: /api/admin/event/list
         method: GET
         name: 事件流列表
+      - path: /api/admin/confgov2/config/statics
+        method: GET
+        name: 配置统计信息
       - path: /api/admin/resource/node/statics
         name: 节点信息统计
         method: GET
@@ -46,10 +49,25 @@ permission:
         path: /api/admin/resource/createVersion
         method: POST
       - name: 批量检查资源版本
-        path: /api/admin/resource/batchCheckVersion
-        method: GET
+        path: /api/admin/confgov2/resource/batchCheckVersion
+        method: POST
       - name: 资源标签列表
         path: /api/admin/resource/tags
+        method: GET
+      - path: /api/admin/resource/app_node/list
+        name: 应用节点列表
+        method: GET
+      - path: /api/admin/system/setting/list
+        name: 系统设置列表
+        method: GET
+      - path: /api/admin/etcd/list
+        name: ETCD查询
+        method: GET
+      - path: /api/admin/resource/app/frameVersion
+        name: 应用框架版本
+        method: GET
+      - path: /api/admin/event/list
+        name: 事件流列表
         method: GET
 
   - name: 功能看板
@@ -83,6 +101,15 @@ permission:
           - path: /api/admin/analysis/topology/relationship
             method: GET
             name: 应用拓扑关系
+      - name: 版本管理
+        path: /analysis/deppkg
+        api:
+          - path: /api/admin/analysis/topology/select
+            method: GET
+            name: 看板拓扑
+          - path: /api/admin/analysis/deppkg/list
+            method: GET
+            name: 应用版本列表
 
   - name: 资源中心
     path: /resource
@@ -176,7 +203,7 @@ permission:
             method: POST
           - name: 批量检查配置资源版本
             path: /api/admin/confgov2/resource/batchCheckVersion
-            method: GET
+            method: POST
           - name: 配置资源标签列表
             path: /api/admin/confgov2/resource/tags
             method: GET
@@ -246,9 +273,88 @@ permission:
           - path: /api/admin/permission/user/group/list
             name: 用户组列表
             method: GET
-          - path: /user/group/setAppPermission
+          - path: /api/admin/permission/user/group/setAppPermission
             name: 设置用户组应用权限
             method: POST
+  - name: 测试平台
+    path: /test
+    icon: ToolOutlined
+    children:
+      - path: /test/grpc
+        name: GRPC测试
+        api:
+          - path: /api/admin/resource/app/grpcAddrList
+            method: GET
+            name: 应用GRPC地址列表
+          - path: /api/admin/test/grpc/proto
+            method: GET
+            name: 获取GRPC PROTO列表
+          - path: /api/admin/test/grpc/proto/bind
+            method: POST
+            name: 绑定Proto到应用
+          - path: /api/admin/test/grpc/appServiceTree
+            method: GET
+            name: 应用-服务树
+          - path: /api/admin/test/grpc/useCases
+            method: GET
+            name: GRPC测试用例列表
+          - path: /api/admin/test/grpc/useCases/create
+            method: POST
+            name: 创建GRPC测试用例
+          - path: /api/admin/test/grpc/useCases/update
+            method: POST
+            name: 更新GRPC测试用例
+          - path: /api/admin/test/grpc/useCases/delete
+            method: POST
+            name: 删除GRPC测试用例
+          - path: /api/admin/test/grpc/useCases/detail
+            method: GET
+            name: GRPC测试用例详情
+          - path: /api/admin/test/grpc/request/send
+            method: POST
+            name: 发送GRPC测试请求
+          - path: /api/admin/test/grpc/request/history
+            method: GET
+            name: 获取GRPC请求历史记录
+          - path: /api/admin/test/grpc/request/history/detail
+            method: GET
+            name: 获取GRPC请求详情
+      - path: /test/http
+        name: HTTP测试
+        api:
+          - path: /api/admin/resource/app/httpAddrList
+            method: GET
+            name: 应用HTTP地址列表
+          - path: /api/admin/test/http/collections/create
+            method: POST
+            name: 创建HTTP测试集合
+          - path: /api/admin/test/http/collections
+            method: GET
+            name: HTTP测试集合列表
+          - path: /api/admin/test/http/collections/delete
+            method: POST
+            name: 删除HTTP测试集合
+          - path: /api/admin/test/http/useCases/detail
+            method: GET
+            name: HTTP测试用例详情
+          - path: /api/admin/test/http/useCases/create
+            method: POST
+            name: 创建HTTP测试用例
+          - path: /api/admin/test/http/useCases/update
+            method: POST
+            name: 更新HTTP测试用例
+          - path: /api/admin/test/http/useCases/delete
+            method: POST
+            name: 删除HTTP测试用例
+          - path: /api/admin/test/http/request/send
+            method: POST
+            name: 发送HTTP测试请求
+          - path: /api/admin/test/http/request/history
+            method: GET
+            name: HTTP请求历史
+          - path: /api/admin/test/http/request/history/detail
+            method: GET
+            name: HTTP请求历史详情
 
   - name: 系统设置
     path: /admin
@@ -297,6 +403,8 @@ app:
     key: app:read
   - name: 配置查看
     key: config:read
+  - name: 配置实时查看
+    key: config:readInstance
   - name: 配置编辑
     key: config:write
   - name: 监控查看
@@ -305,139 +413,3 @@ app:
     key: pprof:read
   - name: PProf执行
     key: pprof:run
-
-# 接口
-api:
-  - name: 用户管理
-    path: /api/admin/user
-    children:
-      - name: 用户创建
-        path: /api/admin/user/create
-        method: GET
-      - name: 用户删除
-        path: /api/admin/user/delete
-        method: POST
-      - name: 用户列表
-        path: /api/admin/user/list
-        method: GET
-  - name: 资源
-    path: /api/admin/resource
-    children:
-      - name: 应用
-        path: /api/admin/resource/app
-        children:
-          - name: 应用列表
-            path: /api/admin/resource/app/list
-            method: GET
-          - name: 应用详情信息
-            path: /api/admin/resource/app/info
-            method: GET
-          - name: 应用更新
-            path: /api/admin/resource/app/update
-            method: POST
-          - name: 应用创建
-            path: /api/admin/resource/app/create
-            method: POST
-          - name: 应用删除
-            path: /api/admin/resource/app/delete
-            method: POST
-      - name: 可用区
-        path: /api/admin/resource/zone
-        children:
-          - name: 可用区详情信息
-            path: /api/admin/resource/zone/info
-            method: GET
-          - name: 可用区列表
-            path: /api/admin/resource/zone/list
-            method: GET
-          - name: 创建可用区
-            path: /api/admin/resource/zone/create
-            method: POST
-          - name: 更新可用区
-            path: /api/admin/resource/zone/update
-            method: POST
-          - name: 删除可用区
-            path: /api/admin/resource/zone/delete
-            method: POST
-          - name: 可用区和环境列表
-            path: /api/admin/resource/zone/zone_env
-            method: GET
-      - name: 节点
-        path: /api/admin/resource/node
-        children:
-          - name: 节点信息
-            path: /api/admin/resource/node/info
-            method: GET
-          - name: 节点列表
-            path: /api/admin/resource/node/list
-            method: GET
-          - path: /api/admin/resource/node/create
-            name: 创建节点
-            method: POST
-          - path: /api/admin/resource/node/update
-            name: 更新节点
-            method: POST
-          - path: /api/admin/resource/node/delete
-            name: 删除节点
-            method: POST
-          - path: /api/admin/resource/node/statics
-            name: 节点信息统计
-            method: GET
-          - path: /api/admin/resource/node/transfer/list
-            name: 可用区节点列表
-            method: GET
-          - path: /api/admin/resource/node/transfer/put
-            name: 可用区节点列表更新
-            method: POST
-          - path: /api/admin/resource/app_node/info
-            name: 应用节点信息
-            method: GET
-          - path: /api/admin/resource/app_node/list
-            name: 应用节点列表
-            method: GET
-          - path: /api/admin/resource/app_node/transfer/list
-            name: 应用节点列表
-            method: GET
-          - path: /api/admin/resource/app_node/transfer/list
-            name: 应用节点列表更新
-            method: POST
-          - path: /api/admin/resource/app_env_zone/list
-            name: 应用环境可用区列表
-            method: GET
-
-  - name: 系统分析
-    path: /api/admin/analysis
-    children:
-      - path: /api/admin/analysis/index
-        method: GET
-        name: 全局统计信息
-      - path: /api/admin/analysis/topology/select
-        method: GET
-        name: 看板拓扑
-      - path: /api/admin/analysis/topology/list
-        method: GET
-        name: 应用拓扑列表
-      - path: /api/admin/analysis/topology/relationship
-        method: GET
-        name: 应用拓扑关系
-  - name: 系统
-    path: /api/admin/system
-    children:
-      - path: /api/admin/system/menu
-        method: GET
-        name: 系统菜单
-      - path: /api/admin/system/option/info
-        method: GET
-        name: 可用区信息
-      - path: /api/admin/system/option/list
-        method: GET
-        name: 可用区列表
-      - path: /api/admin/system/option/create
-        method: POST
-        name: 创建可用区
-      - path: /api/admin/system/option/update
-        method: POST
-        name: 更新可用区
-      - path: /api/admin/system/option/delete
-        method: POST
-        name: 删除可用区

@@ -7,11 +7,17 @@ const (
 	ConfigFormatToml = "toml"
 	// ConfigFormatYaml ..
 	ConfigFormatYaml = "yaml"
+	// INI格式
+	ConfigFormatINI = "ini"
+
+	// ConfigureUsedType ..
+	ConfigureUsedTypeSupervisor = 1
+	ConfigureUsedTypeSystemd    = 2
 )
 
 var (
 	// ConfigFormats Verified list
-	ConfigFormats = []ConfigFormat{ConfigFormatToml, ConfigFormatYaml}
+	ConfigFormats = []ConfigFormat{ConfigFormatToml, ConfigFormatYaml, ConfigFormatINI}
 )
 
 type (
@@ -62,8 +68,8 @@ type (
 		AppName  string       `json:"app_name" validate:"required"`
 		Env      string       `json:"env" validate:"required"`
 		Zone     string       `json:"zone" validate:"required"`
-		FileName string       `json:"file_name" validate:"required"` // 文件名(不带后缀)
-		Format   ConfigFormat `json:"format" validate:"required"`    // 格式后缀名(比如: toml, yaml)
+		FileName string       `json:"file_name" validate:"required"`                  // 文件名(不带后缀)
+		Format   ConfigFormat `json:"format" validate:"required,oneof=yaml toml ini"` // 格式后缀名(比如: toml, yaml)
 	}
 
 	// ReqUpdateConfig ..
@@ -75,8 +81,9 @@ type (
 
 	// ReqPublishConfig ..
 	ReqPublishConfig struct {
-		ID      uint    `json:"id" validate:"required"`      // 配置ID
-		Version *string `json:"version" validate:"optional"` // 版本号
+		ID       uint     `json:"id" validate:"required"` // 配置ID
+		HostName []string `json:"host_name"`              // 发布的实例机器名称的列表，如果为空，则发布所有机器
+		Version  *string  `json:"version"`                // 版本号
 	}
 
 	// ReqHistoryConfig ..
@@ -128,26 +135,41 @@ type (
 		ZoneCode        string `json:"zone_code" query:"zone_code" validate:"required"`
 	}
 
+	ReqAppAction struct {
+		Action   string `json:"action" query:"action" validate:"required"`
+		Typ      uint   `json:"typ" query:"typ" validate:"required"`
+		NodeName string `json:"node_name" query:"node_name" validate:"required"`
+		AppName  string `json:"app_name" query:"app_name" validate:"required"`
+		ZoneCode string `json:"zone_code" query:"zone_code" validate:"required"`
+		Env      string `json:"env" query:"env" validate:"required"`
+	}
+
+	RespAppAction struct {
+		Code int         `json:"code"`
+		Msg  string      `json:"msg"`
+		Data interface{} `json:"data"`
+	}
+
 	RespConfigInstanceList []RespConfigInstanceItem
 
 	// RespConfigInstanceItem ..
 	RespConfigInstanceItem struct {
-		ConfigurationStatusID uint      `json:"configuration_status_id"`
-		Env                   string    `json:"env"`
-		IP                    string    `json:"ip"`
-		HostName              string    `json:"host_name"`
-		DeviceID              int       `json:"device_id"`
-		RegionCode            string    `json:"region_code"`
-		RegionName            string    `json:"region_name"`
-		ZoneCode              string    `json:"zone_code"`
-		ZoneName              string    `json:"zone_name"`
-		ConfigFilePath        string    `json:"config_file_path"`
-		ConfigFileUsed        uint      `json:"config_file_used"` // 1 supervisor 2 systemd
-		ConfigFileSynced      uint      `json:"config_file_synced"`
-		ConfigFileTakeEffect  uint      `json:"config_file_take_effect"`
-		SyncAt                time.Time `json:"sync_at"`
-		ChangeLog             string    `json:"change_log"`
-		Version               string    `json:"version"` // 发布到Juno Proxy的版本号
+		ConfigurationStatusID uint   `json:"configuration_status_id"`
+		Env                   string `json:"env"`
+		IP                    string `json:"ip"`
+		HostName              string `json:"host_name"`
+		DeviceID              int    `json:"device_id"`
+		RegionCode            string `json:"region_code"`
+		RegionName            string `json:"region_name"`
+		ZoneCode              string `json:"zone_code"`
+		ZoneName              string `json:"zone_name"`
+		ConfigFilePath        string `json:"config_file_path"`
+		ConfigFileUsed        uint   `json:"config_file_used"` // 1 supervisor 2 systemd
+		ConfigFileSynced      uint   `json:"config_file_synced"`
+		ConfigFileTakeEffect  uint   `json:"config_file_take_effect"`
+		SyncAt                string `json:"sync_at"`
+		ChangeLog             string `json:"change_log"`
+		Version               string `json:"version"` // 发布到Juno Proxy的版本号
 	}
 
 	// ConfigFormat ..
@@ -164,6 +186,18 @@ type (
 		InstanceList []string `json:"instance_list"`
 		Env          string   `json:"env"`
 		Version      string   `json:"version"`
+	}
+
+	ReqReadInstanceConfig struct {
+		ConfigID uint   `query:"id" validate:"required"`
+		HostName string `query:"host_name" validate:"required"`
+	}
+
+	RespReadInstanceConfigItem struct {
+		ConfigID uint   `json:"config_id"`
+		FileName string `json:"file_name"`
+		Content  string `json:"content"`
+		Error    string `json:"error"`
 	}
 
 	// ConfigurationPublishData ..
@@ -205,6 +239,25 @@ type (
 	// UsedStatusResp ..
 	UsedStatusResp struct {
 		IsUsed int `json:"is_used"`
+	}
+
+	// EnvStatic ..
+	EnvStatic struct {
+		Env string `json:"env"`
+		Cnt int    `json:"cnt"`
+	}
+
+	// CmcCnt ..
+	CmcCnt struct {
+		DayTime string `json:"day_time" gorm:"day_time"`
+		Cnt     int    `gorm:"cnt" json:"cnt"`
+	}
+
+	AppAction struct {
+		Action   string `json:"action" query:"action"`
+		AppName  string `json:"app_name" query:"app_name"`
+		NodeName string `json:"node_name" query:"node_name"`
+		Typ      uint   `json:"typ" query:"typ"`
 	}
 )
 

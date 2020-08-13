@@ -15,6 +15,7 @@
 package proxy
 
 import (
+	"fmt"
 	"net"
 	"time"
 
@@ -39,11 +40,14 @@ type grpcProxy struct {
 	grpcProxyKey        string
 	grpcProxyCA         string
 	grpcProxyNamespace  string
+	grpcProxyUserName   string
+	grpcProxyPassword   string
 	grpcServer          *grpc.Server
 }
 
 // NewEtcdGrpcProxy ..
 func NewEtcdGrpcProxy() *grpcProxy {
+
 	grpcProxyListenAddr := cfg.Cfg.ServerProxy.Etcd.ListenAddr
 	if grpcProxyListenAddr == "" {
 		grpcProxyListenAddr = "127.0.0.1:23790"
@@ -61,11 +65,15 @@ func NewEtcdGrpcProxy() *grpcProxy {
 		grpcProxyKey:        cfg.Cfg.ServerProxy.Etcd.TLS.Key,
 		grpcProxyCA:         cfg.Cfg.ServerProxy.Etcd.TLS.CaCert,
 		grpcProxyNamespace:  cfg.Cfg.ServerProxy.Etcd.Namespace,
+		grpcProxyUserName:   cfg.Cfg.ServerProxy.Etcd.UserName,
+		grpcProxyPassword:   cfg.Cfg.ServerProxy.Etcd.Password,
 	}
 	return obj
 }
 
 func (gp *grpcProxy) startGRPCProxy() error {
+	fmt.Println("111")
+
 	l, err := net.Listen("tcp", gp.grpcProxyListenAddr)
 	if err != nil {
 		return err
@@ -79,11 +87,17 @@ func (gp *grpcProxy) startGRPCProxy() error {
 	m := cmux.New(l)
 
 	cfg, err := gp.newClientCfg()
+	fmt.Println("111", cfg)
+
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("clientv3", cfg)
+
 	client, err := clientv3.New(*cfg)
+	fmt.Println("err", err)
+
 	if err != nil {
 		return err
 	}
@@ -151,7 +165,10 @@ func (gp *grpcProxy) newClientCfg() (*clientv3.Config, error) {
 	cfg := clientv3.Config{
 		Endpoints:   gp.grpcProxyEndpoints,
 		DialTimeout: 5 * time.Second,
+		Username:    gp.grpcProxyUserName,
+		Password:    gp.grpcProxyPassword,
 	}
+	fmt.Println("cfg: ", cfg)
 	if cfgtls != nil {
 		clientTLS, err := cfgtls.ClientConfig()
 		if err != nil {

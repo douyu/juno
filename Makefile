@@ -6,7 +6,7 @@ JUNO_NAME:=juno
 JUNO_ADMIN_NAME:=juno-admin
 JUNO_PROXY_NAME:=juno-proxy
 COMPILE_OUT:=$(BASE_PATH)/release
-APP_VERSION:=0.2.0
+APP_VERSION:=0.3.0
 
 .DEFAULT_GOAL := default
 .PHONY: run run.grpc run.npm
