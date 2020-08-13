@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.4.0 
+
 ## v0.3.0 (13/08/2020)
 - [V0.3.x (#52)](https://github.com/douyu/juno/commit/db79fb99f6e86b323207fafcb5ca1ef049884783) - @MEX7
 - [Fix for issue #50](https://github.com/douyu/juno/commit/e5f4c7d9707be27d92e12376d1857d45d575c15f) - @Howie66
