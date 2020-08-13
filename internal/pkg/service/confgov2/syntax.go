@@ -2,17 +2,17 @@ package confgov2
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/douyu/juno/pkg/model"
 	"github.com/link-duan/toml"
 	"gopkg.in/yaml.v3"
-	"regexp"
-	"strings"
 )
 
 type (
 	syntaxChecker func(content string) error
-
-	SyntaxError struct {
+	SyntaxError   struct {
 		LineNumber int
 		Message    string
 	}

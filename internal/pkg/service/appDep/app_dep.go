@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/BurntSushi/toml"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	depModel "github.com/douyu/juno/pkg/model"
@@ -13,14 +16,13 @@ import (
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
-	"strings"
-	"time"
 )
 
 const (
 	Url_Gitlab = "/api/v4/projects/%d/repository/files/%s?ref=%s"
 )
 
+//DepApp ..
 type DepApp interface {
 	ParseDepFile(app db.AppInfo) ([]*db.AppPackage, error) // 获取依赖文件内容并解析
 	SaveToMysql(aid int, records []*db.AppPackage) error   // 解析结果存储到mysql

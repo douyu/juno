@@ -2,10 +2,11 @@ package confgo
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/view"
-	"testing"
 )
 
 func init() {

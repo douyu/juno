@@ -2,6 +2,7 @@ package assist
 
 import (
 	"encoding/json"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
@@ -14,7 +15,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Action ...
+//Action ...
 func Action(c echo.Context, param view.AppAction) (action view.RespAppAction, err error) {
 	var app db.AppInfo
 	var node db.AppNode

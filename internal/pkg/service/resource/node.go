@@ -291,6 +291,14 @@ func (r *resource) NodeTransferPut(add, del map[string]interface{}, zone db.Zone
 			return
 		}
 	}
+
+	err = tx.Model(db.Zone{}).Where("id = ?", zone.Id).UpdateColumns(&db.Node{
+		UpdateTime: time.Now().Unix(),
+	}).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
 	tx.Commit()
 	return
 }

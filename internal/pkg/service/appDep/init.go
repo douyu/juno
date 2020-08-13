@@ -1,14 +1,16 @@
 package appDep
 
 import (
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/go-resty/resty/v2"
-	"time"
 )
 
 var AppDep *appDep
 
+//Init ..
 func Init() {
 	AppDep = &appDep{
 		DB:     invoker.JunoMysql,

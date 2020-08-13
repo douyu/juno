@@ -29,19 +29,6 @@ func (r *resource) AddSysConfig(record db.SystemConfig) (err error) {
 	return nil
 }
 
-//
-//func (r *resource) EditSysConfig(record db.SystemConfig) (err error) {
-//	updateMap := make(map[string]interface{})
-//	updateMap["set_int"] = record.SetInt
-//	updateMap["set_str"] = record.SetStr
-//	updateMap["update_time"] = time.Now().Unix()
-//
-//	if err := r.DB.Table("system_config").Where("`id` = ?", record.Id).Update(updateMap).Error; err != nil {
-//		return err
-//	}
-//	return nil
-//}
-
 func (r *resource) DelSysConfig(id int) (err error) {
 	if err := r.DB.Table("system_config").Where("`id` = ?", id).Delete(db.SystemConfig{}).Error; err != nil {
 		return err

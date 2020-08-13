@@ -36,6 +36,10 @@
     endpoints=["127.0.0.1:2379"]
     secure = false
 
+[grafanaProxy]
+    enable = true
+    name = "grafana"
+
 #################################### Server ##############################
 [server.http]
     # The ip address to bind to, empty will bind to all interfaces
@@ -130,6 +134,6 @@
 
 #################################### Go Dep Auth #########################
 [godep.gitlab]
-host="https://gitlab.com"
-token="RgZev8zy6dtP2y8EA4sB"
-frameName="gitlab.com/douyu/jupiter"
+    host="https://gitlab.com"
+    token="RgZev8zy6dtP2y8EA4sB"
+    frameName="gitlab.com/douyu/jupiter"

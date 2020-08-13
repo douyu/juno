@@ -6,6 +6,7 @@ import (
 	"reflect"
 )
 
+//Diff ..
 func Diff(a map[string]interface{}, b map[string]interface{}) map[string]interface{} {
 	res := make(map[string]interface{}, 0)
 	for name, id := range a {

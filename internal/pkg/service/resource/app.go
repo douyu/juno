@@ -4,26 +4,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/douyu/juno/pkg/util"
-	"github.com/douyu/jupiter/pkg/conf"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
-	"github.com/douyu/juno/internal/pkg/service/appevent"
-
 	"github.com/douyu/juno/internal/pkg/invoker"
+	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/event"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 )
 
-// 根据ID或者APPNAME获取APP信息
+// GetApp 根据ID或者APPNAME获取APP信息
 // 只支持int和string查询
 func (r *resource) GetApp(identify interface{}) (resp db.AppInfo, err error) {
 	switch v := identify.(type) {

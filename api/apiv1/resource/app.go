@@ -2,6 +2,8 @@ package resource
 
 import (
 	"encoding/json"
+	"strings"
+
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/resource"
@@ -11,10 +13,9 @@ import (
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-	"strings"
 )
 
-// 应用信息
+//AppInfo application message
 func AppInfo(c echo.Context) error {
 	var (
 		err      error
@@ -40,7 +41,7 @@ func AppInfo(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success", info)
 }
 
-// 应用列表
+//AppList ..
 func AppList(c echo.Context) error {
 	var err error
 	reqModel := ReqAppList{}
@@ -58,6 +59,7 @@ func AppList(c echo.Context) error {
 	})
 }
 
+//AppListWithEnv ..
 func AppListWithEnv(c echo.Context) error {
 	var param view.ReqAppListWithEnv
 	err := c.Bind(&param)
@@ -79,6 +81,7 @@ type configVersion struct {
 	VersionKey string `json:"versionKey"` // 版本key
 }
 
+//GetFrameVersion ..
 func GetFrameVersion(c echo.Context) error {
 	resp := view.RespGetFrameVersion{}
 
