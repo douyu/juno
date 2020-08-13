@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.2.0 (21/07/2020)
+## v0.3.0 (13/08/2020)
+- [V0.3.x (#52)](https://github.com/douyu/juno/commit/db79fb99f6e86b323207fafcb5ca1ef049884783) - @MEX7
+- [Fix for issue #50](https://github.com/douyu/juno/commit/e5f4c7d9707be27d92e12376d1857d45d575c15f) - @Howie66
+
+---
+
+## v0.2.0 (21/07/2020)
 ## New Features
 * Add oauth2 login github, gitlab @askuy
 * Add clientproxy reload every minute @MEX7
@@ -33,7 +39,6 @@
 * Fix the abnormal display of the refresh list after deleting the configuration file @link-duan
 * Fix the historical version of Diff confusion, when a new file is created, the previous file is automatically opened @link-duan
 * Fix the exception of reloading list after PProf page is executed; when Host is not selected, all PPROF lists are loaded @link-duan
-
 ---
 
 ## 0.1.0 (23/06/2020)
