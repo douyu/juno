@@ -29,7 +29,11 @@ func InitSingleProxy() (obj *simplePorxy) {
 }
 
 func (c *simplePorxy) initProxyEtcd() {
-	etcdClient, err := NewEtcdClient(cfg.Cfg.ClientProxy.SingleProxy.Etcd.Endpoints, cfg.Cfg.ClientProxy.SingleProxy.Etcd.Timeout)
+	etcdClient, err := NewEtcdClient(cfg.Cfg.ClientProxy.SingleProxy.Etcd.Endpoints,
+		cfg.Cfg.ClientProxy.SingleProxy.Etcd.Timeout,
+		cfg.Cfg.ClientProxy.SingleProxy.Etcd.BasicAuth,
+		cfg.Cfg.ClientProxy.SingleProxy.Etcd.UserName,
+		cfg.Cfg.ClientProxy.SingleProxy.Etcd.Password)
 	if err != nil {
 		xlog.Error("simple proxy new etcd client error", zap.Error(err), zap.Strings("endpoints", cfg.Cfg.ClientProxy.SingleProxy.Etcd.Endpoints))
 		return

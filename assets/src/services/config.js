@@ -16,12 +16,10 @@ export async function srvLoadConfigInstances(env, zoneCode, configurationID) {
   );
 }
 
-export async function srvConfigPublish(id, version) {
-  console.log('id', id);
-  console.log('version', version);
+export async function srvConfigPublish(id, version, host_name) {
   return request(`/api/admin/confgov2/config/publish`, {
     method: 'post',
-    data: {id: id, version: version},
+    data: {id: id, version: version, host_name},
   });
 }
 
@@ -62,4 +60,11 @@ export async function deleteConfig(id) {
   return request(`/api/admin/confgov2/config/delete?id=${id}`, {
     method: 'POST',
   });
+}
+
+export async function fetchInstanceConfig(id, hostName) {
+  return request(`/api/admin/confgov2/config/instance/configContent?${stringify({
+    id,
+    host_name: hostName
+  })}`)
 }

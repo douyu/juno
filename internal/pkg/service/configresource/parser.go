@@ -1,13 +1,15 @@
 package configresource
 
 import (
-	"github.com/douyu/jupiter/pkg/xlog"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/douyu/jupiter/pkg/xlog"
 )
 
 type (
+	// ResourceItem ..
 	ResourceItem struct {
 		Name    string `json:"name"`
 		Version uint   `json:"version"`
@@ -16,7 +18,7 @@ type (
 
 // GetAllConfigResource ..
 func GetAllConfigResource(content string) (res []string) {
-	reg := regexp.MustCompile(`{{[\w\W]*\@[0-9]*}}`)
+	reg := regexp.MustCompile(`{{[\w\-_]*@[0-9]+}}`)
 	return reg.FindAllString(content, -1)
 }
 

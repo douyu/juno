@@ -3,6 +3,38 @@
 
 @optionBlockH: 95px;
 
+:global {
+  .publishConfigSelect:not(.ant-select-customize-input) {
+    color: @primaryColor;
+
+    .ant-select-selector {
+      border: none;
+      background-color: #3c3c3c;
+    }
+
+    .ant-select-arrow {
+      color: @secondColor;
+    }
+  }
+
+  .publishConfigSelectDropDown {
+    background-color: #3c3c3c;
+
+    .ant-select-item {
+      color: @secondColor;
+
+      &.ant-select-item-option-selected, &.ant-select-item-option-active {
+        background-color: #4e4e4e;
+      }
+    }
+
+    .ant-empty-description {
+      color: #fff;
+    }
+  }
+
+}
+
 .publish {
 
   .optionBlock {
@@ -33,7 +65,7 @@
 
     .instanceListOpt {
       display: grid;
-      grid-template-columns: auto 30px;
+      grid-template-columns: auto 40px;
 
       .instanceListTitle {
       }
@@ -62,7 +94,7 @@
 
       .instanceInfo {
         display: grid;
-        grid-template-columns: 30px auto;
+        grid-template-columns: 30px auto 20px;
 
         .icon {
           font-size: 22px;
@@ -70,6 +102,17 @@
 
         .version {
           font-size: 10px;
+        }
+
+        .instanceCheckBox {
+          text-align: right;
+
+          :global {
+            .ant-checkbox-inner {
+              background-color: #4b4b4b;
+              border: 1px solid #737373;
+            }
+          }
         }
       }
 

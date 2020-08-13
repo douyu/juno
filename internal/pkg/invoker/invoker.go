@@ -15,12 +15,12 @@
 package invoker
 
 import (
-	"github.com/douyu/jupiter/pkg/util/xtime"
-	"github.com/go-resty/resty/v2"
 	"time"
 
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/douyu/jupiter/pkg/util/xtime"
+	"github.com/go-resty/resty/v2"
 	"go.etcd.io/etcd/clientv3"
 )
 
@@ -29,7 +29,7 @@ var (
 	JunoMysql *gorm.DB
 	// ConfgoEtcd for configuration
 	ConfgoEtcd *clientv3.Client
-	// Resty
+	// Resty ..
 	Resty *resty.Client
 )
 
@@ -47,6 +47,8 @@ func Init() {
 		ConfgoEtcd, err = clientv3.New(clientv3.Config{
 			Endpoints:   cfg.Cfg.ServerProxy.Etcd.Endpoints,
 			DialTimeout: 2 * time.Second,
+			Username:    cfg.Cfg.ServerProxy.Etcd.UserName,
+			Password:    cfg.Cfg.ServerProxy.Etcd.Password,
 		})
 		if err != nil {
 			panic(err.Error())

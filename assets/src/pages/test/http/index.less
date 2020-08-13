@@ -1,0 +1,97 @@
+@import "var";
+
+@containerH: 800px;
+@asideH: 300px;
+
+.httpDebugPage {
+  border-radius: 10px;
+  background-color: @secondaryBGColor;
+  overflow: hidden;
+
+  .header {
+    padding: 15px 10px;
+    border-bottom: @primaryBorderStyle;
+  }
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 300px auto;
+  height: @containerH;
+
+  .leftSider {
+    background-color: #fff;
+    width: @asideH;
+    border-right: @secondaryBorderStyle;
+  }
+}
+
+.httpDebugContainer {
+  width: 100%;
+
+  .nameBar {
+    border-bottom: @secondaryBorderStyle;
+    padding: 10px;
+    height: 50px;
+  }
+
+  .methodUrlLine {
+    border-bottom: @primaryBorderStyle;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 100px auto 80px 80px;
+    gap: 10px;
+    height: 52px;
+  }
+
+  .requestParamEditBox {
+    border-bottom: @primaryBorderStyle;
+  }
+
+  .responseTitleBar {
+    border-bottom: @primaryBorderStyle;
+    background-color: @secondaryBGColor;
+    padding: 10px;
+    color: @secondaryColor;
+  }
+
+  .responseStatusBar {
+    color: @secondaryColor;
+    padding: 10px;
+
+    .statusBlock {
+
+      &:nth-child(n+2) {
+        margin-left: 10px;
+      }
+
+      .statusSuccess {
+        color: green;
+      }
+
+      .statusFail {
+        color: red;
+      }
+    }
+
+  }
+
+  .responseSuccess {
+  }
+
+  .responseFail {
+    padding: 10px;
+  }
+}
+
+:global {
+  .responseCM {
+    width: 100%;
+
+    .CodeMirror {
+      height: 348px;
+      width: 100%;
+      background-color: @secondaryBGColor;
+    }
+  }
+}

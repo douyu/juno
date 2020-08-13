@@ -53,16 +53,33 @@ func (a *appEvent) insert(event db.AppEvent) error {
 	return nil
 }
 
-func (a *appEvent) List(currentPage, pageSize int) (res []db.AppEvent, page *view.Pagination, err error) {
+func (a *appEvent) List(param view.ReqEventList) (res []db.AppEvent, page *view.Pagination, err error) {
+	currentPage, pageSize := param.Page, param.PageSize
 	page = view.NewPagination(currentPage, pageSize)
 
+	query := invoker.JunoMysql.Table("app_event")
+	if param.Env != "" {
+		query = query.Where("env = ?", param.Env)
+	}
+	if param.Zone != "" {
+		query = query.Where("zone = ?", param.Zone)
+	}
+	if param.AppName != "" {
+		query = query.Where("app_name = ?", param.AppName)
+	}
+
 	res = make([]db.AppEvent, 0)
-	err = invoker.JunoMysql.Table("app_event").
-		Select("*").
+	err = query.Count(&page.Total).
 		Order("create_time desc").
-		Count(&page.Total).
 		Offset((currentPage - 1) * pageSize).
 		Limit(pageSize).
 		Find(&res).Error
+
+	for index, item := range res {
+		item.HandleOperationName()
+		item.HandleSourceName()
+		res[index] = item
+	}
+
 	return
 }

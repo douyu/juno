@@ -19,6 +19,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/appDep"
+	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"go.uber.org/zap"
+
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/install"
@@ -97,6 +101,8 @@ func New() *Admin {
 		eng.serveHTTP,
 		eng.serveGovern,
 		eng.defers,
+		eng.initParseWorker,
+		eng.initVersionWorker,
 	)
 
 	if err != nil {
@@ -144,6 +150,9 @@ func (eng *Admin) initRegister() (err error) {
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
+	config.BasicAuth = cfg.Cfg.Register.BasicAuth
+	config.UserName = cfg.Cfg.Register.UserName
+	config.Password = cfg.Cfg.Register.Password
 	eng.SetRegistry(
 		compound_registry.New(
 			config.BuildRegistry(),
@@ -238,7 +247,7 @@ func (eng *Admin) initInvoker() (err error) {
 
 	if eng.installFlag {
 		// 服务注册完之后再mock数据
-		install.MustMockData()
+		install.MustMockSysTemSetData()
 	}
 	return
 }
@@ -288,4 +297,26 @@ func (eng *Admin) initWorker() (err error) {
 		}
 	}
 	return
+}
+
+func (eng *Admin) initParseWorker() (err error) {
+	// 获取配置解析依赖时间
+	interval, err := confgo.ConfuSrv.GetConfigParseWorkerTime()
+	if err != nil {
+		xlog.Error("GetConfigParseWorkerTime", zap.Error(err))
+	}
+	// 默认值 7200s
+	if interval == 0 {
+		interval = 7200
+	}
+
+	cron := xcron.StdConfig("parse").Build()
+	cron.Schedule(xcron.Every(time.Second*time.Duration(interval)), xcron.FuncJob(confgo.ConfuSrv.ConfigParseWorker))
+	return eng.Schedule(cron)
+}
+
+func (eng *Admin) initVersionWorker() (err error) {
+	cron := xcron.StdConfig("parse").Build()
+	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(appDep.AppDep.SyncAppVersion))
+	return eng.Schedule(cron)
 }

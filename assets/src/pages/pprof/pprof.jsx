@@ -1,5 +1,5 @@
 import React from 'react';
-import {connect} from 'dva';
+import { connect } from 'dva';
 import {
   Row,
   Card,
@@ -24,24 +24,25 @@ import {
 import PprofIframe from './components/PprofIframe';
 import moment from 'moment';
 import ZoneSelect from '@/components/ZoneSelect';
-import {checkDep} from './services';
-import {installDep} from '@/pages/manage/services';
-import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons';
+import { checkDep } from './services';
+import { installDep } from '@/pages/manage/services';
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 
 const pprofBtn = {
-  profile: {name: 'CPU分析（profile）', type: 'profile'},
-  profile_hy: {name: 'CPU分析（🔥火焰图）', type: 'profile_hy'},
-  heap: {name: '内存分析（heap）', type: 'heap'},
-  heap_hy: {name: '内存分析（🔥火焰图）', type: 'heap_hy'},
-  goroutine: {name: '协程分析（goroutine）', type: 'goroutine'},
-  goroutine_hy: {name: '协程分析（🔥火焰图）', type: 'goroutine_hy'},
-  block: {name: '阻塞同步分析（block）', type: 'block'},
-  block_hy: {name: '阻塞同步分析（🔥火焰图）', type: 'block_hy'},
+  profile: { name: 'CPU分析（profile）', type: 'profile' },
+  profile_hy: { name: 'CPU分析（🔥火焰图）', type: 'profile_hy' },
+  heap: { name: '内存分析（heap）', type: 'heap' },
+  heap_hy: { name: '内存分析（🔥火焰图）', type: 'heap_hy' },
+  goroutine: { name: '协程分析（goroutine）', type: 'goroutine' },
+  goroutine_hy: { name: '协程分析（🔥火焰图）', type: 'goroutine_hy' },
+  block: { name: '阻塞同步分析（block）', type: 'block' },
+  block_hy: { name: '阻塞同步分析（🔥火焰图）', type: 'block_hy' },
 };
 
-const {TextArea} = Input;
+const { TextArea } = Input;
 
-@connect(({pprofModel, loading}) => ({
+@connect(({ pprofModel, setting, loading }) => ({
+  setting,
   pprofList: pprofModel.pprofList,
   //appNodeList: appModel.appNodeList
 }))
@@ -75,6 +76,10 @@ export default class PPofList extends React.PureComponent {
     console.log('>>>>> props', this.props);
     this.getList();
     this.GetCheckDep();
+    // 加载设置
+    this.props.dispatch({
+      type: 'setting/loadSettings',
+    });
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
@@ -82,7 +87,7 @@ export default class PPofList extends React.PureComponent {
     if (nextProps.zoneCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const {zoneCode, appName, mode, env} = this.state;
+    const { zoneCode, appName, mode, env } = this.state;
 
     // 内容一样就不在渲染
     if (
@@ -110,8 +115,8 @@ export default class PPofList extends React.PureComponent {
   }
 
   GetCheckDep = () => {
-    checkDep({installType: 1}).then((res) => {
-      if (res.status >= 300) return
+    checkDep({ installType: 1 }).then((res) => {
+      if (res.status >= 300) return;
 
       if (res.code !== 0) {
         message.error(res.msg);
@@ -126,16 +131,16 @@ export default class PPofList extends React.PureComponent {
 
   //获取节点状态
   getList = () => {
-    const {appName, zoneCode, env} = this.state;
+    const { appName, zoneCode, env } = this.state;
 
     this.props.dispatch({
       type: 'pprofModel/list',
-      payload: {appName, zoneCode: zoneCode === 'all' ? null : zoneCode, env},
+      payload: { app_name: appName, zone_code: zoneCode === 'all' ? null : zoneCode, env },
     });
 
     this.props.dispatch({
       type: 'appModel/nodeList',
-      payload: {appName, zoneCode, env},
+      payload: { appName, zoneCode, env },
     });
   };
 
@@ -146,11 +151,11 @@ export default class PPofList extends React.PureComponent {
   };
 
   enterLoading = () => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
   };
 
   stopLoading = () => {
-    this.setState({loading: false});
+    this.setState({ loading: false });
   };
 
   // 切换实例
@@ -158,10 +163,10 @@ export default class PPofList extends React.PureComponent {
     this.setState({
       hostName: hostName,
     });
-    const {appName, idcCode, env} = this.state;
+    const { appName, idcCode, env } = this.state;
     this.props.dispatch({
       type: 'pprofModel/list',
-      payload: {appName, idcCode, hostName, env},
+      payload: { app_name: appName, idc_code: idcCode, host_name: hostName, env },
     });
   };
 
@@ -172,7 +177,7 @@ export default class PPofList extends React.PureComponent {
       typeName = '查看分析';
     }
 
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;
     this.btnLoadingFun('profile', true);
     that.setState({
       pprofActiveBtn: typeName,
@@ -183,8 +188,8 @@ export default class PPofList extends React.PureComponent {
 
   // 获取go应用pprof
   runPprof = () => {
-    const {dispatch} = this.props;
-    const {appName, zoneCode, hostName, env} = this.state;
+    const { dispatch } = this.props;
+    const { appName, zoneCode, hostName, env } = this.state;
 
     // 耗时比较久,所以这里要loading
     this.enterLoading();
@@ -192,9 +197,9 @@ export default class PPofList extends React.PureComponent {
     dispatch({
       type: 'pprofModel/run',
       payload: {
-        zoneCode,
-        appName,
-        hostName,
+        zone_code: zoneCode,
+        app_name: appName,
+        host_name: hostName,
         env,
       },
       callback: (resp) => {
@@ -206,7 +211,7 @@ export default class PPofList extends React.PureComponent {
         }
 
         if (resp.code !== 0) {
-          message.error('更新错误,err:' + resp.msg);
+          message.error(resp.msg);
           return;
         }
 
@@ -218,8 +223,8 @@ export default class PPofList extends React.PureComponent {
   handleCheckLog = (e) => {
     console.log('click', e);
     const {} = this.state;
-    installDep({installType: e * 1}).then((rs) => {
-      const {code, msg, data} = rs;
+    installDep({ installType: e * 1 }).then((rs) => {
+      const { code, msg, data } = rs;
       if (code === 0) {
         message.success('安装成功：', msg);
         this.GetCheckDep();
@@ -261,21 +266,21 @@ export default class PPofList extends React.PureComponent {
       render: (pprofList) => (
         <span>
           {pprofList.length > 0 &&
-          pprofList.map((item) => {
-            return (
-              <Button
-                key={'pp' + item.id}
-                data-id={item.id}
-                data-type={item.type}
-                style={{marginRight: '8px', marginTop: `8px`}}
-                onClick={() => {
-                  this.showProfileSvg(item.id, item.type, item.url);
-                }}
-              >
-                {pprofBtn[item.type].name}
-              </Button>
-            );
-          })}
+            pprofList.map((item) => {
+              return (
+                <Button
+                  key={'pp' + item.id}
+                  data-id={item.id}
+                  data-type={item.type}
+                  style={{ marginRight: '8px', marginTop: `8px` }}
+                  onClick={() => {
+                    this.showProfileSvg(item.id, item.type, item.url);
+                  }}
+                >
+                  {pprofBtn[item.type].name}
+                </Button>
+              );
+            })}
         </span>
       ),
     },
@@ -293,14 +298,14 @@ export default class PPofList extends React.PureComponent {
       onChangeZone,
     } = this.props;
     // const { aid, env, appNodeList, appEnvZone, onChangeZone, defalutZone} = props;
-    const {pprofActiveBtn, zoneCode, appName, env} = this.state;
-    const {loading, depRes} = this.state;
-    const {golang, flameGraph, graphviz} = depRes;
+    const { pprofActiveBtn, zoneCode, appName, env } = this.state;
+    const { loading, depRes } = this.state;
+    const { golang, flameGraph, graphviz } = depRes;
     console.log('env,zoneCode ', env, zoneCode);
     if (!env || !zoneCode) {
       return (
-        <div style={{marginTop: 10}}>
-          <Alert message="Warning" description="请选择环境和可用区." type="warning" showIcon/>
+        <div style={{ marginTop: 10 }}>
+          <Alert message="Warning" description="请选择环境和可用区." type="warning" showIcon />
         </div>
       );
     }
@@ -308,26 +313,26 @@ export default class PPofList extends React.PureComponent {
       onChangeZone(e.target.value);
     };
     return (
-      <div style={{marginLeft: 10, marginTop: 10, marginRight: 10, marginBottom: 10}}>
+      <div style={{ marginLeft: 10, marginTop: 10, marginRight: 10, marginBottom: 10 }}>
         <Row>
           <Col span={8}>
             <Select
               dropdownMatchSelectWidth
               showSearch
               allowClear={true}
-              style={{width: 300}}
+              style={{ width: 300 }}
               placeholder="选择实例"
               onChange={this.changeNode}
             >
               {appNodeList != undefined &&
-              appNodeList.length > 0 &&
-              appNodeList.map((v, i) => {
-                return (
-                  <Select.Option key={i} value={v.host_name}>
-                    {v.host_name + ' (' + v.ip + ')'}
-                  </Select.Option>
-                );
-              })}
+                appNodeList.length > 0 &&
+                appNodeList.map((v, i) => {
+                  return (
+                    <Select.Option key={i} value={v.host_name}>
+                      {v.host_name + ' (' + v.ip + ')'}
+                    </Select.Option>
+                  );
+                })}
             </Select>
           </Col>
           <Col span={4}>
@@ -346,44 +351,44 @@ export default class PPofList extends React.PureComponent {
           <Col span={8}>
             {golang === 1 && (
               <Tag color="green" key={1}>
-                Golang <CheckCircleOutlined/>
+                Golang <CheckCircleOutlined />
               </Tag>
             )}
             {golang === 0 && (
               <Tag color="geekblue" key={2}>
-                Golang <CloseCircleOutlined/>
+                Golang <CloseCircleOutlined />
               </Tag>
             )}
 
             {flameGraph === 1 && (
               <Tag color="green" key={3}>
-                FlameGraph <CheckCircleOutlined/>
+                FlameGraph <CheckCircleOutlined />
               </Tag>
             )}
             {flameGraph === 0 && (
               <Tag color="geekblue" key={4}>
-                FlameGraph <CloseCircleOutlined/>
+                FlameGraph <CloseCircleOutlined />
               </Tag>
             )}
 
             {graphviz === 1 && (
               <Tag color="green" key={5}>
-                Graphviz <CheckCircleOutlined/>
+                Graphviz <CheckCircleOutlined />
               </Tag>
             )}
             {graphviz === 0 && (
               <Tag color="geekblue" key={6}>
-                Graphviz <CloseCircleOutlined/>
+                Graphviz <CloseCircleOutlined />
               </Tag>
             )}
           </Col>
         </Row>
 
-        <Row style={{marginTop: '10px', marginLeft: '10px'}}>
+        <Row style={{ marginTop: '10px', marginLeft: '10px' }}>
           <Table
             columns={this.columns}
             dataSource={pprofList}
-            pagination={{pageSize: 9999, hideOnSinglePage: true}}
+            pagination={{ pageSize: 9999, hideOnSinglePage: true }}
           />
         </Row>
 
@@ -396,7 +401,7 @@ export default class PPofList extends React.PureComponent {
           footer={null}
         >
           <div>
-            <PprofIframe iframepage={this.state.iframepage}/>
+            <PprofIframe iframepage={this.state.iframepage} />
           </div>
         </Modal>
         {/* <Card bordered={false} style={{ marginBottom: '20px', height: { iframeHeight } + 'px' }}/>

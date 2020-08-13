@@ -1,28 +1,35 @@
 package analysis
 
 import (
+	"strings"
+
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
-// 统计信息
+// Index statistical information
 func Index(c *core.Context) error {
-	return c.OutputJSON(output.MsgOk, "success", map[string]interface{}{
-		"app_cnt":    resource.Resource.GetAppCnt(),
-		"region_cnt": resource.Resource.GetRegionCnt(),
-		"zone_cnt":   resource.Resource.GetZoneCnt(),
-		"env_cnt":    resource.Resource.GetEnvCnt(),
-		"node_cnt":   resource.Resource.GetNodeCnt(),
-	})
+	return c.OutputJSON(output.MsgOk, "success",
+		c.WithData(map[string]interface{}{
+			"app_cnt":    resource.Resource.GetAppCnt(),
+			"region_cnt": resource.Resource.GetRegionCnt(),
+			"zone_cnt":   resource.Resource.GetZoneCnt(),
+			"env_cnt":    resource.Resource.GetEnvCnt(),
+			"node_cnt":   resource.Resource.GetNodeCnt(),
+		}),
+	)
 }
 
-// 看板拓扑
+// TopologySelect Kanban topology
 func TopologySelect(c echo.Context) error {
-	region_select, zone_select, env_select := resource.Resource.GetSelectData()
+	regionSelect, zoneSelect, envSelect := resource.Resource.GetSelectData()
 
 	// 依赖类型，如mysql，redis等
 	typeArr, _ := analysis.Analysis.ListAllCfgType()
@@ -52,16 +59,16 @@ func TopologySelect(c echo.Context) error {
 	}
 
 	return output.JSON(c, output.MsgOk, "success", map[string]interface{}{
-		"region_select": region_select,
-		"zone_select":   zone_select,
-		"env_select":    env_select,
-		"type_select":   typeSelect,
-		"app_select":    appSelect,
-		"addr_select":   addrSelect,
+		"regionSelect": regionSelect,
+		"zoneSelect":   zoneSelect,
+		"envSelect":    envSelect,
+		"type_select":  typeSelect,
+		"app_select":   appSelect,
+		"addr_select":  addrSelect,
 	})
 }
 
-// 应用列表
+// TopologyList AppList
 func TopologyList(c echo.Context) error {
 	var err error
 	reqModel := ReqTopologyList{}
@@ -110,4 +117,49 @@ func TopologyRelationship(c echo.Context) error {
 		})
 	}
 	return output.JSON(c, output.MsgOk, "success", res)
+}
+
+type ReqList struct {
+	PkgQs   string `query:"pkgQs"`
+	AppName string `query:"app_name" json:"app_name"`
+	Operate string `query:"operate"`
+	Ver     string `query:"ver"`
+}
+
+// 版本列表
+func DependenceList(c echo.Context) error {
+	var (
+		result = make([]view.RespAppPkgAllList, 0)
+		err    error
+	)
+	verRg := []string{"", "<", "<=", "=", ">", ">="}
+
+	req := ReqList{}
+	if err = c.Bind(&req); err != nil {
+		return output.JSON(c, output.MsgErr, "参数错误:"+err.Error(), result)
+	}
+
+	req.PkgQs = strings.TrimSpace(req.PkgQs)
+	req.Ver = strings.TrimSpace(req.Ver)
+
+	rgIsOk := util.StringInArray(req.Operate, verRg)
+
+	// 去掉v字段
+	ver := strings.Replace(req.Ver, "v", "", -1)
+
+	if req.AppName == "" && req.PkgQs == "" {
+		// return output.JSON(c, output.MsgErr, "参数错误:必须传app_name或者PkgQs至少一个", result)
+	}
+	if rgIsOk == false {
+		return output.JSON(c, output.MsgErr, "范围参数错误", result)
+	}
+
+	if result, err = resource.Resource.AllPkgList(req.AppName, req.PkgQs, req.Operate, ver); err != nil {
+		xlog.Error("DependenceList.List", zap.Error(err), zap.Any("req", req))
+		return output.JSON(c, output.MsgErr, err.Error(), result)
+	}
+	//return output.JSON(c, output.MsgOk, "success", result)
+	return output.JSON(c, output.MsgOk, "success", map[string]interface{}{
+		"list": result,
+	})
 }

@@ -3,6 +3,7 @@ import { Button, Input, Select, DatePicker, Form, TreeSelect } from "antd";
 import { initialValue } from "@/utils/form";
 import moment from "moment/moment";
 import { FormInstance } from 'antd/lib/form';
+import styles from "./search.less"
 const Option = Select.Option;
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
@@ -55,7 +56,7 @@ class Search extends React.Component {
         return (
             <Form
                 layout="inline"
-                className="ant-advanced-search-form"
+                className={styles.customAdvancedSearch}
                 style={style ? style : {}}
                 ref={this.formRef}
                 onFinish={(values) => {
@@ -327,7 +328,7 @@ class Search extends React.Component {
                     htmlType="submit"
                     loading={loading}
                 >
-                    筛选
+                    查询
                 </Button>
             </Form.Item>;
         },
@@ -348,7 +349,7 @@ class Search extends React.Component {
                       this.formRef.current.resetFields()
                     }}
                 >
-                    清空筛选
+                    清空条件
                 </Button>
             </Form.Item>;
         }

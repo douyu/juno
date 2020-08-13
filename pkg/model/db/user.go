@@ -1,12 +1,18 @@
 package db
 
+import (
+	"database/sql/driver"
+	"encoding/json"
+
+	"golang.org/x/oauth2"
+)
+
 // swagger:model user
 type User struct {
 	Uid           int    `gorm:"not null;primary_key;AUTO_INCREMENT"json:"uid"`
 	Oaid          int    `gorm:"not null;comment:'oa uid'"json:"id"`
 	Username      string `gorm:"not null;comment:'用户名'"json:"username"`
 	Nickname      string `gorm:"not null;comment:'昵称'"json:"nickname"`
-	Token         string `gorm:"not null;comment:'token信息'"json:"token"`
 	Secret        string `gorm:"not null;comment:'秘钥'"json:"secret"`
 	Email         string `gorm:"not null;comment:'email'"json:"email"`
 	Avatar        string `gorm:"not null;comment:'avatart'"json:"avatar"`
@@ -23,10 +29,16 @@ type User struct {
 	CurrentAuthority string `json:"currentAuthority"`
 	Access           string `json:"access"`
 
+	OauthToken OAuthToken `gorm:"type:json;comment:'OAuth Token 信息'"`
+
 	UserGroup *CasbinPolicyGroup `gorm:"foreignKey:Uid;association_foreignkey:Uid"`
 }
 
 type UserList []User
+
+type OAuthToken struct {
+	*oauth2.Token
+}
 
 func (u *User) TransformUserInfo() UserInfo {
 	return UserInfo{
@@ -34,7 +46,6 @@ func (u *User) TransformUserInfo() UserInfo {
 		Uid:           u.Uid,
 		Username:      u.Username,
 		Nickname:      u.Nickname,
-		Token:         u.Token,
 		Secret:        u.Secret,
 		Email:         u.Email,
 		Avatar:        u.Avatar,
@@ -72,7 +83,7 @@ type UserInfo struct {
 	Username string `json:"username"`
 	Nickname string `json:"nickname"`
 
-	// Token is the oauth2 token.
+	// AccessToken is the oauth2 token.
 	Token string `json:"token"`
 
 	// Secret is the oauth2 token secret.
@@ -102,4 +113,14 @@ type UserInfo struct {
 // TableName 指定Menu结构体对应的表名
 func (User) TableName() string {
 	return "user"
+}
+
+func (o OAuthToken) Value() (driver.Value, error) {
+	b, err := json.Marshal(o)
+	return string(b), err
+}
+
+// Scan ..
+func (o *OAuthToken) Scan(input interface{}) error {
+	return json.Unmarshal(input.([]byte), o)
 }

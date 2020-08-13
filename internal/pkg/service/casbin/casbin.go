@@ -2,6 +2,11 @@ package casbin
 
 import (
 	"fmt"
+	"io/ioutil"
+	"sort"
+	"strconv"
+	"time"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/persist"
 	"github.com/douyu/juno/pkg/cfg"
@@ -9,10 +14,6 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"sort"
-	"strconv"
-	"time"
 )
 
 type (

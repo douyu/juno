@@ -10,18 +10,22 @@ import (
 type (
 	// Configuration Application configuration
 	Configuration struct {
-		ID          uint       `gorm:"column:id;primary_key" json:"id"`
-		AID         uint       `gorm:"column:aid" json:"aid"`
-		Name        string     `gorm:"column:name;type:varchar(20)" json:"name"`
-		Content     string     `gorm:"column:content;type:longtext" json:"content"`
-		Format      string     `gorm:"column:format;type:varchar(20)" json:"format"` // Yaml/Toml
-		Env         string     `gorm:"column:env;type:varchar(20)" json:"env"`       // 环境
-		Zone        string     `gorm:"column:zone;type:varchar(50)" json:"zone"`     // 机房Zone
-		Version     string     `gorm:"column:version;type:varchar(50)" json:"version"`
-		CreatedAt   time.Time  `gorm:"column:created_at" json:"created_at"`
-		UpdatedAt   time.Time  `gorm:"column:updated_at" json:"updated_at"`
-		DeletedAt   *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
-		PublishedAt *time.Time `gorm:"column:published_at" json:"published_at"` // 未发布/发布时间
+		ID            uint       `gorm:"column:id;primary_key" json:"id"`
+		AID           uint       `gorm:"column:aid" json:"aid"`
+		Name          string     `gorm:"column:name;type:varchar(20)" json:"name"`
+		Content       string     `gorm:"column:content;type:longtext" json:"content"`
+		Format        string     `gorm:"column:format;type:varchar(20)" json:"format"` // Yaml/Toml
+		Env           string     `gorm:"column:env;type:varchar(20)" json:"env"`       // 环境
+		Zone          string     `gorm:"column:zone;type:varchar(50)" json:"zone"`     // 机房Zone
+		Version       string     `gorm:"column:version;type:varchar(50)" json:"version"`
+		CreatedAt     time.Time  `gorm:"column:created_at" json:"created_at"`
+		AccessTokenID uint       `gorm:"access_token_id" json:"access_token_id"` // AccessToken 授权ID
+		UID           uint       `gorm:"column:uid" json:"uid"`                  // 操作用户ID
+		UpdatedAt     time.Time  `gorm:"column:updated_at" json:"updated_at"`
+		DeletedAt     *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
+		PublishedAt   *time.Time `gorm:"column:published_at" json:"published_at"` // 未发布/发布时间
+
+		App AppInfo `gorm:"foreignKey:AID" json:"-"`
 	}
 
 	// ConfigurationHistory Application configuration release history version
@@ -53,8 +57,10 @@ type (
 
 	// ConfigurationPublish Publish record
 	ConfigurationPublish struct {
-		ID                     uint      `gorm:"column:id;primary_key" json:"id"`
-		UID                    uint      `gorm:"column:uid" json:"uid"` // 操作用户ID
+		ID            uint `gorm:"column:id;primary_key" json:"id"`
+		UID           uint `gorm:"column:uid" json:"uid"`                  // 操作用户ID
+		AccessTokenID uint `gorm:"access_token_id" json:"access_token_id"` // AccessToken 授权ID
+
 		ConfigurationID        uint      `gorm:"column:configuration_id" json:"configuration_id"`
 		ConfigurationHistoryID uint      `gorm:"column:configuration_history_id" json:"configuration_history_id"`
 		ApplyInstance          string    `gorm:"column:apply_instance" json:"apply_instance"`
@@ -87,7 +93,7 @@ func (Configuration) TableName() string {
 	return "configuration"
 }
 
-// FileName ..
+// ProtoID ..
 func (c Configuration) FileName() string {
 	return fmt.Sprintf("%s.%s", c.Name, c.Format)
 }

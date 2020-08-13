@@ -408,7 +408,8 @@ func GetVersionByResourceValue(value string) (version string) {
 // FillConfigResource .. check
 func FillConfigResource(content string) string {
 	xlog.Debug("FillConfigResource", xlog.String("before", content))
-	for _, source := range GetAllConfigResource(content) {
+	resourceVars := GetAllConfigResource(content)
+	for _, source := range resourceVars {
 		sourceArr := strings.Split(source, "@")
 		if len(sourceArr) != 2 {
 			continue
@@ -418,7 +419,7 @@ func FillConfigResource(content string) string {
 		if err != nil {
 			continue
 		}
-		content = strings.Replace(content, source, crv.Value, 1)
+		content = strings.ReplaceAll(content, source, crv.Value)
 	}
 	xlog.Debug("FillConfigResource", xlog.String("after", content))
 	return content

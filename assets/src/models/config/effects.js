@@ -1,6 +1,7 @@
 import {
   createConfig,
   deleteConfig,
+  fetchInstanceConfig,
   loadConfigDetail,
   loadConfigDiff,
   loadConfigs,
@@ -21,17 +22,19 @@ export default {
     const res = yield call(loadConfigs, appName, env);
     yield put({type: '_apply', payload: {configListLoading: false}});
 
-    if (res.status >= 300) return
+    let configList = []
+    if (res.status >= 300) {
 
-    if (res.code !== 0) {
+    } else if (res.code !== 0) {
       message.error(res.msg);
-      return
+    } else {
+      configList = res.data
     }
 
     yield put({
       type: '_apply',
       payload: {
-        configList: res.data,
+        configList: configList
       },
     });
   },
@@ -55,12 +58,10 @@ export default {
     return res
   },
   * configPublish({payload}, {call, put}) {
-    const {id, version} = payload;
-    console.log('id', id);
-    console.log('version', version);
+    const {id, version, host_name} = payload;
     yield put({type: '_apply', payload: {configPublishLoading: true}});
 
-    const res = yield call(srvConfigPublish, id, version);
+    const res = yield call(srvConfigPublish, id, version, host_name);
     yield put({type: '_apply', payload: {configPublishLoading: false}});
 
     if (res.code !== 0) {
@@ -99,6 +100,10 @@ export default {
   },
   * create({payload}, {call, put}) {
     const res = yield call(createConfig, payload);
+    if (res.ok === false) {
+      return res
+    }
+
     if (res.code !== 0) {
       message.error('创建失败: ' + res.msg);
       return res;
@@ -136,7 +141,6 @@ export default {
     yield put({
       type: '_apply',
       payload: {
-        editorMode: 'code',
         currentConfig: res.data,
         currentContent: res.data.content,
       },
@@ -170,6 +174,7 @@ export default {
   * saveConfigFile({payload}, {call, put}) {
     const {id, content} = payload;
     const res = yield call(saveConfig, id, payload.message, content);
+    if (res.ok === false) return res;
     if (res.code !== 0) {
       message.error('保存失败:' + res.msg);
       return res;
@@ -239,8 +244,7 @@ export default {
     yield put({
       type: '_apply',
       payload: {
-        configFileLoading: true,
-        visibleEditorMaskLayer: false,
+        diffContentLoading: true,
       },
     });
 
@@ -249,7 +253,7 @@ export default {
     yield put({
       type: '_apply',
       payload: {
-        configFileLoading: false,
+        diffContentLoading: false,
       },
     });
 
@@ -261,13 +265,21 @@ export default {
     yield put({
       type: '_apply',
       payload: {
-        editorMode: 'diff',
         diffOriginConfig: res.data.origin,
         diffModifiedConfig: res.data.modified,
+        visibleModalDiff: true,
       },
     });
 
     return res;
+  },
+  * closeModalDiff(_, {put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        visibleModalDiff: false
+      }
+    })
   },
   * deleteConfig({payload}, {call, put}) {
     const res = yield call(deleteConfig, payload);
@@ -338,4 +350,51 @@ export default {
       },
     });
   },
+
+  * fetchInstanceConfig({payload}, {call, put}) {
+    const {id, hostName} = payload
+
+    yield put({
+      type: '_apply',
+      payload: {
+        instanceConfigContentLoading: true,
+        visibleModalRealtimeConfig: true
+      }
+    })
+
+    const res = yield call(fetchInstanceConfig, id, hostName)
+    if (res.code === 14000) return
+    if (res.code !== 0) {
+      message.error(res.msg)
+      return res
+    }
+
+    yield put({
+      type: '_apply',
+      payload: {
+        instanceConfigContentLoading: false,
+        instanceConfigContent: res.data,
+      }
+    })
+
+    return res
+  },
+
+  * showModalInstanceConfig({payload}, {call, put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        visibleModalRealtimeConfig: payload
+      }
+    })
+  },
+
+  * setLeftSideActiveMenu({payload}, {call, put}) {
+    yield put({
+      type: '_apply',
+      payload: {
+        leftSideActiveMenu: payload
+      }
+    })
+  }
 };

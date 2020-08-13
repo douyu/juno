@@ -36,3 +36,7 @@ export async function AppListWithEnv(page = 1, pageSize = 10, searchText = '') {
     searchText
   })}`)
 }
+
+export async function grpcAddrList(payload:{app_name: string}) {
+  return request(`/api/admin/resource/app/grpcAddrList?${stringify(payload)}`)
+}

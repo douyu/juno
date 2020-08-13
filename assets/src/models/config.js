@@ -10,6 +10,9 @@ const defaultState = {
 
   zoneList: [],
 
+  // 左侧菜单
+  leftSideActiveMenu: 'config-edit', // 当前选择的菜单项
+
   // 实例列表
   configInstanceList: [],
   configInstanceListLoading: false,
@@ -38,13 +41,8 @@ const defaultState = {
   // 当前编辑器的内容
   currentContent: '',
 
-  // 当前的Editor示例
-  editorMode: 'code', // code || diff (code: 代码模式，diff：代码对比模式)
+  // 当前的Editor实例
   editorInstance: null,
-
-  // Diff配置
-  diffOriginConfig: {},
-  diffModifiedConfig: {},
 
   // 历史版本列表
   historyList: [],
@@ -56,7 +54,17 @@ const defaultState = {
   resourceCheckLoading: false,
 
   // 当前选择的实例
-  currentInstance: null
+  currentInstance: null,
+  // 当前实例实时配置内容
+  instanceConfigContent: [],
+  instanceConfigContentLoading: false,
+  visibleModalRealtimeConfig: false,
+
+  // Diff配置
+  diffOriginConfig: {},
+  diffModifiedConfig: {},
+  diffContentLoading: false,
+  visibleModalDiff: false,
 }
 
 export default {

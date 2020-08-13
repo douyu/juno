@@ -1,10 +1,12 @@
 import React from 'react';
-import {Button, Card, Form, Input, List, message, Popconfirm, Radio, Tag} from 'antd';
+import {Card, Form, Input, List, message, Popconfirm, Radio, Tag} from 'antd';
 import {checkDep, getSysConfig, installDep} from './services';
 import SettingBlock from "@/pages/manage/SettingBlock";
 import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import {connect} from 'dva';
 import GatewaySetting from "@/pages/manage/GatewaySetting";
+import EtcdSetting from "@/pages/manage/EtcdSetting";
+import VersionSetting from "@/pages/manage/AppVersionSetting";
 
 const {TextArea} = Input;
 const RadioGroup = Radio.Group;
@@ -116,8 +118,6 @@ export default class SysManage extends React.Component {
       },
     }).then(() => {
       this.setState({})
-
-      this.grafanaFormRef.current.resetFields()
     })
   }
 
@@ -137,7 +137,7 @@ export default class SysManage extends React.Component {
 
   render() {
     const {depRes = [], loading} = this.state;
-    const {grafanaConfig} = this.props;
+    const {settings} = this.props;
 
     return (
       <PageHeaderWrapper>
@@ -166,8 +166,8 @@ export default class SysManage extends React.Component {
                         cancelText="No"
                         disabled={!(item.check_res === 0 && item.can_install > 0)}
                       >
-                        <Button disabled={!(item.check_res === 0 && item.can_install > 0)} type="primary"
-                                loading={loading}>安装</Button>
+                        {/* <Button disabled={!(item.check_res === 0 && item.can_install > 0)} type="primary"
+                                loading={loading}>安装</Button> */}
                       </Popconfirm>
                     </div>
                   </Card>
@@ -175,82 +175,6 @@ export default class SysManage extends React.Component {
               )}
             >
             </List>
-          </SettingBlock>
-
-          <SettingBlock
-            title={"Grafana设置"}
-            editable={true}
-            edit={this.props.onEdit.grafana}
-            onEdit={() => this.setEdit("grafana", true)}
-            onCancel={() => this.setEdit("grafana", false)}
-            onSave={() => {
-              this.grafanaFormRef.current.submit()
-            }}
-          >
-            <Form
-              ref={this.grafanaFormRef}
-              labelCol={{span: 3}}
-              labelAlign={"left"}
-              onFinish={(vals) => {
-                console.log(JSON.stringify(vals))
-                this.saveSetting("grafana", JSON.stringify(vals))
-              }}
-            >
-              <Form.Item
-                label={"Grafana地址"}
-                name={"host"}
-                initialValue={grafanaConfig.host}
-                rules={[
-                  {required: true, message: "请填写Grafana地址"},
-                  // {pattern: /^(http|https):\/\/[a-zA-Z0-9\.\-\_:]{3,}$\/[abc]*/, message: "地址不符合规则，示例：http://1.2.3.4:3000"}
-                ]}
-              >
-                <Input
-                  disabled={!this.props.onEdit.grafana}
-                  placeholder={"示例: http://1.2.3.4:3000"}
-                />
-              </Form.Item>
-              <Form.Item
-                label={"Header名称"} name={"header_name"} initialValue={grafanaConfig.header_name}
-                rules={[
-                  {required: true, message: "请填写Header名称"},
-                ]}
-              >
-                <Input
-                  placeholder={"用于Grafana授权的Header名称，可在Grafana配置文件中查看"}
-                  disabled={!this.props.onEdit.grafana}/>
-              </Form.Item>
-              <Form.Item
-                name={"api_dashboard_addr"}
-                label={"API监控面板地址"}
-                rules={[
-                  {pattern: /^\/grafana\/[a-zA-Z0-9\.\/]{3,}$/, message: "无效的监控面板地址，应该以 /grafana/ 开头"}
-                ]}
-                initialValue={grafanaConfig.api_dashboard_addr}
-              >
-                <Input placeholder={"API监控面板地址，比如：/grafana/d/api"} disabled={!this.props.onEdit.grafana}/>
-              </Form.Item>
-              <Form.Item
-                name={"instance_dashboard_addr"}
-                label={"实例监控面板"}
-                initialValue={grafanaConfig.instance_dashboard_addr}
-                rules={[
-                  {pattern: /^\/grafana\/[a-zA-Z0-9\.\/]{3,}$/, message: "无效的监控面板地址，应该以 /grafana/ 开头"}
-                ]}
-              >
-                <Input placeholder={"实例监控面板地址，比如：/grafana/d/instance"} disabled={!this.props.onEdit.grafana}/>
-              </Form.Item>
-              <Form.Item
-                name={"overview_dashboard_addr"}
-                label={"概览监控面板"}
-                initialValue={grafanaConfig.overview_dashboard_addr}
-                rules={[
-                  {pattern: /^\/grafana\/[a-zA-Z0-9\.\/]{3,}$/, message: "无效的监控面板地址，应该以 /grafana/ 开头"}
-                ]}
-              >
-                <Input placeholder={"概览监控面板地址，比如：/grafana/d/overview"} disabled={!this.props.onEdit.grafana}/>
-              </Form.Item>
-            </Form>
           </SettingBlock>
 
           <SettingBlock
@@ -283,7 +207,69 @@ export default class SysManage extends React.Component {
             </Form>
           </SettingBlock>
 
+          <SettingBlock
+            editable={true}
+            edit={this.props.onEdit.grafana}
+            title={"Grafana设置"}
+            onEdit={() => {
+              this.setEdit("grafana", true)
+            }}
+            onCancel={() => {
+              this.setEdit("grafana", false)
+              this.grafanaFormRef.current.resetFields()
+            }}
+            onSave={() => {
+              this.grafanaFormRef.current.submit()
+            }}
+          >
+            <Form
+              ref={this.grafanaFormRef}
+              placeholder={"grafana的IP地址或者域名，比如：example.com"}
+              onFinish={(vals) => {
+                this.saveSetting("grafana", JSON.stringify(vals))
+              }}
+            >
+              <Form.Item
+                initialValue={settings.grafana?.host}
+                label={"Host"}
+                name={"host"}
+                rules={[
+                  {required: true, message: '请输入grafana host'},
+                ]}
+              >
+                <Input placeholder={"Grafana 的IP地址或者域名，比如 example.com"} disabled={!this.props.onEdit.grafana}/>
+              </Form.Item>
+              <Form.Item
+                initialValue={settings.grafana?.scheme}
+                label={"Scheme"}
+                name={"scheme"}
+                rules={[
+                  {required: true, message: '请选择协议'},
+                ]}
+              >
+                <Radio.Group disabled={!this.props.onEdit.grafana}>
+                  <Radio.Button value={"http"}>HTTP</Radio.Button>
+                  <Radio.Button value={"https"}>HTTPS</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item
+                initialValue={settings.grafana?.header_name}
+                label={"Header 名称"}
+                name={"header_name"}
+                rules={[
+                  {required: true, message: '请输入grafana进行Header授权的header名称'},
+                ]}
+              >
+                <Input placeholder={"Grafana 进行代理授权的 header 字段名称，比如 X-WEBAUTH-USER"} disabled={!this.props.onEdit.grafana}/>
+              </Form.Item>
+            </Form>
+          </SettingBlock>
+
           <GatewaySetting/>
+
+          <EtcdSetting/>
+
+          <VersionSetting/>
 
         </Card>
       </PageHeaderWrapper>

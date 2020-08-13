@@ -12,6 +12,7 @@ type AppEvent struct {
 	ZoneCode      string `gorm:"not null;index:idx_zone_code" json:"zone_code"` // 环境
 	Env           string `gorm:"not null;index:idx_env" json:"env"`             // 环境
 	HostName      string `gorm:"not null;" json:"host_name"`
+	OperatorType  string `gorm:"not null;default:'user'" json:"operator_type"`   // 用户类型 (user or openapi)
 	UserName      string `gorm:"not null;" json:"user_name"`                     // 用户名
 	UID           int    `gorm:"not null;" json:"uid"`                           // 用户id
 	Operation     string `gorm:"not null; index:idx_operation" json:"operation"` // 操作

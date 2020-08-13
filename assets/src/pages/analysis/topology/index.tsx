@@ -4,9 +4,10 @@ import { message, Card, Tag, Divider, Modal, Radio, Row } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageList from '@/components/PageList';
 import { reqSelect, reqList } from './service';
-import moment from '@/pages/resource/app/list';
+import moment from 'moment';
 import { history } from '@@/core/history';
 import { reqDelete } from '@/pages/resource/app/service';
+
 
 import * as echarts from 'echarts';
 
@@ -154,9 +155,11 @@ export default class ServiceTopology extends Component {
         message.error(res.msg);
         return false;
       }
+      console.log("-------> res.data",res.data);
       this.setState({
         listData: res.data,
       });
+      //this.renderTopology(res.data || []);
       return true;
     });
   };
@@ -182,6 +185,21 @@ export default class ServiceTopology extends Component {
     });
     // this.renderTopology(relations)
   };
+
+  onSubmit=(value)=>{
+    console.log("######### onSubmit",value);
+    this.search.submit(value);
+    console.log("######### this.queryObj",this.queryObj);
+    this.issueDispatch(value);
+  };
+
+  onReset=(value)=>{
+    console.log("######### onReset",value);
+    this.search.reset(value);
+    console.log("######### this.queryObj",this.queryObj);
+    this.issueDispatch({});
+  };
+
 
   render() {
     const {
@@ -239,19 +257,40 @@ export default class ServiceTopology extends Component {
         dataIndex: 'addr',
         key: 'addr',
       },
+      {
+        title: '更新时间',
+        dataIndex: 'update_time',
+        key: 'update_time',
+        render: (text) => {
+          if (typeof text === 'number') {
+              return moment(text * 1000).format('YYYY-MM-DD HH:mm:ss');
+          }
+          return text;
+      },
+      }
     ];
     return (
       <PageHeaderWrapper>
         <Card>
           <PageList.Search
-            onSubmit={this.search.submit}
+            onSubmit={this.onSubmit}
             defaultValue={this.search.defaultParam}
-            onReset={this.search.reset}
+            onReset={this.onReset}
             style={{
               marginTop: 10,
               marginBottom: 10,
             }}
             items={[
+              {
+                label: '应用',
+                select: {
+                  field: 'app_name',
+                  style: { width: 400 },
+                  placeholder: '全部状态',
+                  data: app_select,
+                  initialValue: app_name,
+                },
+              },
               {
                 label: '可用区',
                 select: {
@@ -266,27 +305,17 @@ export default class ServiceTopology extends Component {
                 label: '环境',
                 select: {
                   field: 'env',
-                  style: { width: 100 },
+                  style: { width: 200 },
                   placeholder: '全部状态',
                   data: env_select,
                   initialValue: env,
                 },
               },
               {
-                label: '应用',
-                select: {
-                  field: 'app_name',
-                  style: { width: 300 },
-                  placeholder: '全部状态',
-                  data: app_select,
-                  initialValue: app_name,
-                },
-              },
-              {
                 label: '依赖类型',
                 select: {
                   field: 'type',
-                  style: { width: 100 },
+                  style: { width: 200 },
                   placeholder: '全部状态',
                   data: type_select,
                   initialValue: type,
@@ -296,7 +325,7 @@ export default class ServiceTopology extends Component {
                 label: '依赖项',
                 select: {
                   field: 'addr',
-                  style: { width: 200 },
+                  style: { width: 400 },
                   placeholder: '全部状态',
                   data: addr_select,
                   initialValue: addr,
@@ -304,7 +333,7 @@ export default class ServiceTopology extends Component {
               },
             ]}
           />
-          <Radio.Group defaultValue="chart" buttonStyle="solid" onChange={this.onChangeView}>
+          <Radio.Group defaultValue="table" buttonStyle="solid" onChange={this.onChangeView}>
             <Radio.Button value="table">列表</Radio.Button>
             <Radio.Button value="chart">图表</Radio.Button>
           </Radio.Group>

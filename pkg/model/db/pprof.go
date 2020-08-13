@@ -35,13 +35,6 @@ type PProfViewModel struct {
 	HostName string `json:"host_name"` // 主机名
 }
 
-type ReqProfile struct {
-	ZoneCode string `form:"zoneCode"`
-	AppName  string `form:"appName"`
-	HostName string `form:"hostName"`
-	Env      string `form:"env"`
-}
-
 type PProfFileInfo struct {
 	Url      string `json:"url"`
 	FileType string `json:"fileType"`
@@ -52,13 +45,6 @@ type PProfOssFile struct {
 	OriginalRid string `json:"originalRid"`
 	OriginalMd5 string `json:"originalMd5"`
 	Original    string `json:"original"`
-}
-
-type PProfReqList struct {
-	ZoneCode string `form:"zoneCode"`
-	AppName  string `form:"appName"`
-	HostName string `form:"hostName"`
-	Env      string `form:"env"`
 }
 
 type ReqCheck struct {

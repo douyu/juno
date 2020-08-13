@@ -1,7 +1,14 @@
 package confgov2
 
 import (
+	"regexp"
+
+	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/jupiter/pkg/xlog"
+
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
+	"github.com/douyu/juno/internal/pkg/service/assist"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -64,7 +71,12 @@ func Create(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
-	resp, err := confgov2.Create(param)
+	fileNameRegex := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_-]{1,20}$")
+	if !fileNameRegex.MatchString(param.FileName) {
+		return output.JSON(c, output.MsgErr, "无效的文件名")
+	}
+
+	resp, err := confgov2.Create(c, param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -97,20 +109,21 @@ func Update(c echo.Context) (err error) {
 }
 
 // Publish ..
-func Publish(c echo.Context) (err error) {
+func Publish(c *core.Context) (err error) {
 	param := view.ReqPublishConfig{}
 	err = c.Bind(&param)
 	if err != nil {
-		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
+		return c.OutputJSON(output.MsgErr, "参数无效: "+err.Error())
 	}
-	err = confgov2.Publish(param, user.GetUser(c))
+
+	err = confgov2.Publish(param, c)
 	if err != nil {
 		if err == errorconst.ParamConfigNotExists.Error() {
-			return output.JSON(c, output.MsgErr, "当前配置不存在，无法发布")
+			return c.OutputJSON(output.MsgErr, "当前配置不存在，无法发布")
 		}
-		return output.JSON(c, output.MsgErr, err.Error())
+		return c.OutputJSON(output.MsgErr, err.Error())
 	}
-	return output.JSON(c, output.MsgOk, "发布成功")
+	return c.OutputJSON(output.MsgOk, "发布成功")
 }
 
 // History ..
@@ -153,7 +166,7 @@ func Diff(c echo.Context) (err error) {
 
 // Delete ..
 func Delete(c echo.Context) (err error) {
-	param := view.ReqDiffConfig{}
+	param := view.ReqDeleteConfig{}
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
@@ -164,7 +177,7 @@ func Delete(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
 
-	err = confgov2.Delete(param.ID)
+	err = confgov2.Delete(c, param.ID)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
@@ -179,16 +192,59 @@ func InstanceList(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+	resp, err := confgov2.Instances(param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error(), resp)
+	}
+	return output.JSON(c, output.MsgOk, "success", resp)
+}
 
+// AppAction ..
+func AppAction(c echo.Context) (err error) {
+	param := view.ReqAppAction{}
+	err = c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
 	err = c.Validate(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
 
-	resp, err := confgov2.Instances(param)
+	xlog.Debug("AppAction", xlog.String("setp", "begin"), xlog.Any("param", param), xlog.String("url", cfg.Cfg.Assist.Action.URL))
+	resp, err := assist.Action(
+		c,
+		view.AppAction{
+			Action:   param.Action,
+			AppName:  param.AppName,
+			NodeName: param.NodeName,
+			Typ:      param.Typ,
+		})
 	if err != nil {
-		return output.JSON(c, output.MsgErr, err.Error(), resp)
+		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
-	return output.JSON(c, output.MsgOk, "success", resp)
+	return output.JSON(c, resp.Code, resp.Msg, resp.Data)
+}
+
+// InstanceConfigContent  ...
+func InstanceConfigContent(c *core.Context) (err error) {
+	param := view.ReqReadInstanceConfig{}
+	err = c.Bind(&param)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+	err = c.Validate(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+	configContents, err := confgov2.ReadInstanceConfig(param)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+	return c.OutputJSON(output.MsgOk, "success", c.WithData(configContents))
 }

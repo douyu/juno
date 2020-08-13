@@ -39,10 +39,11 @@ type ReqSentinelRuleAdd struct {
 
 type RespEtcdInfo struct {
 	Key            string `json:"key"`
-	CreateRevision int    `json:"createRevision"`
-	ModRevision    int    `json:"modRevision"`
-	Version        int    `json:"version"`
+	CreateRevision int64  `json:"create_revision"`
+	ModRevision    int64  `json:"mod_revision"`
+	Version        int64  `json:"version"`
 	Value          string `json:"value"`
+	Lease          int64  `json:"lease"`
 }
 
 type ReqEtcdServiceList struct {

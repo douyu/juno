@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {connect} from 'dva'
-import {Form, Input, Modal, Radio, Select} from "antd";
+import {Form, Input, message, Modal, Radio, Select} from "antd";
 
 function ModalCreate(props) {
   const [form] = Form.useForm()
@@ -33,14 +33,15 @@ function ModalCreate(props) {
 
     props.createConfig(data).then(r => {
       const {data} = r
+
       if (r.code === 0) {
         showCreateModal(false)
+
+        // 加载新建的文件
+        loadConfigDetail(data.id)
+        loadConfigList(appName, env)
       }
 
-      // 加载新建的文件
-      loadConfigDetail(data.id)
-
-      loadConfigList(appName, env)
     })
   }
 
@@ -85,7 +86,9 @@ function ModalCreate(props) {
         label={"文件名"}
         name={"file_name"}
         rules={[
-          {required: true,}
+          {required: true, message: "请输入文件名"},
+          {min: 1, max: 20, message: '文件名长度在1到20之间'},
+          {pattern: new RegExp(/^[a-zA-Z][a-zA-Z0-9_-]+$/), message: '文件名只能包含字母数字 _ 和 -，并且只能以字母开头'}
         ]}
       >
         <Input

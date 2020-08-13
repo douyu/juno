@@ -140,6 +140,7 @@ func NodeHeartBeat(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success")
 }
 
+// NodeTransferList list of available areas of the node
 func NodeTransferList(c echo.Context) error {
 	var err error
 	reqModel := ReqNodeTransferList{}
@@ -171,6 +172,7 @@ func NodeTransferList(c echo.Context) error {
 	})
 }
 
+// NodeTransferPut Update the list of available areas of the node
 func NodeTransferPut(c echo.Context) error {
 	var err error
 	reqModel := ReqNodeTransferPut{}

@@ -8,6 +8,7 @@ export interface DetailProps {
   aid: number
   env: string
   appNodeList: any[]
+  onEditAppNode: () => void
 }
 
 /**
@@ -69,7 +70,10 @@ const Detail = (props: DetailProps) => {
       } else {
         message.success(res.msg);
       }
+
+      props.onEditAppNode()
     });
+
   };
 
   let handleCancel = () => {

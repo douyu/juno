@@ -2,12 +2,14 @@ package permission
 
 import (
 	"fmt"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/jinzhu/gorm"
 )
 
 var (
+	// AppGroup ..
 	AppGroup           *appGroup
 	ErrAppEnvNotExists = fmt.Errorf("应用环境不存在")
 )

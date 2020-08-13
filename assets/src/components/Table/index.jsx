@@ -29,7 +29,8 @@ class StandardTable extends Component {
     return (
       <div className={styles.standardTable}>
         <Table
-          rowKey={rowKey || 'key'}
+          key={Date.now()}
+          rowKey={rowKey || 'id'}
           dataSource={list}
           pagination={paginationProps}
           onChange={this.handleTableChange}

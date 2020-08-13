@@ -45,10 +45,14 @@ type cfg struct {
 	ServerProxy       ServerProxy
 	Database          Database
 	Configure         Configure
+	Agent             Agent
 	Casbin            Casbin
 	Pprof             Pprof
 	Register          Register
 	Logger            Logger
+	Assist            Assist
+	AppLog            AppLog
+	GrpcTest          GrpcTest
 }
 
 // DefaultConfig ...
@@ -129,18 +133,6 @@ func defaultConfig() cfg {
 						Enable:    false,
 						ProxyAddr: nil,
 					},
-					Etcd: Etcd{
-						Enable:     true,
-						ListenAddr: "127.0.0.1:52370",
-						Endpoints:  []string{"127.0.0.1:2370"},
-						Namespace:  "",
-						Timeout:    xtime.Duration("3s"), // 3 second
-						TLS: TLS{
-							Cert:   "",
-							Key:    "",
-							CaCert: "",
-						},
-					},
 					HTTP: HTTPProxy{
 						Enable:            true,
 						ListenAddr:        "127.0.0.1:50000",
@@ -197,6 +189,32 @@ func defaultConfig() cfg {
 			AutoLoadInternal: 0,
 			ResourceFile:     "./config/resource.yaml",
 		},
+		Assist: Assist{
+			Action{
+				Enable: false,
+				URL:    "",
+			},
+		},
+		GrpcTest: GrpcTest{
+			Enable:   false,
+			ProtoDir: "",
+		},
+		AppLog: AppLog{
+			Mode: "aliyun",
+			Aliyun: AppLogAliyun{
+				Enable:          true,
+				Secret:          "",
+				Key:             "",
+				RoleArn:         "",
+				RoleSessionName: "",
+				RegionID:        "",
+			},
+			Customize: AppLogCustomize{
+				Enable:       false,
+				DashboardUrl: "",
+				LogStoreUrl:  "",
+			},
+		},
 	}
 }
 
@@ -216,6 +234,9 @@ func InitCfg() {
 	}
 	config.parseHeartBeat()
 	Cfg = config
+
+	xlog.Info("InitCfg parse", zap.Any("config", config))
+
 }
 
 func parseAppAndSubURL(rootURL string) (string, string, error) {

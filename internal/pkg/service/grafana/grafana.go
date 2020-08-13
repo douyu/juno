@@ -3,6 +3,9 @@ package grafana
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httputil"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
@@ -10,9 +13,6 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
 )
 
 type (
@@ -50,21 +50,11 @@ func getOption() (opt Option, err error) {
 		return
 	}
 
-	if setting.Host == "" {
-		err = ErrNotConfigured
-		return
+	opt = Option{
+		Host:           setting.Host,
+		Scheme:         setting.Scheme,
+		AuthHeaderName: setting.HeaderName,
 	}
-
-	grafanaUrl, err := url.Parse(setting.Host)
-	if err != nil {
-		log.Error("unmarshal grafana setting failed:" + err.Error())
-		err = fmt.Errorf("无效的Grafana地址")
-		return
-	}
-
-	opt.Scheme = grafanaUrl.Scheme
-	opt.Host = grafanaUrl.Host
-	opt.AuthHeaderName = setting.HeaderName
 
 	return
 }
@@ -76,7 +66,7 @@ func Proxy(c echo.Context) (err error) {
 	}
 
 	u := user.GetUser(c)
-	if u == nil {
+	if u == nil || u.Uid == 0 {
 		return c.Redirect(http.StatusTemporaryRedirect, "/user/login")
 	}
 
