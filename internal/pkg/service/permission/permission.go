@@ -70,6 +70,10 @@ func (p *permission) GetGitlabAccessLevel(uid uint, appName string) (level int, 
 	var app db.AppInfo
 	var projectPermission struct {
 		Permissions struct {
+			GroupAccess *struct {
+				AccessLevel       int `json:"access_level"`
+				NotificationLevel int `json:"notification_level"`
+			} `json:"group_access"`
 			ProjectAccess *struct {
 				AccessLevel       int `json:"access_level"`
 				NotificationLevel int `json:"notification_level"`
@@ -110,10 +114,14 @@ func (p *permission) GetGitlabAccessLevel(uid uint, appName string) (level int, 
 	}
 
 	projectAccess := projectPermission.Permissions.ProjectAccess
-	if projectAccess == nil {
-		return 0, fmt.Errorf("没有应用权限")
+	if projectAccess != nil {
+		level = projectAccess.AccessLevel
 	}
 
-	level = projectAccess.AccessLevel
+	groupAccess := projectPermission.Permissions.GroupAccess
+	if groupAccess != nil && groupAccess.AccessLevel > level {
+		level = groupAccess.AccessLevel
+	}
+
 	return
 }
