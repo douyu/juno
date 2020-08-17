@@ -1,4 +1,4 @@
- ---
+---
   dataSource: "commits"
   prefix: ""
   includeMessages: "commits"

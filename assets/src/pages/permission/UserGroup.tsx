@@ -45,15 +45,11 @@ function UserGroup(props: UserGroupProps) {
       key: 'nick_name',
     },
     {
-      title: 'User Group',
-      dataIndex: 'group_name',
-      key: 'group_name',
-      render: (val: string, row: any) => {
-        if (row.access == 'admin') {
-          return <Tag color={"green"}>管理员</Tag>
-        }
-
-        return <Tag>{val}</Tag>
+      title: 'Group',
+      dataIndex: 'groups',
+      key: 'groups',
+      render: (val: string[], row: any) => {
+        return (val || []).map(item => <Tag>{item}</Tag>)
       }
     },
     {

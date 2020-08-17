@@ -72,25 +72,35 @@ func (u *userGroup) Find(groupName string) (group db.CasbinPolicyGroup, err erro
 }
 
 func (u *userGroup) ChangeUserGroup(param view.ReqChangeUserGroup) (err error) {
-	var group db.CasbinPolicyGroup
-	err = u.db.Where("uid = ? and type = ?", param.UID, db.CasbinGroupTypeUser).First(&group).Error
-	if err != nil {
-		if err != gorm.ErrRecordNotFound {
-			return
-		}
+	var oldGroups []db.CasbinPolicyGroup
+	var newGroups []db.CasbinPolicyGroup
 
-		group = db.CasbinPolicyGroup{
-			GroupName: param.GroupName,
-			Uid:       int(param.UID),
-			Type:      db.CasbinGroupTypeUser,
-		}
-	} else {
-		group.GroupName = param.GroupName
+	err = u.db.Where("uid = ? and type = ?", param.UID, db.CasbinGroupTypeUser).Find(&oldGroups).Error
+	if err != nil {
+		return
 	}
 
-	err = u.db.Save(&group).Error
-	if err != nil {
-		return err
+	for _, groupName := range param.Groups {
+		newGroups = append(newGroups, db.CasbinPolicyGroup{
+			GroupName: groupName,
+			Uid:       int(param.UID),
+			Type:      db.CasbinGroupTypeUser,
+		})
+	}
+
+	cmpFunc := func(a, b interface{}) bool {
+		gA, gB := a.(db.CasbinPolicyGroup), b.(db.CasbinPolicyGroup)
+		return gA.GroupName == gB.GroupName
+	}
+	groupsToRemove := util.DiffListToSlice(oldGroups, newGroups, cmpFunc).([]db.CasbinPolicyGroup)
+	groupsToCreate := util.DiffListToSlice(newGroups, oldGroups, cmpFunc).([]db.CasbinPolicyGroup)
+
+	for _, group := range groupsToRemove {
+		u.db.Delete(&group)
+	}
+
+	for _, group := range groupsToCreate {
+		u.db.Save(&group)
 	}
 
 	_ = casbin.Casbin.LoadPolicy()
@@ -419,16 +429,38 @@ func (u *userGroup) GetAppPerm(param view.ReqGetAppPerm) (resp view.RespGetAppPe
 
 		for _, node := range app.AppNodes {
 			appItem.AvailableEnvs = append(appItem.AvailableEnvs, node.Env)
-			// get all
-			//sub := casbin.CasbinGroupKey(db.CasbinGroupTypeUser, param.GroupName)
-			//obj := casbin.CasbinAppObjKey(appItem.Name, node.Env)
-			//casbin.Casbin.Enforce()
 		}
 
 		resp.List = append(resp.List, appItem)
 	}
 
 	return
+}
+
+func (u *userGroup) SetPerm(sub, object, action string, policyType db.CasbinPolicyType) (err error) {
+	var policy db.CasbinPolicyAuth
+
+	err = u.db.Where("sub = ?", casbin.CasbinGroupKey(casbin.GroupTypeUser, sub)).
+		Where("obj = ?", object).
+		Where("act = ?", action).
+		Where("type = ?", policyType).
+		First(&policy).
+		Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return
+	}
+
+	policy.Sub = casbin.CasbinGroupKey(casbin.GroupTypeUser, sub)
+	policy.Act = action
+	policy.Obj = object
+	policy.Type = policyType
+
+	err = u.db.Save(&policy).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // expand menu-tree to list

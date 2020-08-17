@@ -14,12 +14,12 @@ export async function queryUserGroups() {
   return request(`/api/admin/permission/user/group/list`)
 }
 
-export async function changeUserGroup(uid: number, groupName: string) {
+export async function changeUserGroup(uid: number, groups: string[]) {
   return request(`/api/admin/permission/user/changeGroup`, {
     method: 'POST',
     data: {
       uid,
-      group_name: groupName
+      groups,
     }
   })
 }
