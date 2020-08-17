@@ -39,6 +39,15 @@ func MockData() {
 	mockCreateUser(urlUserCreate, router)
 }
 
+func MustMockSysTemSetData() {
+	router := echo.New()
+	urlSystemSetUpdate := "/system/setting/create"
+	router.POST(urlSystemSetUpdate, system.SettingCreate)
+	mockSystemSet(urlSystemSetUpdate, router)
+	mockGrafanaSetting(urlSystemSetUpdate, router)
+	mockAdminUser()
+}
+
 func MustMockData() {
 	router := echo.New()
 	urlSystemSetUpdate := "/system/setting/create"
