@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {AutoComplete, Form, Input, message, Modal} from "antd";
+import {Form, Input, message, Modal, Select} from "antd";
 import {Dispatch, User, UserGroupItem} from "@@/plugin-dva/connect";
 import {connect} from "dva";
 import {ConnectState, Pagination} from "@/models/connect";
@@ -36,6 +36,10 @@ const ModalChangeUserGroup = (props: ModalChangeUserGroupProps) => {
       type: 'userGroup/fetch',
     })
 
+    form.setFieldsValue({
+      groups: currentEditUser?.groups
+    })
+
   }, [visible])
 
   return <Modal
@@ -49,7 +53,7 @@ const ModalChangeUserGroup = (props: ModalChangeUserGroupProps) => {
   >
     <Form form={form} onFinish={(fields) => {
       setConfirmLoading(true)
-      changeUserGroup(currentEditUser?.uid || 0, fields.group_name)
+      changeUserGroup(currentEditUser?.uid || 0, fields.groups)
         .then((res) => {
           setConfirmLoading(false)
 
@@ -76,14 +80,16 @@ const ModalChangeUserGroup = (props: ModalChangeUserGroupProps) => {
       </Form.Item>
       <Form.Item
         label={"用户组"}
-        name={"group_name"}
+        name={"groups"}
+        initialValue={currentEditUser?.groups}
       >
-        <AutoComplete
-          dataSource={userGroups.map(item => {
-            return item.name
-          })}
+        <Select
+          mode={"tags"}
         >
-        </AutoComplete>
+          {userGroups.map(item => {
+            return <Select.Option value={item.name}>{item.name}</Select.Option>
+          })}
+        </Select>
       </Form.Item>
     </Form>
   </Modal>

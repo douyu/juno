@@ -26,9 +26,13 @@ type (
 )
 
 var (
-	CasbinPolicyTypeMenu CasbinPolicyType = "menu"
-	CasbinPolicyTypeApp  CasbinPolicyType = "app"
-	CasbinPolicyTypeAPI  CasbinPolicyType = "api"
+	CasbinPolicyTypeMenu    CasbinPolicyType = "menu"
+	CasbinPolicyTypeApp     CasbinPolicyType = "app"
+	CasbinPolicyTypeAPI     CasbinPolicyType = "api"
+	CasbinPolicyTypeMonitor CasbinPolicyType = "monitor" // Grafana权限
+
+	// 监控面板权限
+	MonitorPermWrite = "monitor:write"
 
 	AppPermAppRead            = "app:read"
 	AppPermConfigRead         = "config:read"

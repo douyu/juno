@@ -72,6 +72,11 @@ export default defineConfig({
                   component: './analysis/bigboard/index',
                 },
                 {
+                  path: '/analysis/grafana',
+                  name: 'Grafana',
+                  component: './analysis/grafana/index'
+                },
+                {
                   name: '依赖拓扑',
                   path: '/analysis/topology',
                   component: './analysis/topology/index',
@@ -224,7 +229,6 @@ export default defineConfig({
             },
           ]
         },
-
         {
           component: './404',
         },
