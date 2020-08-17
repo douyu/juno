@@ -188,19 +188,33 @@ func CasbinAppMW(parserFn AppEnvParser, action string) echo.MiddlewareFunc {
 
 func GrafanaAuthMW(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		u := user.GetUser(c)
+		obj := "monitor"
+		sub := strconv.Itoa(u.Uid)
+		hasManagePerm, _ := casbin2.Casbin.CheckPermission(sub, obj, db.MonitorPermWrite, db.CasbinPolicyTypeMonitor)
+		if hasManagePerm {
+			return next(c)
+		}
+
+		// 这里只能拦截页面请求，无法拦截 api 请求
+		if strings.Trim(c.Request().URL.Path, "/") == "grafana" && !hasManagePerm {
+			return c.HTML(http.StatusForbidden, "<div style=\"text-align:center;\">没有管理权限</div>")
+		}
+
 		// grafana document 请求
+		// 这里只能拦截页面请求，无法拦截 api 请求
 		if strings.HasPrefix(c.Request().URL.Path, "/grafana/d/") {
 			param := struct {
 				AppName string `query:"var-appname"`
 				Env     string `query:"var-env"`
 			}{}
 
-			u := user.GetUser(c)
-
 			_ = c.Bind(&param)
 			obj := casbin2.CasbinAppObjKey(param.AppName, param.Env)
 			sub := strconv.Itoa(u.Uid)
 			act := db.AppPermMonitorRead
+
+			// 检查应用权限
 			hasPerm, err := casbin2.Casbin.CheckPermission(sub, obj, act, db.CasbinPolicyTypeApp)
 			if err != nil {
 				return err
@@ -213,7 +227,8 @@ func GrafanaAuthMW(next echo.HandlerFunc) echo.HandlerFunc {
 			err = permission.Permission.CheckGitlabAuth(uint(u.Uid), param.AppName, param.Env)
 			if err != nil {
 				return c.HTML(http.StatusForbidden,
-					fmt.Sprintf("<div style=\"text-align:center;\">%s</div>", err.Error()))
+					fmt.Sprintf("<div style=\"text-align:center;\">没有权限</div>"),
+				)
 			}
 
 			return next(c)

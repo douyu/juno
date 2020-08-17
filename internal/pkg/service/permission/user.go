@@ -46,7 +46,7 @@ func (u *user) List(param view.ReqListUser) (resp view.RespListUser, err error) 
 	}
 
 	eg.Go(func() error {
-		return query.Preload("UserGroup").
+		return query.Preload("Groups").
 			Limit(limit).Offset(offset).Find(&users).Error
 	})
 
@@ -64,14 +64,18 @@ func (u *user) List(param view.ReqListUser) (resp view.RespListUser, err error) 
 	resp.Pagination.Total = total
 	for _, user := range users {
 		item := view.ListUserItem{
-			UID:       uint(user.Uid),
-			UserName:  user.Username,
-			NickName:  user.Nickname,
-			Access:    user.Access,
-			GroupName: DefaultUserGroup,
+			UID:      uint(user.Uid),
+			UserName: user.Username,
+			NickName: user.Nickname,
+			Access:   user.Access,
+			Groups:   []string{DefaultUserGroup},
 		}
-		if user.UserGroup != nil {
-			item.GroupName = user.UserGroup.GroupName
+		groups := make([]string, 0)
+		for _, group := range user.Groups {
+			groups = append(groups, group.GroupName)
+		}
+		if len(groups) != 0 {
+			item.Groups = groups
 		}
 
 		resp.List = append(resp.List, item)

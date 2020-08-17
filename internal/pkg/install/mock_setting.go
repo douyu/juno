@@ -2,9 +2,12 @@ package install
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
+	"github.com/douyu/juno/internal/pkg/service/permission"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,20 +25,21 @@ func mockAdminUser() {
 	if user.Uid == 0 {
 		return
 	}
-	if user.Access != "admin" {
-		invoker.JunoMysql.Model(db.User{}).Where("uid = ?", 1).Updates(map[string]interface{}{
-			"access": "admin",
-		})
 
-		err := invoker.JunoMysql.Save(&db.CasbinPolicyGroup{
-			GroupName: "admin",
-			Uid:       user.Uid,
-			Type:      db.CasbinGroupTypeUser,
-		}).Error
-		if err != nil {
-			return
-		}
-
+	err := permission.UserGroup.ChangeUserGroup(view.ReqChangeUserGroup{
+		UID:    uint(user.Uid),
+		Groups: []string{"admin", "grafana"},
+	})
+	if err != nil {
+		return
 	}
+}
 
+func mockPermission() {
+	err := permission.UserGroup.SetPerm("grafana",
+		string(db.CasbinPolicyTypeMonitor), db.MonitorPermWrite, db.CasbinPolicyTypeMonitor)
+	if err != nil {
+		log.Printf("mock permission failed: %s", err.Error())
+		return
+	}
 }

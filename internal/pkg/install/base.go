@@ -39,22 +39,14 @@ func MockData() {
 	mockCreateUser(urlUserCreate, router)
 }
 
-func MustMockSysTemSetData() {
+func MustMockData() {
 	router := echo.New()
 	urlSystemSetUpdate := "/system/setting/create"
 	router.POST(urlSystemSetUpdate, system.SettingCreate)
 	mockSystemSet(urlSystemSetUpdate, router)
 	mockGrafanaSetting(urlSystemSetUpdate, router)
 	mockAdminUser()
-}
-
-func MustMockData() {
-	router := echo.New()
-	urlSystemCreate := "/system/setting/create"
-	router.POST(urlSystemCreate, system.SettingCreate)
-	mockGrafanaSetting(urlSystemCreate, router)
-	mockAdminUser()
-
+	mockPermission()
 }
 
 func PostForm(uri string, param string, router *echo.Echo) []byte {
