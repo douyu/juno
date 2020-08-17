@@ -100,7 +100,7 @@ const Login: React.FC<LoginProps> = (props: LoginProps) => {
       values.password = md5(values.password);
       const res = await accountLogin({...values, type});
       if (res.code === 0) {
-        message.success('登陆成功！');
+        message.success('登录成功！');
         replaceGoto();
         setTimeout(() => {
           refresh();

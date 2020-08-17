@@ -8,12 +8,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/douyu/juno/internal/pkg/service/permission"
-
 	"github.com/casbin/casbin/v2"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	casbin2 "github.com/douyu/juno/internal/pkg/service/casbin"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
+	"github.com/douyu/juno/internal/pkg/service/permission"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/model/db"

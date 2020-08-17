@@ -247,7 +247,7 @@ func (eng *Admin) initInvoker() (err error) {
 
 	if eng.installFlag {
 		// 服务注册完之后再mock数据
-		install.MustMockData()
+		install.MustMockSysTemSetData()
 	}
 	return
 }
