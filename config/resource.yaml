@@ -89,6 +89,8 @@ permission:
           - path: /api/admin/resource/node/statics
             name: 节点信息统计
             method: GET
+      - name: Grafana
+        path: /analysis/grafana
       - name: 依赖拓扑
         path: /analysis/topology
         api:

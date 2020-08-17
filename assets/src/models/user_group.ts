@@ -8,7 +8,7 @@ export interface User {
   user_name: string,
   nick_name: string,
   access: string,
-  group_name: string
+  groups: string[]
 }
 
 export interface UserGroupItem {

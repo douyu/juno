@@ -9,8 +9,8 @@ type (
 	}
 
 	ReqChangeUserGroup struct {
-		UID       uint   `json:"uid"`
-		GroupName string `json:"group_name"`
+		UID    uint     `json:"uid"`
+		Groups []string `json:"groups"`
 	}
 
 	ReqSetGroupAppPerm struct {
@@ -82,11 +82,11 @@ type (
 	}
 
 	ListUserItem struct {
-		UID       uint   `json:"uid"`
-		UserName  string `json:"user_name"`
-		NickName  string `json:"nick_name"`
-		Access    string `json:"access"`
-		GroupName string `json:"group_name"`
+		UID      uint     `json:"uid"`
+		UserName string   `json:"user_name"`
+		NickName string   `json:"nick_name"`
+		Access   string   `json:"access"`
+		Groups   []string `json:"groups"`
 	}
 
 	APIListItem struct {
