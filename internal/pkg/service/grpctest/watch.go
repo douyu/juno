@@ -1,10 +1,12 @@
 package grpctest
 
 import (
-	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
+	"strings"
+	"time"
 
+	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"gopkg.in/fsnotify.v1"
 )
@@ -31,11 +33,17 @@ func watchProtoDirectory() {
 			select {
 			case event := <-watcher.Events:
 				// consume all events
+				time.Sleep(1 * time.Second)
+				dirs := make([]string, 0)
+				if isWriteEvent(event) {
+					dirs = append(dirs, event.Name)
+				}
+
 				for {
 					select {
 					case ev := <-watcher.Events:
 						if isWriteEvent(ev) {
-							event = ev
+							dirs = append(dirs, ev.Name)
 						}
 						continue
 					default:
@@ -44,9 +52,10 @@ func watchProtoDirectory() {
 					break
 				}
 
-				if isWriteEvent(event) {
-					onWriteEvent(event)
+				if len(dirs) != 0 {
+					onWrite(dirs)
 				}
+
 			case err := <-watcher.Errors:
 				if err != nil {
 					xlog.Error("watchDirectory", xlog.String("err", err.Error()))
@@ -70,41 +79,33 @@ func watchProtoDirectory() {
 }
 
 func getAllSubPath(dir string) (allSubPath []string) {
-	var findPathFunc func(p string)
-	findPathFunc = func(p string) {
-		files, err := ioutil.ReadDir(p)
-		if err != nil {
-			return
+	_ = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			return nil
 		}
 
-		for _, file := range files {
-			filePath := path.Join(p, file.Name())
-			stat, err := os.Stat(filePath)
-			if err != nil {
-				continue
-			}
-
-			if stat.IsDir() {
-				subPath := path.Join(p, stat.Name())
-				allSubPath = append(allSubPath, subPath)
-				findPathFunc(subPath)
-			}
+		if strings.HasPrefix(filepath.Base(path), ".") {
+			return filepath.SkipDir
 		}
-	}
 
-	findPathFunc(dir)
+		allSubPath = append(allSubPath, path)
+		return nil
+	})
 
 	return
 }
 
-func onWriteEvent(event fsnotify.Event) {
-	// 有修改或新建文件
-	xlog.Info("watchDirectory", xlog.String("event", event.Name))
-	//err := p.ParseAllProto(dir)
-	//if err != nil {
-	//	xlog.Error("watchDirectory", xlog.String("method", "ParseAllProto"),
-	//		xlog.String("err", err.Error()))
-	//}
+func onWrite(dirs []string) {
+	if len(dirs) == 0 {
+		return
+	}
+
+	commonPath := util.CommonPrefix(dirs)
+	err := ParseAllProto(commonPath)
+	if err != nil {
+		xlog.Error("watchDirectory", xlog.String("method", "ParseAllProto"),
+			xlog.String("err", err.Error()))
+	}
 }
 
 func isWriteEvent(event fsnotify.Event) bool {
