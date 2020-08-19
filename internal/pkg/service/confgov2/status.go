@@ -75,8 +75,8 @@ func syncPublishStatus(appName, env string, zoneCode string, configuration db.Co
 	return resp, nil
 }
 
-func syncTakeEffectStatus(appName, governPort, env string, zoneCode string, configuration db.Configuration, notTakeEffectNodes map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
-	newSyncDataMap, err := configurationTakeEffect(appName, env, zoneCode, configuration.Name, configuration.Format, governPort, notTakeEffectNodes)
+func syncTakeEffectStatus(appName, env string, zoneCode, governPort string, configuration db.Configuration, notTakeEffectNodes map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
+	newSyncDataMap, err := configurationTakeEffect(appName, env, zoneCode, governPort, configuration.Name, configuration.Format, notTakeEffectNodes)
 	if err != nil {
 		return resp, err
 	}
@@ -173,7 +173,7 @@ func configurationSynced(appName, env, zoneCode, filename, format, prefix string
 	return
 }
 
-func configurationTakeEffect(appName, env, zoneCode, filename, format, governPort string, notTakeEffectNodes map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
+func configurationTakeEffect(appName, env, zoneCode, governPort, filename, format string, notTakeEffectNodes map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
 	list = make(map[string]view.ConfigurationStatus, 0)
 	// take effect status
 	// publish status, synced status

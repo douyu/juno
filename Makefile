@@ -6,7 +6,7 @@ JUNO_NAME:=juno
 JUNO_ADMIN_NAME:=juno-admin
 JUNO_PROXY_NAME:=juno-proxy
 COMPILE_OUT:=$(BASE_PATH)/release
-APP_VERSION:=juno_0.4.0
+APP_VERSION:=0.4.0
 
 .DEFAULT_GOAL := default
 .PHONY: run run.grpc run.npm
@@ -103,4 +103,4 @@ run:
 
 
 tar:
-	@cd $(BASE_PATH)/release && tar zcvf $(APP_VERSION).tar.gz $(APP_VERSION)
+	@cd $(BASE_PATH)/release && tar zcvf juno_$(APP_VERSION).tar.gz $(APP_VERSION)

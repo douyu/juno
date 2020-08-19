@@ -276,7 +276,7 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	}
 
 	// 配置/资源 关联关系
-	resourceValues, err := ParseConfigResourceValuesFromConfig(history)
+	resourceValues, err := parseConfigResourceValuesFromConfig(history)
 	if err != nil {
 		return
 	}
@@ -327,7 +327,8 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	return
 }
 
-func ParseConfigResourceValuesFromConfig(history db.ConfigurationHistory) ([]db.ConfigResourceValue, error) {
+// parseConfigResourceValuesFromConfig ..
+func parseConfigResourceValuesFromConfig(history db.ConfigurationHistory) ([]db.ConfigResourceValue, error) {
 	var resourceValues []db.ConfigResourceValue
 	resources := configresource.ParseResourceFromConfig(history.Content)
 	resourceValueIds := make([]uint, 0) // 版本就是资源值ID，全局唯一
@@ -337,7 +338,7 @@ func ParseConfigResourceValuesFromConfig(history db.ConfigurationHistory) ([]db.
 
 	err := mysql.Where("id in (?)", resourceValueIds).Find(&resourceValues).Error
 	if err != nil {
-		xlog.Error("confgov2.ParseConfigResourceValuesFromConfig", xlog.String("error", "query resource-values failed:"+err.Error()))
+		xlog.Error("confgov2.parseConfigResourceValuesFromConfig", xlog.String("error", "query resource-values failed:"+err.Error()))
 		return nil, err
 	}
 
@@ -455,35 +456,44 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 
 	eg.Go(func() error {
 		respNew, err := syncUsedStatus(nodes, resp, env, zoneCode, filePath)
-
+		if err != nil {
+			xlog.Error("syncUsedStatus", xlog.Any("err", err.Error()))
+			return errorconst.ConfigInstanceSyncUsedStatusError.Error()
+		}
 		respMtx.Lock()
 		defer respMtx.Unlock()
 
 		resp = respNew
 
-		return err
+		return nil
 	})
 
 	eg.Go(func() error {
 		respNew, err := syncPublishStatus(app.AppName, env, zoneCode, configuration, nodesMap, resp)
-
+		if err != nil {
+			xlog.Error("syncPublishStatus", xlog.Any("err", err.Error()))
+			return errorconst.ConfigInstanceSyncPublishStatusError.Error()
+		}
 		respMtx.Lock()
 		defer respMtx.Unlock()
 
 		resp = respNew
 
-		return err
+		return nil
 	})
 
 	eg.Go(func() error {
-		respNew, err := syncTakeEffectStatus(app.AppName, app.GovernPort, env, zoneCode, configuration, nodesMap, resp)
-
+		respNew, err := syncTakeEffectStatus(app.AppName, env, zoneCode, app.GovernPort, configuration, nodesMap, resp)
+		if err != nil {
+			xlog.Error("syncTakeEffectStatus", xlog.Any("err", err.Error()))
+			return errorconst.ConfigInstanceErrorSyncTakeEffectStatusError.Error()
+		}
 		respMtx.Lock()
 		defer respMtx.Unlock()
 
 		resp = respNew
 
-		return err
+		return nil
 	})
 
 	err = eg.Wait()
