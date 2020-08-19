@@ -210,7 +210,7 @@ func (g *pprof) GetPprof(uniqZone view.UniqZone, ip, port, pprofType string) (re
 	}
 	// 耗时比较久
 	if pprofType == "profile" {
-		pprofType = pprofType + "?seconds=15"
+		pprofType = fmt.Sprintf("%s?seconds=%d",pprofType,clientproxy.ClientMaxTimeout)
 	}
 	url = url + "/" + pprofType
 	resp2, err := clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{

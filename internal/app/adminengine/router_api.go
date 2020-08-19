@@ -22,6 +22,8 @@ import (
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/system"
+	"github.com/douyu/juno/api/apiv1/test/platform"
+	"github.com/douyu/juno/api/apiv1/worker"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/jupiter/pkg/server/xecho"
@@ -30,6 +32,8 @@ import (
 func apiV1(server *xecho.Server) {
 
 	server.POST("/api/v1/resource/node/heartbeat", resource.NodeHeartBeat)
+	server.POST("/api/v1/worker/heartbeat", worker.Heartbeat)
+	server.POST("/api/v1/worker/testTask/update", platform.TaskStepStatusUpdate, middleware.ProxyAuth)
 
 	v1 := server.Group("/api/v1", middleware.OpenAuth)
 	resourceGroup := v1.Group("/resource")

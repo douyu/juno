@@ -1,21 +1,38 @@
 package httptest
 
 import (
+	"context"
+	"net/http"
 	"strings"
 
-	"golang.org/x/sync/errgroup"
-
-	"github.com/douyu/jupiter/pkg/xlog"
-
+	"github.com/douyu/juno/internal/pkg/packages/xtest"
 	"github.com/douyu/juno/pkg/model/db"
-
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
+	"golang.org/x/sync/errgroup"
+)
+
+type (
+	Request struct {
+		*resty.Request
+		script string
+		tester *xtest.XTest
+	}
+
+	HttpResponse struct {
+		Body    string      `json:"body"`
+		Status  int         `json:"status"`
+		Headers http.Header `json:"headers"`
+		Size    int64       `json:"size"`
+	}
 )
 
 func SendRequest(uid uint, param view.ReqSendHttpRequest) (res view.HttpTestResponse, err error) {
-	var response *resty.Response
 	var testCase db.HttpTestCase
+	var result xtest.TestResult
+	var httpResp HttpResponse
+	var req *Request
 
 	// check test case
 	err = option.DB.Where("id = ?", param.ID).Preload("Collection").First(&testCase).Error
@@ -24,6 +41,32 @@ func SendRequest(uid uint, param view.ReqSendHttpRequest) (res view.HttpTestResp
 	}
 
 	defer func() {
+		reqQuery := make(db.HttpTestParam, 0)
+		for k, v := range req.QueryParam {
+			if len(v) == 0 {
+				continue
+			}
+
+			reqQuery = append(reqQuery, db.HttpTestParamItem{
+				Key:         k,
+				Value:       v[0],
+				Description: "",
+			})
+		}
+
+		reqHeader := make(db.HttpTestParam, 0)
+		for k, v := range req.Header {
+			if len(v) == 0 {
+				continue
+			}
+
+			reqHeader = append(reqHeader, db.HttpTestParamItem{
+				Key:         k,
+				Value:       v[0],
+				Description: "",
+			})
+		}
+
 		log := db.HttpTestLog{
 			OperatorType:    "user",
 			OperatorID:      uid,
@@ -31,10 +74,9 @@ func SendRequest(uid uint, param view.ReqSendHttpRequest) (res view.HttpTestResp
 			Name:            param.Name,
 			URL:             param.URL,
 			Method:          param.Method,
-			Query:           param.Query,
-			Headers:         param.Headers,
-			ContentType:     param.ContentType,
-			Body:            param.Body,
+			Query:           reqQuery,
+			Headers:         reqHeader,
+			Body:            req.Body.(string),
 			ResponseBody:    res.Body,
 			ResponseHeaders: res.Headers,
 			Size:            res.Size,
@@ -42,11 +84,21 @@ func SendRequest(uid uint, param view.ReqSendHttpRequest) (res view.HttpTestResp
 			Code:            res.Code,
 			Status:          "success",
 			Error:           "",
+			TestLogs:        result.Logs,
 		}
 
 		if err != nil {
 			log.Status = "failed"
 			log.Error = err.Error()
+		}
+
+		if !result.Success {
+			log.Status = "failed"
+		}
+
+		if result.Error != nil {
+			log.Status = "failed"
+			log.Error = result.Error.Error()
 		}
 
 		err := option.DB.Save(&log).Error
@@ -55,16 +107,24 @@ func SendRequest(uid uint, param view.ReqSendHttpRequest) (res view.HttpTestResp
 		}
 	}()
 
-	response, err = sendRequest(param)
+	req = newRequest(param.Script, param)
+	result, err = req.Send(context.Background())
 	if err != nil {
 		return
 	}
 
-	res.Body = response.String()
-	res.Code = response.StatusCode()
-	res.Size = response.Size()
-	res.TimeCost = response.Time().Milliseconds()
-	res.Headers = response.Header()
+	httpResp = result.RawResponse.(HttpResponse)
+
+	res.Body = httpResp.Body
+	res.Code = httpResp.Status
+	res.Size = httpResp.Size
+	res.TimeCost = result.TimeCost.Milliseconds()
+	res.Headers = httpResp.Headers
+	res.Success = result.Success
+	res.Logs = result.Logs
+	if result.Error != nil {
+		res.Error = result.Error.Error()
+	}
 
 	return
 }
@@ -153,15 +213,61 @@ func RequestHistoryDetail(historyID uint) (detail view.HttpTestLog, err error) {
 	return
 }
 
-func sendRequest(param view.ReqSendHttpRequest) (response *resty.Response, err error) {
-	req := option.client.R()
-	req.Method = strings.ToUpper(param.Method)
-	req.URL = param.URL
+func newRequest(script string, param view.ReqSendHttpRequest) *Request {
+	request := option.client.R()
+	tester := xtest.New(xtest.WithInterpreter(xtest.InterpreterTypeJS))
 
-	response, err = req.Send()
+	request.Method = strings.ToUpper(param.Method)
+	request.URL = param.URL
+
+	request.SetBody(param.Body)
+	request.SetHeader("Content-Type", param.ContentType)
+	for _, query := range param.Query {
+		request.SetQueryParam(query.Key, query.Value)
+	}
+	for _, header := range param.Headers {
+		request.SetHeader(header.Key, header.Value)
+	}
+
+	// register script functions
+	{
+		_ = tester.Interpreter().RegisterFunc("setHeader", func(key, val string) {
+			request.SetHeader(key, val)
+		})
+
+		_ = tester.Interpreter().RegisterFunc("setQueryParam", func(key, val string) {
+			request.SetQueryParam(key, val)
+		})
+
+		_ = tester.Interpreter().RegisterFunc("setBody", func(body string) {
+			request.SetBody(body)
+		})
+	}
+
+	return &Request{
+		Request: request,
+		tester:  tester,
+		script:  script,
+	}
+}
+
+func (r *Request) Send(c context.Context) (result xtest.TestResult, err error) {
+	script := xtest.TestScript{Source: r.script}
+	result = r.tester.Run(c, script, r.onRequest)
+	return
+}
+
+func (r *Request) onRequest() (data xtest.Response, err error) {
+	resp, err := r.Request.Send()
 	if err != nil {
 		return
 	}
 
+	data = HttpResponse{
+		Body:    resp.String(),
+		Status:  resp.StatusCode(),
+		Headers: resp.Header(),
+		Size:    resp.Size(),
+	}
 	return
 }

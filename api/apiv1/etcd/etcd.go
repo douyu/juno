@@ -28,6 +28,10 @@ func List(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, "参数错误: env, prefix, ZoneCode均不能为空", resp)
 	}
 
+	if req.ZoneCode == "all" {
+		return output.JSON(c, output.MsgOk, "success", resp)
+	}
+
 	key := req.Prefix
 	if req.AppName != "" {
 		key = req.Prefix + req.AppName + req.Suffix
@@ -44,12 +48,12 @@ func List(c echo.Context) error {
 	res, err := clientproxy.ClientProxy.EtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
 		xlog.Error("etcdList", zap.String("step", "EtcdGet"), zap.String("appName", req.AppName), zap.String("env", req.Env), zap.String("zoneCode", req.ZoneCode), zap.String("key", key), zap.String("error", err.Error()))
-		return output.JSON(c, output.MsgErr, "EtcdGet error:"+err.Error(), resp)
+		return output.JSON(c, output.MsgOk, "success", resp)
 	}
 	if len(res.Kvs) == 0 {
 		err = errorconst.ParamConfigCallbackKvIsZero.Error()
 		xlog.Warn("etcdList", zap.String("step", "resp.Kvs"), zap.String("appName", req.AppName), zap.String("env", req.Env), zap.String("zoneCode", req.ZoneCode), zap.String("key", key), zap.Any("res", res))
-		return output.JSON(c, output.MsgErr, "EtcdGet kv is 0 error", resp)
+		return output.JSON(c, output.MsgOk, "success", resp)
 	}
 
 	for _, item := range res.Kvs {

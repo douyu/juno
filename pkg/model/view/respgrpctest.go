@@ -73,13 +73,16 @@ type (
 		AppName     string           `json:"app_name"`
 		ServiceName string           `json:"service_name"`
 		MethodName  string           `json:"method_name"`
+		Script      string           `json:"script"`
 	}
 
 	GrpcResponse struct {
-		Error    string `json:"error"`
-		Status   string `json:"status"`
-		TimeCost int64  `json:"time_cost"`
-		Output   string `json:"output"`
+		Error      string             `json:"error"`
+		Status     string             `json:"status"`
+		TimeCost   int64              `json:"time_cost"`
+		Output     string             `json:"output"`
+		Logs       db.MapStringString `json:"logs"`
+		TestPassed bool               `json:"test_passed"`
 	}
 
 	GrpcHistoryListItem struct {
@@ -89,6 +92,7 @@ type (
 		Status     string    `json:"status"`
 		Error      string    `json:"error"`
 		TimeCost   int64     `json:"time_cost"`
+		TestPassed bool      `json:"test_passed"`
 		CreatedAt  time.Time `json:"created_at"`
 	}
 
@@ -105,6 +109,7 @@ type (
 		Error       string           `json:"error"`
 		TimeCost    int64            `json:"time_cost"`
 		Addr        string           `json:"addr"`
+		TestPassed  bool             `json:"test_passed"`
 		CreatedAt   time.Time        `json:"created_at"`
 	}
 

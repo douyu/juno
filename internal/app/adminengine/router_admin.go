@@ -18,15 +18,12 @@ import (
 	"net/http"
 	"strings"
 
-	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
-
-	http2 "github.com/douyu/juno/api/apiv1/test/http"
-
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/confgov2"
 	"github.com/douyu/juno/api/apiv1/confgov2/configresource"
 	configstatics "github.com/douyu/juno/api/apiv1/confgov2/configstatistics"
+	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 	"github.com/douyu/juno/api/apiv1/event"
 	"github.com/douyu/juno/api/apiv1/openauth"
 	"github.com/douyu/juno/api/apiv1/permission"
@@ -35,6 +32,8 @@ import (
 	"github.com/douyu/juno/api/apiv1/static"
 	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/test/grpc"
+	http2 "github.com/douyu/juno/api/apiv1/test/http"
+	"github.com/douyu/juno/api/apiv1/test/platform"
 	"github.com/douyu/juno/api/apiv1/user"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/app/middleware"
@@ -238,6 +237,19 @@ func apiAdmin(server *xecho.Server) {
 			httpG.POST("/request/send", core.Handle(http2.SendRequest))            // 发送请求
 			httpG.GET("/request/history", core.Handle(http2.RequestHistory))       // 请求历史
 			httpG.GET("/request/history/detail", core.Handle(http2.RequestDetail)) // 请求历史详情
+		}
+
+		// 自动化测试平台
+		platformG := testGroup.Group("/platform")
+		{
+			platformG.POST("/pipeline/create", core.Handle(platform.CreatePipeline))
+			platformG.GET("/pipeline/list", core.Handle(platform.ListPipeline))
+			platformG.POST("/pipeline/update", core.Handle(platform.UpdatePipeline))
+			platformG.POST("/pipeline/run", core.Handle(platform.RunPipeline))
+			platformG.GET("/pipeline/tasks", core.Handle(platform.TaskList))
+			platformG.POST("/pipeline/delete", core.Handle(platform.DeletePipeline))
+			platformG.GET("/pipeline/tasks/steps", core.Handle(platform.TaskSteps))
+			platformG.GET("/worker/zones", core.Handle(platform.WorkerZones))
 		}
 	}
 

@@ -281,3 +281,17 @@ type AppLogCustomize struct {
 	DashboardUrl string
 	LogStoreUrl  string
 }
+
+type ProxyAuth struct {
+	Token string
+}
+
+type CodePlatform struct {
+	Type       string
+	Token      string
+	StorageDir string
+}
+
+type Worker struct {
+	HeartbeatTimeout time.Duration
+}

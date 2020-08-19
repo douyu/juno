@@ -29,6 +29,7 @@ type (
 		Name     string           `json:"name" validate:"required"`
 		Input    string           `json:"input"`
 		Metadata db.ProtoMetadata `json:"metadata"`
+		Script   string           `json:"script"`
 	}
 
 	ReqQueryGRPCUseCase struct {
@@ -52,6 +53,7 @@ type (
 	ReqSendGRPCRequest struct {
 		ReqCreateGRPCUseCase
 		Address string `json:"address" validate:"required"`
+		Script  string `json:"script"`
 	}
 
 	ReqUseCaseDetail struct {
@@ -63,5 +65,6 @@ type (
 		Input    string           `json:"input"`
 		Address  string           `json:"address"`
 		Metadata db.ProtoMetadata `json:"metadata"`
+		Script   string           `json:"script"`
 	}
 )

@@ -27,6 +27,7 @@ type (
 		Headers      HttpTestParam `gorm:"type:json"`
 		ContentType  string
 		Body         string
+		Script       string `gorm:"type:longtext;"`
 
 		Collection HttpTestCollection `gorm:"foreignKey:CollectionID"`
 	}
@@ -46,25 +47,29 @@ type (
 		Query       HttpTestParam `gorm:"type:json"`
 		Headers     HttpTestParam `gorm:"type:json"`
 		ContentType string
-		Body        string
+		Body        string `gorm:"type:longtext"`
 
 		// Response
-		ResponseBody    string
+		ResponseBody    string         `gorm:"type:longtext"`
 		ResponseHeaders MapStringArray `gorm:"type:json"`
 		Size            int64
 		Cost            int64
 		Code            int
 		Status          string
 		Error           string
+		TestLogs        MapStringString `gorm:"type:json"` // 测试脚本产生的Log
 	}
 
-	HttpTestParam []struct {
+	HttpTestParam []HttpTestParamItem
+
+	HttpTestParamItem struct {
 		Key         string `json:"key"`
 		Value       string `json:"value"`
 		Description string `json:"description"`
 	}
 
-	MapStringArray map[string][]string
+	MapStringArray  map[string][]string
+	MapStringString map[string]string
 )
 
 func (h *HttpTestParam) Scan(val interface{}) error {
@@ -86,7 +91,20 @@ func (h *MapStringArray) Scan(val interface{}) error {
 
 func (h MapStringArray) Value() (val driver.Value, err error) {
 	if h == nil {
-		val = "[]"
+		val = "{}"
+		return
+	}
+	val, err = json.Marshal(&h)
+	return
+}
+
+func (h *MapStringString) Scan(val interface{}) error {
+	return json.Unmarshal(val.([]byte), h)
+}
+
+func (h MapStringString) Value() (val driver.Value, err error) {
+	if h == nil {
+		val = "{}"
 		return
 	}
 	val, err = json.Marshal(&h)

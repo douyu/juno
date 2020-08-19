@@ -19,19 +19,19 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/appDep"
-	"github.com/douyu/juno/internal/pkg/service/confgo"
-	"go.uber.org/zap"
-
 	"github.com/douyu/juno/api/apiv1/resource"
+	"github.com/douyu/juno/api/apiv1/test/platform"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service"
+	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
+	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/notify"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
 	"github.com/douyu/jupiter/pkg"
@@ -43,6 +43,7 @@ import (
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
+	"go.uber.org/zap"
 )
 
 // Admin ...
@@ -175,7 +176,8 @@ func (eng *Admin) initNotify() (err error) {
 				ProxyClient[value] = pb.NewProxyClient(gconfig.Build())
 			}
 			notify.InitStreamStore(ProxyClient)
-			notify.StreamStore.AddRouter(resource.NodeHeartBeat)
+			notify.StreamStore.AddRouter(constx.MsgNodeHeartBeatResp, resource.NodeHeartBeat)
+			notify.StreamStore.AddRouter(constx.MsgTestStepUpdateResp, platform.TaskStepStatusUpdate)
 		}
 	}
 	return nil
