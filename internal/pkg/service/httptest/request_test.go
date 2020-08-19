@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/go-resty/resty/v2"
-
+	"github.com/douyu/juno/internal/pkg/packages/xtest"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/go-resty/resty/v2"
 )
 
 func initClient() {
@@ -74,7 +74,8 @@ test.onResponse = function(res) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := newRequest(tt.args.script, tt.args.param).Send(context.Background())
+			tester := xtest.New(xtest.WithInterpreter(xtest.InterpreterTypeJS))
+			result, err := NewRequest(resty.New(), tt.args.script, tt.args.param, tester).Send(context.Background())
 			if err != nil {
 				t.Logf("err = %v", err)
 				t.FailNow()

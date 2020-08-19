@@ -1,5 +1,5 @@
 [juno]
-address = "http://worker.local:50000"
+address = "http://juno.local:50000"
 token = "token"
 
 [worker]
@@ -9,7 +9,7 @@ testTaskQueueDir = "/tmp/taskQueue"
 
 [heartbeat]
 debug = true
-addr = "http://worker.local:50000/api/v1/worker/heartbeat"
+addr = "http://juno.local:50000/api/v1/worker/heartbeat"
 internal = "3s"
 hostName = "localhost" # 环境变量的名称，或者命令行参数的名称
 regionCode = "wh" # 环境变量的名称，或者命令行参数的名称

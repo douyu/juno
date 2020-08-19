@@ -10,26 +10,26 @@ import (
 type (
 	HttpTestCollection struct {
 		gorm.Model
-		CreatedBy uint // 创建人ID
-		AppName   string
-		Name      string
+		CreatedBy uint   `json:"created_by"` // 创建人ID
+		AppName   string `json:"app_name"`
+		Name      string `json:"name"`
 
-		TestCases []HttpTestCase `gorm:"foreignKey:CollectionID"`
+		TestCases []HttpTestCase `gorm:"foreignKey:CollectionID" json:"-"`
 	}
 
 	HttpTestCase struct {
 		gorm.Model
-		CollectionID uint
-		Name         string
-		URL          string
-		Method       string
-		Query        HttpTestParam `gorm:"type:json"`
-		Headers      HttpTestParam `gorm:"type:json"`
-		ContentType  string
-		Body         string
-		Script       string `gorm:"type:longtext;"`
+		CollectionID uint          `json:"collection_id"`
+		Name         string        `json:"name"`
+		URL          string        `json:"url"`
+		Method       string        `json:"method"`
+		Query        HttpTestParam `gorm:"type:json" json:"query"`
+		Headers      HttpTestParam `gorm:"type:json" json:"headers"`
+		ContentType  string        `json:"content_type"`
+		Body         string        `json:"body"`
+		Script       string        `gorm:"type:longtext;" json:"script"`
 
-		Collection HttpTestCollection `gorm:"foreignKey:CollectionID"`
+		Collection HttpTestCollection `gorm:"foreignKey:CollectionID" json:"-"`
 	}
 
 	HttpTestLog struct {

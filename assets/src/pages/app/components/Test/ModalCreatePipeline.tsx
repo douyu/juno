@@ -4,6 +4,7 @@ import {Select} from "antd/es";
 import {Store} from "rc-field-form/lib/interface"
 import {fetchWorkerZones} from "@/services/testplatform";
 import {WorkerZone} from "@/models/testplatform/types";
+import {fetchCollections} from "@/services/httptest";
 
 interface ModalCreatePipelineProps {
   visible: boolean
@@ -14,11 +15,11 @@ interface ModalCreatePipelineProps {
   appName: string
 }
 
-
 export default function ModalCreatePipeline(props: ModalCreatePipelineProps) {
   const {visible, env, zoneCode, appName} = props
   const [form] = Form.useForm()
   const [workerZones, setWorkerZones] = useState<WorkerZone[]>([])
+  const [httpCollections, setHttpCollections] = useState<{ id: number, name: string, test_cases: any[] }[]>([])
 
   useEffect(() => {
     fetchWorkerZones().then(r => {
@@ -39,6 +40,16 @@ export default function ModalCreatePipeline(props: ModalCreatePipelineProps) {
       app_name: appName,
       unit_test: true,
       code_check: true
+    })
+
+    fetchCollections(appName).then(r => {
+      if (r.code === 14000) return
+      if (r.code !== 0) {
+        message.error(r.msg)
+        return
+      }
+
+      setHttpCollections(r.data.list || [])
     })
   }, [env, zoneCode, appName])
 
@@ -86,6 +97,14 @@ export default function ModalCreatePipeline(props: ModalCreatePipelineProps) {
       >
         <Select disabled={zoneCode !== 'all'}>
           {workerZones.map((item, id) => <Select.Option value={item.zone_code}>{item.zone_name}</Select.Option>)}
+        </Select>
+      </Form.Item>
+
+      <Form.Item label={"Http测试集合(可选)"} name={"http_test_collection"}>
+        <Select allowClear>
+          {httpCollections.map((item, idx) => <Select.Option value={item.id} key={idx}>
+            {item.name}({item.test_cases.length}个用例)
+          </Select.Option>)}
         </Select>
       </Form.Item>
 

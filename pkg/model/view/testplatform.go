@@ -4,19 +4,21 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/packages/xtest"
 	"github.com/douyu/juno/pkg/model/db"
 )
 
 type (
 	TestPipeline struct {
-		ID        uint   `json:"id"`
-		Name      string `json:"name" validate:"required,min=4,max=32"`
-		Env       string `json:"env" validate:"required,min=1,max=32"`
-		ZoneCode  string `json:"zone_code" validate:"required"`
-		AppName   string `json:"app_name" validate:"required"`
-		Branch    string `json:"branch" validate:"required,min=1,max=32"`
-		CodeCheck bool   `json:"code_check"`
-		UnitTest  bool   `json:"unit_test"`
+		ID                 uint   `json:"id"`
+		Name               string `json:"name" validate:"required,min=4,max=32"`
+		Env                string `json:"env" validate:"required,min=1,max=32"`
+		ZoneCode           string `json:"zone_code" validate:"required"`
+		AppName            string `json:"app_name" validate:"required"`
+		Branch             string `json:"branch" validate:"required,min=1,max=32"`
+		CodeCheck          bool   `json:"code_check"`
+		UnitTest           bool   `json:"unit_test"`
+		HttpTestCollection *int   `json:"http_test_collection"` // http 测试集合
 	}
 
 	TestPipelineUV struct {
@@ -86,6 +88,14 @@ type (
 		StepName string `json:"step_name"`
 		Status   string `json:"status"`
 		Logs     string `json:"logs"`
+	}
+
+	HttpCollectionTestLog struct {
+		TestID   uint              `json:"test_id"`
+		TestName string            `json:"test_case_name"`
+		Action   string            `json:"action"` // output, fail, pass
+		Output   *string           `json:"output,omitempty"`
+		Result   *xtest.TestResult `json:"result,omitempty"`
 	}
 
 	ReqListPipeline struct {

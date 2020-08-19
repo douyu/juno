@@ -1,6 +1,7 @@
 package testworker
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -11,8 +12,9 @@ import (
 	"time"
 
 	"github.com/beeker1121/goque"
-
+	"github.com/douyu/juno/internal/pkg/packages/xtest"
 	"github.com/douyu/juno/internal/pkg/service/codeplatform"
+	"github.com/douyu/juno/internal/pkg/service/httptest"
 	"github.com/douyu/juno/internal/pkg/service/testplatform/pipeline"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
@@ -159,8 +161,9 @@ func (t *TestWorker) runTask(task view.TestTask, desc db.TestPipelineDesc) (err 
 	eg := errgroup.Group{}
 	for _, step := range desc.Steps {
 		if desc.Parallel {
+			_step := step
 			eg.Go(func() error {
-				return t.runStep(task, step)
+				return t.runStep(task, _step)
 			})
 		} else {
 			err = t.runStep(task, step)
@@ -220,6 +223,9 @@ func (t *TestWorker) runJob(task view.TestTask, name string, payload *db.TestJob
 
 	case db.JobCodeCheck:
 		err = t.codeCheck(task, name, payload.Payload)
+
+	case db.JobHttpTest:
+		err = t.httpTest(task, name, payload.Payload)
 	}
 	if err != nil {
 		xlog.Error("runJob failed", xlog.String("err", err.Error()))
@@ -400,6 +406,98 @@ func (t *TestWorker) codeCheck(task view.TestTask, name string, p json.RawMessag
 		t.notifyProgress(task.TaskID, name, db.TestStepStatusFailed, progressFailed, err.Error())
 	} else {
 		t.notifyProgress(task.TaskID, name, db.TestStepStatusSuccess, progressSuccess, "")
+	}
+
+	return nil
+}
+
+func (t *TestWorker) httpTest(task view.TestTask, name string, p json.RawMessage) error {
+	var payload pipeline.JobHttpTestPayload
+	var testSuccess = true
+
+	err := json.Unmarshal(p, &payload)
+	if err != nil {
+		return err
+	}
+
+	notifyStepProgress := func(log view.HttpCollectionTestLog) {
+		respBytes, _ := json.Marshal(log)
+		t.notifyStepStatus(task.TaskID, name, db.TestStepStatusRunning, string(respBytes)+"\n")
+	}
+
+	tester := xtest.New(
+		xtest.WithInterpreter(xtest.InterpreterTypeJS),
+		xtest.WithGlobalStore(true),
+	)
+	for _, testCase := range payload.TestCases {
+		reqParams := view.ReqSendHttpRequest{
+			ID:          testCase.ID,
+			Name:        testCase.Name,
+			URL:         testCase.URL,
+			Method:      testCase.Method,
+			Query:       testCase.Query,
+			Headers:     testCase.Headers,
+			ContentType: testCase.ContentType,
+			Body:        testCase.Body,
+			Script:      testCase.Script,
+		}
+		req := httptest.NewRequest(resty.New(), testCase.Script, reqParams, tester)
+
+		// http 测试遇到错误继续往后执行
+		err = func() error {
+			ctx, cancelFunc := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancelFunc()
+
+			resp, err := req.Send(ctx)
+			if err != nil {
+				return err
+			}
+
+			notifyStepProgress(view.HttpCollectionTestLog{
+				TestID:   testCase.ID,
+				TestName: testCase.Name,
+				Action:   "output",
+				Output:   nil,
+				Result:   &resp,
+			})
+
+			err = resp.Error
+			if err != nil {
+				return err
+			}
+
+			if !resp.Success {
+				return fmt.Errorf("test failed")
+			}
+
+			return err
+		}()
+		if err != nil {
+			testSuccess = false
+
+			output := err.Error()
+			notifyStepProgress(view.HttpCollectionTestLog{
+				TestID:   testCase.ID,
+				TestName: testCase.Name,
+				Action:   "fail",
+				Output:   &output,
+				Result:   nil,
+			})
+		} else {
+			notifyStepProgress(view.HttpCollectionTestLog{
+				TestID:   testCase.ID,
+				TestName: testCase.Name,
+				Action:   "pass",
+				Output:   nil,
+				Result:   nil,
+			})
+		}
+	}
+
+	if testSuccess {
+		t.notifyStepStatus(task.TaskID, name, db.TestStepStatusSuccess, "")
+	} else {
+		t.notifyStepStatus(task.TaskID, name, db.TestStepStatusFailed, "")
 	}
 
 	return nil

@@ -24,4 +24,6 @@ func Init(o Option) {
 		DB:               o.DB,
 		HeartbeatTimeout: cfg.Cfg.Worker.HeartbeatTimeout,
 	})
+
+	startClearTimeoutTask()
 }

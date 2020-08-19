@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	StepOption func() db.TestPipelineStep
+	StepOption func(desc *db.TestPipelineDesc)
 
 	JobGitPullPayload struct {
 		GitHttpUrl  string `json:"http_url"`
@@ -21,42 +21,54 @@ type (
 	JobUnitTestPayload struct {
 		AccessToken string `json:"access_token"`
 	}
+
+	JobHttpTestPayload struct {
+		Collection db.HttpTestCollection `json:"collection"`
+		TestCases  []db.HttpTestCase     `json:"test_cases"`
+	}
 )
 
 const (
 	StepGitPullName   = "git_pull"
 	StepCodeCheckName = "code_check"
 	StepUnitTestName  = "unit_test"
+	StepHttpTestName  = "http_test"
 )
 
 func New(options ...StepOption) *db.TestPipelineDesc {
 	p := db.TestPipelineDesc{}
 
 	for _, option := range options {
-		p.Steps = append(p.Steps, option())
+		option(&p)
 	}
 
 	return &p
 }
 
 func StepSubPipeline(options ...StepOption) StepOption {
-	return func() db.TestPipelineStep {
-		return db.TestPipelineStep{
+	return func(desc *db.TestPipelineDesc) {
+		desc.Steps = append(desc.Steps, db.TestPipelineStep{
 			Type:        db.StepTypeSubPipeline,
 			JobPayload:  nil,
 			SubPipeline: New(options...),
-		}
+		})
+	}
+}
+
+func Parallel(flag bool) StepOption {
+	return func(desc *db.TestPipelineDesc) {
+		desc.Parallel = flag
 	}
 }
 
 func StepJob(name string, jobPayload db.TestJobPayload) StepOption {
-	return func() db.TestPipelineStep {
-		return db.TestPipelineStep{
+	return func(desc *db.TestPipelineDesc) {
+		desc.Steps = append(desc.Steps, db.TestPipelineStep{
 			Name:        name,
 			Type:        db.StepTypeJob,
 			JobPayload:  &jobPayload,
 			SubPipeline: nil,
-		}
+		})
 	}
 }
 
@@ -78,6 +90,22 @@ func StepUnitTest(accessToken string) StepOption {
 	return StepJob(
 		StepUnitTestName,
 		JobUnitTest(accessToken),
+	)
+}
+
+//StepHttpTestCollection 执行 Http 测试用例集合
+func StepHttpTestCollection(collection db.HttpTestCollection, testCases []db.HttpTestCase) StepOption {
+	payload, _ := json.Marshal(&JobHttpTestPayload{
+		Collection: collection,
+		TestCases:  testCases,
+	})
+
+	return StepJob(
+		StepHttpTestName,
+		db.TestJobPayload{
+			Type:    db.JobHttpTest,
+			Payload: payload,
+		},
 	)
 }
 

@@ -16,17 +16,20 @@ import (
 )
 
 func ListPipeline(params view.ReqListPipeline) (pipelines []view.TestPipelineUV, err error) {
-	type PipelineWithTaskCount struct {
+	type PipelineWithTaskStatus struct {
 		db.TestPipeline
-		Count int
+		Count  int
+		Status db.TestTaskStatus
 	}
-	var pls []PipelineWithTaskCount
+	var pls []PipelineWithTaskStatus
 
 	query := option.DB.Model(&db.TestPipeline{}).
 		Select(
-			"test_pipeline.*, ? as count",
+			"test_pipeline.*, ? as count, ? as status",
 			option.DB.Model(&db.TestPipelineTask{}).Select("count(*) as count").
 				Where("pipeline_id = test_pipeline.id").SubQuery(),
+			option.DB.Model(&db.TestPipelineTask{}).Select("status").
+				Where("pipeline_id = test_pipeline.id").Order("id desc").Limit(1).SubQuery(),
 		).Where("app_name = ?", params.AppName).
 		Order("id desc")
 	if params.Env != "" {
@@ -35,9 +38,6 @@ func ListPipeline(params view.ReqListPipeline) (pipelines []view.TestPipelineUV,
 	if params.ZoneCode != "" && params.ZoneCode != "all" {
 		query = query.Where("zone_code = ?", params.ZoneCode)
 	}
-	query = query.Preload("LastTask", func(db *gorm.DB) *gorm.DB {
-		return db.Order("id desc").Limit(1)
-	})
 
 	err = query.Find(&pls).Error
 	if err != nil {
@@ -54,10 +54,7 @@ func ListPipeline(params view.ReqListPipeline) (pipelines []view.TestPipelineUV,
 			Branch:   pl.Branch,
 			Desc:     secureFormatDesc(pl.Desc),
 			RunCount: pl.Count,
-		}
-
-		if pl.LastTask != nil {
-			item.Status = pl.LastTask.Status
+			Status:   pl.Status,
 		}
 
 		pipelines = append(pipelines, item)
@@ -125,6 +122,16 @@ func CreatePipeline(uid uint, payload view.TestPipeline) (err error) {
 		userTaskOptions = append(userTaskOptions, pipeline.StepUnitTest(option.GitAccessToken))
 	}
 
+	if payload.HttpTestCollection != nil {
+		var httpCollection db.HttpTestCollection
+		err = option.DB.Preload("TestCases").Where("id = ?", *payload.HttpTestCollection).First(&httpCollection).Error
+		if err != nil {
+			return err
+		}
+
+		userTaskOptions = append(userTaskOptions, pipeline.StepHttpTestCollection(httpCollection, httpCollection.TestCases))
+	}
+
 	if len(userTaskOptions) == 0 {
 		return fmt.Errorf("最少要有一个执行的任务")
 	}
@@ -139,7 +146,11 @@ func CreatePipeline(uid uint, payload view.TestPipeline) (err error) {
 		payload.Branch,
 		option.GitAccessToken,
 	))
-	taskOptions = append(taskOptions, userTaskOptions...)
+
+	userTaskOptions = append(userTaskOptions, pipeline.Parallel(true))
+	taskOptions = append(taskOptions, pipeline.StepSubPipeline(
+		userTaskOptions...,
+	))
 
 	desc = pipeline.New(taskOptions...)
 
@@ -368,7 +379,7 @@ func dispatchToWorker(task db.TestPipelineTask) error {
 		return err
 	}
 
-	node, err := workerpool.Instance().Select(task.ZoneCode, task.Env)
+	node, err := workerpool.Instance().Select(task.ZoneCode)
 	if err != nil {
 		return err
 	}

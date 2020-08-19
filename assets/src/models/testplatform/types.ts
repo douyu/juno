@@ -4,7 +4,8 @@ import {Reducer} from "@@/plugin-dva/connect";
 export enum JobType {
   CodeCheck = "code_check",
   GitPull = "git_pull",
-  UnitTest = "unit_test"
+  UnitTest = "unit_test",
+  HttpTest = "http_test"
 }
 
 export enum StepType {
