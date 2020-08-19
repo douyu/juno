@@ -10,6 +10,8 @@ package proxy
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
@@ -18,7 +20,6 @@ import (
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 func ProxyPost(c echo.Context) (err error) {
@@ -31,17 +32,18 @@ func ProxyPost(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
+	request := invoker.Resty.R().SetBody(reqModel.Body).SetQueryParams(reqModel.Params)
 	switch reqModel.Type {
 	case "POST":
 		xlog.Info("post info", xlog.Any("path", c.Request().URL.String()), xlog.Any("req", reqModel))
-		resp, err := invoker.Resty.R().SetBody(reqModel.Params).Post(fmt.Sprintf("http://%s%s", reqModel.Address, reqModel.URL))
+		resp, err := request.Post(fmt.Sprintf("http://%s%s", reqModel.Address, reqModel.URL))
 		if err != nil {
 			return c.String(http.StatusOK, err.Error())
 		}
 		return c.HTMLBlob(http.StatusOK, resp.Body())
 	case "GET":
 		xlog.Info("get info", xlog.Any("path", c.Request().URL.String()), xlog.Any("req", reqModel))
-		resp, err := invoker.Resty.R().SetQueryParams(reqModel.Params).Get(fmt.Sprintf("http://%s%s", reqModel.Address, reqModel.URL))
+		resp, err := request.Get(fmt.Sprintf("http://%s%s", reqModel.Address, reqModel.URL))
 		if err != nil {
 			return c.String(http.StatusOK, err.Error())
 		}

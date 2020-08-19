@@ -20,21 +20,21 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/jupiter/pkg"
-	"github.com/douyu/jupiter/pkg/client/etcdv3"
-
 	apiproxy "github.com/douyu/juno/api/apiv1/proxy"
+	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
 	"github.com/douyu/juno/internal/pkg/service/report"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
+	"github.com/douyu/jupiter/pkg"
+	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
 	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/server/xgrpc"
 	"github.com/douyu/jupiter/pkg/xlog"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 )
@@ -129,6 +129,7 @@ func (eng *Proxy) serveHTTP() (err error) {
 
 	server := serverConfig.Build()
 	server.Debug = true
+	server.Validator = &FormValidator{validator: validator.New()}
 	apiV1(server)
 
 	err = eng.Serve(server)
@@ -183,6 +184,9 @@ func (eng *Proxy) serveGovern() (err error) {
 func apiV1(server *xecho.Server) {
 	server.POST("/*", apiproxy.ProxyPost)
 	server.POST("/api/v1/resource/node/heartbeat", apiproxy.NodeHeartBeat)
+	server.POST("/api/v1/testworker/platform/dispatch", apiproxy.DispatchTask)
+	server.POST("/api/v1/testworker/platform/consume", apiproxy.ConsumeTask)
+	server.POST("/api/v1/testworker/platform/taskStatusUpdate", apiproxy.TaskStatusUpdate)
 
 	//// work for juno -> agent
 	//server.GET("/api/v1/configuration/takeEffect", apiproxy.ConfigurationTakeEffect)

@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/alibaba/sentinel-golang v0.4.0
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190802083043-4cd0c391755e
+	github.com/beeker1121/goque v2.1.0+incompatible
 	github.com/bojand/ghz v0.56.0
 	github.com/casbin/casbin/v2 v2.7.2
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
@@ -13,6 +14,7 @@ require (
 	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc // indirect
 	github.com/douyu/jupiter v0.0.0-20200709073817-3e760e50d665
 	github.com/dustin/go-humanize v1.0.0 // indirect
+	github.com/go-git/go-git/v5 v5.1.0
 	github.com/go-playground/validator/v10 v10.3.0
 	github.com/go-resty/resty/v2 v2.2.0
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
@@ -25,6 +27,7 @@ require (
 	github.com/jinzhu/gorm v1.9.12
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
+	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo-contrib v0.9.0
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/labstack/gommon v0.3.0
@@ -48,6 +51,7 @@ require (
 	go.etcd.io/etcd v3.3.13+incompatible
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208

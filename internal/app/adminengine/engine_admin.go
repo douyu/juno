@@ -19,6 +19,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/douyu/juno/api/apiv1/test/platform"
+
+	"github.com/douyu/juno/pkg/constx"
+
 	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"go.uber.org/zap"
@@ -175,7 +179,8 @@ func (eng *Admin) initNotify() (err error) {
 				ProxyClient[value] = pb.NewProxyClient(gconfig.Build())
 			}
 			notify.InitStreamStore(ProxyClient)
-			notify.StreamStore.AddRouter(resource.NodeHeartBeat)
+			notify.StreamStore.AddRouter(constx.MsgNodeHeartBeatResp, resource.NodeHeartBeat)
+			notify.StreamStore.AddRouter(constx.MsgTestStepUpdateResp, platform.TaskStepStatusUpdate)
 		}
 	}
 	return nil
