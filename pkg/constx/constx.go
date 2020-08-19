@@ -2,9 +2,9 @@ package constx
 
 // msgid
 const (
-	MsgConnectReq = 101
-
-	MsgNodeHeartBeatResp = 1001
+	MsgConnectReq         = 101
+	MsgNodeHeartBeatResp  = 1001
+	MsgTestStepUpdateResp = 1002
 )
 
 // mode

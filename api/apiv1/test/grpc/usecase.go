@@ -112,6 +112,7 @@ func SendRequest(c *core.Context) (err error) {
 		Input:    param.Input,
 		Address:  param.Address,
 		Metadata: param.Metadata,
+		Script:   param.Script,
 	})
 
 	return c.OutputJSON(output.MsgOk, "success", c.WithData(response))

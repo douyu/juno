@@ -6,7 +6,7 @@ const (
 	GitEventIssueHook        = "Issue Hook"
 	GitEventMergeRequestHook = "Merge Request Hook"
 	GitEventWikiPageHook     = "Wiki Page Hook"
-	GitEventPipelineHook     = "Pipeline Hook"
+	GitEventPipelineHook     = "Desc Hook"
 	GitEventJobHook          = "Job Hook"
 
 	// gitlab信息变更
@@ -82,7 +82,7 @@ var OperationMap = map[string]string{
 	EventDevopsDeploy:             "部署",
 	EventDevopsRollback:           "回滚",
 	EventDevopsUpdate:             "节点更新",
-	EventPipelineHook:             "Git Pipeline",
+	EventPipelineHook:             "Git Desc",
 	EventJobHook:                  "Git Job",
 	EventConfgoFileCreate:         "配置文件新增",
 	EventConfgoFileUpdate:         "配置文件更新",

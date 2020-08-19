@@ -29,19 +29,23 @@ func NewRestyClient(mode string, proxyAddr string) (obj *RestyClient) {
 }
 
 func (r *RestyClient) Get(req view.ReqHTTPProxy) (*resty.Response, error) {
+	request := r.conn.R().SetBody(req.Body).SetQueryParams(req.Params)
 	if r.mode == constx.ModeMultiple {
 		req.Type = "GET"
 		r.conn.Debug = true
-		return r.conn.R().SetBody(req).Post(req.URL)
+		return request.Post(req.URL)
 	}
-	return r.conn.R().SetQueryParams(req.Params).Get(fmt.Sprintf("http://%s%s", req.Address, req.URL))
+
+	return request.Get(fmt.Sprintf("http://%s%s", req.Address, req.URL))
 }
 
 func (r *RestyClient) Post(req view.ReqHTTPProxy) (*resty.Response, error) {
+	request := r.conn.R().SetBody(req.Body).SetQueryParams(req.Params)
 	if r.mode == constx.ModeMultiple {
 		req.Type = "POST"
 		r.conn.Debug = true
-		return r.conn.R().SetBody(req).Post(req.URL)
+		return request.Post(req.URL)
 	}
-	return r.conn.R().SetBody(req.Params).Post(fmt.Sprintf("http://%s%s", req.Address, req.URL))
+
+	return request.Post(fmt.Sprintf("http://%s%s", req.Address, req.URL))
 }

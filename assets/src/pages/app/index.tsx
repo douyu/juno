@@ -1,7 +1,7 @@
 import React from 'react';
 import PPofList from '../pprof/pprof';
 import Monitor from '../monitor/monitor';
-import {Alert, Col, message, Row, Tabs, Select, Empty} from 'antd';
+import {Col, Empty, message, Row, Tabs} from 'antd';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import AppHeader from './components/AppHeader/index';
 import {ServiceAppEnvZone, ServiceAppInfo, ServiceAppList, ServiceGetAppList} from '@/services/app';
@@ -15,6 +15,7 @@ import {connect} from "dva";
 import Etcd from "@/pages/etcd/etcd";
 import {getFrameVersion} from "@/pages/monitor/services";
 import Event from "@/pages/app/components/Event";
+import Test from "@/pages/app/components/Test";
 
 const {TabPane} = Tabs;
 
@@ -376,6 +377,14 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
 
           <TabPane tab={"事件"} key={"event"}>
             <Event active={tab === 'event'} appName={appName} env={env}/>
+          </TabPane>
+
+          <TabPane tab={"Test"} key={"test"}>
+            <Test
+              appName={appName}
+              env={env}
+              zoneCode={this.state.zoneCode}
+            />
           </TabPane>
 
         </Tabs>

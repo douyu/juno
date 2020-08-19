@@ -53,6 +53,9 @@ type cfg struct {
 	Assist            Assist
 	AppLog            AppLog
 	GrpcTest          GrpcTest
+	ProxyAuth         ProxyAuth
+	CodePlatform      CodePlatform
+	Worker            Worker
 }
 
 // DefaultConfig ...

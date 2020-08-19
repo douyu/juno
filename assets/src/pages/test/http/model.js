@@ -52,7 +52,9 @@ export default {
       current: 0,
       pageSize: 0,
       total: 0
-    }
+    },
+
+    visibleModalScriptEditor: false,
 
   },
   effects: effects,

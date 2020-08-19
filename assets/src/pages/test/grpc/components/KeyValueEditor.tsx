@@ -48,7 +48,7 @@ export default class KeyValueEditor extends React.Component<KeyValueEditorProps>
       {rows.map((item, index) => {
         return <div className={styles.row}>
           {Object.keys(item).map(key => (
-            <div className={styles.column}>
+            <div className={styles.column} key={key}>
               <CustomInput placeholder={key} value={item[key]} onChange={(val) => {
                 rows[index][key] = val;
                 let dataChanged = data;

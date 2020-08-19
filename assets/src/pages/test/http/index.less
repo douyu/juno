@@ -1,28 +1,39 @@
 @import "var";
 
 @containerH: 800px;
-@asideH: 300px;
+@asideW: 300px;
 
 .httpDebugPage {
+  width: 100%;
   border-radius: 10px;
-  background-color: @secondaryBGColor;
   overflow: hidden;
+  background-color: #fff;
 
   .header {
     padding: 15px 10px;
     border-bottom: @primaryBorderStyle;
+    background-color: @secondaryBGColor;
   }
 }
 
 .main {
-  display: grid;
-  grid-template-columns: 300px auto;
   height: @containerH;
+  width: 100%;
+  overflow: hidden;
 
   .leftSider {
     background-color: #fff;
-    width: @asideH;
+    width: @asideW;
+    float: left;
     border-right: @secondaryBorderStyle;
+  }
+
+  .rightBlock {
+    width: calc(100% - @asideW);
+    height: @containerH;
+    overflow: hidden;
+    box-sizing: border-box;
+    background-color: @secondaryBGColor;
   }
 }
 
@@ -53,27 +64,23 @@
     background-color: @secondaryBGColor;
     padding: 10px;
     color: @secondaryColor;
+    display: grid;
+    grid-template-columns: auto 300px;
   }
 
-  .responseStatusBar {
-    color: @secondaryColor;
-    padding: 10px;
+  .statusBlock {
 
-    .statusBlock {
-
-      &:nth-child(n+2) {
-        margin-left: 10px;
-      }
-
-      .statusSuccess {
-        color: green;
-      }
-
-      .statusFail {
-        color: red;
-      }
+    &:nth-child(n+2) {
+      margin-left: 10px;
     }
+  }
 
+  .statusSuccess {
+    color: green;
+  }
+
+  .statusFail {
+    color: red;
   }
 
   .responseSuccess {
@@ -82,6 +89,7 @@
   .responseFail {
     padding: 10px;
   }
+
 }
 
 :global {

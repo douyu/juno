@@ -20,6 +20,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
+	"github.com/douyu/juno/internal/pkg/service/testplatform"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/auth/social"
 	"github.com/douyu/juno/pkg/cfg"
@@ -83,6 +84,11 @@ func Init() (err error) {
 	})
 
 	appDep.Init()
+
+	testplatform.Init(testplatform.Option{
+		DB:             invoker.JunoMysql,
+		GitAccessToken: cfg.Cfg.CodePlatform.Token,
+	})
 
 	return
 }

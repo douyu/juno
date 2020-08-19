@@ -4,25 +4,25 @@ import {
   Button,
   Cascader,
   Descriptions,
+  Empty,
   Form,
   Input,
   message,
   Modal,
   Popover,
+  Spin,
   Tabs,
   Tag,
-  Tree,
-  Empty
+  Tree
 } from 'antd';
 import {
-  RocketOutlined,
-  PlusOutlined,
+  DeleteOutlined,
   FileAddOutlined,
-  SettingOutlined,
   LinkOutlined,
-  DeleteOutlined
+  PlusOutlined,
+  RocketOutlined,
+  SettingOutlined
 } from '@ant-design/icons'
-import {UnControlled as CodeMirror} from 'react-codemirror2'
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/duotone-light.css';
@@ -36,8 +36,22 @@ import {stringify} from 'qs';
 import KeyValueEditor from "./components/KeyValueEditor";
 import ServiceBindDialog from "./components/ServiceBindDialog";
 import {bindProtoToApp} from "@/services/grpctest";
+import MonacoEditor from "react-monaco-editor";
+import ScrollArea from 'react-scrollbar'
 
 const {DirectoryTree, TreeNode} = Tree;
+
+const DefaultScript = `
+// 发出请求之前被调用
+test.preRequest = function() {
+    // your code
+}
+
+// 请求后被调用
+test.onResponse = function(data) {
+    // your code
+}
+`
 
 @connect(({grpcDebugModel, app}) => ({
   ...grpcDebugModel,
@@ -46,6 +60,8 @@ const {DirectoryTree, TreeNode} = Tree;
 export default class GrpcDebug extends React.Component {
 
   form = React.createRef()
+  payloadEditor = null
+  scriptEditor = null
 
   constructor(props) {
     super(props);
@@ -191,13 +207,21 @@ export default class GrpcDebug extends React.Component {
     })
   };
 
-  onGrpcInputChange = (e, d, val) => {
+  onGrpcInputChange = (val) => {
     const {dispatch} = this.props;
     dispatch({
       type: 'grpcDebugModel/updateCaseInput',
       payload: val
     })
   };
+
+  onTestScriptChange = val => {
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'grpcDebugModel/updateCaseScript',
+      payload: val
+    })
+  }
 
   onSendRequest = () => {
     const {form, editor, dispatch, selected_service} = this.props;
@@ -225,7 +249,8 @@ export default class GrpcDebug extends React.Component {
         method_id: method_id,
         input: JSON.stringify(inputObj),
         address: fields.address,
-        metadata: editor.form.metadata
+        metadata: editor.form.metadata,
+        script: editor.form.script
       };
       dispatch({
         type: 'grpcDebugModel/sendRequest',
@@ -242,7 +267,8 @@ export default class GrpcDebug extends React.Component {
         name: fields.case_name,
         method_id: editor.form.method_id,
         input: editor.form.input,
-        metadata: editor.form.metadata
+        metadata: editor.form.metadata,
+        script: editor.form.script
       };
       let prom;
       if (editor.form.id) {
@@ -413,9 +439,10 @@ export default class GrpcDebug extends React.Component {
       setting_dialog_visible,
       service_bind_dialog_visible,
       proto_list,
-      appList
+      appList,
+      use_case_loading
     } = this.props;
-    let addrOptions = node_addr_list.hosts ? node_addr_list.hosts.filter(i => i.env !== 'prod' && i.env !== 'gray').map(item => {
+    let addrOptions = node_addr_list?.hosts ? node_addr_list.hosts.filter(i => i.env !== 'prod' && i.env !== 'gray').map(item => {
       return <AutoComplete.Option key={item.addr} value={item.addr + ':' + node_addr_list.port}>
         <Tag>{item.env}</Tag>
         <span>{item.addr}:{node_addr_list.port}</span>
@@ -468,18 +495,20 @@ export default class GrpcDebug extends React.Component {
         <Button shape="circle" icon={<LinkOutlined/>} className={styles.bindServiceButton}
                 onClick={this.onShowServiceBindDialog}/>
       </div>
-      <div class={styles.main}>
+      <div className={styles.main}>
         <div
-          width={300}
           className={styles.layoutSider}>
           <Tabs
             type={"card"}
+            className={styles.leftTabs}
             activeKey={active_tab}
             onChange={this.onTabChange}
             renderTabBar={(props, DefaultTabBar) => {
               return <DefaultTabBar {...props} style={{
                 backgroundColor: 'rgb(250,250,250)',
-                padding: '10px 0 0 10px'
+                padding: '10px 0 0 10px',
+                margin: '0',
+                flex: '0 0 50px'
               }}/>
             }}>
             <Tabs.TabPane key="history" tab="History">
@@ -501,158 +530,42 @@ export default class GrpcDebug extends React.Component {
               ) : null}
             </Tabs.TabPane>
             <Tabs.TabPane key="api" tab="API">
-              <DirectoryTree
-                onRightClick={this.onUserCaseTreeRightClicked}
-                defaultExpandAll
-                onSelect={this.onSelectUserCaseTree}
-                selectedKeys={[selected_user_case]}
-              >
-                {(use_cases || []).map((method, id) => {
-                  return <TreeNode
-                    title={method.description ?
-                      <Popover content={method.description}>{method.name}</Popover> : method.name
-                    }
-                    key={`method:${method.id}`}>
-                    <TreeNode
-                      icon={<PlusOutlined/>}
-                      key={`new:${method.id}`}
-                      title="New" isLeaf/>
-                    {method.use_cases ? method.use_cases.map((tc, id) => {
-                      return <TreeNode title={tc.name} key={`case:${tc.id}`} isLeaf/>
-                    }) : null}
-                  </TreeNode>
-                })}
-              </DirectoryTree>
+              <ScrollArea style={{height: '830px'}}>
+                <DirectoryTree
+                  onRightClick={this.onUserCaseTreeRightClicked}
+                  defaultExpandAll
+                  onSelect={this.onSelectUserCaseTree}
+                  selectedKeys={[selected_user_case]}
+                  style={{marginTop: '10px'}}
+                >
+                  {(use_cases || []).map((method, id) => {
+                    return <TreeNode
+                      title={method.description ?
+                        <Popover content={method.description}>{method.name}</Popover> : method.name
+                      }
+                      key={`method:${method.id}`}>
+                      <TreeNode
+                        icon={<PlusOutlined/>}
+                        key={`new:${method.id}`}
+                        title="New" isLeaf/>
+                      {method.use_cases ? method.use_cases.map((tc, id) => {
+                        return <TreeNode title={tc.name} key={`case:${tc.id}`} isLeaf/>
+                      }) : null}
+                    </TreeNode>
+                  })}
+                </DirectoryTree>
+              </ScrollArea>
             </Tabs.TabPane>
-            {/*<Tabs.TabPane key="public" tab="Public">*/}
-            {/*  {*/}
-            {/*    public_cases && public_cases.length > 0 ? (*/}
-            {/*      <DirectoryTree*/}
-            {/*        onSelect={this.onSelectPublicCase}*/}
-            {/*      >*/}
-            {/*        {public_cases.map((item, idx) => {*/}
-            {/*          return <TreeNode key={item.caseId} title={item.name} isLeaf/>*/}
-            {/*        })}*/}
-            {/*      </DirectoryTree>*/}
-            {/*    ) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>*/}
-            {/*  }*/}
-            {/*</Tabs.TabPane>*/}
           </Tabs>
         </div>
-        <div className={styles.layoutContent}>
-          <Form ref={this.form}>
-            <div className={styles.caseNameLine}>
-              <Form.Item rules={[{required: true}]} name={"case_name"} initialValue={editor.form.case_name}>
-                <Input placeholder="请输入用例名称" addonBefore={"Name"}/>
-              </Form.Item>
-              <Popover content="Ctrl-S">
-                <Button icon={<FileAddOutlined/>} onClick={this.onSave}>Save</Button>
-              </Popover>
-            </div>
-            <div className={styles.caseAddrLine}>
-              <Form.Item name={"address"}>
-                <AutoComplete
-                  optionLabelProp="value"
-                  dataSource={addrOptions}
-                >
-                  <Input addonBefore={"Address"} placeholder="请输入地址"/>
-                </AutoComplete>
-              </Form.Item>
-              <Button icon={<RocketOutlined/>} type="primary" onClick={this.onSendRequest}>Send</Button>
-            </div>
-            <div className={styles.basicInfoLine}>
-              <Descriptions bordered size="small">
-                <Descriptions.Item label="App">{editor.info.app_name}</Descriptions.Item>
-                <Descriptions.Item label="Service">{editor.info.service_name}</Descriptions.Item>
-                <Descriptions.Item label="Method">{editor.info.method_name}</Descriptions.Item>
-              </Descriptions>
-            </div>
-            <div className={styles.payloadTitleBar}>
-              Metadata
-            </div>
-            <div className={styles.metadataInputLine}>
-              <KeyValueEditor
-                data={metadata}
-                onChange={this.onMetadataChange}
-              />
-            </div>
-            <div className={styles.payloadTitleBar}>
-              Payload
-            </div>
-            <div class={"grpcPayload"}>
-              <CodeMirror
-                value={editor.form.input}
-                onChange={this.onGrpcInputChange}
-                options={{
-                  mode: 'javascript',
-                  theme: 'duotone-light',
-                  lineNumbers: true,
-                  indent: 2
-                }}/>
-            </div>
-            <div className={styles.responseTitleBar}>
-              Response
-            </div>
-            <div className={styles.responseContainer}>
-              {response === null ? (
-                <div style={{textAlign: 'center', padding: '40px', color: '#c3c3c3'}}>
-                  <RocketOutlined style={{fontSize: "48px"}}/>
-                  <p style={{marginTop: '20px'}}>发起请求获取响应</p>
-                </div>
-              ) : (
-                <>
-                  <div
-                    className={styles.responseStatusBar + (response.status === 'success' ? '' : ' ' + styles.responseStatusBarFail)}>
-                    <span className={styles.statusBlock}>
-                      <span>Status: </span>
-                      <span>
-                        {response.status === "success" ?
-                          <span className={styles.statusSuccess}>success</span>
-                          : <span className={styles.statusFail}>fail</span>}
-                      </span>
-                    </span>
-                    <span className={styles.statusBlock}>
-                      <span>Time: </span>
-                      <span className={styles.statusSuccess}>
-                        {response.time_cost}ms
-                      </span>
-                    </span>
-                  </div>
-                  {response.status === "success" ? (
-                    // 成功
-                    <div className={styles.responseSuccess}>
-                      <CodeMirror
-                        value={response.output}
-                        options={{
-                          readOnly: true,
-                          mode: 'javascript',
-                          theme: 'duotone-light',
-                          lineNumbers: true
-                        }}/>
-                    </div>
-                  ) : (
-                    // 失败
-                    <div className={styles.responseFail}>
-                      <Tag color="red">error</Tag>
-                      {response.error}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </Form>
-        </div>
+
+        {editor.form.method_id ? <Spin spinning={use_case_loading} wrapperClassName={styles.formSpin}>
+            {this.renderForm(editor, addrOptions, metadata, response)}
+          </Spin>
+          : <div style={{flex: '1 1 auto', padding: '100px'}}>
+            <Empty desciption={"请选择用例"}/>
+          </div>}
       </div>
-
-
-      {/*<UserCaseMenu*/}
-      {/*  visible={right_menu_visible}*/}
-      {/*  position={right_menu_position}*/}
-      {/*  menu={right_menu}*/}
-      {/*  onClose={() => {*/}
-      {/*    dispatch({type: 'grpcDebugModel/showRightMenu', payload: {visible: false}})*/}
-      {/*  }}*/}
-      {/*/>*/}
 
       <SettingDialog
         onCancel={() => {
@@ -680,5 +593,206 @@ export default class GrpcDebug extends React.Component {
       />
 
     </div>
+  }
+
+  renderForm(editor, addrOptions, metadata, response) {
+    const {request_loading} = this.props
+    return <Form ref={this.form} className={styles.layoutContent}>
+      <div className={styles.caseNameLine}>
+        <Form.Item rules={[{required: true}]} name={"case_name"} initialValue={editor.form.case_name}>
+          <Input placeholder="请输入用例名称" addonBefore={"Name"}/>
+        </Form.Item>
+        <Popover content="Ctrl-S">
+          <Button icon={<FileAddOutlined/>} onClick={this.onSave}>Save</Button>
+        </Popover>
+      </div>
+      <div className={styles.caseAddrLine}>
+        <Form.Item name={"address"}>
+          <AutoComplete
+            optionLabelProp="value"
+            dataSource={addrOptions}
+          >
+            <Input addonBefore={"Address"} placeholder="请输入地址"/>
+          </AutoComplete>
+        </Form.Item>
+        <Button icon={<RocketOutlined/>} type="primary" loading={request_loading} onClick={this.onSendRequest}>Send</Button>
+      </div>
+      <div className={styles.basicInfoLine}>
+        <Descriptions bordered size="small">
+          <Descriptions.Item label="App">{editor.info.app_name}</Descriptions.Item>
+          <Descriptions.Item label="Service">{editor.info.service_name}</Descriptions.Item>
+          <Descriptions.Item label="Method">{editor.info.method_name}</Descriptions.Item>
+        </Descriptions>
+      </div>
+
+      <div className={styles.inputOutputLayout}>
+        <div className={styles.inputContainer}>
+          <Tabs
+            className={styles.inputTabs}
+            tabBarStyle={{height: '100%'}}
+            defaultActiveKey={"payload"}
+            onChange={tab => {
+              let dimension = {width: '100%', height: 'auto'}
+              setTimeout(() => {
+                switch (tab) {
+                  case 'payload':
+                    this.payloadEditor?.layout()
+                    break
+                  case 'script':
+                    this.scriptEditor?.layout()
+                    break
+                }
+              })
+            }}
+            renderTabBar={(props, DefaultTab) => {
+              return <DefaultTab
+                {...props}
+                style={{
+                  padding: '0 10px',
+                  margin: '0',
+                  backgroundColor: 'rgb(250,250,250)'
+                }}
+              />
+            }}
+          >
+            <Tabs.TabPane tab={"Payload"} key={"payload"}>
+              <div className={styles.grpcPayload}>
+                <MonacoEditor
+                  width={"100%"}
+                  height={"663px"}
+                  value={editor.form.input}
+                  onChange={val => {
+                    this.onGrpcInputChange(val)
+                  }}
+                  language={"json"}
+                  theme={"vs"}
+                  options={{
+                    automaticLayout: true
+                  }}
+                  editorDidMount={editor => {
+                    this.payloadEditor = editor
+                  }}
+                />
+              </div>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab={"Metadata"} key={"metadata"}>
+              <div className={styles.metadataInputLine}>
+                <KeyValueEditor
+                  data={metadata}
+                  onChange={this.onMetadataChange}
+                />
+              </div>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab={"Test Script"} key={"script"}>
+              <MonacoEditor
+                width={"100%"}
+                height={"663px"}
+                value={editor.form.script || DefaultScript}
+                language={"javascript"}
+                theme={"vs"}
+                onChange={val => {
+                  this.onTestScriptChange(val)
+                }}
+                editorDidMount={editor => {
+                  this.scriptEditor = editor
+                }}
+              />
+            </Tabs.TabPane>
+          </Tabs>
+
+        </div>
+        <div className={styles.outputContainer}>
+          <Tabs
+            className={styles.outputTabs}
+            tabBarStyle={{height: '100%'}}
+            defaultActiveKey={"response"}
+            renderTabBar={(props, DefaultTab) => {
+              return <DefaultTab
+                {...props}
+                style={{
+                  padding: '0 10px',
+                  margin: '0',
+                  backgroundColor: 'rgb(250,250,250)'
+                }}
+              />
+            }}
+          >
+            <Tabs.TabPane tab={"Response"} key={"response"}>
+              <div className={styles.responseContainer}>
+                {response === null ? (
+                  <div style={{textAlign: 'center', padding: '40px', color: '#c3c3c3'}}>
+                    <RocketOutlined style={{fontSize: "48px"}}/>
+                    <p style={{marginTop: '20px'}}>发起请求获取响应</p>
+                  </div>
+                ) : (
+                  <Spin spinning={request_loading}>
+                    <div
+                      className={styles.responseStatusBar + (response.status === 'success' ? '' : ' ' + styles.responseStatusBarFail)}>
+                      <span className={styles.statusBlock}>
+                        <span>Test: </span>
+                        <span>
+                          {response.test_passed ? <span className={styles.statusSuccess}>passed</span>
+                            : <span className={styles.statusFail}>failed</span>}
+                        </span>
+                      </span>
+                      <span className={styles.statusBlock}>
+                        <span>Status: </span>
+                        <span>
+                          {response.status === "success" ?
+                            <span className={styles.statusSuccess}>success</span>
+                            : <span className={styles.statusFail}>fail</span>}
+                        </span>
+                      </span>
+                      <span className={styles.statusBlock}>
+                        <span>Time: </span>
+                        <span className={styles.statusSuccess}>
+                          {response.time_cost}ms
+                        </span>
+                      </span>
+                    </div>
+                    {response.status === "success" ? (
+                      // 成功
+                      <div className={styles.responseSuccess}>
+                        <MonacoEditor
+                          width={"100%"}
+                          height={"621px"}
+                          value={response.output}
+                          language={"json"}
+                          theme={"vs"}
+                          options={{
+                            readOnly: true,
+                            automaticLayout: true
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      // 失败
+                      <div className={styles.responseFail}>
+                        <Tag color="red">error</Tag>
+                        {response.error}
+                      </div>
+                    )}
+                  </Spin>
+                )}
+              </div>
+            </Tabs.TabPane>
+
+            <Tabs.TabPane tab={"Logs"} key={"logs"}>
+              {(response?.logs && Object.keys(response?.logs).length) ?
+                <Descriptions size={"small"} bordered style={{margin: '10px'}}>
+                  {Object.keys(response?.logs || {}).map((key, idx) => {
+                    return <Descriptions.Item label={key} key={idx} span={24}>
+                      {response.logs[key]}
+                    </Descriptions.Item>
+                  })}
+                </Descriptions> : <Empty style={{margin: '10px'}}/>}
+            </Tabs.TabPane>
+          </Tabs>
+        </div>
+      </div>
+
+    </Form>;
   }
 }
