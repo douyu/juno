@@ -9,6 +9,8 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+const ClientMaxTimeout = 3
+
 type RestyClient struct {
 	conn *resty.Client
 	mode string
@@ -20,7 +22,7 @@ func NewRestyClient(mode string, proxyAddr string) (obj *RestyClient) {
 		mode: mode,
 	}
 	obj.conn = resty.New().SetDebug(true).
-		SetTimeout(3*time.Second).
+		SetTimeout(ClientMaxTimeout*time.Second).
 		SetHeader("Content-Type", "application/json;charset=utf-8")
 	if mode == constx.ModeMultiple {
 		obj.conn.SetHostURL(proxyAddr)

@@ -16,7 +16,7 @@ JUNO is a governance-oriented microservice platform, and used for many years in 
 
 See the [中文文档](http://jupiter.douyu.com/juno) for document in Chinese.
 
-[Quick Start](docs/wiki-cn/quickstart.md)
+[Quick Start](http://jupiter.douyu.com/juno)
 
 [在线演示](http://jupiterconsole.douyu.com/user/login?return_url=/)
 

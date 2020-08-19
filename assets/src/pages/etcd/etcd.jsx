@@ -274,12 +274,7 @@ export default class Etcd extends React.PureComponent {
                   })}
                 </Select>
               </Col>
-
-              {!showService &&
-              <Col {...colSpan}>
-                <Input style={{width: '90%'}} disabled={true} value={appName}
-                       placeholder="应用名"/>
-              </Col>}
+              
               <Col {...colSpan}>
                 <Input style={{width: '90%'}} value={suffix} onChange={this.onChangeSuffix}
                        placeholder="输入查询后缀"/>
