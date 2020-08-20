@@ -36,6 +36,10 @@
 }
 
 .publish {
+  flex: 1;
+  height: 0;
+  display: flex;
+  flex-direction: column;
 
   .optionBlock {
     height: @optionBlockH;
@@ -56,7 +60,8 @@
   }
 
   .instanceListScroll {
-    height: @editorH - @optionBlockH;
+    height: 0;
+    flex: 1;
   }
 
   .instanceList {

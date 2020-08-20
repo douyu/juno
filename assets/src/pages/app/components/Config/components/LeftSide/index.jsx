@@ -35,6 +35,8 @@ function LeftSide(props) {
   return (
     <div className={styles.leftSide}>
       <Menu
+        onFullScreen={props.onFullScreen}
+        isFullScreen={props.isFullScreen}
         menu={MenuItems}
         activeKey={activeMenuKey}
         onChange={setActiveMenuKey}

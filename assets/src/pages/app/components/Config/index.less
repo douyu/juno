@@ -1,15 +1,15 @@
 @import './var';
 
 .container {
-  display: grid;
-  grid-template-columns: 300px auto;
+  display: flex;
   height: @editorH;
   background-color: #1e1e1e;
   margin-top: 10px;
 
   .main {
+    flex: 1;
     position: relative;
-    width: 100%;
-    height: @editorH;
+    display: flex;
+    flex-direction: column;
   }
 }
