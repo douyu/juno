@@ -13,14 +13,14 @@ import (
 	"go.uber.org/zap"
 )
 
-type simplePorxy struct {
+type simpleProxy struct {
 	proxyConfigEtcd   *EtcdClient
 	proxyRegisterEtcd *EtcdClient
 	proxyHTTP         *restyClient
 }
 
-func initSingleProxy() (obj *simplePorxy) {
-	obj = &simplePorxy{}
+func initSingleProxy() (obj *simpleProxy) {
+	obj = &simpleProxy{}
 	// init etcd
 	obj.initProxyConfigEtcd()
 	obj.initProxyRegisterEtcd()
@@ -30,7 +30,7 @@ func initSingleProxy() (obj *simplePorxy) {
 	return
 }
 
-func (c *simplePorxy) initProxyConfigEtcd() {
+func (c *simpleProxy) initProxyConfigEtcd() {
 	etcdClient, err := NewEtcdClient(cfg.Cfg.ClientProxy.SingleProxy.ConfigEtcd.Endpoints,
 		cfg.Cfg.ClientProxy.SingleProxy.ConfigEtcd.Timeout,
 		cfg.Cfg.ClientProxy.SingleProxy.ConfigEtcd.BasicAuth,
@@ -44,7 +44,7 @@ func (c *simplePorxy) initProxyConfigEtcd() {
 	return
 }
 
-func (c *simplePorxy) initProxyRegisterEtcd() {
+func (c *simpleProxy) initProxyRegisterEtcd() {
 	etcdClient, err := NewEtcdClient(cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Endpoints,
 		cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Timeout,
 		cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.BasicAuth,
@@ -58,13 +58,13 @@ func (c *simplePorxy) initProxyRegisterEtcd() {
 	return
 }
 
-func (c *simplePorxy) initProxyHTTP() {
+func (c *simpleProxy) initProxyHTTP() {
 	c.proxyHTTP = newRestyClient(constx.ModeSingle, "")
 	return
 }
 
 //ConfigEtcdPut ..
-func (c *simplePorxy) ConfigEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
+func (c *simpleProxy) ConfigEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
 	if c.proxyConfigEtcd == nil {
 		err = fmt.Errorf("etcd is nil")
 		return
@@ -73,7 +73,7 @@ func (c *simplePorxy) ConfigEtcdPut(uniqZone view.UniqZone, ctx context.Context,
 }
 
 //ConfigEtcdGet ..
-func (c *simplePorxy) ConfigEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
+func (c *simpleProxy) ConfigEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
 	if c.proxyConfigEtcd == nil {
 		err = fmt.Errorf("etcd is nil")
 		return
@@ -82,7 +82,7 @@ func (c *simplePorxy) ConfigEtcdGet(uniqZone view.UniqZone, ctx context.Context,
 }
 
 //RegisterEtcdPut ..
-func (c *simplePorxy) RegisterEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
+func (c *simpleProxy) RegisterEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
 	if c.proxyRegisterEtcd == nil {
 		err = fmt.Errorf("etcd is nil")
 		return
@@ -91,7 +91,7 @@ func (c *simplePorxy) RegisterEtcdPut(uniqZone view.UniqZone, ctx context.Contex
 }
 
 //RegisterEtcdGet ..
-func (c *simplePorxy) RegisterEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
+func (c *simpleProxy) RegisterEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
 	if c.proxyRegisterEtcd == nil {
 		err = fmt.Errorf("etcd is nil")
 		return
@@ -100,7 +100,7 @@ func (c *simplePorxy) RegisterEtcdGet(uniqZone view.UniqZone, ctx context.Contex
 }
 
 //HttpGet ..
-func (c *simplePorxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
+func (c *simpleProxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
 	if c.proxyHTTP == nil {
 		err = fmt.Errorf("resty is nil")
 		return
@@ -109,7 +109,7 @@ func (c *simplePorxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (re
 }
 
 //HttpPost ..
-func (c *simplePorxy) HttpPost(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
+func (c *simpleProxy) HttpPost(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
 	if c.proxyHTTP == nil {
 		err = fmt.Errorf("resty is nil")
 		return

@@ -9,8 +9,8 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-//ClientMaxTimeout ..
-const ClientMaxTimeout = 3
+//ClientDefaultTimeout ..
+const ClientDefaultTimeout = 3
 
 type restyClient struct {
 	conn *resty.Client
@@ -23,7 +23,7 @@ func newRestyClient(mode string, proxyAddr string) (obj *restyClient) {
 		mode: mode,
 	}
 	obj.conn = resty.New().SetDebug(true).
-		SetTimeout(ClientMaxTimeout*time.Second).
+		SetTimeout(ClientDefaultTimeout*time.Second).
 		SetHeader("Content-Type", "application/json;charset=utf-8")
 	if mode == constx.ModeMultiple {
 		obj.conn.SetHostURL(proxyAddr)
@@ -33,7 +33,11 @@ func newRestyClient(mode string, proxyAddr string) (obj *restyClient) {
 
 //Get ..
 func (r *restyClient) Get(req view.ReqHTTPProxy) (*resty.Response, error) {
-	request := r.conn.R().SetBody(req.Body).SetQueryParams(req.Params)
+	timeout := req.Timeout
+	if timeout == 0 {
+		timeout = ClientDefaultTimeout
+	}
+	request := r.conn.SetTimeout(time.Duration(timeout) * time.Second).R().SetBody(req.Body).SetQueryParams(req.Params)
 	if r.mode == constx.ModeMultiple {
 		req.Type = "GET"
 		r.conn.Debug = true
@@ -45,7 +49,11 @@ func (r *restyClient) Get(req view.ReqHTTPProxy) (*resty.Response, error) {
 
 //Post ..
 func (r *restyClient) Post(req view.ReqHTTPProxy) (*resty.Response, error) {
-	request := r.conn.R().SetBody(req.Body).SetQueryParams(req.Params)
+	timeout := req.Timeout
+	if timeout == 0 {
+		timeout = ClientDefaultTimeout
+	}
+	request := r.conn.SetTimeout(time.Duration(timeout) * time.Second).R().SetBody(req.Body).SetQueryParams(req.Params)
 	if r.mode == constx.ModeMultiple {
 		req.Type = "POST"
 		r.conn.Debug = true
