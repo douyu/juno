@@ -3,7 +3,8 @@ import styles from './index.less'
 
 export enum ButtonType {
   Text = "text",
-  Default = "default"
+  Default = "default",
+  Border = "border"
 }
 
 export interface OptionButtonProps {
@@ -16,10 +17,16 @@ export interface OptionButtonProps {
 
 export default function OptionButton(props: React.PropsWithChildren<OptionButtonProps>) {
   let buttonStyle = [styles.optionButton]
-  if (props.type === ButtonType.Text) {
-    buttonStyle = [...buttonStyle, styles.textBtn]
-  } else {
-    buttonStyle = [...buttonStyle, styles.defaultBtn]
+  switch (props.type) {
+    case ButtonType.Text:
+      buttonStyle = [...buttonStyle, styles.textBtn]
+      break
+    case ButtonType.Border:
+      buttonStyle = [...buttonStyle, styles.border]
+      break
+    case ButtonType.Default:
+    default:
+      buttonStyle = [...buttonStyle, styles.defaultBtn]
   }
 
   if (props.disabled) {

@@ -302,6 +302,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
           onChange={this.onChangeTab}
           style={{width: '100%', marginTop: '-10px'}}
           tabBarStyle={{paddingLeft: '10px', marginBottom: 0}}
+          destroyInactiveTabPane
         >
           <TabPane tab="详情" key="detail">
             <Detail

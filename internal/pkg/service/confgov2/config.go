@@ -76,6 +76,7 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 	if err != nil {
 		return
 	}
+
 	resp = view.RespDetailConfig{
 		ID:          configuration.ID,
 		AID:         configuration.AID,
@@ -88,6 +89,23 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 		UpdatedAt:   configuration.UpdatedAt,
 		PublishedAt: configuration.PublishedAt,
 	}
+
+	if configuration.LockUid != 0 {
+		var u db.User
+		err = mysql.Where("uid = ?", configuration.LockUid).First(&u).Error
+		if err != nil {
+			return
+		}
+
+		resp.CurrentEditUser = &view.User{
+			Uid:      u.Uid,
+			Username: u.Username,
+			Nickname: u.Nickname,
+			Email:    u.Email,
+			Avatar:   u.Avatar,
+		}
+	}
+
 	return
 }
 
@@ -234,6 +252,7 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 
 	// 授权对象
 	ok, accessToken := openauth.GetAccessToken(c)
+	u := user.GetUser(c)
 	if ok {
 		// 获取Open Auth信息
 		history.AccessTokenID = accessToken.ID
@@ -251,7 +270,6 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 		appevent.AppEvent.OpenAPIConfigFileUpdate(int(configuration.AID), app.AppName, configuration.Zone, configuration.Env,
 			string(eventMetadata), accessToken)
 	} else {
-		u := user.GetUser(c)
 		if u != nil && u.Uid != 0 {
 			history.UID = uint(u.Uid)
 			// 配置内容可能会很长，metadata会被前端完整获取到，不保存配置内容
@@ -283,6 +301,17 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 
 	tx := mysql.Begin()
 	{
+		err = tx.Where("id = ?", param.ID).First(&configuration).Error
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+
+		if configuration.LockUid != 0 && configuration.LockUid != uint(u.Uid) {
+			tx.Rollback()
+			return fmt.Errorf("当前有其他人正在编辑，更新失败")
+		}
+
 		err = tx.Where("version=?", version).Delete(&db.ConfigurationHistory{}).Error
 		if err != nil {
 			tx.Rollback()
