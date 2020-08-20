@@ -65,13 +65,26 @@ func MakeRequest(r ReqProtoConfig) (resp *dynamic.Message, err error) {
 	xlog.Info("request", xlog.String("call", r.call), xlog.String("protoFile", r.ProtoFile),
 		xlog.String("inputParam", r.InputParams))
 
+	ctx := context.Background()
+	var cancel context.CancelFunc
+	if r.Timeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, r.Timeout)
+	} else {
+		ctx, cancel = context.WithCancel(ctx)
+	}
+	defer cancel()
+
+	return makeRequest(ctx, mtd, r.InputParams, r.MetaData, r.Host)
+}
+
+func makeRequest(ctx context.Context, mtd *desc.MethodDescriptor, inputParams, md /* Metadata */, host string) (resp *dynamic.Message, err error) {
 	ctd := newCallTemplateData(mtd)
-	inputs, err := getMessages(ctd, r.InputParams, mtd)
+	inputs, err := getMessages(ctd, inputParams, mtd)
 	if err != nil {
 		return
 	}
 
-	mdMap, err := ctd.executeMetadata(string(r.MetaData))
+	mdMap, err := ctd.executeMetadata(md)
 	if err != nil {
 		return
 	}
@@ -81,16 +94,6 @@ func MakeRequest(r ReqProtoConfig) (resp *dynamic.Message, err error) {
 		md := metadata.New(*mdMap)
 		reqMD = &md
 	}
-
-	ctx := context.Background()
-	var cancel context.CancelFunc
-
-	if r.Timeout > 0 {
-		ctx, cancel = context.WithTimeout(ctx, r.Timeout)
-	} else {
-		ctx, cancel = context.WithCancel(ctx)
-	}
-	defer cancel()
 
 	// include the metadata
 	if reqMD != nil {
@@ -103,18 +106,21 @@ func MakeRequest(r ReqProtoConfig) (resp *dynamic.Message, err error) {
 		return
 	}
 
-	conn, err := getGrpcConn(r.Host)
+	conn, err := getGrpcConn(host)
 	if err != nil {
 		err = fmt.Errorf("grpc conn fail:" + err.Error())
 		return
 	}
+
 	respInterface, err := grpcdynamic.NewStub(conn).InvokeRpc(ctx, mtd, (*inputs)[0])
 	if err != nil {
 		return
 	}
+
 	if respInterface != nil {
 		resp = respInterface.(*dynamic.Message)
 	}
+
 	return
 }
 
@@ -153,17 +159,16 @@ func getGrpcConn(host string) (*grpc.ClientConn, error) {
 func getMessages(ctd *callTemplateData, callData string, mtd *desc.MethodDescriptor) (*[]*dynamic.Message, error) {
 	var inputs *[]*dynamic.Message
 
-	strData := string(callData)
+	strData := callData
 	data, err := ctd.executeData(strData)
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Println(string(data), 2)
+
 	inputs, err = createPayloadsFromJSON(string(data), mtd)
 	if err != nil {
 		return nil, err
 	}
-	// Json messages are not cached due to templating
 
 	return inputs, nil
 }

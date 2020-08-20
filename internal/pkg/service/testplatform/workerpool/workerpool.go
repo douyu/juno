@@ -15,7 +15,7 @@ type (
 	WorkerPool struct {
 		option   Option
 		nodesMtx sync.RWMutex
-		nodes    map[string]map[string]*workerSelector
+		nodes    map[string]*workerSelector // zone_code => [node]
 	}
 
 	Option struct {
@@ -35,7 +35,7 @@ func Instance() *WorkerPool {
 	initOnce.Do(func() {
 		instance = new(WorkerPool)
 		instance.nodesMtx = sync.RWMutex{}
-		instance.nodes = make(map[string]map[string]*workerSelector)
+		instance.nodes = make(map[string]*workerSelector)
 	})
 
 	return instance
@@ -63,10 +63,8 @@ func (w *WorkerPool) clearTimeoutNodes() {
 	instance.nodesMtx.Lock()
 	defer instance.nodesMtx.Unlock()
 
-	for _, envNodeMap := range instance.nodes {
-		for _, selector := range envNodeMap {
-			selector.clearTimeoutNodes(w.option.HeartbeatTimeout)
-		}
+	for _, selector := range instance.nodes {
+		selector.clearTimeoutNodes(w.option.HeartbeatTimeout)
 	}
 }
 
@@ -84,20 +82,13 @@ func (w *WorkerPool) syncFromDB() {
 	}
 
 	for _, worker := range nodes {
-		envNodeMap := w.nodes[worker.ZoneCode]
-		if envNodeMap == nil {
-			envNodeMap = make(map[string]*workerSelector)
-		}
-
-		selector, ok := envNodeMap[worker.Env]
-		if !ok {
+		selector := w.nodes[worker.ZoneCode]
+		if selector == nil {
 			selector = makeSelector()
 		}
 
 		selector.push(worker)
-
-		envNodeMap[worker.Env] = selector
-		w.nodes[worker.ZoneCode] = envNodeMap
+		w.nodes[worker.ZoneCode] = selector
 	}
 }
 
@@ -145,33 +136,21 @@ func (w *WorkerPool) Heartbeat(params view.WorkerHeartbeat) {
 
 //updateNode NOT SAFE, MUST lock w.nodesMtx before call this function
 func (w *WorkerPool) updateNode(node db.WorkerNode) {
-	envNodeMap, ok := w.nodes[node.ZoneCode]
-	if !ok {
-		envNodeMap = make(map[string]*workerSelector)
-	}
-
-	selector, ok := envNodeMap[node.Env]
+	selector, ok := w.nodes[node.ZoneCode]
 	if !ok {
 		selector = makeSelector()
 	}
 
 	selector.push(node)
-
-	w.nodes[node.ZoneCode] = envNodeMap
+	w.nodes[node.ZoneCode] = selector
 }
 
-func (w *WorkerPool) Select(zoneCode, env string) (node db.WorkerNode, err error) {
+func (w *WorkerPool) Select(zoneCode string) (node db.WorkerNode, err error) {
 	w.nodesMtx.RLock()
 	defer w.nodesMtx.RUnlock()
 
-	envNodeMap := w.nodes[zoneCode]
-	if envNodeMap == nil {
-		err = ErrNodesEmpty
-		return
-	}
-
-	selector, ok := envNodeMap[env]
-	if !ok {
+	selector := w.nodes[zoneCode]
+	if selector == nil {
 		err = ErrNodesEmpty
 		return
 	}

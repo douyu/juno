@@ -1,8 +1,9 @@
 import React from "react";
 import {JobType} from "@/models/testplatform/types";
 import styles from './StepLogs.less'
-import {Card, Col, Collapse, Divider, List, Row, Statistic, Tabs} from "antd";
+import {Card, Col, Collapse, Descriptions, Divider, List, Row, Statistic, Tabs} from "antd";
 import RunStatus from "@/pages/app/components/Test/RunStatus";
+import MonacoEditor from 'react-monaco-editor'
 
 interface StepLogsProps {
   logs: string
@@ -11,7 +12,8 @@ interface StepLogsProps {
 
 const VisualLogComponents = {
   [JobType.CodeCheck]: VisualCodeCheck,
-  [JobType.UnitTest]: VisualUnitTest
+  [JobType.UnitTest]: VisualUnitTest,
+  [JobType.HttpTest]: VisualHttpTestLog,
 }
 
 export function StepLogs(props: StepLogsProps) {
@@ -242,5 +244,88 @@ function VisualUnitTest(props: { logs: string }) {
       </Tabs.TabPane>
     </Tabs>
 
+  </div>
+}
+
+function VisualHttpTestLog(props: { logs: string }) {
+  const {logs} = props
+  let tests: any[] = []
+  let testMap = {}
+
+  {
+    const lines = logs.split('\n')
+    lines.map(line => {
+      try {
+        let obj = JSON.parse(line)
+        if (obj.progress_log) return
+
+        let testID = obj.test_id
+        let test = testMap[testID] || {id: testID}
+        switch (obj.action) {
+          case 'output':
+            test.result = obj.result
+            break
+          case 'fail':
+            test.status = "fail"
+            break
+          case 'pass':
+            test.status = "pass"
+            break
+        }
+        test.name = obj.test_case_name
+        testMap[testID] = test
+      } catch (e) {
+      }
+    })
+
+    Object.keys(testMap).forEach(key => {
+      tests.push(testMap[key])
+    })
+
+    console.log("http tests", tests)
+  }
+
+  return <div>
+    <Tabs>
+      <Tabs.TabPane tab={"结果"} key={"result"}>
+        <Collapse>
+          {tests.map(test => {
+            return <Collapse.Panel key={test.id} header={test.name} extra={test.status}>
+              <Tabs>
+                <Tabs.TabPane tab={"Headers"} key={"headers"}>
+
+                  <Descriptions bordered column={1} size={"small"}>
+                    {Object.keys(test.result.RawResponse.headers).map(key => {
+                      let val = test.result.RawResponse.headers[key]
+                      return <Descriptions.Item key={key} label={key}>
+                        {val.join('; ')}
+                      </Descriptions.Item>
+                    })}
+                  </Descriptions>
+
+                </Tabs.TabPane>
+                <Tabs.TabPane tab={"Body"} key={"body"}>
+                  <MonacoEditor
+                    value={test.result.RawResponse.body}
+                    theme={"vs"}
+                    height={"500px"}
+                    width={"100%"}
+                    options={{
+                      readOnly: true
+                    }}
+                  />
+                </Tabs.TabPane>
+              </Tabs>
+            </Collapse.Panel>
+          })}
+
+        </Collapse>
+      </Tabs.TabPane>
+      <Tabs.TabPane tab={"Log"} key={"log"}>
+        <div className={styles.logs}>
+          <pre>{logs}</pre>
+        </div>
+      </Tabs.TabPane>
+    </Tabs>
   </div>
 }

@@ -21,8 +21,7 @@ type (
 		CreatedBy uint
 		UpdatedBy uint
 
-		App      AppInfo           `gorm:"foreignKey:AppName;association_foreignkey:AppName" json:"-"`
-		LastTask *TestPipelineTask `gorm:"foreignKey:PipelineID"`
+		App AppInfo `gorm:"foreignKey:AppName;association_foreignkey:AppName" json:"-"`
 	}
 
 	//TestPipelineTask 任务下发执行的单位
@@ -80,8 +79,9 @@ const (
 	StepTypeJob                  = 2 // 任务类型，当前Step执行某个任务
 
 	JobGitPull   JobType = "git_pull"
-	JobUnitTest          = "unit_test"
-	JobCodeCheck         = "code_check"
+	JobUnitTest  JobType = "unit_test"
+	JobCodeCheck JobType = "code_check"
+	JobHttpTest  JobType = "http_test"
 
 	TestTaskStatusPending TestTaskStatus = "pending"
 	TestTaskStatusRunning                = "running"

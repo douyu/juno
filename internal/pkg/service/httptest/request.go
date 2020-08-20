@@ -107,7 +107,8 @@ func SendRequest(uid uint, param view.ReqSendHttpRequest) (res view.HttpTestResp
 		}
 	}()
 
-	req = newRequest(param.Script, param)
+	tester := xtest.New(xtest.WithInterpreter(xtest.InterpreterTypeJS))
+	req = NewRequest(option.client, param.Script, param, tester)
 	result, err = req.Send(context.Background())
 	if err != nil {
 		return
@@ -213,9 +214,8 @@ func RequestHistoryDetail(historyID uint) (detail view.HttpTestLog, err error) {
 	return
 }
 
-func newRequest(script string, param view.ReqSendHttpRequest) *Request {
-	request := option.client.R()
-	tester := xtest.New(xtest.WithInterpreter(xtest.InterpreterTypeJS))
+func NewRequest(client *resty.Client, script string, param view.ReqSendHttpRequest, tester *xtest.XTest) *Request {
+	request := client.R()
 
 	request.Method = strings.ToUpper(param.Method)
 	request.URL = param.URL

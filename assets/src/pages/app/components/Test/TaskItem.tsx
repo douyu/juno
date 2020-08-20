@@ -97,7 +97,7 @@ function TaskItem(props: TaskItemProps) {
           setCurrentStep(current)
         }}>
         {descSteps.map((item, id) => {
-          let stepDesc = stepName(item.name)
+          let stepDesc = stepName(item?.job_payload?.type || "")
           return <Steps.Step
             key={id}
             status={getStepStatus(item.name)}
