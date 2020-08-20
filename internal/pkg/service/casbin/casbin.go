@@ -183,6 +183,14 @@ func (c *CasbinService) GetMenu(sub string) (menu view.MenuTree, err error) {
 	return
 }
 
+func (c *CasbinService) LoadPolicy() error {
+	if !cfg.Cfg.Casbin.Enable {
+		return nil
+	}
+
+	return c.SyncedEnforcer.LoadPolicy()
+}
+
 //
 //func (c *CasbinService) GetAPITree(sub string) (apiTree APITree, err error) {
 //	var genTreeFn func(tree APITree) APITree
