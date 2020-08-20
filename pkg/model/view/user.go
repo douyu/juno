@@ -5,6 +5,14 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 )
 
+type User struct {
+	Uid      int    `json:"uid"`
+	Username string `json:"username"`
+	Nickname string `json:"nickname"`
+	Email    string `json:"email"`
+	Avatar   string `json:"avatar"`
+}
+
 // ReqUserEvents 获取用户相关事件的入参
 type ReqUserEvents struct {
 	// FromTime uint `json:"fromTime" valid:"required"` // 获取从什么时候开始的数据

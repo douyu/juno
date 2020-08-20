@@ -24,6 +24,8 @@ type (
 		UpdatedAt     time.Time  `gorm:"column:updated_at" json:"updated_at"`
 		DeletedAt     *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 		PublishedAt   *time.Time `gorm:"column:published_at" json:"published_at"` // 未发布/发布时间
+		LockUid       uint       `gorm:"column:lock_uid" json:"lock_uid"`         // 正在编辑用户
+		LockAt        *time.Time `gorm:"column:lock_at" json:"lock_at"`
 
 		App AppInfo `gorm:"foreignKey:AID" json:"-"`
 	}

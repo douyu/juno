@@ -238,13 +238,48 @@ func InstanceConfigContent(c *core.Context) (err error) {
 	if err != nil {
 		return c.OutputJSON(output.MsgErr, err.Error())
 	}
+
 	err = c.Validate(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
+
 	configContents, err := confgov2.ReadInstanceConfig(param)
 	if err != nil {
 		return c.OutputJSON(output.MsgErr, err.Error())
 	}
+
 	return c.OutputJSON(output.MsgOk, "success", c.WithData(configContents))
+}
+
+func Lock(c *core.Context) (err error) {
+	param := view.ReqLockConfig{}
+	err = c.Bind(&param)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, "invalid params "+err.Error())
+	}
+
+	u := user.GetUser(c)
+	err = confgov2.TryLock(uint(u.Uid), param.ConfigID)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+
+	return c.OutputJSON(output.MsgOk, "success")
+}
+
+func Unlock(c *core.Context) (err error) {
+	param := view.ReqLockConfig{}
+	err = c.Bind(&param)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, "invalid params "+err.Error())
+	}
+
+	u := user.GetUser(c)
+	err = confgov2.Unlock(uint(u.Uid), param.ConfigID)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+
+	return c.OutputJSON(output.MsgOk, "success")
 }

@@ -68,3 +68,15 @@ export async function fetchInstanceConfig(id, hostName) {
     host_name: hostName
   })}`)
 }
+
+export async function fetchLock(id) {
+  return request(`/api/admin/confgov2/config/lock?id=${id}`, {
+    method: 'POST'
+  })
+}
+
+export async function unLock(id) {
+  return request(`/api/admin/confgov2/config/unlock?id=${id}`, {
+    method: 'POST'
+  })
+}
