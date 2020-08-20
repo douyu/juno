@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './index.less';
-import {FullscreenOutlined} from "@ant-design/icons/lib";
+import {FullscreenOutlined, FullscreenExitOutlined} from "@ant-design/icons/lib";
 
 export interface MenuProps {
   activeKey: string
@@ -43,7 +43,7 @@ export function Menu(props: MenuProps) {
           props.onFullScreen(!props.isFullScreen)
         }}
         className={styles.btnFullScreen}>
-        <FullscreenOutlined/>
+        {props.isFullScreen ?  <FullscreenExitOutlined/> : <FullscreenOutlined/>}
       </div>
     </div>
   );
