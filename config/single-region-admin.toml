@@ -69,7 +69,10 @@
 #################################### Proxy ##############################
 [clientProxy]
 
-  [clientProxy.singleProxy.etcd]
+  [clientProxy.singleProxy.registerEtcd]
+    endpoints = ["127.0.0.1:2379"]
+
+  [clientProxy.singleProxy.configEtcd]
     endpoints = ["127.0.0.1:2379"]
 
 [auth]

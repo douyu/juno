@@ -55,12 +55,22 @@
     zoneName = "ZONE_NAME"
     env = "env"
 
-[serverProxy.etcd]
+[serverProxy.registerEtcd]
+    enable = true
+    listenAddr = "127.0.0.1:62379"
+    endpoints = ["127.0.0.1:2379"]
+    namespace = ""
+    [serverProxy.registerEtcd.tls]
+      cert = ""
+      key = ""
+      cacert = ""
+
+[serverProxy.configEtcd]
     enable = true
     listenAddr = "127.0.0.1:52379"
     endpoints = ["127.0.0.1:2379"]
     namespace = ""
-    [serverProxy.etcd.tls]
+    [serverProxy.configEtcd.tls]
       cert = ""
       key = ""
       cacert = ""

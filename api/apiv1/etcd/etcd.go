@@ -45,9 +45,9 @@ func List(c echo.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 
 	defer cancel()
-	res, err := clientproxy.ClientProxy.EtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
+	res, err := clientproxy.ClientProxy.ConfigEtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
-		xlog.Error("etcdList", zap.String("step", "EtcdGet"), zap.String("appName", req.AppName), zap.String("env", req.Env), zap.String("zoneCode", req.ZoneCode), zap.String("key", key), zap.String("error", err.Error()))
+		xlog.Error("etcdList", zap.String("step", "ConfigEtcdGet"), zap.String("appName", req.AppName), zap.String("env", req.Env), zap.String("zoneCode", req.ZoneCode), zap.String("key", key), zap.String("error", err.Error()))
 		return output.JSON(c, output.MsgOk, "success", resp)
 	}
 	if len(res.Kvs) == 0 {

@@ -71,7 +71,12 @@
     enable = true
     proxyAddr = ["127.0.0.1:50001"]
 
-  [clientProxy.multiProxy.etcd]
+  [clientProxy.multiProxy.registerEtcd]
+    enable = true
+    endpoints = ["127.0.0.1:62379"]
+    timeout = "3s"
+
+  [clientProxy.multiProxy.configEtcd]
     enable = true
     endpoints = ["127.0.0.1:52379"]
     timeout = "3s"

@@ -119,7 +119,15 @@ func defaultConfig() cfg {
 				GovernConfig: "/configs",
 			},
 			SingleProxy: SingleProxy{
-				Etcd: Etcd{
+				ConfigEtcd: Etcd{
+					Enable:     false,
+					ListenAddr: "",
+					Endpoints:  nil,
+					Namespace:  "",
+					Timeout:    0,
+					TLS:        TLS{},
+				},
+				RegisterEtcd: Etcd{
 					Enable:     false,
 					ListenAddr: "",
 					Endpoints:  nil,
@@ -174,6 +182,22 @@ func defaultConfig() cfg {
 				MaxIdleConns:      30,
 				MaxIdelPerHost:    60,
 				Timeout:           3,
+			},
+			ConfigEtcd: Etcd{
+				Enable:     false,
+				ListenAddr: "",
+				Endpoints:  nil,
+				Namespace:  "",
+				Timeout:    0,
+				TLS:        TLS{},
+			},
+			RegisterEtcd: Etcd{
+				Enable:     false,
+				ListenAddr: "",
+				Endpoints:  nil,
+				Namespace:  "",
+				Timeout:    0,
+				TLS:        TLS{},
 			},
 		},
 		Pprof: Pprof{

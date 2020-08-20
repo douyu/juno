@@ -109,7 +109,11 @@ func (eng *Proxy) initRegister() (err error) {
 
 func (eng *Proxy) initServerProxy() (err error) {
 	proxy.InitStreamStore()
-	err = eng.Schedule(proxy.NewProxyGrpcWorker())
+	err = eng.Schedule(proxy.NewProxyGrpcRegisterWorker())
+	if err != nil {
+		return
+	}
+	err = eng.Schedule(proxy.NewProxyGrpcConfigWorker())
 	if err != nil {
 		return
 	}

@@ -11,9 +11,9 @@ var ClientProxy clientProxy
 // Init ...
 func Init() {
 	if cfg.Cfg.App.Mode == constx.ModeMultiple {
-		ClientProxy = InitMultiProxy()
+		ClientProxy = initMultiProxy()
 	} else {
-		ClientProxy = InitSingleProxy()
+		ClientProxy = initSingleProxy()
 	}
 	return
 }

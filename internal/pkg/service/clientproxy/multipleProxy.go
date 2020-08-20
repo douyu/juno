@@ -19,20 +19,23 @@ import (
 )
 
 type multiProxy struct {
-	proxyEtcdMap map[string]*EtcdClient
-	proxyHTTPMap map[string]*RestyClient
-	lock         sync.RWMutex
+	proxyConfigEtcdMap   map[string]*EtcdClient
+	proxyRegisterEtcdMap map[string]*EtcdClient
+	proxyHTTPMap         map[string]*restyClient
+	lock                 sync.RWMutex
 }
 
-func InitMultiProxy() (obj *multiProxy) {
+//initMultiProxy ..
+func initMultiProxy() (obj *multiProxy) {
 	obj = &multiProxy{
-		proxyEtcdMap: make(map[string]*EtcdClient, 0),
-		proxyHTTPMap: make(map[string]*RestyClient, 0),
-		lock:         sync.RWMutex{},
+		proxyConfigEtcdMap:   make(map[string]*EtcdClient, 0),
+		proxyRegisterEtcdMap: make(map[string]*EtcdClient, 0),
+		proxyHTTPMap:         make(map[string]*restyClient, 0),
+		lock:                 sync.RWMutex{},
 	}
 	// init etcd
-	obj.initProxyEtcdMap()
-
+	obj.initProxyConfigEtcdMap()
+	obj.initProxyRegisterEtcdMap()
 	// init proxy http server
 	obj.initServerProxyHTTPMap()
 	// process timing problem
@@ -45,24 +48,46 @@ func InitMultiProxy() (obj *multiProxy) {
 	return
 }
 
-func (c *multiProxy) initProxyEtcdMap() {
+func (c *multiProxy) initProxyConfigEtcdMap() {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	for _, cp := range cfg.Cfg.ClientProxy.MultiProxy {
-		if !cp.Etcd.Enable {
+		if !cp.ConfigEtcd.Enable {
 			continue
 		}
 		uniqZone := view.UniqZone{
 			Env:  cp.Env,
 			Zone: cp.ZoneCode,
 		}
-		conn, err := NewEtcdClient(cp.Etcd.Endpoints, cp.Etcd.Timeout, cp.Etcd.BasicAuth, cp.Etcd.UserName, cp.Etcd.Password)
+		conn, err := NewEtcdClient(cp.ConfigEtcd.Endpoints, cp.ConfigEtcd.Timeout, cp.ConfigEtcd.BasicAuth, cp.ConfigEtcd.UserName, cp.ConfigEtcd.Password)
 		if err != nil {
 			xlog.Error("init proxy etcd error", zap.String("unicode", uniqZone.String()), zap.Error(err))
 			continue
 		}
 		xlog.Info("init proxy etcd", zap.String("unicode", uniqZone.String()))
-		c.proxyEtcdMap[uniqZone.String()] = conn
+		c.proxyConfigEtcdMap[uniqZone.String()] = conn
+	}
+	return
+}
+
+func (c *multiProxy) initProxyRegisterEtcdMap() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	for _, cp := range cfg.Cfg.ClientProxy.MultiProxy {
+		if !cp.RegisterEtcd.Enable {
+			continue
+		}
+		uniqZone := view.UniqZone{
+			Env:  cp.Env,
+			Zone: cp.ZoneCode,
+		}
+		conn, err := NewEtcdClient(cp.RegisterEtcd.Endpoints, cp.RegisterEtcd.Timeout, cp.RegisterEtcd.BasicAuth, cp.RegisterEtcd.UserName, cp.RegisterEtcd.Password)
+		if err != nil {
+			xlog.Error("init proxy etcd error", zap.String("unicode", uniqZone.String()), zap.Error(err))
+			continue
+		}
+		xlog.Info("init proxy etcd", zap.String("unicode", uniqZone.String()))
+		c.proxyRegisterEtcdMap[uniqZone.String()] = conn
 	}
 	return
 }
@@ -78,14 +103,15 @@ func (c *multiProxy) initServerProxyHTTPMap() {
 			Zone: cp.ZoneCode,
 			Env:  cp.Env,
 		}
-		c.proxyHTTPMap[uniqZone.String()] = NewRestyClient(constx.ModeMultiple, cp.HTTP.Scheme+"://"+cp.HTTP.ListenAddr)
+		c.proxyHTTPMap[uniqZone.String()] = newRestyClient(constx.ModeMultiple, cp.HTTP.Scheme+"://"+cp.HTTP.ListenAddr)
 	}
 	return
 }
 
-func (c *multiProxy) EtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
+//ConfigEtcdPut ..
+func (c *multiProxy) ConfigEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
 	c.lock.RLock()
-	conn, ok := c.proxyEtcdMap[uniqZone.String()]
+	conn, ok := c.proxyConfigEtcdMap[uniqZone.String()]
 	c.lock.RUnlock()
 	if !ok {
 		xlog.Error("multi proxy etcd put uniq zone err", zap.String("env", uniqZone.Env), zap.String("zone", uniqZone.Zone))
@@ -95,20 +121,50 @@ func (c *multiProxy) EtcdPut(uniqZone view.UniqZone, ctx context.Context, key, v
 	return conn.Put(ctx, key, val, opts...)
 }
 
-func (c *multiProxy) EtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
+//ConfigEtcdGet ..
+func (c *multiProxy) ConfigEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
 	c.lock.RLock()
-	conn, ok := c.proxyEtcdMap[uniqZone.String()]
+	conn, ok := c.proxyConfigEtcdMap[uniqZone.String()]
 	c.lock.RUnlock()
 	if !ok {
 		xlog.Error("multi proxy etcd get uniq zone err", zap.String("env", uniqZone.Env), zap.String("zone", uniqZone.Zone))
 		err = fmt.Errorf(errorconst.CannotFindClientETCD.Code().String() + errorconst.CannotFindClientETCD.Name())
 		return
 	}
-	xlog.Info("multiProxy", zap.String("step", "EtcdGet"), zap.String("key", key), xlog.Any("opts", opts))
+	xlog.Info("multiProxy", zap.String("step", "ConfigEtcdGet"), zap.String("key", key), xlog.Any("opts", opts))
 
 	return conn.Get(ctx, key, opts...)
 }
 
+//RegisterEtcdPut ..
+func (c *multiProxy) RegisterEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
+	c.lock.RLock()
+	conn, ok := c.proxyConfigEtcdMap[uniqZone.String()]
+	c.lock.RUnlock()
+	if !ok {
+		xlog.Error("multi proxy etcd put uniq zone err", zap.String("env", uniqZone.Env), zap.String("zone", uniqZone.Zone))
+		err = fmt.Errorf(errorconst.CannotFindClientETCD.Code().String() + errorconst.CannotFindClientETCD.Name())
+		return
+	}
+	return conn.Put(ctx, key, val, opts...)
+}
+
+//RegisterEtcdGet ..
+func (c *multiProxy) RegisterEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
+	c.lock.RLock()
+	conn, ok := c.proxyConfigEtcdMap[uniqZone.String()]
+	c.lock.RUnlock()
+	if !ok {
+		xlog.Error("multi proxy etcd get uniq zone err", zap.String("env", uniqZone.Env), zap.String("zone", uniqZone.Zone))
+		err = fmt.Errorf(errorconst.CannotFindClientETCD.Code().String() + errorconst.CannotFindClientETCD.Name())
+		return
+	}
+	xlog.Info("multiProxy", zap.String("step", "ConfigEtcdGet"), zap.String("key", key), xlog.Any("opts", opts))
+
+	return conn.Get(ctx, key, opts...)
+}
+
+//HttpGet ..
 func (c *multiProxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
 	c.lock.RLock()
 	conn, ok := c.proxyHTTPMap[uniqZone.String()]
@@ -121,6 +177,7 @@ func (c *multiProxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (res
 	return conn.Get(req)
 }
 
+//HttpPost ..
 func (c *multiProxy) HttpPost(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
 	c.lock.RLock()
 	conn, ok := c.proxyHTTPMap[uniqZone.String()]
@@ -137,23 +194,23 @@ func (c *multiProxy) reload() {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	for _, cp := range cfg.Cfg.ClientProxy.MultiProxy {
-		if !cp.Etcd.Enable {
+		if !cp.ConfigEtcd.Enable {
 			continue
 		}
 		uniqZone := view.UniqZone{
 			Zone: cp.ZoneCode,
 			Env:  cp.Env,
 		}
-		if _, ok := c.proxyEtcdMap[uniqZone.String()]; ok {
+		if _, ok := c.proxyConfigEtcdMap[uniqZone.String()]; ok {
 			continue
 		}
-		conn, err := NewEtcdClient(cp.Etcd.Endpoints, cp.Etcd.Timeout, cp.Etcd.BasicAuth, cp.Etcd.UserName, cp.Etcd.Password)
+		conn, err := NewEtcdClient(cp.ConfigEtcd.Endpoints, cp.ConfigEtcd.Timeout, cp.ConfigEtcd.BasicAuth, cp.ConfigEtcd.UserName, cp.ConfigEtcd.Password)
 		if err != nil {
 			xlog.Error("init proxy etcd error", zap.String("unicode", uniqZone.String()), zap.Error(err))
 			continue
 		}
 		xlog.Info("init proxy etcd", zap.String("unicode", uniqZone.String()))
-		c.proxyEtcdMap[uniqZone.String()] = conn
+		c.proxyConfigEtcdMap[uniqZone.String()] = conn
 	}
 	return
 }

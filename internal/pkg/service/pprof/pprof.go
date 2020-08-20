@@ -199,7 +199,7 @@ func getFlameGraph(fileName, tagFileName string) error {
 	return nil
 }
 
-func (g *pprof) GetPprof(uniqZone view.UniqZone, ip, port, pprofType string) (resp []byte, err error) {
+func (p *pprof) GetPprof(uniqZone view.UniqZone, ip, port, pprofType string) (resp []byte, err error) {
 	url := "/debug/pprof"
 	_, err = clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
 		Address: fmt.Sprintf("%s:%s", ip, port),
@@ -210,7 +210,7 @@ func (g *pprof) GetPprof(uniqZone view.UniqZone, ip, port, pprofType string) (re
 	}
 	// 耗时比较久
 	if pprofType == "profile" {
-		pprofType = fmt.Sprintf("%s?seconds=%d",pprofType,clientproxy.ClientMaxTimeout)
+		pprofType = fmt.Sprintf("%s?seconds=%d", pprofType, clientproxy.ClientMaxTimeout)
 	}
 	url = url + "/" + pprofType
 	resp2, err := clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{

@@ -145,9 +145,9 @@ func configurationSynced(appName, env, zoneCode, filename, format, prefix string
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	key := fmt.Sprintf("/%s/callback/%s/%s", prefix, appName, fileNameWithSuffix)
 	defer cancel()
-	resp, err := clientproxy.ClientProxy.EtcdGet(view.UniqZone{Env: env, Zone: zoneCode}, ctx, key, clientv3.WithPrefix())
+	resp, err := clientproxy.ClientProxy.ConfigEtcdGet(view.UniqZone{Env: env, Zone: zoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
-		xlog.Warn("configurationSynced", zap.String("step", "EtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
+		xlog.Warn("configurationSynced", zap.String("step", "ConfigEtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
 		return
 	}
 	if len(resp.Kvs) == 0 {

@@ -720,14 +720,14 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 		for _, prefix := range cfg.Cfg.Configure.Prefixes {
 			key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
 			// The migration is complete, only write independent ETCD of the configuration center
-			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, string(buf))
+			_, err = clientproxy.ClientProxy.ConfigEtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, string(buf))
 			if err != nil {
 				return
 			}
 
 			// for k8s
 			clusterKey := fmt.Sprintf("/%s/cluster/%s/%s/static/%s", prefix, req.AppName, req.Env, req.FileName)
-			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, clusterKey, string(buf))
+			_, err = clientproxy.ClientProxy.ConfigEtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, clusterKey, string(buf))
 			if err != nil {
 				return
 			}

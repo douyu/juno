@@ -78,16 +78,18 @@ type HttpRouter struct {
 
 // SingleProxy ..
 type SingleProxy struct {
-	Etcd Etcd
+	ConfigEtcd   Etcd
+	RegisterEtcd Etcd
 }
 
 // MultiProxy ..
 type MultiProxy struct {
-	Env      string
-	ZoneCode string
-	Stream   ProxyStream
-	HTTP     HTTPProxy
-	Etcd     Etcd
+	Env          string
+	ZoneCode     string
+	Stream       ProxyStream
+	HTTP         HTTPProxy
+	ConfigEtcd   Etcd
+	RegisterEtcd Etcd
 }
 
 // ServerProxy ..
@@ -98,7 +100,8 @@ type ServerProxy struct {
 	GrpcServer   ServerSchema
 	GovernServer ServerSchema
 	HeartBeat    HeartBeat
-	Etcd         Etcd
+	ConfigEtcd   Etcd
+	RegisterEtcd Etcd
 	Prometheus   HTTPProxy
 }
 
@@ -112,7 +115,7 @@ type Gateway struct {
 	Name   string
 }
 
-// Etcd ..
+// ConfigEtcd ..
 type Etcd struct {
 	Enable     bool          `json:"enable"`
 	ListenAddr string        `json:"listenAddr"`

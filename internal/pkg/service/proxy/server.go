@@ -32,22 +32,47 @@ func (worker *HttpWorker) Stop() error {
 	return worker.server.Close()
 }
 
-type GrpcWorker struct {
+//GrpcEtcdRegisterWorker ..
+type GrpcEtcdRegisterWorker struct {
 	server *grpcProxy
 }
 
-func NewProxyGrpcWorker() *GrpcWorker {
-	return &GrpcWorker{
-		server: NewEtcdGrpcProxy(),
+//NewProxyGrpcRegisterWorker ..
+func NewProxyGrpcRegisterWorker() *GrpcEtcdRegisterWorker {
+	return &GrpcEtcdRegisterWorker{
+		server: NewEtcdGrpcProxy(cfg.Cfg.ServerProxy.RegisterEtcd),
 	}
 }
 
-func (worker *GrpcWorker) Run() error {
+func (worker *GrpcEtcdRegisterWorker) Run() error {
 	log.Infof("listening for grpc proxy client requests on %s", worker.server.grpcProxyListenAddr)
 	return worker.server.startGRPCProxy()
 }
 
-func (worker *GrpcWorker) Stop() error {
+func (worker *GrpcEtcdRegisterWorker) Stop() error {
+	log.Infof("stopping for grpc proxy")
+	worker.server.close()
+	return nil
+}
+
+//GrpcEtcdConfigWorker ..
+type GrpcEtcdConfigWorker struct {
+	server *grpcProxy
+}
+
+//NewProxyGrpcConfigWorker ..
+func NewProxyGrpcConfigWorker() *GrpcEtcdConfigWorker {
+	return &GrpcEtcdConfigWorker{
+		server: NewEtcdGrpcProxy(cfg.Cfg.ServerProxy.ConfigEtcd),
+	}
+}
+
+func (worker *GrpcEtcdConfigWorker) Run() error {
+	log.Infof("listening for grpc proxy client requests on %s", worker.server.grpcProxyListenAddr)
+	return worker.server.startGRPCProxy()
+}
+
+func (worker *GrpcEtcdConfigWorker) Stop() error {
 	log.Infof("stopping for grpc proxy")
 	worker.server.close()
 	return nil
