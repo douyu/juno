@@ -35,7 +35,7 @@ func Init(opt Option) {
 	option = opt
 
 	// 启动时把所有 PB 文件解析一遍
-	go ParseAllProto(opt.ProtoDir)
+	go ParseAllProto(opt.ProtoDir, opt.ProtoDir)
 
 	// watch PB 文件目录变化
 	go watchProtoDirectory()

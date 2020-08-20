@@ -14,9 +14,9 @@ import (
 // example:
 //	proto := /home/www/server/fun-ProtoParser/fun/comment/srv/comment/comment.proto
 //  ParseProto(proto)
-func ParseProto(proto string) {
+func ParseProto(basePath, proto string) {
 	pp := &protoparse.Parser{
-		ImportPaths:           []string{filepath.Dir(proto)},
+		ImportPaths:           []string{filepath.Dir(proto), basePath},
 		IncludeSourceCodeInfo: true,
 	}
 
@@ -32,14 +32,14 @@ func ParseProto(proto string) {
 	}
 }
 
-func ParseAllProto(dirPath string) (err error) {
-	protoNames, err := filterAllProto(dirPath)
+func ParseAllProto(basePath, targetPath string) (err error) {
+	protoNames, err := filterAllProto(targetPath)
 	if err != nil {
 		return
 	}
 
 	for _, proto := range protoNames {
-		ParseProto(proto)
+		ParseProto(basePath, proto)
 	}
 	return
 }

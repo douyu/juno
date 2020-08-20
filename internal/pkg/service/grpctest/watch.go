@@ -101,7 +101,16 @@ func onWrite(dirs []string) {
 	}
 
 	commonPath := util.CommonPrefix(dirs)
-	err := ParseAllProto(commonPath)
+	stat, err := os.Stat(commonPath)
+	if err != nil {
+		return
+	}
+
+	if !stat.IsDir() {
+		commonPath = filepath.Dir(commonPath)
+	}
+
+	err = ParseAllProto(option.ProtoDir, commonPath)
 	if err != nil {
 		xlog.Error("watchDirectory", xlog.String("method", "ParseAllProto"),
 			xlog.String("err", err.Error()))
