@@ -229,13 +229,13 @@ function Publish(props: any) {
                     >
                       {item.config_file_synced ? '已发布' : '未发布'}
                     </div>
-                    <div
+                    {item.config_file_take_effect < 2 && <div
                       className={
                         item.config_file_take_effect ? styles.statusSynced : styles.statusNotSynced
                       }
                     >
                       {item.config_file_take_effect ? '已生效' : '未生效'}
-                    </div>
+                    </div>}
                   </div>
                 </li>
               );
@@ -317,3 +317,4 @@ const mapDispatchToProps = (dispatch: any) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Publish);
+

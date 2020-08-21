@@ -122,15 +122,19 @@
       }
 
       .instanceStatus {
-        display: grid;
-        grid-template-columns: auto auto auto;
-        grid-column-gap: 10px;
+        display: flex;
+        flex-wrap: nowrap;
         margin-top: 10px;
         font-size: 12px;
 
         > div {
           text-align: center;
           border-radius: 5px;
+          flex: 1;
+
+          &:nth-child(n+2) {
+            margin-left: 10px;
+          }
 
           &.statusSynced {
             background-color: @success-color;

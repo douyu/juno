@@ -5,18 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
-
-	"github.com/douyu/juno/pkg/util"
 
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env, zoneCode, filePath string) ([]view.RespConfigInstanceItem, error) {
@@ -77,22 +78,24 @@ func syncPublishStatus(appName, env string, zoneCode string, configuration db.Co
 
 func syncTakeEffectStatus(appName, env string, zoneCode, governPort string, configuration db.Configuration, notTakeEffectNodes map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
 	newSyncDataMap, err := configurationTakeEffect(appName, env, zoneCode, governPort, configuration.Name, configuration.Format, notTakeEffectNodes)
-	if err != nil {
-		return resp, err
-	}
+
 	var version = configuration.Version
 	for k, v := range resp {
 		if resp[k].ConfigFileTakeEffect == 1 {
 			continue
 		}
-		if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
-			if newState.EffectVersion == version {
+		if configVersion, ok := newSyncDataMap[resp[k].HostName]; ok {
+			if configVersion == version {
 				resp[k].ConfigFileTakeEffect = 1
 				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("take_effect", 1)
 			}
+		} else {
+			// sync failed
+			resp[k].ConfigFileTakeEffect = 2
 		}
 	}
-	return resp, nil
+
+	return resp, err
 }
 
 func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
@@ -173,28 +176,42 @@ func configurationSynced(appName, env, zoneCode, filename, format, prefix string
 	return
 }
 
-func configurationTakeEffect(appName, env, zoneCode, governPort, filename, format string, notTakeEffectNodes map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
-	list = make(map[string]view.ConfigurationStatus, 0)
-	// take effect status
-	// publish status, synced status
+func configurationTakeEffect(appName, env, zoneCode, governPort, filename, format string, notTakeEffectNodes map[string]db.AppNode) (list map[string]string, err error) {
+	listMtx := sync.Mutex{}
+	list = make(map[string]string, 0)
+
+	eg := errgroup.Group{}
 	for _, node := range notTakeEffectNodes {
-		row := view.ConfigurationStatus{}
-		agentQuestResp, agentQuestError := clientproxy.ClientProxy.HttpGet(view.UniqZone{Env: env, Zone: zoneCode}, view.ReqHTTPProxy{
-			Address: node.IP + ":" + governPort,
-			URL:     cfg.Cfg.ClientProxy.HttpRouter.GovernConfig,
+		eg.Go(func() (err error) {
+			version := ""
+			agentQuestResp, err := clientproxy.ClientProxy.HttpGet(view.UniqZone{Env: env, Zone: zoneCode}, view.ReqHTTPProxy{
+				Address: node.IP + ":" + governPort,
+				URL:     cfg.Cfg.ClientProxy.HttpRouter.GovernConfig,
+			})
+			if err != nil {
+				return
+			}
+
+			var out struct {
+				JunoConfigurationVersion string `json:"juno_configuration_version"`
+				JunoAgentMD5             string `json:"juno_agent_md5"`
+			}
+			_ = json.Unmarshal(agentQuestResp.Body(), &out)
+			effectVersion := out.JunoConfigurationVersion
+			version = effectVersion
+
+			listMtx.Lock()
+			defer listMtx.Unlock()
+			list[node.HostName] = version
+
+			return
 		})
-		if agentQuestError != nil {
-			err = agentQuestError
-			continue
-		}
-		var out struct {
-			JunoConfigurationVersion string `json:"juno_configuration_version"`
-			JunoAgentMD5             string `json:"juno_agent_md5"`
-		}
-		_ = json.Unmarshal(agentQuestResp.Body(), &out)
-		effectVersion := out.JunoConfigurationVersion
-		row.EffectVersion = effectVersion
-		list[node.HostName] = row
 	}
+
+	err = eg.Wait()
+	if err != nil {
+		return list, err
+	}
+
 	return
 }

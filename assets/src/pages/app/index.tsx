@@ -393,7 +393,7 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
     }
     return (
       <PageHeaderWrapper>
-        <div style={{backgroundColor: '#fff', borderRadius: '8px'}}>
+        <div style={{backgroundColor: '#fff', borderRadius: '8px', overflow: 'hidden'}}>
           <div style={{padding: 10}}>
             <Row>
               <AppHeader

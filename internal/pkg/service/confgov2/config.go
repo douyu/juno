@@ -513,14 +513,15 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 
 	eg.Go(func() error {
 		respNew, err := syncTakeEffectStatus(app.AppName, env, zoneCode, app.GovernPort, configuration, nodesMap, resp)
+
+		respMtx.Lock()
+		defer respMtx.Unlock()
+		resp = respNew
+
 		if err != nil {
 			xlog.Error("syncTakeEffectStatus", xlog.Any("err", err.Error()))
 			return errorconst.ConfigInstanceErrorSyncTakeEffectStatusError.Error()
 		}
-		respMtx.Lock()
-		defer respMtx.Unlock()
-
-		resp = respNew
 
 		return nil
 	})
