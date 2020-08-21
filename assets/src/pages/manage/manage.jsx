@@ -7,6 +7,7 @@ import {connect} from 'dva';
 import GatewaySetting from "@/pages/manage/GatewaySetting";
 import EtcdSetting from "@/pages/manage/EtcdSetting";
 import VersionSetting from "@/pages/manage/AppVersionSetting";
+import K8SClusterSetting from "@/pages/manage/K8SClusterSetting";
 
 const {TextArea} = Input;
 const RadioGroup = Radio.Group;
@@ -270,6 +271,8 @@ export default class SysManage extends React.Component {
           <EtcdSetting/>
 
           <VersionSetting/>
+
+          <K8SClusterSetting/>
 
         </Card>
       </PageHeaderWrapper>

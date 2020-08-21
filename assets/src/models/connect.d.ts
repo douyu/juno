@@ -39,6 +39,14 @@ export interface ConnectState {
   accessToken: AccessTokenState,
   appEvent: AppEventState,
   testPlatform: TestPlatformState,
+  setting: {
+    settings: {
+      k8s_cluster: {
+        list: any[]
+      }
+    }
+  },
+  config: any
 }
 
 export interface Route extends MenuDataItem {

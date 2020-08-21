@@ -3,6 +3,8 @@ import {Col, Descriptions, Drawer, Row, Select, Tag, Tooltip} from 'antd';
 import {ConfgoBase} from '../../../confgo/config/view';
 import styles from './style.less';
 import {DesktopOutlined} from '@ant-design/icons';
+import {connect} from "dva";
+import {ConnectState} from "@/models/connect";
 
 const {Option} = Select;
 
@@ -13,16 +15,29 @@ export interface AppHeaderInterface extends ConfgoBase {
   appIdcList: any;
   idcList: any;
   initDisable: boolean;
+  versionConfig: any
+  changeVersion: any
+  versionKey: any
+  envZone: {
+    env: string
+    zone_list: {
+      zone_code: string
+      zone_name: string
+    }[]
+  }[]
+  k8sClusters: {
+    list: any[]
+  },
+  envList: string[]
 }
 
-export default function AppHeader(props: AppHeaderInterface) {
+function AppHeader(props: AppHeaderInterface) {
   const {
     appInfo,
     appList,
     getAppInfoAction,
     setEnvAction,
     env,
-    idcList,
     initDisable,
     versionConfig,
     changeVersion,
@@ -44,16 +59,6 @@ export default function AppHeader(props: AppHeaderInterface) {
   appList.forEach((element: any) => {
     appOption.push(<Option value={element.app_name}>{element.app_name}</Option>);
   });
-
-  let isRepeat = (m: [], env: string) => {
-    let f = false;
-    m.forEach((element) => {
-      if (element === env) {
-        f = true;
-      }
-    });
-    return f;
-  };
 
   const {name, biz_domain, http_port, rpc_port, govern_port, users, app_name} = appInfo || {};
 
@@ -96,9 +101,7 @@ export default function AppHeader(props: AppHeaderInterface) {
     }
   });
 
-  let envOpt: {} | any = [];
-  let envRepeatMap: {} | any = [];
-  let tagColor = {
+  const tagColor = {
     dev: '#87d068',
     live: '#2db7f5',
     pre: '#108ee9',
@@ -107,15 +110,6 @@ export default function AppHeader(props: AppHeaderInterface) {
     pub: '#f50',
     prod: '#f50',
   }
-  idcList.forEach((value: any, index: number) => {
-    if (!isRepeat(envRepeatMap, value.env)) {
-      envRepeatMap.push(value.env);
-      let color = tagColor[value.env] || null
-      envOpt.push(<Option value={value.env} key={index}>
-        <Tag color={color}>{value.env}</Tag>
-      </Option>)
-    }
-  });
 
   return (
     <>
@@ -130,7 +124,7 @@ export default function AppHeader(props: AppHeaderInterface) {
             onChange={appChange}
             value={app_name}
             filterOption={(input, option) =>
-              option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
           >
             {dataSource}
@@ -147,10 +141,14 @@ export default function AppHeader(props: AppHeaderInterface) {
             value={env}
             disabled={disable}
             filterOption={(input, option) =>
-              option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
           >
-            {envOpt}
+            {props.envList.map(env => {
+              return <Option value={env} key={env}>
+                <Tag color={tagColor[env] || null}>{env}</Tag>
+              </Option>
+            })}
           </Select>
         </Col>
         <Col span={3}>
@@ -164,7 +162,7 @@ export default function AppHeader(props: AppHeaderInterface) {
             value={versionKey}
             disabled={disable}
             filterOption={(input, option) =>
-              option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
           >
             {versionOpt}
@@ -225,3 +223,10 @@ export default function AppHeader(props: AppHeaderInterface) {
     </>
   );
 }
+
+
+export default connect(({setting}: ConnectState) => {
+  return {
+    k8sClusters: setting.settings.k8s_cluster
+  }
+})(AppHeader)

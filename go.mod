@@ -15,6 +15,7 @@ require (
 	github.com/douyu/jupiter v0.0.0-20200709073817-3e760e50d665
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/go-git/go-git/v5 v5.1.0
+	github.com/go-playground/validator v9.30.0+incompatible
 	github.com/go-playground/validator/v10 v10.3.0
 	github.com/go-resty/resty/v2 v2.2.0
 	github.com/go-sql-driver/mysql v1.5.0 // indirect

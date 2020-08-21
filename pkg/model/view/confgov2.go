@@ -87,6 +87,7 @@ type (
 		ID       uint     `json:"id" validate:"required"` // 配置ID
 		HostName []string `json:"host_name"`              // 发布的实例机器名称的列表，如果为空，则发布所有机器
 		Version  *string  `json:"version"`                // 版本号
+		PubK8S   bool     `json:"pub_k8s"`                // 是否发布集群
 	}
 
 	// ReqHistoryConfig ..
@@ -189,6 +190,7 @@ type (
 		InstanceList []string `json:"instance_list"`
 		Env          string   `json:"env"`
 		Version      string   `json:"version"`
+		PubK8S       bool     `json:"pub_k8s"`
 	}
 
 	ReqReadInstanceConfig struct {

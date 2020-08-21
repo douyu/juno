@@ -85,7 +85,7 @@ var _ = Describe("Publish", func() {
 			instanceList := util.HostNameListFilterEnv(cmcApp.App, cmcHistory.ZoneCode)
 			// 有些应用在发布系统机器上，需要额外关联发布系统机器
 			pubNode := db.AppNode{}
-			PublishSrv.DB.Table("app_node").Where("app_name = ?", cmcApp.App).First(&pubNode)
+			PublishSrv.db.Table("app_node").Where("app_name = ?", cmcApp.App).First(&pubNode)
 			if pubNode.Id != 0 {
 				instanceList = append(instanceList, pubNode.HostName)
 			}

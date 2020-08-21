@@ -33,14 +33,26 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 	}
 	// use map
 	usedMap := make(map[string]int, 0)
+	usedMapMtx := sync.Mutex{}
+	eg := errgroup.Group{}
 	for _, ag := range junoAgentList {
+		usedMapMtx.Lock()
 		usedMap[ag.HostName] = 0
+		usedMapMtx.Unlock()
+
 		for _, fp := range strings.Split(filePath, ";") {
-			if status := getUsedStatus(env, zoneCode, fp, ag.IPPort); status > 0 {
-				usedMap[ag.HostName] = status
-			}
+			eg.Go(func() error {
+				if status := getUsedStatus(env, zoneCode, fp, ag.IPPort); status > 0 {
+					usedMapMtx.Lock()
+					usedMap[ag.HostName] = status
+					usedMapMtx.Unlock()
+				}
+				return nil
+			})
 		}
 	}
+	_ = eg.Wait()
+
 	for k, v := range resp {
 		if resp[k].ConfigFileUsed != 0 {
 			continue
@@ -54,27 +66,44 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 }
 
 func syncPublishStatus(appName, env string, zoneCode string, configuration db.Configuration, notSyncFlag map[string]db.AppNode, resp []view.RespConfigInstanceItem) ([]view.RespConfigInstanceItem, error) {
+	respMtx := sync.Mutex{}
+	eg := errgroup.Group{}
 	for _, prefix := range cfg.Cfg.Configure.Prefixes {
-		newSyncDataMap, err := configurationSynced(appName, env, zoneCode, configuration.Name, configuration.Format, prefix, notSyncFlag)
-		if err != nil {
-			xlog.Error("syncPublishStatus", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("prefix", prefix), zap.String("err", err.Error()))
-			continue
-		}
-		xlog.Debug("syncPublishStatus", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.Any("newSyncDataMap", newSyncDataMap))
+		_prefix := prefix
+		eg.Go(func() error {
+			newSyncDataMap, err := configurationSynced(appName, env, zoneCode, configuration.Name, configuration.Format, _prefix, notSyncFlag)
+			if err != nil {
+				xlog.Error("syncPublishStatus", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("prefix", prefix), zap.String("err", err.Error()))
+				return err
+			}
+			xlog.Debug("syncPublishStatus", zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.Any("newSyncDataMap", newSyncDataMap))
 
-		var version = configuration.Version
-		for k, v := range resp {
-			if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
-				resp[k].Version = newState.Version
-				resp[k].ChangeLog = commitMsg(newState.Version, configuration.ID)
-				resp[k].SyncAt = util.Timestamp2String64(newState.Timestamp)
-				if newState.Version == version {
-					resp[k].ConfigFileSynced = 1
-					mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("synced", 1)
+			var version = configuration.Version
+			for k, v := range resp {
+				if newState, ok := newSyncDataMap[resp[k].HostName]; ok {
+					respMtx.Lock()
+					{
+						resp[k].Version = newState.Version
+						resp[k].ChangeLog = commitMsg(newState.Version, configuration.ID)
+						resp[k].SyncAt = util.Timestamp2String64(newState.Timestamp)
+						if newState.Version == version {
+							resp[k].ConfigFileSynced = 1
+						}
+					}
+					respMtx.Unlock()
+
+					if newState.Version == version {
+						mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("synced", 1)
+					}
 				}
 			}
-		}
+
+			return err
+		})
 	}
+
+	_ = eg.Wait()
+
 	return resp, nil
 }
 

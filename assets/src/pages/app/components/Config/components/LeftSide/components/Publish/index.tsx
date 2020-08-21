@@ -5,12 +5,33 @@ import {DatabaseOutlined} from '@ant-design/icons';
 import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
 import ScrollArea from 'react-scrollbar';
-import {ReloadOutlined, StopOutlined, BorderOutlined, CheckSquareOutlined} from '@ant-design/icons/lib';
+import {
+  BorderOutlined,
+  CheckSquareOutlined,
+  ClusterOutlined,
+  ReloadOutlined,
+  StopOutlined
+} from '@ant-design/icons/lib';
 import ModalPublish from '@/pages/app/components/Config/components/LeftSide/components/Publish/ModalPublish';
 import {CheckboxChangeEvent} from "antd/es/checkbox";
 import styles from './index.less';
+import {ConnectState} from "@/models/connect";
+import {useBoolean} from "ahooks";
 
-function Publish(props: any) {
+interface PublishProps {
+  env: string
+  loadConfigInstances: any
+  configList: any
+  configInstanceListLoading: any
+  configInstanceList: any
+  configPublish: any
+  showEditorMaskLayer: any
+  setCurrentInstance: any
+  currentConfig: any
+  k8sClusters: any[]
+}
+
+function Publish(props: PublishProps) {
   const {
     loadConfigInstances,
     configList,
@@ -20,7 +41,10 @@ function Publish(props: any) {
     showEditorMaskLayer,
     setCurrentInstance,
     currentConfig,
+    env
   } = props;
+  let {k8sClusters} = props
+  k8sClusters = k8sClusters.filter(item => item.env.indexOf(env) > -1)
 
   const [visibleModalPublish, setVisibleModalPublish] = useState(false);
   const [configFile, setConfigFile] = useState<{
@@ -30,6 +54,7 @@ function Publish(props: any) {
     id: number;
   }>();
   const [checkedInstances, setCheckedInstances] = useState<string[]>([])
+  const [switchPubK8S, switchPubK8SAct] = useBoolean(false)
 
   useEffect(() => {
     if (!configFile) {
@@ -67,7 +92,7 @@ function Publish(props: any) {
   };
 
   let handlePublishConfig = (version: string) => {
-    configPublish(configFile?.id, version, checkedInstances);
+    configPublish(configFile?.id, version, checkedInstances, switchPubK8S);
     loadConfigInstances(configFile?.aid, configFile?.env, configFile?.zone, configFile?.id);
     setVisibleModalPublish(false);
   };
@@ -82,7 +107,7 @@ function Publish(props: any) {
     );
   };
 
-  const isCheckedInstance = (hostName: string) : boolean => {
+  const isCheckedInstance = (hostName: string): boolean => {
     return checkedInstances.findIndex(item => item === hostName) > -1
   }
 
@@ -118,10 +143,11 @@ function Publish(props: any) {
         </Select>
 
         <div style={{marginTop: '10px'}}>
-          {checkedInstances.length === 0 && <OptionButton style={{width: '100%'}} disabled>
+          {checkedInstances.length === 0 && !switchPubK8S && <OptionButton style={{width: '100%'}} disabled>
             请先选择发布的实例
           </OptionButton>}
-          {checkedInstances.length > 0 && <OptionButton style={{width: '100%'}} onClick={publishStart}>
+          {(checkedInstances.length > 0 || switchPubK8S) &&
+          <OptionButton style={{width: '100%'}} onClick={publishStart}>
             发布
           </OptionButton>}
         </div>
@@ -146,13 +172,45 @@ function Publish(props: any) {
         </div>
       )}
 
+      {configFile && k8sClusters && k8sClusters.length != 0 && <ul className={styles.clusterList}>
+        <div className={styles.clusterOpt}>
+          <div className={styles.title}>集群列表</div>
+          <div className={styles.options}>
+            {switchPubK8S && <OptionButton
+              type={ButtonType.Text}
+              title={"不发布集群"}
+              onClick={switchPubK8SAct.setFalse}
+            >
+              <CheckSquareOutlined/>
+            </OptionButton>}
+            {!switchPubK8S && <OptionButton
+              type={ButtonType.Text}
+              title={"发布集群"}
+              onClick={switchPubK8SAct.setTrue}
+            >
+              <BorderOutlined/>
+            </OptionButton>}
+          </div>
+        </div>
+        {k8sClusters.filter(item => item.env.indexOf(env) > -1).map(item => {
+          return <li className={styles.clusterItem}>
+            <div className={styles.clusterIcon}>
+              <ClusterOutlined/>
+            </div>
+            <div className={styles.clusterName}>
+              {item.name}
+            </div>
+          </li>
+        })}
+      </ul>}
+
       {configFile && !configInstanceListLoading && configInstanceList && (
         <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>
           <ul className={styles.instanceList}>
             <div className={styles.instanceListOpt}>
               <div className={styles.instanceListTitle}>实例列表</div>
               <div style={{textAlign: 'right'}}>
-                {configInstanceList.length === checkedInstances.length && <OptionButton
+                {configInstanceList.length === checkedInstances.length && checkedInstances.length != 0 && <OptionButton
                   type={ButtonType.Text}
                   title={"取消选中所有实例"}
                   onClick={() => {
@@ -161,7 +219,8 @@ function Publish(props: any) {
                 >
                   <CheckSquareOutlined/>
                 </OptionButton>}
-                {configInstanceList.length !== checkedInstances.length && <OptionButton
+                {(configInstanceList.length !== checkedInstances.length || checkedInstances.length == 0) &&
+                <OptionButton
                   type={ButtonType.Text}
                   title={"选中所有实例"}
                   onClick={() => {
@@ -210,7 +269,8 @@ function Publish(props: any) {
                       <div className={styles.version}>版本: {shortVersion || '---'}</div>
                     </div>
                     <div className={styles.instanceCheckBox}>
-                      <Checkbox onChange={onToggleInstanceCheck} name={item.host_name} checked={isCheckedInstance(item.host_name)}/>
+                      <Checkbox onChange={onToggleInstanceCheck} name={item.host_name}
+                                checked={isCheckedInstance(item.host_name)}/>
                     </div>
                   </div>
 
@@ -240,6 +300,11 @@ function Publish(props: any) {
                 </li>
               );
             })}
+
+            {configFile && !configInstanceListLoading && (!configInstanceList || configInstanceList.length == 0) &&
+            <div className={styles.emptyTip}>
+              应用在当前可用区环境下无实例
+            </div>}
           </ul>
         </ScrollArea>
       )}
@@ -254,7 +319,7 @@ function Publish(props: any) {
   );
 }
 
-const mapStateToProps = ({config}: any) => {
+const mapStateToProps = ({config, setting}: ConnectState) => {
   return {
     aid: config.aid,
     env: config.env,
@@ -265,6 +330,7 @@ const mapStateToProps = ({config}: any) => {
     historyListLoading: config.historyListLoading,
     configInstanceListLoading: config.configInstanceListLoading,
     currentConfig: config.currentConfig,
+    k8sClusters: setting.settings.k8s_cluster?.list || [],
   };
 };
 
@@ -291,13 +357,14 @@ const mapDispatchToProps = (dispatch: any) => {
         },
       }),
 
-    configPublish: (id: number, version: string, instances: string[]) =>
+    configPublish: (id: number, version: string, instances: string[], pub_k8s = false) =>
       dispatch({
         type: 'config/configPublish',
         payload: {
           id,
           version,
-          host_name: instances
+          host_name: instances,
+          pub_k8s
         },
       }),
     showEditorMaskLayer: (visible: boolean, child?: Element) =>

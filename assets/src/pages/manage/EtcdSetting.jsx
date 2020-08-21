@@ -223,6 +223,7 @@ class EtcdSetting extends React.Component {
 
     return <SettingBlock title={"Etcd查询前缀设置"}>
       <Table
+        size={"small"}
         pagination={false}
         columns={[
           ...EtcdConfigColumns,
