@@ -10,7 +10,7 @@ import (
 )
 
 //ClientDefaultTimeout ..
-const ClientDefaultTimeout = 3
+const ClientDefaultTimeout = 1
 
 type restyClient struct {
 	conn *resty.Client

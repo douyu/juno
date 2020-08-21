@@ -349,6 +349,7 @@ class GatewaySetting extends React.Component {
 
     return <SettingBlock title={"网关设置"}>
       <Table
+        size={"small"}
         pagination={false}
         columns={[
           ...GatewayConfigColumns,

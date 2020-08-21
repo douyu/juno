@@ -6,29 +6,35 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/go-playground/validator"
 )
 
 const (
-	ConfigDepSettingName string = "config_dep"
+	VersionSettingName    string = "version"
+	ConfigDepSettingName  string = "config_dep"
+	EtcdSettingName       string = "etcd"
+	GrafanaSettingName    string = "grafana"
+	GatewaySettingName    string = "gateway"
+	K8SClusterSettingName string = "k8s_cluster"
 )
 
 var (
 	// todo can't global config
 	// 对各项配置进行设置，设置项写到此处才能生效
 	SettingFieldConfigs = map[string]SettingFieldConfig{
-		"version": {
+		VersionSettingName: {
 			Default: `[]`,
 			Validate: func(value string) error {
 				return nil
 			},
 		},
-		"etcd": {
+		EtcdSettingName: {
 			Default: `[]`,
 			Validate: func(value string) error {
 				return nil
 			},
 		},
-		"grafana": {
+		GrafanaSettingName: {
 			Default: `{"host":"","header_name":"",scheme:""}`,
 			Validate: func(value string) error {
 				setting := SettingGrafana{}
@@ -51,7 +57,7 @@ var (
 				return nil
 			},
 		},
-		"gateway": {
+		GatewaySettingName: {
 			Default: "[]",
 			Validate: func(value string) error {
 				field := SettingGateway{}
@@ -69,6 +75,23 @@ var (
 					}
 
 					settingMap[item.Domain] = item
+				}
+
+				return nil
+			},
+		},
+		K8SClusterSettingName: {
+			Default: "{\"list\":[]}",
+			Validate: func(value string) error {
+				data := SettingK8SCluster{}
+				err := json.Unmarshal([]byte(value), &data)
+				if err != nil {
+					return err
+				}
+
+				err = validator.New().Struct(&data)
+				if err != nil {
+					return err
 				}
 
 				return nil
@@ -143,6 +166,15 @@ type (
 			Name  string `json:"name"`
 			Value string `json:"value"`
 		} `json:"headers"` // header头
+	}
+
+	SettingK8SCluster struct {
+		List []struct {
+			Name     string   `json:"name" validate:"required"`
+			Env      []string `json:"env" validate:"required"`
+			ZoneCode string   `json:"zone_code" validate:"required"`
+			ZoneName string   `json:"zone_name" validate:"required"`
+		} `json:"list"`
 	}
 )
 

@@ -7,9 +7,19 @@ import {Popconfirm, Spin} from 'antd'
 
 function Files(props) {
   const {
-    zoneList, currentConfig, configList, configListLoading, currentContent,
-    deleteConfig, aid, env, loadConfigList, appName
+    currentConfig, configList, configListLoading, currentContent,
+    deleteConfig, aid, env, loadConfigList, appName, k8sClusters
   } = props
+  let {zoneList} = props
+
+  k8sClusters.forEach(cluster => {
+    if (cluster.env.indexOf(env) > -1 && zoneList.findIndex(zone => zone.zone_code === cluster.zone_code) < 0) {
+      zoneList.push({
+        zone_code: cluster.zone_code,
+        zone_name: cluster.zone_name
+      })
+    }
+  })
 
   const renderConfigListByZone = (zone) => {
     let configs = (configList || []).filter(item => item.zone === zone)
@@ -26,7 +36,7 @@ function Files(props) {
       const active = cfg.id === currentConfig?.id
       return <li
         key={index}
-        className={[styles.configItem, active && styles.configItemActive ].join(' ')}
+        className={[styles.configItem, active && styles.configItemActive].join(' ')}
         onClick={() => props.loadConfigDetail(cfg.id)}
       >
         <div>{cfg.name}.{cfg.format}</div>
@@ -104,7 +114,7 @@ function Files(props) {
   </div>
 }
 
-const mapState = ({config}) => {
+const mapState = ({config, setting}) => {
   return {
     zoneList: config.zoneList,
     configList: config.configList,
@@ -113,7 +123,8 @@ const mapState = ({config}) => {
     currentContent: config.currentContent,
     aid: config.aid,
     appName: config.appName,
-    env: config.env
+    env: config.env,
+    k8sClusters: setting.settings?.k8s_cluster?.list || []
   }
 }
 

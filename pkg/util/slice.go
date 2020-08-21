@@ -80,11 +80,30 @@ func DiffListToSlice(source, dest interface{}, cmp func(a, b interface{}) bool) 
 }
 
 // 深度拷贝
-
 func DeepCopy(dst, src interface{}) error {
 	var buf bytes.Buffer
 	if err := gob.NewEncoder(&buf).Encode(src); err != nil {
 		return err
 	}
 	return gob.NewDecoder(bytes.NewBuffer(buf.Bytes())).Decode(dst)
+}
+
+//FindIndex 查找 item 在 arr 里的下标，通过 cmp 函数进行列表项相等判断
+//如果不存在则返回 -1
+func FindIndex(arr interface{}, item interface{}, cmp func(a, b interface{}) bool) (index int) {
+	index = -1
+	arrType := reflect.TypeOf(arr)
+	if arrType.Kind() != reflect.Array && arrType.Kind() != reflect.Slice {
+		return
+	}
+
+	valArr := reflect.ValueOf(arr)
+	lenArr := valArr.Len()
+	for i := 0; i < lenArr; i++ {
+		if cmp(item, valArr.Index(i).Interface()) {
+			return i
+		}
+	}
+
+	return
 }
