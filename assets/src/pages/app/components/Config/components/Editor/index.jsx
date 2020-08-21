@@ -146,8 +146,8 @@ function Editor(props) {
           type={"border"}
           style={{fontSize: '12px', padding: '2px 10px', marginLeft: '10px'}}
           onClick={() => {
-            unLock(lockConfigId).then(r => {
-              loadConfig(lockConfigId)
+            unLock(currentConfig.id).then(r => {
+              loadConfig(currentConfig.id)
             })
           }}
         >

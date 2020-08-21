@@ -4,6 +4,7 @@ import styles from './index.less'
 import {DeleteOutlined, FileOutlined, HistoryOutlined, SaveOutlined, StopOutlined} from '@ant-design/icons'
 import OptionButton from "@/pages/app/components/Config/components/OptionButton";
 import {Popconfirm, Spin} from 'antd'
+import {useKeyPress} from "ahooks";
 
 function Files(props) {
   const {
@@ -11,6 +12,11 @@ function Files(props) {
     deleteConfig, aid, env, loadConfigList, appName, k8sClusters
   } = props
   let {zoneList} = props
+
+  useKeyPress("ctrl.s", ev => {
+    currentConfig && currentConfig.content !== currentContent && props.showSaveModal(true)
+    ev.preventDefault()
+  })
 
   k8sClusters.forEach(cluster => {
     if (cluster.env.indexOf(env) > -1 && zoneList.findIndex(zone => zone.zone_code === cluster.zone_code) < 0) {
