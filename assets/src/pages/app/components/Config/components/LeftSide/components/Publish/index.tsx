@@ -41,9 +41,10 @@ function Publish(props: PublishProps) {
     showEditorMaskLayer,
     setCurrentInstance,
     currentConfig,
-    k8sClusters,
     env
   } = props;
+  let {k8sClusters} = props
+  k8sClusters = k8sClusters.filter(item => item.env.indexOf(env) > -1)
 
   const [visibleModalPublish, setVisibleModalPublish] = useState(false);
   const [configFile, setConfigFile] = useState<{
@@ -171,7 +172,7 @@ function Publish(props: PublishProps) {
         </div>
       )}
 
-      <ul className={styles.clusterList}>
+      {configFile && k8sClusters && k8sClusters.length != 0 && <ul className={styles.clusterList}>
         <div className={styles.clusterOpt}>
           <div className={styles.title}>集群列表</div>
           <div className={styles.options}>
@@ -201,7 +202,7 @@ function Publish(props: PublishProps) {
             </div>
           </li>
         })}
-      </ul>
+      </ul>}
 
       {configFile && !configInstanceListLoading && configInstanceList && (
         <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>
