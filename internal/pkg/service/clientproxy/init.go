@@ -5,7 +5,7 @@ import (
 	"github.com/douyu/juno/pkg/constx"
 )
 
-// MultiProxy ..
+// ClientProxy ..
 var ClientProxy clientProxy
 
 // Init ...

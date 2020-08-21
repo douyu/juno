@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/app"
+
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -185,7 +187,7 @@ func configurationTakeEffect(appName, env, zoneCode, governPort, filename, forma
 		eg.Go(func() (err error) {
 			version := ""
 			agentQuestResp, err := clientproxy.ClientProxy.HttpGet(view.UniqZone{Env: env, Zone: zoneCode}, view.ReqHTTPProxy{
-				Address: node.IP + ":" + governPort,
+				Address: node.IP + ":" + app.GovernPort(governPort, env, zoneCode, appName, node.HostName),
 				URL:     cfg.Cfg.ClientProxy.HttpRouter.GovernConfig,
 			})
 			if err != nil {
