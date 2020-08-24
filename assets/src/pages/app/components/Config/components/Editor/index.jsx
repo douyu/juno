@@ -9,7 +9,7 @@ import {loadResourceByNameVersion, loadResourceDetail} from "@/services/config_r
 import {fetchLock, unLock} from "@/services/config";
 import OptionButton from "@/pages/app/components/Config/components/OptionButton";
 import confirm from "antd/es/modal/confirm";
-import {useKeyPress} from "ahooks";
+import {useKeyPress, useSize} from "ahooks";
 
 let editor = null
 let configLockIntervalId = null
@@ -22,7 +22,9 @@ function Editor(props) {
   const currentEditUser = currentConfig?.current_edit_user
   const [insertModalCB, setInsertModalCB] = useState(null)
   const editorRef = useRef(null)
+  const containerRef = useRef(null)
   const fileChanged = currentConfig && currentConfig.content !== currentContent
+  const containerSize = useSize(containerRef)
 
   const showModalInsertResource = visible => props.dispatch({
     type: 'config/showModalInsertResource',
@@ -148,7 +150,7 @@ function Editor(props) {
     ev.preventDefault()
   })
 
-  return <div className={styles.editorContainer}>
+  return <div className={styles.editorContainer} ref={containerRef}>
     <div className={styles.editorTip}>
       {currentEditUser ? <span>
         <span style={{fontWeight: 'bold'}}>{currentEditUser.nickname}</span> 正在编辑
@@ -192,13 +194,13 @@ function Editor(props) {
     <div ref={editorRef} className={styles.editor}/>
 
     {/*配置文件加载提示*/}
-    {configFileLoading && <div className={styles.loadingMask}>
+    {configFileLoading && <div className={styles.loadingMask} style={{width: containerSize.width + 'px', height: containerSize.height + 'px'}}>
       <Spin/>
       <div>加载配置中</div>
     </div>}
 
     {/*未选择配置文件提示*/}
-    {!currentConfig && <div className={styles.fileUnSelectedMask}>
+    {!currentConfig && <div className={styles.fileUnSelectedMask} style={{width: containerSize.width + 'px', height: containerSize.height + 'px'}}>
       <EditOutlined/>
       <div>请先选择文件</div>
     </div>}
