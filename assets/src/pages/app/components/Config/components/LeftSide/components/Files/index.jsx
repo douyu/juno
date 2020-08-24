@@ -5,6 +5,7 @@ import {DeleteOutlined, FileOutlined, HistoryOutlined, SaveOutlined, StopOutline
 import OptionButton from "@/pages/app/components/Config/components/OptionButton";
 import {Popconfirm, Spin} from 'antd'
 import {useKeyPress} from "ahooks";
+import confirm from "antd/es/modal/confirm";
 
 function Files(props) {
   const {
@@ -12,11 +13,7 @@ function Files(props) {
     deleteConfig, aid, env, loadConfigList, appName, k8sClusters
   } = props
   let {zoneList} = props
-
-  useKeyPress("ctrl.s", ev => {
-    currentConfig && currentConfig.content !== currentContent && props.showSaveModal(true)
-    ev.preventDefault()
-  })
+  const fileChanged = currentConfig && currentConfig.content !== currentContent
 
   k8sClusters.forEach(cluster => {
     if (cluster.env.indexOf(env) > -1 && zoneList.findIndex(zone => zone.zone_code === cluster.zone_code) < 0) {
@@ -43,7 +40,21 @@ function Files(props) {
       return <li
         key={index}
         className={[styles.configItem, active && styles.configItemActive].join(' ')}
-        onClick={() => props.loadConfigDetail(cfg.id)}
+        onClick={() => {
+          if (fileChanged) {
+            confirm({
+              title: '当前配置未保存',
+              content: '当前文件修改未保存，切换配置后当前的修改将丢失。是否切换文件?',
+              cancelText: '我点错了',
+              okText: '确认',
+              onOk: () => {
+                props.loadConfigDetail(cfg.id)
+              }
+            })
+          } else {
+            props.loadConfigDetail(cfg.id)
+          }
+        }}
       >
         <div>{cfg.name}.{cfg.format}</div>
         <div>
@@ -80,11 +91,6 @@ function Files(props) {
         title={"新增配置"}>
         <FileOutlined/>
       </OptionButton>
-      {currentConfig && currentConfig.content !== currentContent && <OptionButton
-        onClick={() => props.showSaveModal(true)}
-        title={"保存配置"}>
-        <SaveOutlined/>
-      </OptionButton>}
       {currentConfig && <OptionButton
         title={"历史变更"}
         onClick={() => props.showHistoryModal(true)}

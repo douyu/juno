@@ -8,6 +8,8 @@ import ModalInsertResource from "@/pages/app/components/Config/components/ModalI
 import {loadResourceByNameVersion, loadResourceDetail} from "@/services/config_resource";
 import {fetchLock, unLock} from "@/services/config";
 import OptionButton from "@/pages/app/components/Config/components/OptionButton";
+import confirm from "antd/es/modal/confirm";
+import {useKeyPress} from "ahooks";
 
 let editor = null
 let configLockIntervalId = null
@@ -20,6 +22,7 @@ function Editor(props) {
   const currentEditUser = currentConfig?.current_edit_user
   const [insertModalCB, setInsertModalCB] = useState(null)
   const editorRef = useRef(null)
+  const fileChanged = currentConfig && currentConfig.content !== currentContent
 
   const showModalInsertResource = visible => props.dispatch({
     type: 'config/showModalInsertResource',
@@ -77,6 +80,8 @@ function Editor(props) {
       loadConfig(currentConfig.id)
     })
   }
+
+  const showSaveModal = visible => props.dispatch({type: 'config/showSaveModal', payload: visible})
 
   useEffect(() => {
     if (currentEditUser && currentEditUser.uid === currentUser.uid) {
@@ -138,6 +143,11 @@ function Editor(props) {
     }
   }, [currentConfig])
 
+  useKeyPress("ctrl.s", ev => {
+    fileChanged && showSaveModal(true)
+    ev.preventDefault()
+  })
+
   return <div className={styles.editorContainer}>
     <div className={styles.editorTip}>
       {currentEditUser ? <span>
@@ -146,12 +156,31 @@ function Editor(props) {
           type={"border"}
           style={{fontSize: '12px', padding: '2px 10px', marginLeft: '10px'}}
           onClick={() => {
-            unLock(currentConfig.id).then(r => {
-              loadConfig(currentConfig.id)
-            })
+            if (fileChanged) {
+              confirm({
+                title: '当前修改未保存',
+                content: '当前有修改未保存，请先保存。退出后将丢失本次修改，是否退出编辑？',
+                onOk: () => {
+                  unLock(currentConfig.id).then(r => {
+                    loadConfig(currentConfig.id)
+                  })
+                }
+              })
+            } else {
+              unLock(currentConfig.id).then(r => {
+                loadConfig(currentConfig.id)
+              })
+            }
           }}
         >
           退出编辑
+        </OptionButton>}
+        {fileChanged && <OptionButton
+          type={"border"}
+          style={{fontSize: '12px', padding: '2px 10px', marginLeft: '10px'}}
+          onClick={() => showSaveModal(true)}
+        >
+          保存
         </OptionButton>}
       </span> : <span>
         <OptionButton type={"border"} style={{fontSize: '12px', padding: '2px 10px'}} onClick={tryLock}>
