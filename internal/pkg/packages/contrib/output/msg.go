@@ -7,4 +7,5 @@ const (
 	MsgNoAuth         = 14000
 	MsgOpenAuthFailed = 14001
 	MsgNeedLogin      = 10000
+	MsgTaskQueueEmpty = 20001
 )

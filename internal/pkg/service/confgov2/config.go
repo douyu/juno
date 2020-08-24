@@ -15,6 +15,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -121,14 +122,31 @@ func Create(c echo.Context, param view.ReqCreateConfig) (resp view.RespDetailCon
 	}
 
 	// 验证Zone-env是否存在
-	err = mysql.Where("env = ? and zone_code = ?", param.Env, param.Zone).First(&appNode).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			err = fmt.Errorf("该应用不存在该机房-环境")
+	{
+		envZoneExists := false
+		k8sCluster, err := system.System.Setting.K8SClusterSetting()
+		if err != nil {
+			xlog.Error("get k8s cluster setting failed", xlog.String("err", err.Error()))
+		} else {
+			for _, cluster := range k8sCluster.List {
+				if cluster.ZoneCode == param.Zone &&
+					util.FindIndex(cluster.Env, param.Env, func(a, b interface{}) bool { return a.(string) == b.(string) }) > -1 {
+					envZoneExists = true
+					break
+				}
+			}
 		}
-		return
-	}
 
+		if !envZoneExists {
+			err = mysql.Where("env = ? and zone_code = ?", param.Env, param.Zone).First(&appNode).Error
+			if err != nil {
+				if gorm.IsRecordNotFoundError(err) {
+					err = fmt.Errorf("该应用不存在该机房-环境")
+				}
+				return resp, err
+			}
+		}
+	}
 	configuration := db.Configuration{
 		AID:    uint(app.Aid),
 		Name:   param.FileName, // 不带后缀
@@ -513,14 +531,15 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 
 	eg.Go(func() error {
 		respNew, err := syncTakeEffectStatus(app.AppName, env, zoneCode, app.GovernPort, configuration, nodesMap, resp)
+
+		respMtx.Lock()
+		defer respMtx.Unlock()
+		resp = respNew
+
 		if err != nil {
 			xlog.Error("syncTakeEffectStatus", xlog.Any("err", err.Error()))
 			return errorconst.ConfigInstanceErrorSyncTakeEffectStatusError.Error()
 		}
-		respMtx.Lock()
-		defer respMtx.Unlock()
-
-		resp = respNew
 
 		return nil
 	})
@@ -581,22 +600,22 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 		return
 	}
 
-	if len(instanceList) == 0 { // 如果没有传机器列表，则发布所有机器
-		instanceList = totalInstanceList
-	} else { // 否则发布选择的机器
-		// check node list valid
-		for _, hostName := range instanceList {
-			exists := false
-			for _, item := range totalInstanceList {
-				if item == hostName {
-					exists = true
-					break
-				}
-			}
+	if len(totalInstanceList) == 0 && !param.PubK8S {
+		return fmt.Errorf("未选择发布实例或集群")
+	}
 
-			if !exists {
-				return fmt.Errorf("机器 %s 不存在", hostName)
+	// check node list valid
+	for _, hostName := range instanceList {
+		exists := false
+		for _, item := range totalInstanceList {
+			if item == hostName {
+				exists = true
+				break
 			}
+		}
+
+		if !exists {
+			return fmt.Errorf("机器 %s 不存在", hostName)
 		}
 	}
 
@@ -617,6 +636,7 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 		InstanceList: instanceList,
 		Env:          env,
 		Version:      version,
+		PubK8S:       param.PubK8S,
 	}); err != nil {
 		return
 	}
@@ -704,9 +724,6 @@ func getPublishInstance(aid int, env string, zoneCode string) (instanceList []st
 		Env:      env,
 		ZoneCode: zoneCode,
 	})
-	if len(nodes) == 0 {
-		return instanceList, fmt.Errorf(errorconst.ParamNoInstances.Code().String() + errorconst.ParamNoInstances.Name())
-	}
 	for _, node := range nodes {
 		instanceList = append(instanceList, node.HostName)
 	}
@@ -760,9 +777,20 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 			if err != nil {
 				return
 			}
-
 		}
 	}
+
+	if req.PubK8S {
+		for _, prefix := range cfg.Cfg.Configure.Prefixes {
+			// for k8s
+			clusterKey := fmt.Sprintf("/%s/cluster/%s/%s/static/%s", prefix, req.AppName, req.Env, req.FileName)
+			_, err = clientproxy.ClientProxy.ConfigEtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, clusterKey, string(buf))
+			if err != nil {
+				return
+			}
+		}
+	}
+
 	return nil
 }
 

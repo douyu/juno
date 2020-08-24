@@ -121,16 +121,16 @@ func defaultConfig() cfg {
 			SingleProxy: SingleProxy{
 				ConfigEtcd: Etcd{
 					Enable:     false,
-					ListenAddr: "",
-					Endpoints:  nil,
+					ListenAddr: "127.0.0.1:5379",
+					Endpoints:  []string{"127.0.0.1:2379"},
 					Namespace:  "",
 					Timeout:    0,
 					TLS:        TLS{},
 				},
 				RegisterEtcd: Etcd{
 					Enable:     false,
-					ListenAddr: "",
-					Endpoints:  nil,
+					ListenAddr: "127.0.0.1:62379",
+					Endpoints:  []string{"127.0.0.1:2379"},
 					Namespace:  "",
 					Timeout:    0,
 					TLS:        TLS{},

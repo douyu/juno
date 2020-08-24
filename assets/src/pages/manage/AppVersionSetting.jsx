@@ -358,6 +358,7 @@ class VersionSetting extends React.Component {
 
     return <SettingBlock title={"应用版本相关设置"}>
       <Table
+        size={"small"}
         pagination={false}
         columns={[
           ...VersionConfigColumns,

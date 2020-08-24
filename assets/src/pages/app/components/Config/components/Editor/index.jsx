@@ -8,6 +8,8 @@ import ModalInsertResource from "@/pages/app/components/Config/components/ModalI
 import {loadResourceByNameVersion, loadResourceDetail} from "@/services/config_resource";
 import {fetchLock, unLock} from "@/services/config";
 import OptionButton from "@/pages/app/components/Config/components/OptionButton";
+import confirm from "antd/es/modal/confirm";
+import {useKeyPress, useSize} from "ahooks";
 
 let editor = null
 let configLockIntervalId = null
@@ -20,6 +22,9 @@ function Editor(props) {
   const currentEditUser = currentConfig?.current_edit_user
   const [insertModalCB, setInsertModalCB] = useState(null)
   const editorRef = useRef(null)
+  const containerRef = useRef(null)
+  const fileChanged = currentConfig && currentConfig.content !== currentContent
+  const containerSize = useSize(containerRef)
 
   const showModalInsertResource = visible => props.dispatch({
     type: 'config/showModalInsertResource',
@@ -77,6 +82,8 @@ function Editor(props) {
       loadConfig(currentConfig.id)
     })
   }
+
+  const showSaveModal = visible => props.dispatch({type: 'config/showSaveModal', payload: visible})
 
   useEffect(() => {
     if (currentEditUser && currentEditUser.uid === currentUser.uid) {
@@ -138,7 +145,12 @@ function Editor(props) {
     }
   }, [currentConfig])
 
-  return <div className={styles.editorContainer}>
+  useKeyPress("ctrl.s", ev => {
+    fileChanged && showSaveModal(true)
+    ev.preventDefault()
+  })
+
+  return <div className={styles.editorContainer} ref={containerRef}>
     <div className={styles.editorTip}>
       {currentEditUser ? <span>
         <span style={{fontWeight: 'bold'}}>{currentEditUser.nickname}</span> 正在编辑
@@ -146,12 +158,31 @@ function Editor(props) {
           type={"border"}
           style={{fontSize: '12px', padding: '2px 10px', marginLeft: '10px'}}
           onClick={() => {
-            unLock(lockConfigId).then(r => {
-              loadConfig(lockConfigId)
-            })
+            if (fileChanged) {
+              confirm({
+                title: '当前修改未保存',
+                content: '当前有修改未保存，请先保存。退出后将丢失本次修改，是否退出编辑？',
+                onOk: () => {
+                  unLock(currentConfig.id).then(r => {
+                    loadConfig(currentConfig.id)
+                  })
+                }
+              })
+            } else {
+              unLock(currentConfig.id).then(r => {
+                loadConfig(currentConfig.id)
+              })
+            }
           }}
         >
           退出编辑
+        </OptionButton>}
+        {fileChanged && <OptionButton
+          type={"border"}
+          style={{fontSize: '12px', padding: '2px 10px', marginLeft: '10px'}}
+          onClick={() => showSaveModal(true)}
+        >
+          保存
         </OptionButton>}
       </span> : <span>
         <OptionButton type={"border"} style={{fontSize: '12px', padding: '2px 10px'}} onClick={tryLock}>
@@ -163,13 +194,13 @@ function Editor(props) {
     <div ref={editorRef} className={styles.editor}/>
 
     {/*配置文件加载提示*/}
-    {configFileLoading && <div className={styles.loadingMask}>
+    {configFileLoading && <div className={styles.loadingMask} style={{width: containerSize.width + 'px', height: containerSize.height + 'px'}}>
       <Spin/>
       <div>加载配置中</div>
     </div>}
 
     {/*未选择配置文件提示*/}
-    {!currentConfig && <div className={styles.fileUnSelectedMask}>
+    {!currentConfig && <div className={styles.fileUnSelectedMask} style={{width: containerSize.width + 'px', height: containerSize.height + 'px'}}>
       <EditOutlined/>
       <div>请先选择文件</div>
     </div>}

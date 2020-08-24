@@ -20,10 +20,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/jupiter/pkg"
-	"github.com/douyu/jupiter/pkg/client/etcdv3"
-
 	apiproxy "github.com/douyu/juno/api/apiv1/proxy"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/proxy"

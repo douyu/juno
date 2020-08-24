@@ -4,12 +4,25 @@ import styles from './index.less'
 import {DeleteOutlined, FileOutlined, HistoryOutlined, SaveOutlined, StopOutlined} from '@ant-design/icons'
 import OptionButton from "@/pages/app/components/Config/components/OptionButton";
 import {Popconfirm, Spin} from 'antd'
+import {useKeyPress} from "ahooks";
+import confirm from "antd/es/modal/confirm";
 
 function Files(props) {
   const {
-    zoneList, currentConfig, configList, configListLoading, currentContent,
-    deleteConfig, aid, env, loadConfigList, appName
+    currentConfig, configList, configListLoading, currentContent,
+    deleteConfig, aid, env, loadConfigList, appName, k8sClusters
   } = props
+  let {zoneList} = props
+  const fileChanged = currentConfig && currentConfig.content !== currentContent
+
+  k8sClusters.forEach(cluster => {
+    if (cluster.env.indexOf(env) > -1 && zoneList.findIndex(zone => zone.zone_code === cluster.zone_code) < 0) {
+      zoneList.push({
+        zone_code: cluster.zone_code,
+        zone_name: cluster.zone_name
+      })
+    }
+  })
 
   const renderConfigListByZone = (zone) => {
     let configs = (configList || []).filter(item => item.zone === zone)
@@ -26,8 +39,22 @@ function Files(props) {
       const active = cfg.id === currentConfig?.id
       return <li
         key={index}
-        className={[styles.configItem, active && styles.configItemActive ].join(' ')}
-        onClick={() => props.loadConfigDetail(cfg.id)}
+        className={[styles.configItem, active && styles.configItemActive].join(' ')}
+        onClick={() => {
+          if (fileChanged) {
+            confirm({
+              title: '当前配置未保存',
+              content: '当前文件修改未保存，切换配置后当前的修改将丢失。是否切换文件?',
+              cancelText: '我点错了',
+              okText: '确认',
+              onOk: () => {
+                props.loadConfigDetail(cfg.id)
+              }
+            })
+          } else {
+            props.loadConfigDetail(cfg.id)
+          }
+        }}
       >
         <div>{cfg.name}.{cfg.format}</div>
         <div>
@@ -64,11 +91,6 @@ function Files(props) {
         title={"新增配置"}>
         <FileOutlined/>
       </OptionButton>
-      {currentConfig && currentConfig.content !== currentContent && <OptionButton
-        onClick={() => props.showSaveModal(true)}
-        title={"保存配置"}>
-        <SaveOutlined/>
-      </OptionButton>}
       {currentConfig && <OptionButton
         title={"历史变更"}
         onClick={() => props.showHistoryModal(true)}
@@ -104,7 +126,7 @@ function Files(props) {
   </div>
 }
 
-const mapState = ({config}) => {
+const mapState = ({config, setting}) => {
   return {
     zoneList: config.zoneList,
     configList: config.configList,
@@ -113,7 +135,8 @@ const mapState = ({config}) => {
     currentContent: config.currentContent,
     aid: config.aid,
     appName: config.appName,
-    env: config.env
+    env: config.env,
+    k8sClusters: setting.settings?.k8s_cluster?.list || []
   }
 }
 

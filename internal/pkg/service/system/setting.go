@@ -1,6 +1,7 @@
 package system
 
 import (
+	"encoding/json"
 	"sync"
 
 	"github.com/douyu/juno/pkg/model/db"
@@ -199,4 +200,18 @@ func (s *setting) Subscribe(name string, callback SubscribeCallback) {
 
 		callback(content)
 	}
+}
+
+func (s *setting) K8SClusterSetting() (cluster view.SettingK8SCluster, err error) {
+	content, err := s.Get(view.K8SClusterSettingName)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal([]byte(content), &cluster)
+	if err != nil {
+		return
+	}
+
+	return
 }

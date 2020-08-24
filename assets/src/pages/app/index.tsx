@@ -16,13 +16,22 @@ import Etcd from "@/pages/etcd/etcd";
 import {getFrameVersion} from "@/pages/monitor/services";
 import Event from "@/pages/app/components/Event";
 import Test from "@/pages/app/components/Test";
+import {Dispatch} from "@@/plugin-dva/connect";
 
 const {TabPane} = Tabs;
 
+interface AppProps {
+  location: { query: any }
+  setting: any
+  dispatch: Dispatch
+  k8sClusters: any[]
+}
+
 @connect(({setting}: any) => ({
   setting,
+  k8sClusters: setting.settings.k8s_cluster?.list || []
 }))
-export default class App extends React.Component<ConfgoBase & { location: { query: any } }, any> {
+export default class App extends React.Component<ConfgoBase & AppProps, any> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -273,10 +282,30 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
 
   render() {
     let view = null;
-    const {aid, appName, env, appEnvZone, monitorVersion, versionKey, tab} = this.state;
+    const {aid, appName, env, monitorVersion, versionKey, tab} = this.state;
+    let {appEnvZone} = this.state
     let {disable} = this.state;
     const {version} = this.props.setting.settings;
-    // const grafanaConf = grafana instanceof Array ? grafana : []
+    const {k8sClusters} = this.props
+
+    let envList = appEnvZone?.map((item: any) => item.env) || []
+    let zoneList: any[] = []
+    if (env) {
+      appEnvZone.forEach((item: any) => {
+        if (item.env === env) {
+          zoneList = item.zone_list
+        }
+      })
+    }
+
+    k8sClusters.map(item => {
+      item.env.map((envItem: string) => {
+        envList.indexOf(envItem) < 0 && envList.push(envItem)
+        if (env === envItem && zoneList.findIndex((zoneItem: any) => zoneItem.zone_code === item.zone_code) < 0) {
+          zoneList.push({zone_code: item.zone_code, zone_name: item.zone_name})
+        }
+      })
+    })
 
     if (appName != undefined && appName != '') {
       disable = false;
@@ -393,13 +422,14 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
     }
     return (
       <PageHeaderWrapper>
-        <div style={{backgroundColor: '#fff', borderRadius: '8px'}}>
+        <div style={{backgroundColor: '#fff', borderRadius: '8px', overflow: 'hidden'}}>
           <div style={{padding: 10}}>
             <Row>
               <AppHeader
                 appInfo={this.state.appInfo}
                 appIdcList={this.state.appIdcList}
                 appList={this.state.appList}
+                envList={envList}
                 appName={this.state.appName}
                 getAppInfoAction={this.getAppInfo}
                 setEnvAction={this.setEnv}
@@ -410,11 +440,13 @@ export default class App extends React.Component<ConfgoBase & { location: { quer
                 versionConfig={version}
                 versionKey={versionKey}
                 changeVersion={this.changeVersion}
+                envZone={appEnvZone}
               />
             </Row>
             <Row>
               <Col span={12}>
                 <ZoneSelect
+                  zoneList={zoneList}
                   appEnvZone={appEnvZone}
                   env={env}
                   onChange={this.changeZone}
