@@ -85,6 +85,11 @@ export default defineConfig({
                   path: '/analysis/deppkg',
                   component: './analysis/deppkg/index',
                 },
+                {
+                  name: '注册信息',
+                  path: '/analysis/register',
+                  component: './analysis/register/index',
+                },
               ],
             },
             {
