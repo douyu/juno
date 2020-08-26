@@ -3,6 +3,7 @@ package etcdHandle
 import (
 	"context"
 	"fmt"
+	"github.com/douyu/juno/internal/app/core"
 	"strings"
 	"time"
 
@@ -38,7 +39,7 @@ func List(c echo.Context) error {
 }
 
 //protable格式化etcd数据返回
-func ProTableList(c echo.Context) error{
+func ProTableList(c *core.Context) error{
 	req := view.ReqGetEtcdList{}
 	resp := make([]view.RespEtcdInfo, 0)
 
@@ -53,10 +54,14 @@ func ProTableList(c echo.Context) error{
 	if req.ZoneCode == "all" {
 		return output.JSON(c, output.MsgOk, "success", resp)
 	}
-
 	resp = list(req)
 	total := len(resp)
-	return output.ProTableData(c, resp,total)
+	res := output.ProTableResult{
+		Success: true,
+		Total: total,
+		Data: resp,
+	}
+	return c.OutputJSON(output.MsgOk, "", c.WithData(res))
 }
 
 

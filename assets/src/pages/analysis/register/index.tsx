@@ -11,17 +11,17 @@ export default function ServiceRegister() {
   const [zoneSelect, setZoneSelect] = useState([])
   const [app_select, setAppSelect] = useState([])
   const [prefix_data, setPrefixData] = useState([])
-  const [env_select, setEnvSelect] = useState([])
+  const [env, setEnv] = useState([])
   const formRef = React.useRef<FormInstance>()
 
   useEffect(() => {
     reqSelect().then(res => {
       setZoneSelect(res.data.zoneSelect)
       setAppSelect(res.data.app_select)
-      setEnvSelect(res.data.envSelect)
+      setEnv(res.data.envSelect)
 
       formRef.current?.setFieldsValue({zoneCode: res.data.zoneSelect[0].name})
-      formRef.current?.setFieldsValue({env_select: res.data.envSelect[0].name})
+      formRef.current?.setFieldsValue({env: res.data.envSelect[0].name})
     })
 
     loadSettings().then(res => {
@@ -72,12 +72,12 @@ export default function ServiceRegister() {
           }
         },
         {
-          dataIndex: 'env_select',
+          dataIndex: 'env',
           title: "环境",
           hideInTable: true,
           renderFormItem: (_, {type, defaultRender, ...rest}, form) => {
             return <Select>
-              {env_select.map((item: any, idx) => {
+              {env.map((item: any, idx) => {
                 return <Select.Option value={item.value} key={idx}>{item.name}</Select.Option>
               })}
             </Select>;
@@ -126,11 +126,15 @@ export default function ServiceRegister() {
         },
 
       ]}
-      request={async (params) =>
-        request("/api/admin/analysis/register/list", {
-          params
+      request={async (params) => {
+        return new Promise(async (resolve) => {
+          const res = await request("/api/admin/analysis/register/list", {
+            params
+          })
+
+          resolve(res.data)
         })
-      }
+      }}
 
     />
   )
