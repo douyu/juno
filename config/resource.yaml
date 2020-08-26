@@ -146,6 +146,10 @@ permission:
             method: GET
             name: 注册列表
 
+  - name: 任务中心
+    path: /cronjob
+    icon: ClockCircleOutlined
+
   - name: 资源中心
     path: /resource
     icon: UngroupOutlined

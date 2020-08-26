@@ -93,6 +93,26 @@ export default defineConfig({
               ],
             },
             {
+              path: '/cronjob',
+              name: '任务中心',
+              icon: 'ClockCircleOutlined',
+              component: './cronjob/JobList',
+              routes: [
+                {
+                  name: 'Task列表',
+                  path: '/cronjob/jobs/:jobId/tasks',
+                  component: './cronjob/TaskList',
+                  routes: [
+                    {
+                      name: 'Task详情',
+                      path: '/cronjob/jobs/:jobId/tasks/:taskId',
+                      component: './cronjob/TaskDetail'
+                    }
+                  ]
+                },
+              ]
+            },
+            {
               path: '/resource',
               name: '资源中心',
               icon: 'UngroupOutlined',
