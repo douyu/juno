@@ -69,6 +69,30 @@ permission:
       - path: /api/admin/event/list
         name: 事件流列表
         method: GET
+      - path: /api/admin/test/grpc/platform/pipeline/create
+        name: 创建测试Pipeline
+        method: POST
+      - path: /api/admin/test/grpc/platform/pipeline/list
+        name: 测试Pipeline列表
+        method: GET
+      - path: /api/admin/test/grpc/platform/pipeline/update
+        name: 更新测试Pipeline
+        method: POST
+      - path: /api/admin/test/grpc/platform/pipeline/run
+        name: 手动触发测试Pipeline
+        method: POST
+      - path: /api/admin/test/grpc/platform/pipeline/tasks
+        name: 测试Task列表
+        method: GET
+      - path: /api/admin/test/grpc/platform/pipeline/delete
+        name: 删除测试Pipeline
+        method: POST
+      - path: /api/admin/test/grpc/platform/pipeline/tasks/steps
+        name: 测试任务执行详情
+        method: GET
+      - path: /api/admin/test/grpc/services
+        name: GRPC服务用例树
+        method: GET
 
   - name: 功能看板
     path: /analysis
