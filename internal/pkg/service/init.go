@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appDep"
@@ -86,8 +88,16 @@ func Init() (err error) {
 	appDep.Init()
 
 	testplatform.Init(testplatform.Option{
+		Enable:         cfg.Cfg.TestPlatform.Enable,
 		DB:             invoker.JunoMysql,
 		GitAccessToken: cfg.Cfg.CodePlatform.Token,
+		Worker: struct {
+			HeartbeatTimeout time.Duration
+			LocalQueueDir    string
+		}{
+			HeartbeatTimeout: cfg.Cfg.TestPlatform.Worker.HeartbeatTimeout,
+			LocalQueueDir:    cfg.Cfg.TestPlatform.Worker.LocalQueueDir,
+		},
 	})
 
 	return

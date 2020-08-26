@@ -43,7 +43,7 @@ func CreatePipeline(c *core.Context) (err error) {
 }
 
 func UpdatePipeline(c *core.Context) (err error) {
-	var params view.ReqUpdatePipeline
+	var params view.TestPipeline
 
 	err = c.Bind(&params)
 	if err != nil {

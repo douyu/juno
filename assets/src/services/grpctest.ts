@@ -89,3 +89,7 @@ export async function bindProtoApp(params: any) {
 export async function loadHistoryList(payload: { service_id: number, page: number, page_size: number }) {
   return request(`/api/admin/test/grpc/request/history?${stringify(payload)}`)
 }
+
+export async function fetchServiceMethodTree(appName: string) {
+  return request(`/api/admin/test/grpc/services?app_name=${appName}`)
+}

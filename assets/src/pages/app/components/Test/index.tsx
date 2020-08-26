@@ -97,14 +97,30 @@ function Test(props: TestProps) {
           setPipeline(null)
           fetchPipelines()
         }}
-        onUpdate={() => fetchPipelines()}
-        pipeline={pipeline}/>
+        appName={appName}
+        zoneCode={zoneCode}
+        env={env}
+        onUpdate={() => {
+          setPipeline(null)
+          fetchPipelines()
+        }}
+        pipeline={pipeline}
+      />
     </div>}
 
     <ModalCreatePipeline
       visible={visibleModalCreate}
       onCancel={() => visibleModalCreateAction.setFalse()}
       onFinish={(fields) => {
+        fields = {
+          ...fields,
+          grpc_test_cases: fields.grpc_test_cases?.map((item: any) => ({
+            service: item.testcase[0],
+            method: item.testcase[1],
+            testcase: item.testcase[2]
+          })) || []
+        }
+
         createPipeline(fields).then(r => {
           if (r.code === 14000) return
 

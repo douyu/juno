@@ -55,7 +55,7 @@ type cfg struct {
 	GrpcTest          GrpcTest
 	ProxyAuth         ProxyAuth
 	CodePlatform      CodePlatform
-	Worker            Worker
+	TestPlatform      TestPlatform
 }
 
 // DefaultConfig ...

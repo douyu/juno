@@ -4,33 +4,42 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/grpctest/grpctester"
+
 	"github.com/douyu/juno/internal/pkg/packages/xtest"
 	"github.com/douyu/juno/pkg/model/db"
 )
 
 type (
 	TestPipeline struct {
-		ID                 uint   `json:"id"`
-		Name               string `json:"name" validate:"required,min=4,max=32"`
-		Env                string `json:"env" validate:"required,min=1,max=32"`
-		ZoneCode           string `json:"zone_code" validate:"required"`
-		AppName            string `json:"app_name" validate:"required"`
-		Branch             string `json:"branch" validate:"required,min=1,max=32"`
-		CodeCheck          bool   `json:"code_check"`
-		UnitTest           bool   `json:"unit_test"`
-		HttpTestCollection *int   `json:"http_test_collection"` // http 测试集合
+		ID                 uint                     `json:"id"`
+		Name               string                   `json:"name" validate:"required,min=4,max=32"`
+		Env                string                   `json:"env" validate:"required,min=1,max=32"`
+		ZoneCode           string                   `json:"zone_code" validate:"required"`
+		AppName            string                   `json:"app_name" validate:"required"`
+		Branch             string                   `json:"branch" validate:"required,min=1,max=32"`
+		CodeCheck          bool                     `json:"code_check"`
+		UnitTest           bool                     `json:"unit_test"`
+		HttpTestCollection *int                     `json:"http_test_collection"` // http 测试集合
+		GrpcTestAddr       string                   `json:"grpc_test_addr"`
+		GrpcTestCases      db.PipelineGrpcTestCases `json:"grpc_test_cases"` // GRPC 测试用例列表
 	}
 
 	TestPipelineUV struct {
-		ID       uint                `json:"id"`
-		Name     string              `json:"name" validate:"required,min=4,max=32"`
-		Env      string              `json:"env" validate:"required,min=1,max=32"`
-		ZoneCode string              `json:"zone_code" validate:"required"`
-		AppName  string              `json:"app_name" validate:"required"`
-		Branch   string              `json:"branch" validate:"required,min=1,max=32"`
-		Desc     db.TestPipelineDesc `json:"desc"`
-		Status   db.TestTaskStatus   `json:"status"`
-		RunCount int                 `json:"run_count"`
+		ID                 uint                     `json:"id"`
+		Name               string                   `json:"name" validate:"required,min=4,max=32"`
+		Env                string                   `json:"env" validate:"required,min=1,max=32"`
+		ZoneCode           string                   `json:"zone_code" validate:"required"`
+		AppName            string                   `json:"app_name" validate:"required"`
+		Branch             string                   `json:"branch" validate:"required,min=1,max=32"`
+		CodeCheck          bool                     `json:"code_check"`
+		UnitTest           bool                     `json:"unit_test"`
+		HttpTestCollection *int                     `json:"http_test_collection"` // http 测试集合
+		GrpcTestAddr       string                   `json:"grpc_test_addr"`
+		GrpcTestCases      db.PipelineGrpcTestCases `json:"grpc_test_cases"` // GRPC 测试用例列表
+		Desc               db.TestPipelineDesc      `json:"desc"`
+		Status             db.TestTaskStatus        `json:"status"`
+		RunCount           int                      `json:"run_count"`
 	}
 
 	ReqUpdatePipeline struct {
@@ -108,6 +117,11 @@ type (
 		ZoneName  string `json:"zone_name"`
 		ZoneCode  string `json:"zone_code"`
 		NodeCount int    `json:"node_count"`
+	}
+
+	GrpcTestCase struct {
+		grpctester.RequestPayload
+		MethodDescriptor json.RawMessage `json:"method_descriptor"`
 	}
 )
 

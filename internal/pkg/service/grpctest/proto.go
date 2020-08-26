@@ -2,6 +2,7 @@ package grpctest
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
@@ -120,9 +121,11 @@ func AppServiceTree() (resp []view.RespGrpcAppServiceTreeItem, err error) {
 		for _, proto := range protoList {
 			for _, service := range proto.Services {
 				item.Services = append(item.Services, view.RespGrpcServiceItem{
-					ID:      service.ID,
-					ProtoID: service.ProtoID,
-					Name:    service.Name,
+					ID:          service.ID,
+					FileName:    proto.FileName,
+					PackageName: proto.PackageName,
+					ProtoID:     service.ProtoID,
+					Name:        service.Name,
 				})
 			}
 		}
@@ -131,4 +134,60 @@ func AppServiceTree() (resp []view.RespGrpcAppServiceTreeItem, err error) {
 	}
 
 	return
+}
+
+func Services(appName string) (services []view.RespGrpcServiceMethodItem, err error) {
+	var protoList []db.GrpcProto
+
+	err = option.DB.Where("app_name = ?", appName).
+		Preload("Services").
+		Preload("Services.Methods").
+		Preload("Services.Methods.TestCases").
+		Find(&protoList).Error
+	if err != nil {
+		return
+	}
+
+	for _, proto := range protoList {
+		for _, service := range proto.Services {
+			var methods []view.RespListMethodUseCaseItem
+
+			for _, method := range service.Methods {
+				var useCases []view.GrpcUseCaseItem
+
+				for _, testCase := range method.TestCases {
+					useCases = append(useCases, view.GrpcUseCaseItem{
+						ID:       testCase.ID,
+						Name:     testCase.Name,
+						Input:    testCase.Input,
+						Metadata: testCase.Metadata,
+					})
+				}
+
+				methods = append(methods, view.RespListMethodUseCaseItem{
+					GrpcMethodItem: view.GrpcMethodItem{
+						ID:          method.ID,
+						Name:        method.Name,
+						Description: method.MethodComment,
+					},
+					UseCases: useCases,
+				})
+			}
+
+			services = append(services, view.RespGrpcServiceMethodItem{
+				ID:          service.ID,
+				ProtoID:     service.ProtoID,
+				FileName:    proto.FileName,
+				PackageName: proto.PackageName,
+				Name:        service.Name,
+				Methods:     methods,
+			})
+		}
+	}
+
+	return
+}
+
+func ProtoAbsPath(filename string) string {
+	return filepath.Join(option.ProtoDir, filename)
 }

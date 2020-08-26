@@ -1,15 +1,22 @@
 package testplatform
 
 import (
+	"time"
+
+	"github.com/douyu/juno/internal/pkg/service/testplatform/localworker"
 	"github.com/douyu/juno/internal/pkg/service/testplatform/workerpool"
-	"github.com/douyu/juno/pkg/cfg"
 	"github.com/jinzhu/gorm"
 )
 
 type (
 	Option struct {
+		Enable         bool
 		DB             *gorm.DB
 		GitAccessToken string
+		Worker         struct {
+			HeartbeatTimeout time.Duration
+			LocalQueueDir    string
+		}
 	}
 )
 
@@ -22,8 +29,14 @@ func Init(o Option) {
 
 	workerpool.Instance().Init(workerpool.Option{
 		DB:               o.DB,
-		HeartbeatTimeout: cfg.Cfg.Worker.HeartbeatTimeout,
+		HeartbeatTimeout: o.Worker.HeartbeatTimeout,
 	})
+
+	if o.Enable {
+		localworker.Instance().Init(localworker.Option{
+			WorkerQueueDir: o.Worker.LocalQueueDir,
+		})
+	}
 
 	startClearTimeoutTask()
 }

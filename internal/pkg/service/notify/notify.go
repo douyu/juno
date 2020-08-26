@@ -26,8 +26,9 @@ var (
 	StreamStore *streamStore
 
 	msgRouteMap = map[uint32]string{
-		constx.MsgNodeHeartBeatResp:  "/heartbeat",
-		constx.MsgTestStepUpdateResp: "/testStepUpdate",
+		constx.MsgNodeHeartBeatResp:   "/heartbeat",
+		constx.MsgTestStepUpdateResp:  "/testStepUpdate",
+		constx.MsgWorkerHeartBeatResp: "/worker/heartbeat",
 	}
 )
 

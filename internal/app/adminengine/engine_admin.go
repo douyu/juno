@@ -21,6 +21,7 @@ import (
 
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/test/platform"
+	"github.com/douyu/juno/api/apiv1/worker"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -178,6 +179,7 @@ func (eng *Admin) initNotify() (err error) {
 			notify.InitStreamStore(ProxyClient)
 			notify.StreamStore.AddRouter(constx.MsgNodeHeartBeatResp, resource.NodeHeartBeat)
 			notify.StreamStore.AddRouter(constx.MsgTestStepUpdateResp, platform.TaskStepStatusUpdate)
+			notify.StreamStore.AddRouter(constx.MsgWorkerHeartBeatResp, worker.Heartbeat)
 		}
 	}
 	return nil

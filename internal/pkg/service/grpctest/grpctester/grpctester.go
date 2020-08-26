@@ -1,4 +1,4 @@
-package grpctest
+package grpctester
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/douyu/juno/internal/pkg/packages/xtest"
 	"github.com/douyu/juno/internal/pkg/service/grpctest/grpcinvoker"
+	"github.com/jhump/protoreflect/desc"
 )
 
 type (
@@ -24,17 +25,19 @@ type (
 		Host        string
 		Timeout     time.Duration
 		TestScript  string
+
+		MethodDescriptor *desc.MethodDescriptor
 	}
 )
 
 type (
-	grpcTester struct {
+	GrpcTester struct {
 		tester *xtest.XTest
 	}
 )
 
-func newTester() *grpcTester {
-	return &grpcTester{
+func New() *GrpcTester {
+	return &GrpcTester{
 		tester: xtest.New(
 			xtest.WithInterpreter(xtest.InterpreterTypeJS),
 			xtest.WithGlobalStore(true),
@@ -42,7 +45,7 @@ func newTester() *grpcTester {
 	}
 }
 
-func (g *grpcTester) registerFunctions(payload *RequestPayload) {
+func (g *GrpcTester) registerFunctions(payload *RequestPayload) {
 	_ = g.tester.Interpreter().RegisterFunc("setInput", func(input RequestInput) {
 		payload.Input = input
 	})
@@ -64,7 +67,7 @@ func (g *grpcTester) registerFunctions(payload *RequestPayload) {
 	})
 }
 
-func (g *grpcTester) run(c context.Context, payload RequestPayload) xtest.TestResult {
+func (g *GrpcTester) Run(c context.Context, payload RequestPayload) xtest.TestResult {
 	g.registerFunctions(&payload)
 
 	testScript := xtest.TestScript{Source: payload.TestScript}
@@ -75,7 +78,7 @@ func (g *grpcTester) run(c context.Context, payload RequestPayload) xtest.TestRe
 	return result
 }
 
-func (g *grpcTester) send(payload RequestPayload) (data xtest.Response, err error) {
+func (g *GrpcTester) send(payload RequestPayload) (data xtest.Response, err error) {
 	inputBytes, err := json.Marshal(payload.Input)
 	if err != nil {
 		return
@@ -87,14 +90,14 @@ func (g *grpcTester) send(payload RequestPayload) (data xtest.Response, err erro
 	}
 
 	resp, err := grpcinvoker.MakeRequest(grpcinvoker.ReqProtoConfig{
-		PackageName: payload.PackageName,
-		ServiceName: payload.ServiceName,
-		MethodName:  payload.MethodName,
-		InputParams: string(inputBytes),
-		MetaData:    string(md),
-		ProtoFile:   payload.ProtoFile,
-		Host:        payload.Host,
-		Timeout:     payload.Timeout,
+		PackageName:      payload.PackageName,
+		ServiceName:      payload.ServiceName,
+		MethodName:       payload.MethodName,
+		InputParams:      string(inputBytes),
+		MetaData:         string(md),
+		MethodDescriptor: payload.MethodDescriptor,
+		Host:             payload.Host,
+		Timeout:          payload.Timeout,
 	})
 	if err != nil {
 		return

@@ -5,7 +5,8 @@ export enum JobType {
   CodeCheck = "code_check",
   GitPull = "git_pull",
   UnitTest = "unit_test",
-  HttpTest = "http_test"
+  HttpTest = "http_test",
+  GrpcTest = "grpc_test"
 }
 
 export enum StepType {
@@ -21,6 +22,10 @@ export interface Pipeline {
   zone_code: string
   branch: string
   desc: PipelineDesc
+  unit_test: boolean
+  code_check: boolean
+  http_test_collection: boolean
+  grpc_test_cases: { service: number, method: number, testcase: number }[]
   status: "" | "running" | "waiting" | "failed" | "success"
   run_count: number
 }
@@ -110,8 +115,15 @@ export const StepNames = {
   [JobType.UnitTest]: {
     title: '单元测试',
     description: '执行代码目录下所有单元测试'
+  },
+  [JobType.GrpcTest]: {
+    title: 'GRPC接口测试'
+  },
+  [JobType.HttpTest]: {
+    title: 'Http接口测试'
   }
 }
+
 
 export interface WorkerZone {
   zone_name: string,

@@ -8,10 +8,13 @@ import (
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/packages/xtest"
+	"github.com/douyu/juno/internal/pkg/service/grpctest/grpcinvoker"
+	"github.com/douyu/juno/internal/pkg/service/grpctest/grpctester"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -30,7 +33,7 @@ func UserMakeRequest(uid uint, req view.MakeGrpcRequest) (response view.GrpcResp
 		response.Status = "failed"
 		response.Error = err.Error()
 	} else {
-		resp, ok := result.RawResponse.(Response)
+		resp, ok := result.RawResponse.(grpctester.Response)
 		if !ok {
 			err = fmt.Errorf("invalid response")
 			response.Error = err.Error()
@@ -87,25 +90,13 @@ func UserMakeRequest(uid uint, req view.MakeGrpcRequest) (response view.GrpcResp
 }
 
 func SendSingleRequest(req view.MakeGrpcRequest) (result xtest.TestResult, err error) {
-	tester := newTester()
+	tester := grpctester.New()
 	return sendRequestCallGRPC(tester, req)
 }
 
-func sendRequestCallGRPC(tester *grpcTester, req view.MakeGrpcRequest) (result xtest.TestResult, err error) {
-	var input RequestInput
+func sendRequestCallGRPC(tester *grpctester.GrpcTester, req view.MakeGrpcRequest) (result xtest.TestResult, err error) {
+	var input grpctester.RequestInput
 	var method db.GrpcServiceMethod
-
-	//defer func() {
-	//	if err != nil {
-	//		response.Status = "fail"
-	//		response.Error = err.Error()
-	//	} else if result.Error != nil {
-	//		response.Status = "fail"
-	//		response.Error = result.Error.Error()
-	//	} else {
-	//		response.Status = "success"
-	//	}
-	//}()
 
 	err = json.Unmarshal([]byte(req.Input), &input)
 	if err != nil {
@@ -121,13 +112,13 @@ func sendRequestCallGRPC(tester *grpcTester, req view.MakeGrpcRequest) (result x
 		return
 	}
 
-	metadata := make(Metadata)
+	metadata := make(grpctester.Metadata)
 	for _, item := range req.Metadata {
 		metadata[item.Key] = item.Value
 	}
 
-	// 执行测试用例
-	result = tester.run(context.Background(), RequestPayload{
+	// request payload
+	payload := grpctester.RequestPayload{
 		PackageName: method.Service.Proto.PackageName,
 		ServiceName: method.Service.Name,
 		MethodName:  method.Name,
@@ -137,11 +128,21 @@ func sendRequestCallGRPC(tester *grpcTester, req view.MakeGrpcRequest) (result x
 		Host:        req.Address,
 		Timeout:     1 * time.Second,
 		TestScript:  req.Script,
-	})
+	}
 
-	//responseBytes, _ := json.Marshal(result.RawResponse)
-	//response.TimeCost = result.TimeCost.Milliseconds()
-	//response.Output = string(responseBytes)
+	// 获取 method methodDescriptor
+	methodDescriptor, err := grpcinvoker.GetMethodDescriptor(
+		fmt.Sprintf("%s.%s.%s", payload.PackageName, payload.ServiceName, payload.MethodName),
+		payload.ProtoFile,
+	)
+	if err != nil {
+		err = errors.Wrap(err, "get method descriptor failed")
+		return
+	}
+	payload.MethodDescriptor = methodDescriptor
+
+	// 执行测试用例
+	result = tester.Run(context.Background(), payload)
 
 	return
 }
