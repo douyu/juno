@@ -15,8 +15,8 @@ type JSONResult struct {
 
 // pro-table-data  json
 type ProTableResult struct {
-	Success    bool         `json:"success"`
-	Total int      `json:"total"`
+	Success bool        `json:"success"`
+	Total   int         `json:"total"`
 	Data    interface{} `json:"data"`
 }
 
@@ -40,16 +40,6 @@ func JSON(c echo.Context, Code int, message string, data ...interface{}) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-//pro-table组件友好数据类型
-func ProTableData(c echo.Context,data interface{},total int) error {
-	return c.JSON(http.StatusOK,ProTableResult{
-		Success:    true,
-		Total: total,
-		Data:    data,
-	})
-
-}
-
 func WithData(data interface{}) JSONResult {
 	return JSONResult{
 		Code:    0,
@@ -57,4 +47,3 @@ func WithData(data interface{}) JSONResult {
 		Data:    data,
 	}
 }
-
