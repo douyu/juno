@@ -67,6 +67,7 @@
     "monaco-editor-webpack-plugin": "^1.9.0",
     "numeral": "^2.0.6",
     "omit.js": "^1.0.2",
+    "pretty-json-view": "^0.1.11",
     "prop-types": "^15.7.2",
     "qs": "^6.9.0",
     "react": "^16.8.6",

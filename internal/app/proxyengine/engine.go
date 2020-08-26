@@ -187,10 +187,11 @@ func (eng *Proxy) serveGovern() (err error) {
 
 func apiV1(server *xecho.Server) {
 	server.POST("/*", apiproxy.ProxyPost)
+	server.POST("/api/v1/worker/heartbeat", apiproxy.WorkerHeartbeat)
 	server.POST("/api/v1/resource/node/heartbeat", apiproxy.NodeHeartBeat)
 	server.POST("/api/v1/testworker/platform/dispatch", apiproxy.DispatchTask)
 	server.POST("/api/v1/testworker/platform/consume", apiproxy.ConsumeTask)
-	server.POST("/api/v1/testworker/platform/taskStatusUpdate", apiproxy.TaskStatusUpdate)
+	server.POST("/api/v1/worker/testTask/update", apiproxy.TaskStatusUpdate)
 
 	//// work for juno -> agent
 	//server.GET("/api/v1/configuration/takeEffect", apiproxy.ConfigurationTakeEffect)

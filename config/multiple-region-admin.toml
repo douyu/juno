@@ -177,3 +177,13 @@
 host="https://gitlab.com"
 token="RgZev8zy6dtP2y8EA4sB"
 frameName="gitlab.com/douyu/jupiter"
+
+[codeplatform]
+token = "token" # 代码仓库访问凭证
+
+[testplatform]
+enable = false # 是否启用测试平台
+
+[testplatform.worker]
+localQueueDir = "C:/tmp/localworkerqueue"
+heartbeatTimeout = "6s"

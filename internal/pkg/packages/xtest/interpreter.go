@@ -28,10 +28,10 @@ type (
 	Response interface{}
 
 	TestResult struct {
-		Logs        map[string]string
-		TimeCost    time.Duration
-		Error       error
-		Success     bool
-		RawResponse interface{}
+		Logs        map[string]string `json:"logs"`
+		TimeCost    time.Duration     `json:"time_cost"`
+		Error       error             `json:"error"`
+		Success     bool              `json:"success"`
+		RawResponse interface{}       `json:"raw_response"`
 	}
 )

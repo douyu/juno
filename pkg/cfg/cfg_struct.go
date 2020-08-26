@@ -290,11 +290,13 @@ type ProxyAuth struct {
 }
 
 type CodePlatform struct {
-	Type       string
-	Token      string
-	StorageDir string
+	Token string
 }
 
-type Worker struct {
-	HeartbeatTimeout time.Duration
+type TestPlatform struct {
+	Enable bool
+	Worker struct {
+		LocalQueueDir    string
+		HeartbeatTimeout time.Duration
+	}
 }

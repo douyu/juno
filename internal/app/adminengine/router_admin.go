@@ -217,6 +217,7 @@ func apiAdmin(server *xecho.Server) {
 			grpcG.GET("/proto/methods/detail", core.Handle(grpc.MethodDetail))           // PB Method 详情
 			grpcG.POST("/proto/bind", core.Handle(grpc.BindProtoToApp))                  // 绑定 PB 到应用
 			grpcG.GET("/appServiceTree", core.Handle(grpc.AppServiceTree))               // app > pb-service 树
+			grpcG.GET("/services", core.Handle(grpc.Services))                           // services -> method -> use-cases tree
 			grpcG.GET("/useCases", core.Handle(grpc.UseCases))                           // pb-method > use-cases 树
 			grpcG.POST("/useCases/create", core.Handle(grpc.CreateUseCase))              // 创建用例
 			grpcG.POST("/useCases/update", core.Handle(grpc.UpdateUseCase))              // 更新用例

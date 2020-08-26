@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -38,32 +37,19 @@ func Instance() *ProtoCmd {
 
 //  ./grpctest --ProtoFile=aggregation.ProtoFile --ckall=pb.Aggregation.BatchRoomInfo --m='{"Aid":"1"}' --d='{"Rids":[20]}' --Host=10.1.41.166:50127
 type ReqProtoConfig struct {
-	PackageName string
-	ServiceName string
-	MethodName  string
-	call        string
-	InputParams string
-	MetaData    string
-	ProtoFile   string
-	Host        string
-	Timeout     time.Duration
+	PackageName      string
+	ServiceName      string
+	MethodName       string
+	call             string
+	InputParams      string
+	MetaData         string
+	Host             string
+	Timeout          time.Duration
+	MethodDescriptor *desc.MethodDescriptor
 }
 
 func MakeRequest(r ReqProtoConfig) (resp *dynamic.Message, err error) {
-	// 判断proto是否存在
-	_, err = os.Stat(r.ProtoFile)
-	if err != nil {
-		err = errors.New("file path is error, err: " + err.Error())
-		return
-	}
-	r.call = r.PackageName + "." + r.ServiceName + "." + r.MethodName
-	mtd, err := protoData(r.call, r.ProtoFile)
-	if err != nil {
-		return
-	}
-
-	xlog.Info("request", xlog.String("call", r.call), xlog.String("protoFile", r.ProtoFile),
-		xlog.String("inputParam", r.InputParams))
+	xlog.Info("request", xlog.String("call", r.call), xlog.String("inputParam", r.InputParams))
 
 	ctx := context.Background()
 	var cancel context.CancelFunc
@@ -74,7 +60,7 @@ func MakeRequest(r ReqProtoConfig) (resp *dynamic.Message, err error) {
 	}
 	defer cancel()
 
-	return makeRequest(ctx, mtd, r.InputParams, r.MetaData, r.Host)
+	return makeRequest(ctx, r.MethodDescriptor, r.InputParams, r.MetaData, r.Host)
 }
 
 func makeRequest(ctx context.Context, mtd *desc.MethodDescriptor, inputParams, md /* Metadata */, host string) (resp *dynamic.Message, err error) {
@@ -124,7 +110,7 @@ func makeRequest(ctx context.Context, mtd *desc.MethodDescriptor, inputParams, m
 	return
 }
 
-func protoData(call string, proto string) (mtd *desc.MethodDescriptor, err error) {
+func GetMethodDescriptor(call string, proto string) (mtd *desc.MethodDescriptor, err error) {
 	var importPaths []string
 
 	dir := filepath.Dir(proto)

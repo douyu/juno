@@ -3,6 +3,7 @@ package proxy
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -65,6 +66,23 @@ func NodeHeartBeat(c echo.Context) error {
 		err = proxy.StreamStore.GetStream().Send(&pb.NotifyResp{
 			MsgId: constx.MsgNodeHeartBeatResp,
 			Msg:   info,
+		})
+		if err != nil {
+			return output.JSON(c, output.MsgErr, err.Error())
+		}
+	} else {
+		return output.JSON(c, output.MsgErr, "stream is not exist")
+	}
+	return output.JSON(c, output.MsgOk, "success")
+}
+
+func WorkerHeartbeat(c echo.Context) error {
+	var err error
+	body, _ := ioutil.ReadAll(c.Request().Body)
+	if proxy.StreamStore.IsStreamExist() {
+		err = proxy.StreamStore.GetStream().Send(&pb.NotifyResp{
+			MsgId: constx.MsgWorkerHeartBeatResp,
+			Msg:   body,
 		})
 		if err != nil {
 			return output.JSON(c, output.MsgErr, err.Error())

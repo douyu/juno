@@ -11,15 +11,18 @@ import (
 type (
 	TestPipeline struct {
 		gorm.Model
-		Name      string
-		AppName   string
-		Env       string `gorm:"type:varchar(32)"`
-		ZoneCode  string
-		Branch    string
-		Desc      TestPipelineDesc `gorm:"type:json"`
-		JobCount  int
-		CreatedBy uint
-		UpdatedBy uint
+		Name               string
+		AppName            string
+		Env                string `gorm:"type:varchar(32)"`
+		ZoneCode           string
+		Branch             string
+		CodeCheck          bool
+		UnitTest           bool
+		HttpTestCollection *int
+		GrpcTestAddr       string
+		GrpcTestCases      PipelineGrpcTestCases `gorm:"type:json"` // GRPC 测试用例列表
+		CreatedBy          uint
+		UpdatedBy          uint
 
 		App AppInfo `gorm:"foreignKey:AppName;association_foreignkey:AppName" json:"-"`
 	}
@@ -69,6 +72,12 @@ type (
 		Payload json.RawMessage `json:"payload"`
 	}
 
+	PipelineGrpcTestCases []struct {
+		Service  uint `json:"service"`
+		Method   uint `json:"method"`
+		TestCase uint `json:"testcase"`
+	}
+
 	JobType        string
 	TestTaskStatus string
 	TestStepStatus string
@@ -82,6 +91,7 @@ const (
 	JobUnitTest  JobType = "unit_test"
 	JobCodeCheck JobType = "code_check"
 	JobHttpTest  JobType = "http_test"
+	JobGrpcTest  JobType = "grpc_test"
 
 	TestTaskStatusPending TestTaskStatus = "pending"
 	TestTaskStatusRunning                = "running"
@@ -111,6 +121,14 @@ func (d TestPipelineDesc) Value() (driver.Value, error) {
 }
 
 func (d *TestPipelineDesc) Scan(input interface{}) error {
+	return json.Unmarshal(input.([]byte), d)
+}
+
+func (d PipelineGrpcTestCases) Value() (driver.Value, error) {
+	return json.Marshal(d)
+}
+
+func (d *PipelineGrpcTestCases) Scan(input interface{}) error {
 	return json.Unmarshal(input.([]byte), d)
 }
 

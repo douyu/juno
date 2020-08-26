@@ -61,13 +61,13 @@ function TaskItem(props: TaskItemProps) {
   }, [task])
 
   const getStep = (stepName: string) => {
-    return steps.find((item) => {
+    return steps?.find((item) => {
       return item.step_name == stepName
     })
   }
 
   const getStepStatus = (stepName: string): 'wait' | 'process' | 'finish' | 'error' => {
-    const step = steps.find((item) => {
+    const step = steps?.find((item) => {
       return item.step_name == stepName
     })
 

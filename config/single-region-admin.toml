@@ -145,9 +145,11 @@
     frameName="gitlab.com/douyu/jupiter"
 
 [codeplatform]
-    type = "gitlab" # 代码平台类型，暂时只支持 gitlab
-    token = "token" # 代码仓库访问凭证
-    storage_dir = "../code" # 代码存储的目录
+token = "token" # 代码仓库访问凭证
 
-[worker]
-    heartbeatTimeout = "6s" # 超时后在可用
+[testplatform]
+enable = false # 是否启用测试平台
+
+[testplatform.worker]
+localQueueDir = "C:/tmp/localworkerqueue"
+heartbeatTimeout = "6s"

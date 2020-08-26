@@ -2,6 +2,7 @@ package testworker
 
 import (
 	"context"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -10,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jhump/protoreflect/desc"
 
 	"github.com/beeker1121/goque"
 	"github.com/douyu/juno/internal/pkg/packages/xtest"
@@ -27,10 +30,11 @@ import (
 
 type (
 	TestWorker struct {
-		option   Option
-		client   *resty.Client
-		taskChan chan view.TestTask
-		queue    *goque.Queue
+		option      Option
+		client      *resty.Client
+		taskChan    chan view.TestTask
+		queue       *goque.Queue
+		jobHandlers map[db.JobType]JobHandler
 	}
 
 	Option struct {
@@ -54,6 +58,7 @@ type (
 	}
 
 	progressType string
+	JobHandler   func(task view.TestTask, name string, p json.RawMessage) error
 )
 
 var (
@@ -65,10 +70,22 @@ var (
 	progressFailed  progressType = "failed"
 )
 
+func init() {
+	gob.Register(desc.MethodDescriptor{})
+}
+
 func Instance() *TestWorker {
 	initOnce.Do(func() {
 		instance = &TestWorker{
 			taskChan: make(chan view.TestTask),
+		}
+
+		instance.jobHandlers = map[db.JobType]JobHandler{
+			db.JobGitPull:   instance.gitPull,
+			db.JobHttpTest:  instance.httpTest,
+			db.JobUnitTest:  instance.unitTest,
+			db.JobCodeCheck: instance.codeCheck,
+			//db.JobGrpcTest:  instance.grpcTest,
 		}
 	})
 
@@ -212,23 +229,16 @@ func (t *TestWorker) runStep(task view.TestTask, step db.TestPipelineStep) (err 
 }
 
 func (t *TestWorker) runJob(task view.TestTask, name string, payload *db.TestJobPayload) (err error) {
-	t.notifyProgress(task.TaskID, name, db.TestTaskStatusRunning, progressStart, "")
+	handler, ok := t.jobHandlers[payload.Type]
+	if ok {
+		t.notifyProgress(task.TaskID, name, db.TestTaskStatusRunning, progressStart, "")
+		err = handler(task, name, payload.Payload)
 
-	switch payload.Type {
-	case db.JobGitPull:
-		err = t.gitPull(task, name, payload.Payload)
-
-	case db.JobUnitTest:
-		err = t.unitTest(task, name, payload.Payload)
-
-	case db.JobCodeCheck:
-		err = t.codeCheck(task, name, payload.Payload)
-
-	case db.JobHttpTest:
-		err = t.httpTest(task, name, payload.Payload)
-	}
-	if err != nil {
-		xlog.Error("runJob failed", xlog.String("err", err.Error()))
+		if err != nil {
+			xlog.Error("runJob failed", xlog.String("err", err.Error()))
+		}
+	} else {
+		xlog.Errorf("invalid job type: %s", payload.Type)
 	}
 
 	return
@@ -502,3 +512,61 @@ func (t *TestWorker) httpTest(task view.TestTask, name string, p json.RawMessage
 
 	return nil
 }
+
+//func (t *TestWorker) grpcTest(task view.TestTask, name string, p json.RawMessage) (err error) {
+//	var payload pipeline.JobGrpcTestPayload
+//	var testSuccess = true
+//	var tester = grpctester.New()
+//	var notify = func(status db.TestStepStatus, log interface{}) {
+//		var logContent []byte
+//		if log != nil {
+//			logContent, _ = json.Marshal(log)
+//		}
+//		t.notifyStepStatus(task.TaskID, name, status, string(logContent))
+//	}
+//
+//	err = json.Unmarshal(p, &payload)
+//	if err != nil {
+//		return
+//	}
+//
+//	defer func() {
+//		if testSuccess {
+//			notify(db.TestStepStatusSuccess, nil)
+//		} else {
+//			notify(db.TestStepStatusFailed, nil)
+//		}
+//	}()
+//
+//	for _, testCase := range payload.TestCases {
+//		var methodDesc desc.MethodDescriptor
+//		err = gob.NewDecoder(bytes.NewReader(testCase.MethodDescriptor)).Decode(&methodDesc)
+//		if err != nil {
+//			continue
+//		}
+//
+//		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+//		testResult := tester.Run(ctx, grpctester.RequestPayload{
+//			PackageName:      testCase.PackageName,
+//			ServiceName:      testCase.ServiceName,
+//			MethodName:       testCase.MethodName,
+//			Input:            testCase.Input,
+//			MetaData:         testCase.MetaData,
+//			ProtoFile:        testCase.ProtoFile,
+//			Host:             testCase.Host,
+//			Timeout:          testCase.Timeout,
+//			TestScript:       testCase.TestScript,
+//			MethodDescriptor: &methodDesc,
+//		})
+//
+//		cancel()
+//
+//		if !testResult.Success {
+//			testSuccess = false
+//		}
+//
+//		notify(db.TestStepStatusRunning, &testResult)
+//	}
+//
+//	return
+//}

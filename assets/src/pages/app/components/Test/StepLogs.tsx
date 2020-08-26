@@ -4,6 +4,8 @@ import styles from './StepLogs.less'
 import {Card, Col, Collapse, Descriptions, Divider, List, Row, Statistic, Tabs} from "antd";
 import RunStatus from "@/pages/app/components/Test/RunStatus";
 import MonacoEditor from 'react-monaco-editor'
+import PrettyJsonView from "pretty-json-view";
+import "pretty-json-view/style.css"
 
 interface StepLogsProps {
   logs: string
@@ -14,6 +16,21 @@ const VisualLogComponents = {
   [JobType.CodeCheck]: VisualCodeCheck,
   [JobType.UnitTest]: VisualUnitTest,
   [JobType.HttpTest]: VisualHttpTestLog,
+  [JobType.GrpcTest]: VisualGrpcTestLog,
+}
+
+function LogView(props: { logs: string }) {
+
+  return <MonacoEditor
+    value={props.logs}
+    theme={"vs"}
+    height={"500px"}
+    width={"100%"}
+    options={{
+      readOnly: true,
+      wordWrap: 'on'
+    }}
+  />
 }
 
 export function StepLogs(props: StepLogsProps) {
@@ -24,9 +41,7 @@ export function StepLogs(props: StepLogsProps) {
   }
 
   return <div>
-    <div className={styles.logs}>
-      <pre>{props.logs}</pre>
-    </div>
+    <LogView logs={props.logs}/>
   </div>
 }
 
@@ -73,9 +88,7 @@ function VisualCodeCheck(props: { logs: string }) {
         />
       </Tabs.TabPane>
       <Tabs.TabPane key={"log"} tab={"日志"}>
-        <div className={styles.logs}>
-          <pre>{logs}</pre>
-        </div>
+        <LogView logs={logs}/>
       </Tabs.TabPane>
     </Tabs>
   </div>
@@ -238,9 +251,7 @@ function VisualUnitTest(props: { logs: string }) {
         </Collapse>
       </Tabs.TabPane>
       <Tabs.TabPane tab={"Log"} key={"log"}>
-        <div className={styles.logs}>
-          <pre>{logs}</pre>
-        </div>
+        <LogView logs={logs}/>
       </Tabs.TabPane>
     </Tabs>
 
@@ -295,8 +306,8 @@ function VisualHttpTestLog(props: { logs: string }) {
                 <Tabs.TabPane tab={"Headers"} key={"headers"}>
 
                   <Descriptions bordered column={1} size={"small"}>
-                    {Object.keys(test.result.RawResponse.headers).map(key => {
-                      let val = test.result.RawResponse.headers[key]
+                    {test.result?.raw_response?.headers && Object.keys(test.result?.raw_response?.headers).map(key => {
+                      let val = test.result.raw_response.headers[key]
                       return <Descriptions.Item key={key} label={key}>
                         {val.join('; ')}
                       </Descriptions.Item>
@@ -306,7 +317,7 @@ function VisualHttpTestLog(props: { logs: string }) {
                 </Tabs.TabPane>
                 <Tabs.TabPane tab={"Body"} key={"body"}>
                   <MonacoEditor
-                    value={test.result.RawResponse.body}
+                    value={test.result.raw_response.body}
                     theme={"vs"}
                     height={"500px"}
                     width={"100%"}
@@ -322,10 +333,64 @@ function VisualHttpTestLog(props: { logs: string }) {
         </Collapse>
       </Tabs.TabPane>
       <Tabs.TabPane tab={"Log"} key={"log"}>
-        <div className={styles.logs}>
-          <pre>{logs}</pre>
-        </div>
+        <LogView logs={logs}/>
       </Tabs.TabPane>
+    </Tabs>
+  </div>
+}
+
+function VisualGrpcTestLog(props: { logs: string }) {
+  const {logs} = props
+  let tests: any[] = []
+
+  {
+    let lines = logs.split("\n")
+    lines.forEach(line => {
+      line = line.trim()
+      if (!line.length) return
+
+      try {
+        let test = JSON.parse(line)
+        if (test.progress_log === true) return
+
+        tests.push(test)
+      } catch (e) {
+      }
+    })
+  }
+
+  return <div>
+    <Tabs>
+
+      <Tabs.TabPane tab={"结果"} key={"result"}>
+        <Collapse defaultActiveKey={0}>
+          {tests.map((test, index) => <Collapse.Panel
+            header={<span>{test.test}</span>}
+            key={index}
+          >
+            <Descriptions bordered>
+              <Descriptions.Item label={"Package"}>{test.package}</Descriptions.Item>
+              <Descriptions.Item label={"Service"}>{test.service}</Descriptions.Item>
+              <Descriptions.Item label={"Method"}>{test.method}</Descriptions.Item>
+
+              <Descriptions.Item span={24} label={"Input"}>
+                <PrettyJsonView data={test.input}/>
+              </Descriptions.Item>
+
+              <Descriptions.Item span={24} label={"Output"}>
+                <PrettyJsonView data={test.raw_response || {}}/>
+              </Descriptions.Item>
+
+            </Descriptions>
+
+          </Collapse.Panel>)}
+        </Collapse>
+      </Tabs.TabPane>
+
+      <Tabs.TabPane tab={"Log"} key={"log"}>
+        <LogView logs={logs}/>
+      </Tabs.TabPane>
+
     </Tabs>
   </div>
 }

@@ -3,8 +3,9 @@ package grpctest
 import (
 	"encoding/json"
 	"fmt"
-	"path/filepath"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/douyu/juno/internal/pkg/service/grpctest/grpcinvoker"
 	"github.com/douyu/juno/pkg/model/db"
@@ -195,17 +196,28 @@ func SendRequestCallGRPC(req view.MakeGrpcRequest) (response view.GrpcResponse, 
 	}
 	metadataStr, _ := json.Marshal(metadataMapString)
 
-	timeBegin := time.Now()
-	resp, err := grpcinvoker.MakeRequest(grpcinvoker.ReqProtoConfig{
+	payload := grpcinvoker.ReqProtoConfig{
 		PackageName: method.Service.Proto.PackageName,
 		ServiceName: method.Service.Name,
 		MethodName:  method.Name,
 		InputParams: req.Input,
 		MetaData:    string(metadataStr),
-		ProtoFile:   filepath.Join(option.ProtoDir, method.Service.Proto.FileName),
 		Host:        req.Address,
 		Timeout:     1 * time.Second,
-	})
+	}
+
+	methodDescriptor, err := grpcinvoker.GetMethodDescriptor(
+		payload.PackageName+"."+payload.ServiceName+"."+payload.MethodName,
+		ProtoAbsPath(method.Service.Proto.FileName),
+	)
+	if err != nil {
+		err = errors.Wrapf(err, "parse method failed")
+		return
+	}
+	payload.MethodDescriptor = methodDescriptor
+
+	timeBegin := time.Now()
+	resp, err := grpcinvoker.MakeRequest(payload)
 	if err != nil {
 		return
 	}

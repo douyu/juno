@@ -24,7 +24,8 @@ type (
 		ProtoID uint
 		Name    string
 
-		Proto GrpcProto `gorm:"foreignKey:ProtoID"`
+		Proto   GrpcProto           `gorm:"foreignKey:ProtoID"`
+		Methods []GrpcServiceMethod `gorm:"foreignKey:ServiceID"`
 	}
 
 	// Protobuf Method 描述，通过解析 PB 文件获取到 PB 描述

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
 )
 
 type (
@@ -26,6 +27,11 @@ type (
 		Collection db.HttpTestCollection `json:"collection"`
 		TestCases  []db.HttpTestCase     `json:"test_cases"`
 	}
+
+	JobGrpcTestPayload struct {
+		Addr      string              `json:"addr"`
+		TestCases []view.GrpcTestCase `json:"test_cases"`
+	}
 )
 
 const (
@@ -33,6 +39,7 @@ const (
 	StepCodeCheckName = "code_check"
 	StepUnitTestName  = "unit_test"
 	StepHttpTestName  = "http_test"
+	StepGrpcTestName  = "grpc_test"
 )
 
 func New(options ...StepOption) *db.TestPipelineDesc {
@@ -93,6 +100,13 @@ func StepUnitTest(accessToken string) StepOption {
 	)
 }
 
+func StepGrpcTest(addr string, testCases []view.GrpcTestCase) StepOption {
+	return StepJob(
+		StepGrpcTestName,
+		JobGrpcTest(addr, testCases),
+	)
+}
+
 //StepHttpTestCollection 执行 Http 测试用例集合
 func StepHttpTestCollection(collection db.HttpTestCollection, testCases []db.HttpTestCase) StepOption {
 	payload, _ := json.Marshal(&JobHttpTestPayload{
@@ -135,6 +149,18 @@ func JobUnitTest(accessToken string) db.TestJobPayload {
 	})
 	return db.TestJobPayload{
 		Type:    db.JobUnitTest,
+		Payload: payload,
+	}
+}
+
+func JobGrpcTest(addr string, testCases []view.GrpcTestCase) db.TestJobPayload {
+	payload, _ := json.Marshal(JobGrpcTestPayload{
+		Addr:      addr,
+		TestCases: testCases,
+	})
+
+	return db.TestJobPayload{
+		Type:    db.JobGrpcTest,
 		Payload: payload,
 	}
 }

@@ -40,9 +40,20 @@ type (
 	}
 
 	RespGrpcServiceItem struct {
-		ID      uint   `json:"id"`
-		ProtoID uint   `json:"proto_id"`
-		Name    string `json:"name"`
+		ID          uint   `json:"id"`
+		FileName    string `json:"proto_name"`
+		PackageName string `json:"package_name"`
+		ProtoID     uint   `json:"proto_id"`
+		Name        string `json:"name"`
+	}
+
+	RespGrpcServiceMethodItem struct {
+		ID          uint                        `json:"id"`
+		FileName    string                      `json:"proto_name"`
+		PackageName string                      `json:"package_name"`
+		ProtoID     uint                        `json:"proto_id"`
+		Name        string                      `json:"name"`
+		Methods     []RespListMethodUseCaseItem `json:"methods"`
 	}
 
 	RespListMethodUseCaseItem struct {
