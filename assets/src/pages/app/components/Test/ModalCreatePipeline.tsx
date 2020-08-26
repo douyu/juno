@@ -104,7 +104,7 @@ export default function ModalCreatePipeline(props: ModalCreatePipelineProps) {
     })
   }, [env, zoneCode, appName])
 
-  const testCaseCascadeOptions = services.map((item: any, index: number) => {
+  const testCaseCascadeOptions = services?.map((item: any, index: number) => {
     return {
       value: item.id,
       label: item.name,
@@ -117,7 +117,7 @@ export default function ModalCreatePipeline(props: ModalCreatePipelineProps) {
         })) || []
       }))
     }
-  })
+  }) || []
 
   return <Modal
     title={"创建 Pipeline"}

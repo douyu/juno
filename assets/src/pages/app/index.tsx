@@ -409,13 +409,13 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
             <Event active={tab === 'event'} appName={appName} env={env}/>
           </TabPane>
 
-          <TabPane tab={"Test"} key={"test"}>
+          {this.props.setting.settings.test_platform?.enable && <TabPane tab={"Test"} key={"test"}>
             <Test
               appName={appName}
               env={env}
               zoneCode={this.state.zoneCode}
             />
-          </TabPane>
+          </TabPane>}
 
         </Tabs>
       );

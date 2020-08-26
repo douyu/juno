@@ -1,7 +1,7 @@
-import React, {PropsWithChildren} from 'react';
-
+import React, {PropsWithChildren, useState} from 'react';
 import styles from './SettingBlock.less';
-import {Button} from "antd";
+import {Button, Form} from "antd";
+import {Dispatch} from "@@/plugin-dva/connect";
 
 export interface SettingBlockProps {
   title: string
@@ -33,4 +33,38 @@ export default function (props: PropsWithChildren<SettingBlockProps>) {
       {props.children}
     </div>
   </div>
+}
+
+export function useSettingBlock(fieldName: string, dispatch: Dispatch, editable = true) {
+  const [editing, setEditing] = useState(!editable)
+  const [form] = Form.useForm()
+
+  const saveField = (content: any) => {
+    return dispatch({
+      type: 'setting/saveSetting',
+      payload: {
+        name: fieldName,
+        content: JSON.stringify(content)
+      }
+    })
+  }
+
+  const props = {
+    editable,
+    edit: editing,
+    onEdit: () => setEditing(true),
+    onCancel: () => setEditing(false),
+    onSave: () => {
+      form.validateFields().then(fields => {
+        saveField(fields)
+      })
+    }
+  }
+
+  return [
+    saveField,
+    props,
+    form,
+    editing,
+  ]
 }

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import SettingBlock from "@/pages/manage/SettingBlock";
+import SettingBlock, {useSettingBlock} from "@/pages/manage/SettingBlock";
 import {AutoComplete, Tag, Button, Form, Input, Modal, Popconfirm, Select, Table} from "antd";
 import {DeleteFilled, EditFilled, FileAddFilled} from '@ant-design/icons'
 import {useBoolean, useRequest} from "ahooks";
@@ -97,6 +97,7 @@ function K8SClusterSetting(props) {
   const [visibleModalCreateCluster, visibleModalCreateClusterAct] = useBoolean(false)
   const [visibleModalEditCluster, visibleModalEditClusterAct] = useBoolean(false)
   const [currentEdit, setCurrentEdit] = useState(-1)
+  const [saveField] = useSettingBlock('k8s_cluster', props.dispatch)
 
   const onEdit = index => {
     setCurrentEdit(index)
@@ -111,13 +112,7 @@ function K8SClusterSetting(props) {
 
   const save = (payload) => {
     return new Promise(async (resolve) => {
-      const res = await props.dispatch({
-        type: 'setting/saveSetting',
-        payload: {
-          name: 'k8s_cluster',
-          content: JSON.stringify(payload)
-        }
-      })
+      const res = await saveField(payload)
 
       props.dispatch({
         type: 'setting/loadSettings'
@@ -125,7 +120,6 @@ function K8SClusterSetting(props) {
 
       resolve(res)
     })
-
   }
 
   const onCreate = (fields) => {

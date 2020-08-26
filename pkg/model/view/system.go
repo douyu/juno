@@ -10,12 +10,13 @@ import (
 )
 
 const (
-	VersionSettingName    string = "version"
-	ConfigDepSettingName  string = "config_dep"
-	EtcdSettingName       string = "etcd"
-	GrafanaSettingName    string = "grafana"
-	GatewaySettingName    string = "gateway"
-	K8SClusterSettingName string = "k8s_cluster"
+	VersionSettingName      string = "version"
+	ConfigDepSettingName    string = "config_dep"
+	EtcdSettingName         string = "etcd"
+	GrafanaSettingName      string = "grafana"
+	GatewaySettingName      string = "gateway"
+	K8SClusterSettingName   string = "k8s_cluster"
+	TestPlatformSettingName string = "test_platform"
 )
 
 var (
@@ -84,6 +85,24 @@ var (
 			Default: "{\"list\":[]}",
 			Validate: func(value string) error {
 				data := SettingK8SCluster{}
+				err := json.Unmarshal([]byte(value), &data)
+				if err != nil {
+					return err
+				}
+
+				err = validator.New().Struct(&data)
+				if err != nil {
+					return err
+				}
+
+				return nil
+			},
+		},
+		TestPlatformSettingName: {
+			Default: "{\"enable\":false}",
+			Validate: func(value string) error {
+				data := SettingTestPlatform{}
+
 				err := json.Unmarshal([]byte(value), &data)
 				if err != nil {
 					return err
@@ -175,6 +194,10 @@ type (
 			ZoneCode string   `json:"zone_code" validate:"required"`
 			ZoneName string   `json:"zone_name" validate:"required"`
 		} `json:"list"`
+	}
+
+	SettingTestPlatform struct {
+		Enable bool
 	}
 )
 

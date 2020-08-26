@@ -8,6 +8,7 @@ import GatewaySetting from "@/pages/manage/GatewaySetting";
 import EtcdSetting from "@/pages/manage/EtcdSetting";
 import VersionSetting from "@/pages/manage/AppVersionSetting";
 import K8SClusterSetting from "@/pages/manage/K8SClusterSetting";
+import TestPlatformSetting from "@/pages/manage/TestPlatform";
 
 const {TextArea} = Input;
 const RadioGroup = Radio.Group;
@@ -261,7 +262,8 @@ export default class SysManage extends React.Component {
                   {required: true, message: '请输入grafana进行Header授权的header名称'},
                 ]}
               >
-                <Input placeholder={"Grafana 进行代理授权的 header 字段名称，比如 X-WEBAUTH-USER"} disabled={!this.props.onEdit.grafana}/>
+                <Input placeholder={"Grafana 进行代理授权的 header 字段名称，比如 X-WEBAUTH-USER"}
+                       disabled={!this.props.onEdit.grafana}/>
               </Form.Item>
             </Form>
           </SettingBlock>
@@ -274,6 +276,7 @@ export default class SysManage extends React.Component {
 
           <K8SClusterSetting/>
 
+          <TestPlatformSetting/>
         </Card>
       </PageHeaderWrapper>
     );

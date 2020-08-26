@@ -1,10 +1,14 @@
 package testplatform
 
 import (
+	"encoding/json"
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/testplatform/localworker"
 	"github.com/douyu/juno/internal/pkg/service/testplatform/workerpool"
+	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
 )
 
@@ -27,16 +31,29 @@ var (
 func Init(o Option) {
 	option = o
 
+	system.System.Setting.Subscribe(view.TestPlatformSettingName, onSettingChange)
+
 	workerpool.Instance().Init(workerpool.Option{
 		DB:               o.DB,
 		HeartbeatTimeout: o.Worker.HeartbeatTimeout,
 	})
 
-	if o.Enable {
-		localworker.Instance().Init(localworker.Option{
-			WorkerQueueDir: o.Worker.LocalQueueDir,
-		})
-	}
+	localworker.Instance().Init(localworker.Option{
+		WorkerQueueDir: o.Worker.LocalQueueDir,
+	})
 
 	startClearTimeoutTask()
+}
+
+func onSettingChange(content string) {
+	data := view.SettingTestPlatform{}
+	err := json.Unmarshal([]byte(content), &data)
+	if err != nil {
+		xlog.Error("Unmarshal testPlatform setting failed", xlog.String("err", err.Error()))
+
+		option.Enable = false
+		return
+	}
+
+	option.Enable = data.Enable
 }
