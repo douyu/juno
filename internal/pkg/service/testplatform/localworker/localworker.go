@@ -2,6 +2,7 @@ package localworker
 
 import (
 	"sync"
+	"time"
 
 	"github.com/beeker1121/goque"
 	"github.com/douyu/juno/pkg/model/db"
@@ -54,7 +55,10 @@ func (w *localWorker) start() {
 		var task db.TestPipelineTask
 		taskItem, err := w.queue.Dequeue()
 		if err != nil {
-			xlog.Errorf("dequeue failed", xlog.String("err", err.Error()))
+			if err != goque.ErrEmpty {
+				xlog.Errorf("dequeue failed", xlog.String("err", err.Error()))
+			}
+			time.Sleep(3 * time.Second)
 			continue
 		}
 
@@ -63,6 +67,5 @@ func (w *localWorker) start() {
 			xlog.Errorf("unmarshall task item failed", xlog.String("err", err.Error()))
 			continue
 		}
-
 	}
 }
