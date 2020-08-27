@@ -93,6 +93,17 @@ export default defineConfig({
               ],
             },
             {
+              path: '/cronjob',
+              name: '任务中心',
+              icon: 'ClockCircleOutlined',
+              component: './cronjob/JobList',
+            },
+            {
+              name: 'Task列表',
+              path: '/cronjob/jobs/:jobId/tasks',
+              component: './cronjob/TaskList',
+            },
+            {
               path: '/resource',
               name: '资源中心',
               icon: 'UngroupOutlined',
@@ -255,7 +266,7 @@ export default defineConfig({
   },
   chainWebpack(config, {env, webpack, createCSSRule}) {
     config.plugin("monaco-editor").use(MonacoEditorWebpackPlugin, [{
-      languages: ["javascript", "typescript", "json"],
+      languages: ["javascript", "typescript", "json", "shell"],
       features: ["coreCommands", "find", 'comment', "format", 'bracketMatching', 'wordOperations', 'suggest', 'multicursor', 'links']
     }])
   }
