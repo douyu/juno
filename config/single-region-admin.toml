@@ -127,7 +127,7 @@
 #################################### Config Dependency Parse #########################
 [jupiter.cron.parse]
     withSeconds = false
-    concurrentDelay= "10s"
+    concurrentDelay= 10
     immediatelyRun = false
 
 [proxyAuth]

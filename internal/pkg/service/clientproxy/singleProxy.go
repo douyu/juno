@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
-	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
 )
 

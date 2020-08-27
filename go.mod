@@ -12,13 +12,12 @@ require (
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/coreos/etcd v3.3.22+incompatible
 	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc // indirect
-	github.com/douyu/jupiter v0.0.0-20200709073817-3e760e50d665
+	github.com/douyu/jupiter v0.2.4
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/go-playground/validator v9.30.0+incompatible
 	github.com/go-playground/validator/v10 v10.3.0
 	github.com/go-resty/resty/v2 v2.2.0
-	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-cmp v0.4.0
@@ -48,15 +47,13 @@ require (
 	github.com/uber/go-torch v0.0.0-20181107071353-86f327cc820e // indirect
 	github.com/unknwon/com v1.0.1
 	github.com/urfave/negroni v1.0.0
-	go.etcd.io/etcd v3.3.13+incompatible
 	go.uber.org/zap v1.15.0
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
-	golang.org/x/tools v0.0.0-20200717024301-6ddee64345a6 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/grpc v1.29.1
 	gopkg.in/fsnotify.v1 v1.4.7
