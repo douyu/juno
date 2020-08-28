@@ -4,6 +4,7 @@ import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
 import MonacoEditorWebpackPlugin from "monaco-editor-webpack-plugin";
+
 const {REACT_APP_ENV} = process.env;
 export default defineConfig({
   hash: true,
@@ -97,20 +98,11 @@ export default defineConfig({
               name: '任务中心',
               icon: 'ClockCircleOutlined',
               component: './cronjob/JobList',
-              routes: [
-                {
-                  name: 'Task列表',
-                  path: '/cronjob/jobs/:jobId/tasks',
-                  component: './cronjob/TaskList',
-                  routes: [
-                    {
-                      name: 'Task详情',
-                      path: '/cronjob/jobs/:jobId/tasks/:taskId',
-                      component: './cronjob/TaskDetail'
-                    }
-                  ]
-                },
-              ]
+            },
+            {
+              name: 'Task列表',
+              path: '/cronjob/jobs/:jobId/tasks',
+              component: './cronjob/TaskList',
             },
             {
               path: '/resource',
@@ -275,7 +267,7 @@ export default defineConfig({
   },
   chainWebpack(config, {env, webpack, createCSSRule}) {
     config.plugin("monaco-editor").use(MonacoEditorWebpackPlugin, [{
-      languages: ["javascript", "typescript", "json"],
+      languages: ["javascript", "typescript", "json", "shell"],
       features: ["coreCommands", "find", 'comment', "format", 'bracketMatching', 'wordOperations', 'suggest', 'multicursor', 'links']
     }])
   }

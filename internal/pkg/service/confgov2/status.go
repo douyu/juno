@@ -220,7 +220,8 @@ func configurationTakeEffect(appName, env, zoneCode, governPort, filename, forma
 				URL:     cfg.Cfg.ClientProxy.HttpRouter.GovernConfig,
 			})
 			if err != nil {
-				return
+				// for some reason. return nil here
+				return nil
 			}
 
 			var out struct {
