@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {FormInstance} from "antd/es/form";
-import {Button, Col, Divider, Form, Input, InputNumber, Row} from "antd";
+import {Button, Col, Divider, Form, Input, InputNumber, Row, Switch} from "antd";
 import {Select} from "antd/es";
 import MonacoEditor from "react-monaco-editor/lib/editor";
 import {connect} from "dva";
@@ -137,7 +137,13 @@ function JobFormFields(props: JobFormProps) {
     </Row>
 
     <Row gutter={10}>
-      <Col span={8}>
+      <Col span={6}>
+        <Form.Item label={"Enable"} name={"enable"} valuePropName={"checked"}>
+          <Switch/>
+        </Form.Item>
+      </Col>
+
+      <Col span={6}>
         <Form.Item
           label={"Timeout (s)"}
           name={"timeout"}
@@ -151,7 +157,7 @@ function JobFormFields(props: JobFormProps) {
         </Form.Item>
       </Col>
 
-      <Col span={8}>
+      <Col span={6}>
         <Form.Item label={"Retries"} initialValue={0} name={"retry_count"}>
           <InputNumber
             width={"100%"}
@@ -161,7 +167,7 @@ function JobFormFields(props: JobFormProps) {
         </Form.Item>
       </Col>
 
-      <Col span={8}>
+      <Col span={6}>
         <Form.Item initialValue={3} label={"Retry Interval (s)"} name={"retry_interval"}>
           <InputNumber
             width={"100%"}
