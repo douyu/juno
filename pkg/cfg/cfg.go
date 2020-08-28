@@ -56,6 +56,7 @@ type cfg struct {
 	ProxyAuth         ProxyAuth
 	CodePlatform      CodePlatform
 	TestPlatform      TestPlatform
+	Notice            Notice
 }
 
 // DefaultConfig ...
