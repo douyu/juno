@@ -4,7 +4,7 @@ import Monitor from '../monitor/monitor';
 import {Col, Empty, message, Row, Tabs} from 'antd';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import AppHeader from './components/AppHeader/index';
-import {ServiceAppEnvZone, ServiceAppInfo, ServiceAppList, ServiceGetAppList} from '@/services/app';
+import {ServiceAppEnvZone, ServiceAppInfo, ServiceAppList, ServiceAppNodeList} from '@/services/app';
 import {ConfgoBase} from '../confgo/config/view';
 import {ServiceGetIdcList} from '@/services/idc';
 import {history} from 'umi';
@@ -178,6 +178,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
       },
     });
   };
+
   getAppEnvZone = (appName: string) => {
     ServiceAppEnvZone(appName).then((res) => {
       if (res.code === 0) {
@@ -219,7 +220,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   };
 
   GetList = (aid: number, env: string) => {
-    ServiceGetAppList({aid: aid, env: env, pageSize: 10000}).then((res: any) => {
+    ServiceAppNodeList({aid: aid, env: env, pageSize: 10000}).then((res: any) => {
       if (res.code == 0) {
         this.setState({
           appNodeList: res.data.list,
@@ -232,7 +233,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
 
   onChangeZone = (value: string) => {
     if (value != 'all') {
-      ServiceGetAppList({
+      ServiceAppNodeList({
         aid: this.state.aid,
         env: this.state.env,
         pageSize: 10000,

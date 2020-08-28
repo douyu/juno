@@ -145,11 +145,9 @@ permission:
           - path: /api/admin/analysis/register/list
             method: GET
             name: 注册列表
-
   - name: 任务中心
-    path: /cronjob
     icon: ClockCircleOutlined
-
+    path: /cronjob
   - name: 资源中心
     path: /resource
     icon: UngroupOutlined

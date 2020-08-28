@@ -4,26 +4,47 @@ export interface Job {
   cron: string
   username: string
   app_name: string
-  status: JobStatus
+  env: string
+  zone: string
+  status: TaskStatus
   last_executed_at: string
   created_at: string
+  script: string
+  timeout: number
+  retry_count: number
+  retry_interval: number
+  timers: Timer[]
 }
 
-export enum JobStatus {
+export interface Timer {
+  cron: string
+  nodes: string[]
+}
+
+export enum TaskStatus {
   Processing = 'processing',
   Success = "success",
   Failed = "failed"
 }
 
 export interface Task {
+  id: number
+  job_id: number
+  status: TaskStatus
+  executed_at: string
+  finished_at: string
+  retry_count: number
+}
 
+export interface TaskDetail extends Task {
+  script: string
+  logs: string
 }
 
 export interface State {
 }
 
-export const DefaultState: State = {
-}
+export const DefaultState: State = {}
 
 export interface Type {
   namespace: string
