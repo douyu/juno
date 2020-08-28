@@ -20,3 +20,10 @@
     async = false
     name = "biz.json" # 日志名称
     dir = "./"
+[testplatform]
+enable = false # 是否启用测试平台
+
+
+[testplatform.worker]
+localQueueDir = "C:/tmp/localworkerqueue"
+heartbeatTimeout = "6s"
