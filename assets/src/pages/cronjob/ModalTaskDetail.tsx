@@ -1,10 +1,10 @@
 import {ModalProps} from "antd/es/modal";
-import {Badge, Descriptions, Modal} from "antd";
+import {Badge, Descriptions, message, Modal} from "antd";
 import React, {useEffect, useState} from "react";
 import {Task, TaskDetail} from "@/models/cronjob/types";
-import {fetchTaskDetail} from "@/services/cronjob";
 import ProSkeleton from "@ant-design/pro-skeleton/src/index";
 import MonacoEditor from "react-monaco-editor/lib/editor";
+import {fetchTaskDetail} from "@/services/taskplatform";
 
 interface ModalTaskDetailProps extends ModalProps {
   task: Task | null
@@ -21,6 +21,9 @@ export default function ModalTaskDetail(props: ModalTaskDetailProps) {
       fetchTaskDetail(task.id).then(res => {
         setLoading(false)
         setTaskDetail(res.data)
+      }).catch(e => {
+        setLoading(false)
+        message.error("获取任务详情失败 " + e.msg)
       })
     }
   }, [task])

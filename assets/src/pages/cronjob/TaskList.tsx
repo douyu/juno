@@ -1,14 +1,16 @@
 import React, {useState} from "react";
 import {PageHeaderWrapper} from "@ant-design/pro-layout";
-import {Route} from "antd/es/breadcrumb/Breadcrumb";
 import {Link} from "umi";
 import {BreadcrumbProps} from "antd/lib/breadcrumb";
 import ProTable, {ProColumns} from "@ant-design/pro-table";
-import {Task, TaskStatus} from "@/models/cronjob/types";
+import {Task} from "@/models/cronjob/types";
 import {StatusValueEnums} from "@/pages/cronjob/types";
 import {RequestData} from "@ant-design/pro-table/lib/useFetchData";
-import {Button} from "antd";
+import {Button, message} from "antd";
 import ModalTaskDetail from "@/pages/cronjob/ModalTaskDetail";
+import {Route} from "antd/es/breadcrumb/Breadcrumb";
+import {match} from 'react-router'
+import {fetchTasks} from "@/services/taskplatform";
 
 const breadcrumbs: BreadcrumbProps = {
   routes: [
@@ -36,6 +38,7 @@ const columns: ProColumns<Task>[] = [
     title: 'Status',
     dataIndex: 'status',
     valueEnum: StatusValueEnums,
+    hideInSearch: true
   },
   {
     title: '开始时间',
@@ -55,30 +58,39 @@ const columns: ProColumns<Task>[] = [
   },
 ]
 
-const request = (params: any, sort: any, filter: any): Promise<RequestData<Task>> => {
-  console.log(params, sort, filter)
-  return new Promise<RequestData<Task>>((resolve, reject) => {
-    setTimeout(() => {
-      resolve({
-        total: 1,
-        success: true,
-        data: [
-          {
-            id: 1,
-            job_id: 1,
-            status: TaskStatus.Processing,
-            executed_at: "2020-02-01 12:00:00",
-            finished_at: "2020-02-01 12:00:01",
-            retry_count: 1,
-          },
-        ],
-      })
-    }, 2000)
-  })
+interface TaskListProps {
+  match: match<{
+    jobId: string
+  }>
 }
 
-export default function () {
+export default function TaskList(props: TaskListProps) {
   const [currentTask, setCurrentTask] = useState<Task | null>(null)
+  const {jobId} = props.match.params
+
+  const request = (params: { current: number, pageSize: number}, sort: any, filter: any): Promise<RequestData<Task>> => {
+    console.log(params, sort, filter)
+    let jobIdInt: number = Number.parseInt(jobId)
+
+    const {current, pageSize, ...otherParams} = params
+    return new Promise<RequestData<Task>>((resolve, reject) => {
+      fetchTasks(jobIdInt, current, pageSize, otherParams).then(r => {
+        if (r.code === 14000) return
+        if (r.code !== 0) {
+          message.error("获取 Task 列表失败 " + r.msg)
+          return
+        }
+
+        const {pagination, list} = r.data
+        resolve({
+          data: list,
+          total: pagination.total
+        })
+      }).catch(e => {
+        resolve(e)
+      })
+    })
+  }
 
   return <PageHeaderWrapper
     title={"Task列表"}
