@@ -293,6 +293,46 @@ type CodePlatform struct {
 	Token string
 }
 
+type Notice struct {
+	Email struct {
+		ServerHost string   `json:"serverHost" toml:"serverHost"`
+		ServerPort int      `json:"serverPort" toml:"serverPort"`
+		FromEmail  string   `json:"fromEmail" toml:"fromEmail"`
+		FromPasswd string   `json:"fromPasswd" toml:"fromPasswd"`
+		Subject string   `json:"subject" toml:"subject"`
+		TemplatePath string   `json:"templatePath" toml:"templatePath"`
+		Toers      []string `json:"toers" toml:"toers"`
+		CCers      []string `json:"cCers" toml:"cCers"`
+	}
+	Ding struct {
+		WebHook string `json:"webHook" toml:"webHook"`
+		TextParam struct{
+			Content string `json:"content"`
+			AtMobiles []string `json:"atMobiles"`
+			IsAtAll bool `json:"isAtAll"`
+		}
+		linkParam struct{
+			Title string `json:"title"`
+			Text string `json:"text"`
+			MessageUrl string `json:"messageUrl"`
+			PicUrl string `json:"picUrl"`
+		}
+		MarkdownParam struct{
+			Text  string `json:"text"`
+			Title string `json:"title"`
+			AtMobiles []string `json:"atMobiles"`
+			IsAtAll   bool     `json:"isAtAll"`
+		} `json:"markdownParam"`
+		ActionCardParam struct {
+			Text           string `json:"text"`
+			Title          string `json:"title"`
+			BtnOrientation string `json:"btnOrientation"`
+			SingleTitle    string `json:"singleTitle"`
+			SingleURL      string `json:"singleURL"`
+		} `json:"actionCardParam"`
+	} `json:"ding" toml:"ding"`
+}
+
 type TestPlatform struct {
 	Enable bool
 	Worker struct {

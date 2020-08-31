@@ -15,6 +15,7 @@ require (
 	github.com/douyu/jupiter v0.2.4
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/go-git/go-git/v5 v5.1.0
+	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-playground/validator v9.30.0+incompatible
 	github.com/go-playground/validator/v10 v10.3.0
 	github.com/go-resty/resty/v2 v2.2.0
@@ -57,6 +58,7 @@ require (
 	golang.org/x/time v0.0.0-20200416051211-89c76fbcd5d1 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/grpc v1.29.1
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/fsnotify.v1 v1.4.7
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect

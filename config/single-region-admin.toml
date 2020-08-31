@@ -153,3 +153,37 @@ enable = false # 是否启用测试平台
 [testplatform.worker]
 localQueueDir = "C:/tmp/localworkerqueue"
 heartbeatTimeout = "6s"
+#################################### notice #########################
+[notice]
+   [notice.email]
+       serverHost="smtp.163.com"
+       serverPort=465
+       fromEmail="xxx@163.com"
+       fromPasswd="xxx"
+       subject="主题"
+       templatePath="emailnotice.html"
+       toers= ["xxxxxxx@qq.com"]
+       cCers = ["xxx@qq.com"]
+   [notice.ding]
+       webHook="http://XXX.com"
+       msgType="text"
+       [notice.textParam]
+            content="报警信息"
+            atMobiles=[""]
+            isAtAll=false
+       [notice.linkParam]
+            title=""
+            text=""
+            messageUrl=""
+            picUrl=""
+       [notice.markDownParam]
+            title=""
+            text=""
+            atMobiles=[""]
+            isAtAll=false
+       [notice.ActionCardParam]
+            title=""
+            text=""
+            singleTitle=""
+            singleURL=""
+            btnOrientation=0
