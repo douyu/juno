@@ -2,6 +2,7 @@ package pprofHandle
 
 import (
 	"os/exec"
+	"sort"
 	"strings"
 
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
@@ -153,5 +154,8 @@ func FileList(c echo.Context) error {
 		}
 		showData = append(showData, item)
 	}
+
+	sort.Slice(showData, func(i, j int) bool { return showData[i].ID > showData[j].ID })
+
 	return output.JSON(c, output.MsgOk, "success", showData)
 }

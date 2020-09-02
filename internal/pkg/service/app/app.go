@@ -16,7 +16,9 @@ import (
 
 //GovernPort get govern port
 func GovernPort(port, env, zoneCode, appName, nodeName string) string {
-	if port != "" {
+	xlog.Info("GovernPort", zap.String("step", "one"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("port", port), zap.String("nodeName", nodeName))
+
+	if port != "" && port != "0" {
 		return port
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -27,12 +29,16 @@ func GovernPort(port, env, zoneCode, appName, nodeName string) string {
 		xlog.Warn("GovernPort", zap.String("step", "ConfigEtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
 		return port
 	}
-	fmt.Println("key:", key)
+	xlog.Info("GovernPort", zap.String("step", "two"), zap.Any("key", key))
+
 	if len(resp.Kvs) == 0 {
 		err = errorconst.ParamConfigCallbackKvIsZero.Error()
 		xlog.Warn("GovernPort", zap.String("step", "resp.Kvs"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.Any("resp", resp))
 		return port
 	}
+
+	xlog.Info("GovernPort", zap.String("step", "two"), zap.Any("key", key), zap.Any("resp.Kvs", resp.Kvs))
+
 	// publish status, synced status
 	for _, item := range resp.Kvs {
 
@@ -44,6 +50,7 @@ func GovernPort(port, env, zoneCode, appName, nodeName string) string {
 
 		return valueArr[1]
 	}
-	xlog.Debug("GovernPort", zap.String("step", "finish"), zap.Any("port", port))
+
+	xlog.Info("GovernPort", zap.String("step", "finish"), zap.Any("port", port))
 	return port
 }

@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/app"
+
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/cfg"
@@ -74,11 +76,13 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 	}
 
 	var (
-		governPort = appInfo.GovernPort
+		governPort = app.GovernPort(appInfo.GovernPort, env, zoneCode, appName, hostName)
 		ip         = appNode.IP
 		fileList   = make([]db.PProfFileInfo, 0)
 	)
-
+	if governPort == "" || governPort == "0" {
+		return errors.New("治理端口为空")
+	}
 	// 4 range pprof type list, get the pprof info
 	for _, fileType := range p.PProfTypeList {
 		var resp []byte

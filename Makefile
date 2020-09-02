@@ -33,8 +33,8 @@ docker:
 	@docker-compose -f ./build/docker/standalone.yaml up
 
 
-all:print fmt lint buildall
-alltar:print fmt lint buildall
+all:print fmt lint build_all
+alltar:print fmt lint build_all
 
 print:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making print<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"

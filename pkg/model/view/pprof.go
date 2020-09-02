@@ -1,6 +1,7 @@
 package view
 
 type (
+	// ReqRunProfile ..
 	ReqRunProfile struct {
 		ZoneCode string `json:"zone_code"`
 		AppName  string `json:"app_name"`
@@ -8,6 +9,7 @@ type (
 		Env      string `json:"env"`
 	}
 
+	// ReqListPProf ..
 	ReqListPProf struct {
 		ZoneCode string `query:"zone_code"`
 		AppName  string `query:"app_name"`
