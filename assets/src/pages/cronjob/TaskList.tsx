@@ -43,12 +43,14 @@ const columns: ProColumns<Task>[] = [
   {
     title: '开始时间',
     dataIndex: 'executed_at',
-    hideInSearch: true
+    hideInSearch: true,
+    valueType: "dateTime"
   },
   {
     title: '结束时间',
     dataIndex: 'finished_at',
-    hideInSearch: true
+    hideInSearch: true,
+    valueType: "dateTime"
   },
   {
     title: "执行时间",
@@ -102,6 +104,7 @@ export default function TaskList(props: TaskListProps) {
         ...columns,
         {
           title: '操作',
+          valueType: "option",
           render: (_, row) => {
             return <Button
               type={"link"}

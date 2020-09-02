@@ -1,13 +1,27 @@
 import {ModalProps} from "antd/es/modal";
 import {Badge, Descriptions, message, Modal} from "antd";
 import React, {useEffect, useState} from "react";
-import {Task, TaskDetail} from "@/models/cronjob/types";
+import {Task, TaskDetail, TaskStatus} from "@/models/cronjob/types";
 import ProSkeleton from "@ant-design/pro-skeleton/src/index";
 import MonacoEditor from "react-monaco-editor/lib/editor";
 import {fetchTaskDetail} from "@/services/taskplatform";
+import {PresetStatusColorType} from "antd/lib/_util/colors";
 
 interface ModalTaskDetailProps extends ModalProps {
   task: Task | null
+}
+
+function convertTaskStatusToBadgeStatus(status: TaskStatus | undefined): PresetStatusColorType {
+  switch (status) {
+    case TaskStatus.Failed:
+      return "error"
+    case TaskStatus.Processing:
+      return "processing"
+    case TaskStatus.Success:
+      return "success"
+  }
+
+  return "default"
 }
 
 export default function ModalTaskDetail(props: ModalTaskDetailProps) {
@@ -42,34 +56,19 @@ export default function ModalTaskDetail(props: ModalTaskDetailProps) {
         <Descriptions.Item label={"Task ID"} span={2}>{taskDeTail?.id}</Descriptions.Item>
 
         <Descriptions.Item label={"Status"} span={4}>
-          <Badge status={"success"} text={taskDeTail?.status}/>
+          <Badge status={convertTaskStatusToBadgeStatus(taskDeTail?.status)} text={taskDeTail?.status}/>
         </Descriptions.Item>
 
         <Descriptions.Item label={"Executed At"} span={2}>{taskDeTail?.executed_at}</Descriptions.Item>
         <Descriptions.Item label={"Finished At"} span={2}>{taskDeTail?.finished_at}</Descriptions.Item>
 
-        <Descriptions.Item label={"Script"} span={4}>
-          <MonacoEditor
-            theme={"vs-dark"}
-            height={400}
-            width={"100%"}
-            language={"shell"}
-            value={taskDeTail?.script}
-            options={{
-              automaticLayout: true,
-              minimap: {
-                enabled: false,
-              },
-              readOnly: true
-            }}
-          />
-        </Descriptions.Item>
+        <Descriptions.Item label={"Script"} span={4}>{taskDeTail?.script}</Descriptions.Item>
         <Descriptions.Item label={"Logs"} span={4}>
           <MonacoEditor
             theme={"vs-dark"}
             height={400}
             width={"100%"}
-            value={taskDeTail?.logs}
+            value={taskDeTail?.log}
             options={{
               automaticLayout: true,
               minimap: {

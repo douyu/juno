@@ -39,7 +39,7 @@ export interface Task {
 
 export interface TaskDetail extends Task {
   script: string
-  logs: string
+  log: string
 }
 
 export interface State {

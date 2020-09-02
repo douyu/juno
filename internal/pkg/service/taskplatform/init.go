@@ -1,14 +1,12 @@
 package taskplatform
 
 import (
-	"fmt"
-
 	"github.com/douyu/juno/internal/pkg/service/taskplatform/cronjob"
 	"github.com/jinzhu/gorm"
 )
 
 var (
-	Job *cronjob.Job
+	Job *cronjob.CronJob
 )
 
 type (
@@ -18,10 +16,6 @@ type (
 )
 
 func Init(o Option) {
-	// init id creator
-	if err := initID(); err != nil {
-		panic(fmt.Sprintf("Init UUID Generator failed: %s", err))
-	}
-
 	Job = cronjob.New(o.DB)
+	Job.StartWatch()
 }

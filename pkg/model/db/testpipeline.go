@@ -68,7 +68,7 @@ type (
 	}
 
 	TestJobPayload struct {
-		Type    JobType         `json:"type"`
+		Type    TestJobType     `json:"type"`
 		Payload json.RawMessage `json:"payload"`
 	}
 
@@ -78,7 +78,7 @@ type (
 		TestCase uint `json:"testcase"`
 	}
 
-	JobType        string
+	TestJobType    string
 	TestTaskStatus string
 	TestStepStatus string
 )
@@ -87,11 +87,11 @@ const (
 	StepTypeSubPipeline StepType = 1 // 子Pipeline类型，当前Step拥有多个子Step
 	StepTypeJob                  = 2 // 任务类型，当前Step执行某个任务
 
-	JobGitPull   JobType = "git_pull"
-	JobUnitTest  JobType = "unit_test"
-	JobCodeCheck JobType = "code_check"
-	JobHttpTest  JobType = "http_test"
-	JobGrpcTest  JobType = "grpc_test"
+	JobGitPull   TestJobType = "git_pull"
+	JobUnitTest  TestJobType = "unit_test"
+	JobCodeCheck TestJobType = "code_check"
+	JobHttpTest  TestJobType = "http_test"
+	JobGrpcTest  TestJobType = "grpc_test"
 
 	TestTaskStatusPending TestTaskStatus = "pending"
 	TestTaskStatusRunning                = "running"

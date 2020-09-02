@@ -22,9 +22,9 @@ func GovernPort(port, env, zoneCode, appName, nodeName string) string {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	key := fmt.Sprintf("/prometheus/job/%s/%s", appName, nodeName)
 	defer cancel()
-	resp, err := clientproxy.ClientProxy.ConfigEtcdGet(view.UniqZone{Env: env, Zone: zoneCode}, ctx, key, clientv3.WithPrefix())
+	resp, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: env, Zone: zoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
-		xlog.Warn("GovernPort", zap.String("step", "ConfigEtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
+		xlog.Warn("GovernPort", zap.String("step", "DefaultEtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
 		return port
 	}
 	fmt.Println("key:", key)

@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import {FormInstance} from "antd/es/form";
 import {Button, Col, Divider, Form, Input, InputNumber, Row, Switch} from "antd";
 import {Select} from "antd/es";
-import MonacoEditor from "react-monaco-editor/lib/editor";
 import {connect} from "dva";
 import {ConnectState} from "@/models/connect";
 import {AppItem} from "@/models/app";
@@ -127,7 +126,8 @@ function JobFormFields(props: JobFormProps) {
           ]}
         >
           <Select onSelect={(zone: string) => setZone(zone)}>
-            {zones && zones?.map((zone: { zone_code: React.ReactText; zone_name: React.ReactNode; }) => <Select.Option key={zone.zone_code}
+            {zones && zones?.map((zone: { zone_code: React.ReactText; zone_name: React.ReactNode; }) => <Select.Option
+              key={zone.zone_code}
               value={zone.zone_code}>
               {zone.zone_name}
             </Select.Option>)}
@@ -182,20 +182,11 @@ function JobFormFields(props: JobFormProps) {
     <Form.Item
       label={"Script"}
       name={"script"}
-      valuePropName={"value"}
       rules={[
-        {required: true, message: '请输入脚本'}
+        {required: true, message: '请输入脚本'},
       ]}
     >
-      <MonacoEditor
-        language={"shell"}
-        width={"100%"}
-        height={"400px"}
-        theme={"vs-dark"}
-        options={{
-          automaticLayout: true,
-        }}
-      />
+      <Input placeholder={"可执行文件的路径，比如: /home/www/jobs/hello.sh"}/>
     </Form.Item>
 
     <Divider>Timers</Divider>

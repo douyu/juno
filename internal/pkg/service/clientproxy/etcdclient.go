@@ -3,25 +3,33 @@ package clientproxy
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/coreos/etcd/clientv3"
+	"github.com/douyu/juno/pkg/model/view"
 )
 
 type EtcdClient struct {
 	conn *clientv3.Client
+
+	UniqueZone *view.UniqZone
 }
 
+type EtcdClientOption func(e *EtcdClient)
+
 // NewEtcdClient ..
-func NewEtcdClient(endpoints []string, timeout time.Duration, basicAuth bool, username, password string) (obj *EtcdClient, err error) {
+func NewEtcdClient(cfg clientv3.Config, options ...EtcdClientOption) (obj *EtcdClient, err error) {
 	obj = &EtcdClient{}
-	obj.conn, err = clientv3.New(clientv3.Config{
-		Endpoints:   endpoints,
-		DialTimeout: timeout,
-		Username:    username,
-		Password:    password,
-	})
+	obj.conn, err = clientv3.New(cfg)
+
+	for _, option := range options {
+		option(obj)
+	}
+
 	return
+}
+
+func (e *EtcdClient) Conn() *clientv3.Client {
+	return e.conn
 }
 
 func (e *EtcdClient) Put(ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
@@ -42,4 +50,10 @@ func (e *EtcdClient) Get(ctx context.Context, key string, opts ...clientv3.OpOpt
 
 func whiteKey(key string) bool {
 	return true
+}
+
+func WithUniqueZone(zone *view.UniqZone) EtcdClientOption {
+	return func(e *EtcdClient) {
+		e.UniqueZone = zone
+	}
 }

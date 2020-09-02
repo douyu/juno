@@ -78,7 +78,7 @@ func Dispatch(c *core.Context) error {
 		return c.OutputJSON(output.MsgErr, "invalid job id: "+err.Error())
 	}
 
-	err = taskplatform.Job.Dispatch(uint(jobId), node)
+	err = taskplatform.Job.DispatchOnce(uint(jobId), node)
 	if err != nil {
 		return c.OutputJSON(output.MsgErr, "dispatch failed:"+err.Error())
 	}

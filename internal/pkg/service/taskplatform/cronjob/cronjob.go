@@ -1,9 +1,10 @@
 package cronjob
 
 import (
-	"time"
+	"strconv"
 
 	"github.com/douyu/juno/internal/app/core"
+	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/jinzhu/gorm"
@@ -11,18 +12,28 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type Job struct {
-	db *gorm.DB
+type CronJob struct {
+	db         *gorm.DB
+	dispatcher *Dispatcher
 }
 
-func New(db *gorm.DB) *Job {
-	return &Job{
-		db: db,
+const (
+	EtcdKeyFmtDispatchJob = "/juno/cronjob/job/{{jobId}}"               // Job下发
+	EtcdKeyFmtOnceJob     = "/juno/cronjob/once/{{hostname}}/{{jobId}}" // 单次任务
+	EtcdKeyFmtTaskLock    = "/juno/cronjob/lock/{{jobId}}//{{taskId}}"  // 执行锁
+	EtcdKeyResultPrefix   = "/juno/cronjob/result/"                     // 执行结果通知 /juno/cronjob/result/{{jobId}}/{{taskId}}
+	EtcdKeyPrefixProc     = "/juno/cronjob/proc/"                       // 当前运行的进程
+)
+
+func New(db *gorm.DB) *CronJob {
+	return &CronJob{
+		db:         db,
+		dispatcher: &Dispatcher{},
 	}
 }
 
 // List Job 列表
-func (j *Job) List(params view.ReqQueryJobs) (list []view.CronJobListItem, pagination core.Pagination, err error) {
+func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, pagination core.Pagination, err error) {
 	var jobs []db.CronJob
 
 	page := params.Page
@@ -114,7 +125,7 @@ func (j *Job) List(params view.ReqQueryJobs) (list []view.CronJobListItem, pagin
 }
 
 //Create 创建 Job
-func (j *Job) Create(uid uint, params view.CronJob) (err error) {
+func (j *CronJob) Create(uid uint, params view.CronJob) (err error) {
 	var timers = make([]db.CronJobTimer, len(params.Timers))
 	var job = db.CronJob{
 		Uid:           uid,
@@ -127,6 +138,7 @@ func (j *Job) Create(uid uint, params view.CronJob) (err error) {
 		RetryInterval: params.RetryInterval,
 		Script:        params.Script,
 		Enable:        params.Enable,
+		JobType:       params.JobType,
 	}
 
 	for idx, timer := range params.Timers {
@@ -141,7 +153,7 @@ func (j *Job) Create(uid uint, params view.CronJob) (err error) {
 }
 
 // Update ..
-func (j *Job) Update(params view.CronJob) (err error) {
+func (j *CronJob) Update(params view.CronJob) (err error) {
 	var job db.CronJob
 	var timers = make([]db.CronJobTimer, len(params.Timers))
 
@@ -190,7 +202,7 @@ func (j *Job) Update(params view.CronJob) (err error) {
 }
 
 //Delete 删除 id 对应的 Job
-func (j *Job) Delete(id uint) (err error) {
+func (j *CronJob) Delete(id uint) (err error) {
 	var job db.CronJob
 
 	// TODO: 将任务撤销
@@ -208,22 +220,24 @@ func (j *Job) Delete(id uint) (err error) {
 	return
 }
 
-//Dispatch 下发任务
-func (j *Job) Dispatch(id uint, node string) (err error) {
+//DispatchOnce 下发任务手动执行单次
+func (j *CronJob) DispatchOnce(id uint, node string) (err error) {
 	var job db.CronJob
 
-	err = j.db.Where("id = ?", id).Preload("Timers").First(&job).Error
+	err = j.db.Where("id = ?", id).
+		//Preload("Timers"). // 不需要加载 timer
+		First(&job).Error
 	if err != nil {
 		return errors.Wrapf(err, "cannot found job")
 	}
 
 	task := db.CronTask{
-		JobID:      job.ID,
-		Node:       node,
-		Status:     db.CronTaskStatusProcessing,
-		ExecutedAt: time.Now(),
-		FinishedAt: nil,
-		Script:     job.Script,
+		JobID:       job.ID,
+		Node:        node,
+		Status:      db.CronTaskStatusWaiting,
+		ExecuteType: db.ExecuteTypeManual,
+		FinishedAt:  nil,
+		Script:      job.Script,
 	}
 
 	tx := j.db.Begin()
@@ -234,14 +248,19 @@ func (j *Job) Dispatch(id uint, node string) (err error) {
 			return err
 		}
 
-		// TODO: dispatch job
+		jobPayload := makeOnceJob(job, task.ID)
+		err = j.dispatcher.dispatchOnceJob(jobPayload, node)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit().Error
 }
 
 //ListTask 任务列表
-func (j *Job) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pagination view.Pagination, err error) {
+func (j *CronJob) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pagination view.Pagination, err error) {
 	var tasks []db.CronTask
 
 	page := params.Page
@@ -296,7 +315,7 @@ func (j *Job) ListTask(params view.ReqQueryTasks) (list []view.CronTask, paginat
 }
 
 //TaskDetail Task 详情
-func (j *Job) TaskDetail(id uint) (detail view.CronTaskDetail, err error) {
+func (j *CronJob) TaskDetail(id uint) (detail view.CronTaskDetail, err error) {
 	var task db.CronTask
 
 	err = j.db.Where("id = ?", id).First(&task).Error
@@ -321,20 +340,60 @@ func (j *Job) TaskDetail(id uint) (detail view.CronTaskDetail, err error) {
 	return
 }
 
+func (j *CronJob) StartWatch() {
+	for _, client := range clientproxy.ClientProxy.DefaultEtcdClients() {
+		watcher := ResultWatcher{
+			Client: client.Conn(),
+			Zone:   client.UniqueZone,
+			DB:     j.db,
+		}
+
+		go watcher.Start()
+	}
+}
+
 // UpdateStatus pause or start
-func (j *Job) UpdateStatus(appName string, isPause bool) (job *view.TaskPlatformJob, err error) {
+func (j *CronJob) UpdateStatus(appName string, isPause bool) (job *view.TaskPlatformJob, err error) {
 	// TODO 状态更新，停止或启动任务
 	return
 }
 
 // GetExecutingJob pause or start
-func (j *Job) GetExecutingJob() (err error) {
+func (j *CronJob) GetExecutingJob() (err error) {
 	// TODO 状态更新，停止或启动任务
 	return
 }
 
 // KillExecutingJob pause or start
-func (j *Job) KillExecutingJob() (err error) {
+func (j *CronJob) KillExecutingJob() (err error) {
 	// TODO 状态更新，停止或启动任务
 	return
+}
+
+func makeOnceJob(job db.CronJob, taskId uint) OnceJob {
+	cronjob := Job{
+		ID:            strconv.Itoa(int(job.ID)),
+		Name:          job.Name,
+		Script:        job.Script,
+		Enable:        job.Enable,
+		Timeout:       job.Timeout,
+		RetryCount:    job.RetryCount,
+		RetryInterval: job.RetryInterval,
+		JobType:       int(job.JobType),
+		Env:           job.Env,
+		Zone:          job.Zone,
+	}
+
+	for _, timer := range job.Timers {
+		cronjob.Timers = append(cronjob.Timers, Timer{
+			ID:    strconv.Itoa(int(timer.ID)),
+			Cron:  timer.Cron,
+			Nodes: timer.Nodes,
+		})
+	}
+
+	return OnceJob{
+		TaskID: uint64(taskId),
+		Job:    cronjob,
+	}
 }

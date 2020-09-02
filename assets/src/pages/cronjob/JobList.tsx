@@ -12,8 +12,6 @@ import {useBoolean} from "ahooks";
 import ModalNewJob from "@/pages/cronjob/ModalNewJob";
 import ModalEditJob from "@/pages/cronjob/ModalEditJob";
 import {AppItem} from "@/models/app";
-import {ValueEnumMap} from "@ant-design/pro-table/es/Table";
-import {StatusType} from "@ant-design/pro-table/es/component/status";
 import {ServiceAppList} from "@/services/app";
 import {deleteJob, fetchJobs} from "@/services/taskplatform";
 import ModalTriggerJob from "@/pages/cronjob/ModalTriggerJob";
@@ -51,13 +49,13 @@ function getColumns(options: {
       title: 'App',
       dataIndex: 'app_name',
       order: 100,
-      valueEnum: function () {
-        let ret: ValueEnumMap = new Map<React.ReactText, { text: React.ReactNode; status: StatusType } | React.ReactNode>();
-        options.apps.map(app => {
-          ret.set(app.app_name, app.app_name)
-        })
-        return ret
-      }()
+      renderFormItem() {
+        return <Select showSearch>
+          {options.apps.map(app => <Select.Option key={app.app_name} value={app.app_name}>
+            {app.app_name}
+          </Select.Option>)}
+        </Select>
+      }
     },
     {
       title: 'Enable',
@@ -82,6 +80,7 @@ function getColumns(options: {
       title: '上次执行',
       dataIndex: 'last_executed_at',
       hideInSearch: true,
+      valueType: "dateTime"
     },
   ]
   return columns
