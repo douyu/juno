@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {FormInstance} from "antd/es/form";
-import {Button, Col, Divider, Form, Input, InputNumber, Row, Switch} from "antd";
+import {Button, Col, Divider, Form, Input, InputNumber, Radio, Row, Switch} from "antd";
 import {Select} from "antd/es";
 import {connect} from "dva";
 import {ConnectState} from "@/models/connect";
@@ -77,7 +77,22 @@ function JobFormFields(props: JobFormProps) {
           <Input/>
         </Form.Item>
       </Col>
+    </Row>
 
+    <Row>
+      <Col span={24}>
+        <Form.Item
+          label={"任务类型"}
+          name={"job_type"}
+          initialValue={0}
+          help={"单机任务类型同一时刻只在单台机器上运行"}
+        >
+          <Radio.Group>
+            <Radio.Button value={0}>普通</Radio.Button>
+            <Radio.Button value={1}>单机</Radio.Button>
+          </Radio.Group>
+        </Form.Item>
+      </Col>
     </Row>
 
     <Row gutter={10}>
@@ -180,7 +195,7 @@ function JobFormFields(props: JobFormProps) {
     </Row>
 
     <Form.Item
-      label={"Script"}
+      label={"Script Path"}
       name={"script"}
       rules={[
         {required: true, message: '请输入脚本'},

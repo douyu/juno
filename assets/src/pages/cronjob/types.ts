@@ -16,5 +16,9 @@ export const StatusValueEnums: ValueEnumObj = {
   'failed': {
     status: "Error",
     text: '失败'
+  },
+  'timeout': {
+    status: "Warning",
+    text: '超时'
   }
 }

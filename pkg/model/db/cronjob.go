@@ -36,7 +36,7 @@ type (
 	}
 
 	CronTask struct {
-		gorm.Model
+		ID          uint64         `gorm:"column:id;primary_key"`
 		JobID       uint           `gorm:"column:job_id"`
 		Node        string         `gorm:"column:node"`
 		Status      CronTaskStatus `gorm:"column:status"`
@@ -46,6 +46,9 @@ type (
 		Log         string         `gorm:"column:log;type:longtext"`
 		Script      string         `gorm:"column:script"`
 		ExecuteType int            `gorm:"execute_type"` // 0: 定时执行 1: 手动触发
+		CreatedAt   time.Time
+		UpdatedAt   time.Time
+		DeletedAt   *time.Time `sql:"index"`
 
 		Job CronJob `gorm:"foreignKey:JobID"`
 	}

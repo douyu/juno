@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
@@ -24,11 +25,13 @@ type (
 	}
 
 	TaskResult struct {
-		TaskID uint64            `json:"task_id"`
-		Status db.CronTaskStatus `json:"status"`
-		Job    Job               `json:"job"`
-		Logs   string            `json:"logs"`
-		RunOn  string            `json:"run_on"`
+		TaskID     uint64            `json:"task_id"`
+		Status     db.CronTaskStatus `json:"status"`
+		Job        Job               `json:"job"`
+		Logs       string            `json:"logs"`
+		RunOn      string            `json:"run_on"`
+		ExecutedAt time.Time         `json:"executed_at"`
+		FinishedAt *time.Time        `json:"finished_at"`
 	}
 )
 
@@ -89,7 +92,7 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 	tx := r.DB.Begin()
 	{
 		err := tx.Where("id = ?", result.TaskID).Find(&task).Error
-		if err != nil {
+		if err != nil && err != gorm.ErrRecordNotFound {
 			tx.Rollback()
 			xlog.Error("ResultWatcher.updateTask: query task failed", xlog.Any("err", err.Error()))
 			return
@@ -100,15 +103,15 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 			xlog.Error("ResultWatcher.updateTask: invalid job id", xlog.Any("result", result))
 		}
 
-		task.ID = uint(result.TaskID)
+		task.ID = result.TaskID
 		task.JobID = uint(jobId)
 		task.Node = result.RunOn
 		task.Status = result.Status
-		task.ExecutedAt = result.Job.ExecutedAt
+		task.ExecutedAt = &result.ExecutedAt
 		task.RetryCount = result.Job.RetryCount
 		task.Log = result.Logs
 		task.Script = result.Job.Script
-		task.FinishedAt = result.Job.FinishedAt
+		task.FinishedAt = result.FinishedAt
 
 		err = tx.Save(&task).Error
 		if err != nil {

@@ -92,13 +92,14 @@ type (
 	}
 
 	CronTask struct {
-		ID         uint              `json:"id"`
-		JobID      uint              `json:"job_id"`
-		ExecutedAt *time.Time        `json:"executed_at"`
-		FinishedAt *time.Time        `json:"finished_at"`
-		RetryCount uint              `json:"retry_count"`
-		Status     db.CronTaskStatus `json:"status"`
-		Node       string            `json:"node"`
+		ID          string            `json:"id"`
+		JobID       uint              `json:"job_id"`
+		ExecutedAt  *time.Time        `json:"executed_at"`
+		FinishedAt  *time.Time        `json:"finished_at"`
+		RetryCount  uint              `json:"retry_count"`
+		Status      db.CronTaskStatus `json:"status"`
+		Node        string            `json:"node"`
+		ExecuteType int               `json:"execute_type"`
 	}
 
 	CronTaskDetail struct {

@@ -1,12 +1,18 @@
 package cronjob
 
 import (
+	"context"
+	"encoding/json"
 	"strconv"
+	"time"
 
+	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/worker/xcron"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
@@ -18,23 +24,34 @@ type CronJob struct {
 }
 
 const (
-	EtcdKeyFmtDispatchJob = "/juno/cronjob/job/{{jobId}}"               // Job下发
-	EtcdKeyFmtOnceJob     = "/juno/cronjob/once/{{hostname}}/{{jobId}}" // 单次任务
-	EtcdKeyFmtTaskLock    = "/juno/cronjob/lock/{{jobId}}//{{taskId}}"  // 执行锁
-	EtcdKeyResultPrefix   = "/juno/cronjob/result/"                     // 执行结果通知 /juno/cronjob/result/{{jobId}}/{{taskId}}
-	EtcdKeyPrefixProc     = "/juno/cronjob/proc/"                       // 当前运行的进程
+	EtcdKeyJobPrefix    = "/juno/cronjob/job/"                        // Job下发
+	EtcdKeyFmtOnceJob   = "/juno/cronjob/once/{{hostname}}/{{jobId}}" // 单次任务
+	EtcdKeyFmtTaskLock  = "/juno/cronjob/lock/{{jobId}}//{{taskId}}"  // 执行锁
+	EtcdKeyResultPrefix = "/juno/cronjob/result/"                     // 执行结果通知 /juno/cronjob/result/{{jobId}}/{{taskId}}
+	EtcdKeyPrefixProc   = "/juno/cronjob/proc/"                       // 当前运行的进程
 )
 
 func New(db *gorm.DB) *CronJob {
-	return &CronJob{
+	ret := &CronJob{
 		db:         db,
 		dispatcher: &Dispatcher{},
 	}
+
+	ret.startSyncJob()
+
+	return ret
 }
 
 // List Job 列表
 func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, pagination core.Pagination, err error) {
-	var jobs []db.CronJob
+	type _cronjob struct {
+		db.CronJob
+
+		ExecutedAt *time.Time
+		Status     *db.CronTaskStatus
+	}
+
+	var jobs []_cronjob
 
 	page := params.Page
 	if page == 0 {
@@ -63,10 +80,13 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 
 	eg := errgroup.Group{}
 	eg.Go(func() error {
-		return query.Offset(offset).
-			Preload("LatestTask", func(db *gorm.DB) *gorm.DB {
-				return db.Order("id desc").Limit(1)
-			}).
+		subQueryExecutedAt := j.db.Model(&db.CronTask{}).Select("executed_at").Where("cron_job.id = cron_task.job_id").
+			Order("executed_at desc").Limit(1).SubQuery()
+		subQueryStatus := j.db.Model(&db.CronTask{}).Select("status").Where("cron_job.id = cron_task.job_id").
+			Order("executed_at desc").Limit(1).SubQuery()
+
+		return query.Table("cron_job").Offset(offset).
+			Select("cron_job.*, ? as executed_at, ? as status", subQueryExecutedAt, subQueryStatus).
 			Preload("Timers").
 			Preload("User").
 			Limit(pageSize).
@@ -110,12 +130,10 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 				Script:        job.Script,
 				Timers:        timers,
 				Enable:        job.Enable,
+				JobType:       job.JobType,
 			},
-		}
-
-		if job.LatestTask != nil {
-			item.LastExecutedAt = &job.LatestTask.CreatedAt
-			item.Status = &job.LatestTask.Status
+			LastExecutedAt: job.ExecutedAt,
+			Status:         job.Status,
 		}
 
 		list = append(list, item)
@@ -149,7 +167,17 @@ func (j *CronJob) Create(uid uint, params view.CronJob) (err error) {
 	}
 	job.Timers = timers
 
-	return j.db.Create(&job).Error
+	err = j.db.Create(&job).Error
+	if err != nil {
+		return
+	}
+
+	err = j.dispatcher.dispatchJob(makeJob(job))
+	if err != nil {
+		return errors.Wrapf(err, "job-dispatching failed")
+	}
+
+	return
 }
 
 // Update ..
@@ -164,9 +192,18 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 		}
 	}
 
-	err = j.db.Where("id = ?", params.ID).First(&job).Error
+	//begin
+	tx := j.db.Begin()
+	err = tx.Where("id = ?", params.ID).First(&job).Error
 	if err != nil {
+		tx.Rollback()
 		return errors.Wrap(err, "can not found params")
+	}
+
+	err = tx.Model(&job).Association("Timers").Replace(&timers).Error
+	if err != nil {
+		tx.Rollback()
+		return
 	}
 
 	job.Name = params.Name
@@ -178,25 +215,31 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 	job.RetryInterval = params.RetryInterval
 	job.Script = params.Script
 	job.Enable = params.Enable
+	job.JobType = params.JobType
 
-	// TODO: 根据 params.Enable 参数将任务撤销
+	err = tx.Save(&job).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
 
-	tx := j.db.Begin()
-	{
-		err = tx.Model(&job).Where("id = ?", params.ID).Association("Timers").Replace(&timers).Error
+	//commit
+	err = tx.Commit().Error
+	if err != nil {
+		return
+	}
+
+	if params.Enable {
+		err = j.dispatcher.dispatchJob(makeJob(job))
 		if err != nil {
-			tx.Rollback()
-			return
+			return errors.Wrapf(err, "job-dispatching failed")
 		}
-
-		err = tx.Save(&job).Error
+	} else {
+		err = j.dispatcher.revokeJob(makeJob(job))
 		if err != nil {
-			tx.Rollback()
-			tx.Rollback()
-			return
+			return errors.Wrapf(err, "job-revoking failed")
 		}
 	}
-	tx.Commit()
 
 	return
 }
@@ -205,17 +248,27 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 func (j *CronJob) Delete(id uint) (err error) {
 	var job db.CronJob
 
-	// TODO: 将任务撤销
+	tx := j.db.Begin()
+	{
+		err = tx.Where("id = ?", id).First(&job).Error
+		if err != nil {
+			tx.Rollback()
+			return errors.Wrapf(err, "cannot found job")
+		}
 
-	err = j.db.Where("id = ?", id).First(&job).Error
-	if err != nil {
-		return errors.Wrapf(err, "cannot found job")
-	}
+		err := j.dispatcher.revokeJob(makeJob(job))
+		if err != nil {
+			tx.Rollback()
+			return errors.Wrap(err, "revoke job failed")
+		}
 
-	err = j.db.Delete(&job).Error
-	if err != nil {
-		return errors.Wrapf(err, "delete failed")
+		err = tx.Delete(&job).Error
+		if err != nil {
+			tx.Rollback()
+			return errors.Wrapf(err, "delete failed")
+		}
 	}
+	tx.Commit()
 
 	return
 }
@@ -280,7 +333,8 @@ func (j *CronJob) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pag
 
 	eg := errgroup.Group{}
 	eg.Go(func() error {
-		return query.Select([]string{"id", "job_id", "executed_at", "finished_at", "retry_count", "status"}).
+		return query.Select([]string{"id", "job_id", "executed_at", "finished_at", "retry_count", "execute_type",
+			"status", "node"}).
 			Limit(pageSize).
 			Offset(offset).
 			Order("id desc").
@@ -301,13 +355,14 @@ func (j *CronJob) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pag
 
 	for _, task := range tasks {
 		list = append(list, view.CronTask{
-			ID:         task.ID,
-			JobID:      task.JobID,
-			Node:       task.Node,
-			ExecutedAt: task.ExecutedAt,
-			FinishedAt: task.FinishedAt,
-			RetryCount: task.RetryCount,
-			Status:     task.Status,
+			ID:          strconv.FormatUint(task.ID, 10),
+			JobID:       task.JobID,
+			Node:        task.Node,
+			ExecutedAt:  task.ExecutedAt,
+			FinishedAt:  task.FinishedAt,
+			RetryCount:  task.RetryCount,
+			Status:      task.Status,
+			ExecuteType: task.ExecuteType,
 		})
 	}
 
@@ -325,7 +380,7 @@ func (j *CronJob) TaskDetail(id uint) (detail view.CronTaskDetail, err error) {
 
 	detail = view.CronTaskDetail{
 		CronTask: view.CronTask{
-			ID:         task.ID,
+			ID:         strconv.FormatUint(task.ID, 10),
 			JobID:      task.JobID,
 			ExecutedAt: task.ExecutedAt,
 			FinishedAt: task.FinishedAt,
@@ -352,25 +407,81 @@ func (j *CronJob) StartWatch() {
 	}
 }
 
-// UpdateStatus pause or start
-func (j *CronJob) UpdateStatus(appName string, isPause bool) (job *view.TaskPlatformJob, err error) {
-	// TODO 状态更新，停止或启动任务
-	return
+//startSyncJob sync job to etcd from mysql
+func (j *CronJob) startSyncJob() {
+	config := xcron.DefaultConfig()
+	config.WithSeconds = true
+	cron := config.Build()
+
+	// run every minute
+	_, _ = cron.AddFunc("@every 5s", func() error {
+		//load all jobs and write jobs to etcd
+		j.writeJobsToEtcd()
+
+		//remove job not exists
+		j.removeInvalidJob()
+
+		return nil
+	})
+
+	cron.Start()
 }
 
-// GetExecutingJob pause or start
-func (j *CronJob) GetExecutingJob() (err error) {
-	// TODO 状态更新，停止或启动任务
-	return
+//removeInvalidJob remove jobs that not exists in DB
+func (j *CronJob) removeInvalidJob() {
+	for _, client := range clientproxy.ClientProxy.DefaultEtcdClients() {
+		resp, err := client.Conn().Get(context.Background(), EtcdKeyJobPrefix, clientv3.WithPrefix())
+		if err != nil {
+			xlog.Error("load jobs from etcd failed", xlog.Any("uniqZone", client.UniqueZone),
+				xlog.Any("etcdEndpoints", client.Conn().Endpoints()))
+			continue
+		}
+
+		for _, kv := range resp.Kvs {
+			job, err := GetJobFromKv(kv.Key, kv.Value)
+			if err != nil {
+				continue
+			}
+
+			count := 0
+			err = j.db.Model(&db.CronJob{}).Where("id = ? and enable = ?", job.ID, true).Count(&count).Error
+			if err != nil {
+				continue
+			}
+
+			if count == 0 {
+				// job not exists, remove it
+				err := j.dispatcher.revokeJob(*job)
+				if err != nil {
+					continue
+				}
+			}
+		}
+	}
 }
 
-// KillExecutingJob pause or start
-func (j *CronJob) KillExecutingJob() (err error) {
-	// TODO 状态更新，停止或启动任务
-	return
+//writeJobsToEtcd load jobs from mysql, and write them to etcd
+func (j *CronJob) writeJobsToEtcd() {
+	var jobs []db.CronJob
+	err := j.db.Preload("Timers").Where("enable = ?", true).Find(&jobs).Error
+	if err != nil {
+		xlog.Error("Cronjob.removeInvalidJob: query jobs failed", xlog.String("err", err.Error()))
+		return
+	}
+
+	for _, job := range jobs {
+		_ = j.dispatcher.dispatchJob(makeJob(job))
+	}
 }
 
-func makeOnceJob(job db.CronJob, taskId uint) OnceJob {
+func makeOnceJob(job db.CronJob, taskId uint64) OnceJob {
+	return OnceJob{
+		TaskID: taskId,
+		Job:    makeJob(job),
+	}
+}
+
+func makeJob(job db.CronJob) Job {
 	cronjob := Job{
 		ID:            strconv.Itoa(int(job.ID)),
 		Name:          job.Name,
@@ -379,7 +490,7 @@ func makeOnceJob(job db.CronJob, taskId uint) OnceJob {
 		Timeout:       job.Timeout,
 		RetryCount:    job.RetryCount,
 		RetryInterval: job.RetryInterval,
-		JobType:       int(job.JobType),
+		JobType:       job.JobType,
 		Env:           job.Env,
 		Zone:          job.Zone,
 	}
@@ -392,8 +503,16 @@ func makeOnceJob(job db.CronJob, taskId uint) OnceJob {
 		})
 	}
 
-	return OnceJob{
-		TaskID: uint64(taskId),
-		Job:    cronjob,
+	return cronjob
+}
+
+func GetJobFromKv(key []byte, value []byte) (*Job, error) {
+	job := &Job{}
+
+	if err := json.Unmarshal(value, job); err != nil {
+		xlog.Warnf("job[%s] unmarshal err: %s", key, err.Error())
+		return nil, err
 	}
+
+	return job, nil
 }

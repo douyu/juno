@@ -3,7 +3,7 @@ import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import {Link} from "umi";
 import {BreadcrumbProps} from "antd/lib/breadcrumb";
 import ProTable, {ProColumns} from "@ant-design/pro-table";
-import {Task} from "@/models/cronjob/types";
+import {Task, TaskExecuteType} from "@/models/cronjob/types";
 import {StatusValueEnums} from "@/pages/cronjob/types";
 import {RequestData} from "@ant-design/pro-table/lib/useFetchData";
 import {Button, message} from "antd";
@@ -41,6 +41,24 @@ const columns: ProColumns<Task>[] = [
     hideInSearch: true
   },
   {
+    title: '触发方式',
+    dataIndex: 'execute_type',
+    hideInSearch: true,
+    valueEnum: {
+      [TaskExecuteType.Auto]: {
+        text: '自动触发',
+      },
+      [TaskExecuteType.Manual]: {
+        text: '手动触发'
+      },
+    }
+  },
+  {
+    title: 'Node',
+    dataIndex: 'node',
+    hideInSearch: true,
+  },
+  {
     title: '开始时间',
     dataIndex: 'executed_at',
     hideInSearch: true,
@@ -70,7 +88,7 @@ export default function TaskList(props: TaskListProps) {
   const [currentTask, setCurrentTask] = useState<Task | null>(null)
   const {jobId} = props.match.params
 
-  const request = (params: { current: number, pageSize: number}, sort: any, filter: any): Promise<RequestData<Task>> => {
+  const request = (params: { current: number, pageSize: number }, sort: any, filter: any): Promise<RequestData<Task>> => {
     console.log(params, sort, filter)
     let jobIdInt: number = Number.parseInt(jobId)
 

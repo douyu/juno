@@ -111,6 +111,7 @@ export default function () {
       fetchJobs(current, pageSize, restParams).then(r => {
         if (r.code !== 0) {
           reject(r.msg)
+          return
         }
 
         const {pagination, list} = r.data

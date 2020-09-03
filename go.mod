@@ -39,7 +39,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af
 	github.com/sirupsen/logrus v1.6.0
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/spf13/cast v1.3.1
