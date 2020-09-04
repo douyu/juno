@@ -100,7 +100,7 @@ type ServerProxy struct {
 	GrpcServer   ServerSchema
 	GovernServer ServerSchema
 	HeartBeat    HeartBeat
-	ConfigEtcd   Etcd
+	DefaultEtcd  Etcd
 	RegisterEtcd Etcd
 	Prometheus   HTTPProxy
 }

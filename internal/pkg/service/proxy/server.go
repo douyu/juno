@@ -63,7 +63,7 @@ type GrpcEtcdConfigWorker struct {
 //NewProxyGrpcConfigWorker ..
 func NewProxyGrpcConfigWorker() *GrpcEtcdConfigWorker {
 	return &GrpcEtcdConfigWorker{
-		server: NewEtcdGrpcProxy(cfg.Cfg.ServerProxy.ConfigEtcd),
+		server: NewEtcdGrpcProxy(cfg.Cfg.ServerProxy.DefaultEtcd),
 	}
 }
 
