@@ -21,27 +21,33 @@ type configTime struct {
 }
 
 // GetConfigParseWorkerTime 获取配置依赖解析间隔时间
-func (c *confu) GetConfigParseWorkerTime() (interval int, err error) {
+func (c *confu) GetConfigParseWorkerTime() (interval int) {
+	interval = 0 // one day default
 	settings, err := system.System.Setting.GetAll()
 	if err != nil {
-		return interval, err
+		xlog.Error("GetConfigParseWorkerTime", xlog.String("step", "system.System.Setting.GetAll()"), xlog.Any("error", err))
+		return interval
 	}
 	configDep, ok := settings["config_dep"]
 	if !ok {
-		return interval, fmt.Errorf("interval not exist")
+		xlog.Error("GetConfigParseWorkerTime", xlog.String("step", "settings"), xlog.Any("error", err))
+		return interval
 	}
 
 	timeStruct := configTime{}
 	if err := json.Unmarshal([]byte(configDep), &timeStruct); err != nil {
-		return interval, err
+		xlog.Error("GetConfigParseWorkerTime", xlog.String("step", "Unmarshal"), xlog.Any("error", err))
+		return interval
 	}
 
 	if timeStruct.Interval == "" {
-		return interval, fmt.Errorf("interval is nil")
+		xlog.Error("GetConfigParseWorkerTime", xlog.String("step", "timeStruct"), xlog.Any("error", err))
+		return interval
 	}
 
 	if timeInt, err := strconv.ParseInt(timeStruct.Interval, 10, 32); err != nil {
-		return interval, err
+		xlog.Error("GetConfigParseWorkerTime", xlog.String("step", "ParseInt"), xlog.Any("error", err))
+		return interval
 	} else {
 		interval = int(timeInt)
 	}
@@ -49,6 +55,7 @@ func (c *confu) GetConfigParseWorkerTime() (interval int, err error) {
 	return
 }
 
+// ConfigParseWorker ...
 func (c *confu) ConfigParseWorker() (err error) {
 	// 记录更新时间，清理数据库时以该时间为基准
 	updateTime := time.Now().Unix()

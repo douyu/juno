@@ -17,7 +17,7 @@ type (
 
 		Tags   []ConfigResourceTag   `gorm:"foreignKey:ConfigResourceID"`
 		Zone   Zone                  `gorm:"foreignKey:ZoneCode;association_foreignkey:ZoneCode;association_autoupdate:false"`
-		User   User                  `gorm:"foreignKey:Uid;association_foreignkey:UID;association_autoupdate:false"`
+		User   User                  `gorm:"foreignKey:Username;association_foreignkey:UID;association_autoupdate:false"`
 		Values []ConfigResourceValue `gorm:"foreignKey:ConfigResourceID;association_autoupdate:false"`
 	}
 

@@ -4,11 +4,13 @@ import {Form, message, Modal} from "antd";
 import JobFormFields from "@/pages/cronjob/JobFormFields";
 import {connect} from "dva";
 import {ConnectState} from "@/models/connect";
+import {createJob} from "@/services/taskplatform";
+import {Job} from "@/models/cronjob/types";
 
 interface ModalNewJobProps extends ModalProps {
 }
 
-function ModalNewJOb (props: ModalNewJobProps) {
+function ModalNewJOb(props: ModalNewJobProps) {
   const [form] = Form.useForm()
   const [confirmLoading, setConfirmLoading] = useState(false)
 
@@ -20,12 +22,15 @@ function ModalNewJOb (props: ModalNewJobProps) {
     onOk={(ev) => {
       setConfirmLoading(true)
       form.validateFields().then(fields => {
-        setTimeout(() => {
+        createJob(fields as Job).then(r => {
           setConfirmLoading(false)
-          console.log(fields)
           message.success("创建成功")
           props.onOk && props.onOk(ev)
-        }, 2000)
+        }).catch(e => {
+          message.error("创建失败")
+          setConfirmLoading(false)
+        })
+
       }).catch(e => {
         setConfirmLoading(false)
       })

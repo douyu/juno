@@ -22,6 +22,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
+	"github.com/douyu/juno/internal/pkg/service/taskplatform"
 	"github.com/douyu/juno/internal/pkg/service/testplatform"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/auth/social"
@@ -98,6 +99,10 @@ func Init() (err error) {
 			HeartbeatTimeout: cfg.Cfg.TestPlatform.Worker.HeartbeatTimeout,
 			LocalQueueDir:    cfg.Cfg.TestPlatform.Worker.LocalQueueDir,
 		},
+	})
+
+	taskplatform.Init(taskplatform.Option{
+		DB: invoker.JunoMysql,
 	})
 
 	return

@@ -88,7 +88,7 @@ type MultiProxy struct {
 	ZoneCode     string
 	Stream       ProxyStream
 	HTTP         HTTPProxy
-	ConfigEtcd   Etcd
+	DefaultEtcd  Etcd
 	RegisterEtcd Etcd
 }
 
@@ -115,7 +115,6 @@ type Gateway struct {
 	Name   string
 }
 
-// ConfigEtcd ..
 type Etcd struct {
 	Enable     bool          `json:"enable"`
 	ListenAddr string        `json:"listenAddr"`
@@ -301,6 +300,22 @@ type ProxyAuth struct {
 
 type CodePlatform struct {
 	Token string
+}
+
+type Notice struct {
+	Email struct {
+		ServerHost   string   `json:"serverHost" toml:"serverHost"`
+		ServerPort   int      `json:"serverPort" toml:"serverPort"`
+		FromEmail    string   `json:"fromEmail" toml:"fromEmail"`
+		FromPasswd   string   `json:"fromPasswd" toml:"fromPasswd"`
+		Subject      string   `json:"subject" toml:"subject"`
+		TemplatePath string   `json:"templatePath" toml:"templatePath"`
+		Toers        []string `json:"toers" toml:"toers"`
+		CCers        []string `json:"cCers" toml:"cCers"`
+	}
+	Ding struct {
+		WebHook string `json:"webHook" toml:"webHook"`
+	} `json:"ding" toml:"ding"`
 }
 
 type TestPlatform struct {
