@@ -72,7 +72,7 @@
   [clientProxy.singleProxy.registerEtcd]
     endpoints = ["127.0.0.1:2379"]
 
-  [clientProxy.singleProxy.configEtcd]
+  [clientProxy.singleProxy.defaultEtcd]
     endpoints = ["127.0.0.1:2379"]
 
 [auth]

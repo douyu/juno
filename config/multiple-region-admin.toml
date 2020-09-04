@@ -76,9 +76,9 @@
     endpoints = ["127.0.0.1:62379"]
     timeout = "3s"
 
-  [clientProxy.multiProxy.configEtcd]
+[clientProxy.singleProxy.defaultEtcd]
+    endpoints = ["127.0.0.1:2379"]
     enable = true
-    endpoints = ["127.0.0.1:52379"]
     timeout = "3s"
 
   [clientProxy.multiProxy.http]
