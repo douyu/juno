@@ -32,13 +32,13 @@ func initSingleProxy() (obj *simpleProxy) {
 
 func (c *simpleProxy) initProxyConfigEtcd() {
 	etcdClient, err := NewEtcdClient(clientv3.Config{
-		Endpoints:   cfg.Cfg.ClientProxy.SingleProxy.ConfigEtcd.Endpoints,
-		DialTimeout: cfg.Cfg.ClientProxy.SingleProxy.ConfigEtcd.Timeout,
-		Username:    cfg.Cfg.ClientProxy.SingleProxy.ConfigEtcd.UserName,
-		Password:    cfg.Cfg.ClientProxy.SingleProxy.ConfigEtcd.Password,
+		Endpoints:   cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Endpoints,
+		DialTimeout: cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Timeout,
+		Username:    cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.UserName,
+		Password:    cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Password,
 	})
 	if err != nil {
-		xlog.Error("simple proxy new etcd client error", zap.Error(err), zap.Strings("endpoints", cfg.Cfg.ClientProxy.SingleProxy.ConfigEtcd.Endpoints))
+		xlog.Error("simple proxy new etcd client error", zap.Error(err), zap.Strings("endpoints", cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Endpoints))
 		return
 	}
 	c.defaultEtcd = etcdClient
@@ -47,13 +47,13 @@ func (c *simpleProxy) initProxyConfigEtcd() {
 
 func (c *simpleProxy) initProxyRegisterEtcd() {
 	etcdClient, err := NewEtcdClient(clientv3.Config{
-		Endpoints:   cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Endpoints,
-		DialTimeout: cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Timeout,
-		Username:    cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.UserName,
-		Password:    cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Password,
+		Endpoints:   cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Endpoints,
+		DialTimeout: cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Timeout,
+		Username:    cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.UserName,
+		Password:    cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Password,
 	})
 	if err != nil {
-		xlog.Error("simple proxy new etcd client error", zap.Error(err), zap.Strings("endpoints", cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Endpoints))
+		xlog.Error("simple proxy new etcd client error", zap.Error(err), zap.Strings("endpoints", cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Endpoints))
 		return
 	}
 	c.proxyRegisterEtcd = etcdClient

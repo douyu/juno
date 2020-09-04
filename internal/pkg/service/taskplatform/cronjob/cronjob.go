@@ -520,6 +520,7 @@ func (j *CronJob) checkTask(id uint64) {
 
 	if task.ExecutedAt != nil && task.ExecutedAt.Add(time.Duration(task.Timeout)*time.Second).Before(time.Now()) {
 		// not expired
+		tx.Rollback()
 		return
 	}
 
