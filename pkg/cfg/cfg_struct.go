@@ -304,31 +304,7 @@ type Notice struct {
 		CCers        []string `json:"cCers" toml:"cCers"`
 	}
 	Ding struct {
-		WebHook   string `json:"webHook" toml:"webHook"`
-		TextParam struct {
-			Content   string   `json:"content"`
-			AtMobiles []string `json:"atMobiles"`
-			IsAtAll   bool     `json:"isAtAll"`
-		}
-		linkParam struct {
-			Title      string `json:"title"`
-			Text       string `json:"text"`
-			MessageUrl string `json:"messageUrl"`
-			PicUrl     string `json:"picUrl"`
-		}
-		MarkdownParam struct {
-			Text      string   `json:"text"`
-			Title     string   `json:"title"`
-			AtMobiles []string `json:"atMobiles"`
-			IsAtAll   bool     `json:"isAtAll"`
-		} `json:"markdownParam"`
-		ActionCardParam struct {
-			Text           string `json:"text"`
-			Title          string `json:"title"`
-			BtnOrientation string `json:"btnOrientation"`
-			SingleTitle    string `json:"singleTitle"`
-			SingleURL      string `json:"singleURL"`
-		} `json:"actionCardParam"`
+		WebHook string `json:"webHook" toml:"webHook"`
 	} `json:"ding" toml:"ding"`
 }
 

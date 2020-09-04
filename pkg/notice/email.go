@@ -31,11 +31,52 @@ type Email struct {
 	m *gomail.Message
 }
 
+type EmailOption func(*Email)
+
+
+func EmailBody(fields map[string]interface{}) EmailOption {
+	return func(args *Email) {
+		templ,err:=template.ParseFiles(".\\template\\emailnotice.html")
+		if err!=nil{
+			xlog.Error("NewEmailNotice", zap.String("step", "template.ParseFiles"),zap.String("err", err.Error()))
+			return
+		}
+
+		var mailBody bytes.Buffer
+		if err :=templ.Execute(&mailBody,map[string]interface{}{
+			"fields":fields,
+		});err!=nil{
+			xlog.Error("NewEmailNotice", zap.String("step", "templ.Execute"),zap.String("err", err.Error()))
+			return
+		}
+		args.Body =  mailBody.String()
+	}
+}
 
 // SendEmail body支持html格式字符串
-func(ep *Email) Send() {
-	NewEmailNotice().send()
+func(ep *Email) Send(fields map[string]interface{}) {
+	NewEmailNotice(EmailBody(fields)).send()
 }
+
+//默认邮件通知初始化
+func NewEmailNotice(setters ...EmailOption)(email *Email){
+	email = new(Email)
+	email.m = gomail.NewMessage()
+	email.ServerHost = cfg.Cfg.Notice.Email.ServerHost
+	email.ServerPort = cfg.Cfg.Notice.Email.ServerPort
+	email.FromEmail =cfg.Cfg.Notice.Email.FromEmail
+	email.FromPasswd = cfg.Cfg.Notice.Email.FromPasswd
+	email.Toers = cfg.Cfg.Notice.Email.Toers
+	email.CCers = cfg.Cfg.Notice.Email.CCers
+	email.Subject =  "日志服务"
+
+	for _, setter := range setters {
+		setter(email)
+	}
+
+	return
+}
+
 
 func (ep *Email)send()(err error){
 
@@ -64,32 +105,5 @@ func (ep *Email)send()(err error){
 	d := gomail.NewDialer(ep.ServerHost, ep.ServerPort, ep.FromEmail, ep.FromPasswd)
 	// 发送
 	err = d.DialAndSend(ep.m)
-	return
-}
-
-
-//默认邮件通知初始化
-func NewEmailNotice()(email *Email){
-	email = new(Email)
-	email.m = gomail.NewMessage()
-	email.ServerHost = cfg.Cfg.Notice.Email.ServerHost
-	email.ServerPort = cfg.Cfg.Notice.Email.ServerPort
-	email.FromEmail =cfg.Cfg.Notice.Email.FromEmail
-	email.FromPasswd = cfg.Cfg.Notice.Email.FromPasswd
-	email.Toers = cfg.Cfg.Notice.Email.Toers
-	email.CCers = cfg.Cfg.Notice.Email.CCers
-	email.Subject =  cfg.Cfg.Notice.Email.Subject
-	templ,err:=template.ParseFiles( cfg.Cfg.Notice.Email.TemplatePath)
-	if err!=nil{
-		xlog.Error("NewEmailNotice", zap.String("step", "template.ParseFiles"),zap.String("err", err.Error()))
-		return
-	}
-	var mailBody bytes.Buffer
-	if err :=templ.Execute(&mailBody,"");err!=nil{
-		xlog.Error("NewEmailNotice", zap.String("step", "templ.Execute"),zap.String("err", err.Error()))
-		return
-	}
-
-	email.Body = mailBody.String()
 	return
 }
