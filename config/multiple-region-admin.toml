@@ -157,15 +157,26 @@
 
 #################################### monitor module ##############################
 [applog]
-    mode = "aliyun" # customize or aliyun
+enable = true
+    mode = "default" # customize or aliyun
     [applog.aliyun]
-        enable = true
         key = ""
         secret = ""
         roleArn = ""
         roleSessionName = ""
         regionId = ""
         loginUrl = ""
+[applog.default]
+   domain = ""
+   expire = ""
+   appKey = ""
+   secret = ""
+
+[[applog.default.logstore]]
+env=       "dev"
+mode=      "biz"
+project=   "project-pool-log"
+logStore=  "golang-all-biz-log-test"
 
 [grpcTest]
     enable = false

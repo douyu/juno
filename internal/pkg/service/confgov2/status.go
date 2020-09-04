@@ -36,13 +36,15 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 	usedMapMtx := sync.Mutex{}
 	eg := errgroup.Group{}
 	for _, ag := range junoAgentList {
+		_ag := ag
 		usedMapMtx.Lock()
-		usedMap[ag.HostName] = 0
+		usedMap[_ag.HostName] = 0
 		usedMapMtx.Unlock()
 
 		for _, fp := range strings.Split(filePath, ";") {
+			_fp := fp
 			eg.Go(func() error {
-				if status := getUsedStatus(env, zoneCode, fp, ag.IPPort); status > 0 {
+				if status := getUsedStatus(env, zoneCode, _fp, _ag.IPPort); status > 0 {
 					usedMapMtx.Lock()
 					usedMap[ag.HostName] = status
 					usedMapMtx.Unlock()
@@ -212,7 +214,8 @@ func configurationTakeEffect(appName, env, zoneCode, governPort, filename, forma
 	list = make(map[string]string, 0)
 
 	eg := errgroup.Group{}
-	for _, node := range notTakeEffectNodes {
+	for _, rNode := range notTakeEffectNodes {
+		node := rNode
 		eg.Go(func() (err error) {
 			version := ""
 			agentQuestResp, err := clientproxy.ClientProxy.HttpGet(view.UniqZone{Env: env, Zone: zoneCode}, view.ReqHTTPProxy{
@@ -221,6 +224,7 @@ func configurationTakeEffect(appName, env, zoneCode, governPort, filename, forma
 			})
 			if err != nil {
 				// for some reason. return nil here
+				xlog.Error("configurationTakeEffect", zap.String("step", "HttpGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("governPort", governPort), zap.Any("error", err.Error()))
 				return nil
 			}
 

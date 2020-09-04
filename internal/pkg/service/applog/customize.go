@@ -27,8 +27,8 @@ type resp struct {
 func newCustomize() *customize {
 	return &customize{
 		client:       resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(xtime.Duration("3s")),
-		dashboardUrl: cfg.Cfg.AppLog.Customize.DashboardUrl,
-		logStoreUrl:  cfg.Cfg.AppLog.Customize.LogStoreUrl,
+		dashboardUrl: cfg.Cfg.AppLog.Default.DashboardUrl,
+		logStoreUrl:  cfg.Cfg.AppLog.Default.LogStoreUrl,
 	}
 }
 

@@ -227,19 +227,27 @@ func defaultConfig() cfg {
 			ProtoDir: "",
 		},
 		AppLog: AppLog{
-			Mode: "aliyun",
+			Mode:   "default",
+			Enable: true,
 			Aliyun: AppLogAliyun{
-				Enable:          true,
 				Secret:          "",
 				Key:             "",
 				RoleArn:         "",
 				RoleSessionName: "",
 				RegionID:        "",
 			},
-			Customize: AppLogCustomize{
-				Enable:       false,
+			Default: AppLogDefault{
 				DashboardUrl: "",
 				LogStoreUrl:  "",
+				Projects: []AppLogDefaultProject{
+					{
+						Project:         "",
+						Env:             []string{""},
+						LogStoreConsole: "",
+						LogStoreJupiter: "",
+						LogStoreBiz:     "",
+					},
+				},
 			},
 		},
 	}
