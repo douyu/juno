@@ -36,31 +36,35 @@ type (
 )
 
 func (r *ResultWatcher) Start() {
-	ch := r.Watch(context.Background(), EtcdKeyResultPrefix, clientv3.WithPrefix())
-
 	// load all task result
-	go r.loadAllResult()
+	lastRevision := r.loadAllResult()
+
+	ch := r.Watch(context.Background(), EtcdKeyResultPrefix, clientv3.WithPrefix(), clientv3.WithRev(lastRevision))
 
 	for resp := range ch {
 		for _, ev := range resp.Events {
 			if ev.IsCreate() || ev.IsModify() {
-				fmt.Printf("key=%s value=%s", ev.Kv.Key, ev.Kv.Value)
 				result, err := r.getTaskResultFromKV(ev.Kv)
 				if err != nil {
 					continue
 				}
 
 				r.updateTask(result)
+
+				if result.Status == db.CronTaskStatusSuccess || result.Status == db.CronTaskStatusTimeout ||
+					result.Status == db.CronTaskStatusFailed {
+					r.deleteResult(ev.Kv.Key)
+				}
 			}
 		}
 	}
 }
 
-func (r *ResultWatcher) loadAllResult() {
-	resp, err := r.Get(context.Background(), EtcdKeyResultPrefix, clientv3.WithPrefix())
+func (r *ResultWatcher) loadAllResult() int64 {
+	resp, err := r.Get(context.Background(), EtcdKeyResultPrefix, clientv3.WithPrefix(), clientv3.WithLimit(0))
 	if err != nil {
 		log.Error("loadAllResult: load task result failed", xlog.String("err", err.Error()))
-		return
+		return 0
 	}
 
 	for _, kv := range resp.Kvs {
@@ -70,8 +74,14 @@ func (r *ResultWatcher) loadAllResult() {
 		}
 
 		r.updateTask(result)
+
+		if result.Status == db.CronTaskStatusSuccess || result.Status == db.CronTaskStatusTimeout ||
+			result.Status == db.CronTaskStatusFailed {
+			r.deleteResult(kv.Key)
+		}
 	}
 
+	return resp.Header.GetRevision()
 }
 
 func (r *ResultWatcher) getTaskResultFromKV(kv *mvccpb.KeyValue) (result TaskResult, err error) {
@@ -112,6 +122,8 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 		task.Log = result.Logs
 		task.Script = result.Job.Script
 		task.FinishedAt = result.FinishedAt
+		task.Env = result.Job.Env
+		task.Zone = result.Job.Zone
 
 		err = tx.Save(&task).Error
 		if err != nil {
@@ -121,4 +133,11 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 		}
 	}
 	tx.Commit()
+}
+
+func (r *ResultWatcher) deleteResult(key []byte) {
+	_, err := r.Delete(context.Background(), string(key))
+	if err != nil {
+		xlog.Error("ResultWatcher.deleteResult: delete finished task failed.", xlog.FieldErr(err))
+	}
 }

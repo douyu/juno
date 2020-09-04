@@ -277,15 +277,14 @@ func (j *CronJob) Delete(id uint) (err error) {
 func (j *CronJob) DispatchOnce(id uint, node string) (err error) {
 	var job db.CronJob
 
-	err = j.db.Where("id = ?", id).
-		//Preload("Timers"). // 不需要加载 timer
-		First(&job).Error
+	err = j.db.Where("id = ?", id).First(&job).Error
 	if err != nil {
 		return errors.Wrapf(err, "cannot found job")
 	}
 
 	task := db.CronTask{
 		JobID:       job.ID,
+		Timeout:     job.Timeout,
 		Node:        node,
 		Status:      db.CronTaskStatusWaiting,
 		ExecuteType: db.ExecuteTypeManual,
@@ -421,6 +420,9 @@ func (j *CronJob) startSyncJob() {
 		//remove job not exists
 		j.removeInvalidJob()
 
+		//clear timeout task
+		j.clearTasks()
+
 		return nil
 	})
 
@@ -472,6 +474,79 @@ func (j *CronJob) writeJobsToEtcd() {
 	for _, job := range jobs {
 		_ = j.dispatcher.dispatchJob(makeJob(job))
 	}
+}
+
+func (j *CronJob) clearTasks() {
+	const pageSize = 1024
+	var total int
+
+	query := j.db.Where("status = ?", db.CronTaskStatusProcessing)
+
+	err := query.Model(&db.CronTask{}).Count(&total).Error
+	if err != nil {
+		xlog.Error("CronJob.clearTasks: count failed", xlog.FieldErr(err))
+		return
+	}
+
+	pages := total / pageSize
+	if total%pageSize > 0 {
+		pages += 1
+	}
+
+	for i := 0; i < pages; i++ {
+		var tasks []db.CronTask
+		err = query.Limit(pageSize).Select("id").Offset(i * pageSize).Find(&tasks).Error
+		if err != nil {
+			xlog.Error("CronJob.clearTasks: query tasks failed", xlog.FieldErr(err))
+			continue
+		}
+
+		for _, taskItem := range tasks {
+			j.checkTask(taskItem.ID)
+		}
+	}
+}
+
+func (j *CronJob) checkTask(id uint64) {
+	var task db.CronTask
+	tx := j.db.Begin()
+
+	err := tx.Where("id = ?", id).First(&task).Error
+	if err != nil {
+		xlog.Error("CronJob.checkTask: query task failed", xlog.FieldErr(err))
+		tx.Rollback()
+		return
+	}
+
+	if task.ExecutedAt != nil && task.ExecutedAt.Add(time.Duration(task.Timeout)*time.Second).Before(time.Now()) {
+		// not expired
+		return
+	}
+
+	uniqZone := view.UniqZone{
+		Env:  task.Env,
+		Zone: task.Zone,
+	}
+	client := clientproxy.ClientProxy.DefaultEtcd(uniqZone)
+	taskId := strconv.FormatUint(task.ID, 10)
+	jobId := strconv.FormatUint(uint64(task.JobID), 10)
+
+	resp, err := client.Get(context.Background(),
+		EtcdKeyPrefixProc+jobId+"/"+taskId+"/", clientv3.WithPrefix(), clientv3.WithLimit(1))
+	if err == nil {
+		xlog.Error("CronJob.clearTasks: read etcd failed", xlog.FieldErr(err), xlog.Any("zone", uniqZone))
+	}
+
+	if err != nil || resp.Count == 0 { // cannot find process, taskItem failed
+		xlog.Error("CronJob.clearTasks: cannot get taskItem process, set it failed",
+			xlog.Any("taskItem", task))
+
+		task.Status = db.CronTaskStatusFailed
+		task.Log += "\nprocess exited unexpectedly"
+		tx.Save(&task)
+	}
+
+	tx.Commit()
 }
 
 func makeOnceJob(job db.CronJob, taskId uint64) OnceJob {

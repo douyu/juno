@@ -39,7 +39,10 @@ type (
 		ID          uint64         `gorm:"column:id;primary_key"`
 		JobID       uint           `gorm:"column:job_id"`
 		Node        string         `gorm:"column:node"`
+		Env         string         `gorm:"column:env"`
+		Zone        string         `gorm:"column:zone"`
 		Status      CronTaskStatus `gorm:"column:status"`
+		Timeout     uint           `gorm:"column:timeout"`
 		ExecutedAt  *time.Time     `gorm:"column:executed_at"`
 		FinishedAt  *time.Time     `gorm:"column:finished_at"`
 		RetryCount  uint           `gorm:"column:retry_count"`
@@ -62,6 +65,7 @@ const (
 	CronTaskStatusProcessing CronTaskStatus = "processing"
 	CronTaskStatusSuccess    CronTaskStatus = "success"
 	CronTaskStatusFailed     CronTaskStatus = "failed"
+	CronTaskStatusTimeout    CronTaskStatus = "timeout"
 
 	CronJobTypeNormal CronJobType = 0
 	CronJobTypeSingle CronJobType = 1
