@@ -83,3 +83,16 @@
     maxIdleConns = 100
     maxIdelPerHost = 200
     timeout = 3
+
+#################################### notice #########################
+[notice]
+   [notice.email]
+       serverHost="smtp.163.com"
+       serverPort=465
+       fromEmail="xxx@163.com"
+       fromPasswd="xxx"
+       toers= ["xxxxxxx@qq.com"]
+       cCers = ["xxx@qq.com"]
+   [notice.ding]
+       webHook="http://XXX.com"
+       msgType="text"

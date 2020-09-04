@@ -6,7 +6,7 @@ import {UserGroupModelState} from "@/models/user_group";
 import {AppModelState} from "@/models/app";
 import {AccessTokenState} from "@/models/access_token";
 import {AppEventState} from "@/models/app_event";
-import {TestPlatformState} from "@/models/testplatform/types";
+import {State} from "@/models/testplatform/types";
 
 export {GlobalModelState, UserModelState};
 
@@ -38,7 +38,7 @@ export interface ConnectState {
   app: AppModelState
   accessToken: AccessTokenState,
   appEvent: AppEventState,
-  testPlatform: TestPlatformState,
+  testPlatform: State,
   setting: {
     settings: {
       k8s_cluster: {

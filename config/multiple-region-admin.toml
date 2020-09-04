@@ -150,7 +150,7 @@
 #################################### Config Dependency Parse #########################
 [jupiter.cron.parse]
     withSeconds = false
-    concurrentDelay= "10s"
+    concurrentDelay= 10
     immediatelyRun = false
 
 
@@ -187,3 +187,16 @@ enable = false # 是否启用测试平台
 [testplatform.worker]
 localQueueDir = "C:/tmp/localworkerqueue"
 heartbeatTimeout = "6s"
+
+#################################### notice #########################
+[notice]
+   [notice.email]
+       serverHost="smtp.163.com"
+       serverPort=465
+       fromEmail="xxx@163.com"
+       fromPasswd="xxx"
+       toers= ["xxxxxxx@qq.com"]
+       cCers = ["xxx@qq.com"]
+   [notice.ding]
+       webHook="http://XXX.com"
+       msgType="text"

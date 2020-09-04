@@ -10,6 +10,7 @@ import (
 
 	"github.com/douyu/juno/internal/pkg/service/app"
 
+	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -17,7 +18,6 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"go.etcd.io/etcd/clientv3"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -179,9 +179,9 @@ func configurationSynced(appName, env, zoneCode, filename, format, prefix string
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	key := fmt.Sprintf("/%s/callback/%s/%s", prefix, appName, fileNameWithSuffix)
 	defer cancel()
-	resp, err := clientproxy.ClientProxy.ConfigEtcdGet(view.UniqZone{Env: env, Zone: zoneCode}, ctx, key, clientv3.WithPrefix())
+	resp, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: env, Zone: zoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil {
-		xlog.Warn("configurationSynced", zap.String("step", "ConfigEtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
+		xlog.Warn("configurationSynced", zap.String("step", "DefaultEtcdGet"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("key", key), zap.String("error", err.Error()))
 		return
 	}
 	if len(resp.Kvs) == 0 {
