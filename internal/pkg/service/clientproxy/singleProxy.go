@@ -47,13 +47,13 @@ func (c *simpleProxy) initProxyConfigEtcd() {
 
 func (c *simpleProxy) initProxyRegisterEtcd() {
 	etcdClient, err := NewEtcdClient(clientv3.Config{
-		Endpoints:   cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Endpoints,
-		DialTimeout: cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Timeout,
-		Username:    cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.UserName,
-		Password:    cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Password,
+		Endpoints:   cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Endpoints,
+		DialTimeout: cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Timeout,
+		Username:    cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.UserName,
+		Password:    cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Password,
 	})
 	if err != nil {
-		xlog.Error("simple proxy new etcd client error", zap.Error(err), zap.Strings("endpoints", cfg.Cfg.ClientProxy.SingleProxy.RegisterEtcd.Endpoints))
+		xlog.Error("simple proxy new etcd client error", zap.Error(err), zap.Strings("endpoints", cfg.Cfg.ClientProxy.SingleProxy.DefaultEtcd.Endpoints))
 		return
 	}
 	c.proxyRegisterEtcd = etcdClient

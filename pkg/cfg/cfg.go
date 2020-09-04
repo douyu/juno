@@ -128,7 +128,7 @@ func defaultConfig() cfg {
 					Timeout:    0,
 					TLS:        TLS{},
 				},
-				RegisterEtcd: Etcd{
+				DefaultEtcd: Etcd{
 					Enable:     false,
 					ListenAddr: "127.0.0.1:62379",
 					Endpoints:  []string{"127.0.0.1:2379"},

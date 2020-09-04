@@ -78,8 +78,8 @@ type HttpRouter struct {
 
 // SingleProxy ..
 type SingleProxy struct {
-	ConfigEtcd   Etcd
-	RegisterEtcd Etcd
+	ConfigEtcd  Etcd
+	DefaultEtcd Etcd
 }
 
 // MultiProxy ..
