@@ -67,9 +67,6 @@ type (
 		Value       string `json:"value"`
 		Description string `json:"description"`
 	}
-
-	MapStringArray  map[string][]string
-	MapStringString map[string]string
 )
 
 func (h *HttpTestParam) Scan(val interface{}) error {
@@ -79,32 +76,6 @@ func (h *HttpTestParam) Scan(val interface{}) error {
 func (h HttpTestParam) Value() (val driver.Value, err error) {
 	if h == nil {
 		val = "[]"
-		return
-	}
-	val, err = json.Marshal(&h)
-	return
-}
-
-func (h *MapStringArray) Scan(val interface{}) error {
-	return json.Unmarshal(val.([]byte), h)
-}
-
-func (h MapStringArray) Value() (val driver.Value, err error) {
-	if h == nil {
-		val = "{}"
-		return
-	}
-	val, err = json.Marshal(&h)
-	return
-}
-
-func (h *MapStringString) Scan(val interface{}) error {
-	return json.Unmarshal(val.([]byte), h)
-}
-
-func (h MapStringString) Value() (val driver.Value, err error) {
-	if h == nil {
-		val = "{}"
 		return
 	}
 	val, err = json.Marshal(&h)

@@ -39,7 +39,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af
 	github.com/sirupsen/logrus v1.6.0
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/spf13/cast v1.3.1
@@ -60,6 +59,7 @@ require (
 	google.golang.org/grpc v1.29.1
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/fsnotify.v1 v1.4.7
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v2 v2.3.0

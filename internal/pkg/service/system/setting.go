@@ -53,7 +53,7 @@ func (s *setting) intervalSync() {
 		s.settingCacheMtx.Unlock()
 
 	End:
-		time.Sleep(5 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 }
 

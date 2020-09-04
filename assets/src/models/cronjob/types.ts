@@ -35,11 +35,17 @@ export interface Task {
   executed_at: string
   finished_at: string
   retry_count: number
+  execute_type: TaskExecuteType
+}
+
+export enum TaskExecuteType {
+  Auto = 0,
+  Manual = 1
 }
 
 export interface TaskDetail extends Task {
   script: string
-  logs: string
+  log: string
 }
 
 export interface State {

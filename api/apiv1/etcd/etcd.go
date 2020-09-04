@@ -81,10 +81,10 @@ func list(req view.ReqGetEtcdList) (resp []view.RespEtcdInfo) {
 
 	defer cancel()
 	registerRes, registerErr := clientproxy.ClientProxy.RegisterEtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
-	res, err := clientproxy.ClientProxy.ConfigEtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
+	res, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
 	if err != nil || registerErr != nil {
 		errSrt := fmt.Sprintf("configErr: %s; registerErr: %s", err.Error(), registerErr.Error())
-		xlog.Error("etcdList", zap.String("step", "ConfigEtcdGet"), zap.String("appName", req.AppName), zap.String("env", req.Env), zap.String("zoneCode", req.ZoneCode), zap.String("key", key), zap.String("error", errSrt))
+		xlog.Error("etcdList", zap.String("step", "DefaultEtcdGet"), zap.String("appName", req.AppName), zap.String("env", req.Env), zap.String("zoneCode", req.ZoneCode), zap.String("key", key), zap.String("error", errSrt))
 		return
 	}
 

@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {FormInstance} from "antd/es/form";
-import {Button, Col, Divider, Form, Input, InputNumber, Row, Switch} from "antd";
+import {Button, Col, Divider, Form, Input, InputNumber, Radio, Row, Switch} from "antd";
 import {Select} from "antd/es";
-import MonacoEditor from "react-monaco-editor/lib/editor";
 import {connect} from "dva";
 import {ConnectState} from "@/models/connect";
 import {AppItem} from "@/models/app";
@@ -78,7 +77,22 @@ function JobFormFields(props: JobFormProps) {
           <Input/>
         </Form.Item>
       </Col>
+    </Row>
 
+    <Row>
+      <Col span={24}>
+        <Form.Item
+          label={"任务类型"}
+          name={"job_type"}
+          initialValue={0}
+          help={"单机任务类型同一时刻只在单台机器上运行"}
+        >
+          <Radio.Group>
+            <Radio.Button value={0}>普通</Radio.Button>
+            <Radio.Button value={1}>单机</Radio.Button>
+          </Radio.Group>
+        </Form.Item>
+      </Col>
     </Row>
 
     <Row gutter={10}>
@@ -127,7 +141,8 @@ function JobFormFields(props: JobFormProps) {
           ]}
         >
           <Select onSelect={(zone: string) => setZone(zone)}>
-            {zones && zones?.map((zone: { zone_code: React.ReactText; zone_name: React.ReactNode; }) => <Select.Option key={zone.zone_code}
+            {zones && zones?.map((zone: { zone_code: React.ReactText; zone_name: React.ReactNode; }) => <Select.Option
+              key={zone.zone_code}
               value={zone.zone_code}>
               {zone.zone_name}
             </Select.Option>)}
@@ -180,22 +195,13 @@ function JobFormFields(props: JobFormProps) {
     </Row>
 
     <Form.Item
-      label={"Script"}
+      label={"Script Path"}
       name={"script"}
-      valuePropName={"value"}
       rules={[
-        {required: true, message: '请输入脚本'}
+        {required: true, message: '请输入脚本'},
       ]}
     >
-      <MonacoEditor
-        language={"shell"}
-        width={"100%"}
-        height={"400px"}
-        theme={"vs-dark"}
-        options={{
-          automaticLayout: true,
-        }}
-      />
+      <Input placeholder={"可执行文件的路径，比如: /home/www/jobs/hello.sh"}/>
     </Form.Item>
 
     <Divider>Timers</Divider>

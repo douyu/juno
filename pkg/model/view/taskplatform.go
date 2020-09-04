@@ -1,6 +1,11 @@
 package view
 
-import "github.com/robfig/cron/v3"
+import (
+	"time"
+
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/robfig/cron/v3"
+)
 
 // task platform struct
 // 需要执行的 cron cmd 命令
@@ -28,16 +33,79 @@ type (
 		ip            string
 		cmd           []string
 		Count         *int64 `json:"-"` // Control the number of simultaneous tasks
+	}
 
+	JobRule struct {
+		ID             string   `json:"id"`
+		Timer          string   `json:"timer"`
+		GroupIDs       []string `json:"gids"`
+		NodeIDs        []string `json:"nids"`
+		ExcludeNodeIDs []string `json:"exclude_nids"`
+
+		Schedule cron.Schedule `json:"-"`
+	}
+
+	ReqQueryJobs struct {
+		AppName  *string `query:"app_name"`
+		Enable   *bool   `query:"enable"`
+		Name     *string `query:"name"`
+		User     *string `query:"user"`
+		Page     uint    `query:"page"`
+		PageSize uint    `query:"page_size"`
+	}
+
+	ReqQueryTasks struct {
+		ID         uint     `query:"id"`
+		ExecutedAt []string `query:"executed_at"`
+		Page       uint     `query:"page"`
+		PageSize   uint     `query:"page_size"`
+	}
+
+	CronJob struct {
+		ID            uint           `json:"id"`
+		Name          string         `json:"name"`
+		Username      string         `json:"username"`
+		AppName       string         `json:"app_name"`
+		Env           string         `json:"env"`
+		Zone          string         `json:"zone"`
+		Timeout       uint           `json:"timeout"`
+		RetryCount    uint           `json:"retry_count"`
+		RetryInterval uint           `json:"retry_interval"`
+		Script        string         `json:"script"`
+		Enable        bool           `json:"enable"`
+		JobType       db.CronJobType `json:"job_type"`
+		Timers        []CronJobTimer `json:"timers"`
+	}
+
+	CronJobListItem struct {
+		CronJob
+
+		Status         *db.CronTaskStatus `json:"status"`
+		LastExecutedAt *time.Time         `json:"last_executed_at"`
+	}
+
+	CronJobTimer struct {
+		ID    uint           `json:"id"`
+		JobID uint           `json:"job_id"`
+		Cron  string         `json:"cron"`
+		Nodes db.StringArray `json:"nodes"`
+	}
+
+	CronTask struct {
+		ID          string            `json:"id"`
+		JobID       uint              `json:"job_id"`
+		ExecutedAt  *time.Time        `json:"executed_at"`
+		FinishedAt  *time.Time        `json:"finished_at"`
+		RetryCount  uint              `json:"retry_count"`
+		Status      db.CronTaskStatus `json:"status"`
+		Node        string            `json:"node"`
+		ExecuteType int               `json:"execute_type"`
+	}
+
+	CronTaskDetail struct {
+		CronTask
+
+		Log    string `json:"log"`
+		Script string `json:"script"`
 	}
 )
-
-type JobRule struct {
-	ID             string   `json:"id"`
-	Timer          string   `json:"timer"`
-	GroupIDs       []string `json:"gids"`
-	NodeIDs        []string `json:"nids"`
-	ExcludeNodeIDs []string `json:"exclude_nids"`
-
-	Schedule cron.Schedule `json:"-"`
-}

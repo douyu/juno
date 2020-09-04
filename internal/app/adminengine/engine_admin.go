@@ -95,10 +95,10 @@ func New() *Admin {
 		eng.parseFlag,
 		eng.initConfig,
 		eng.migrateDB,
+		eng.initClientProxy,
 		eng.initInvoker,
 		eng.cmdMock,
 		eng.initNotify,
-		eng.initClientProxy,
 		eng.serveHTTP,
 		eng.serveGovern,
 		eng.defers,
@@ -256,9 +256,6 @@ func (eng *Admin) initInvoker() (err error) {
 }
 
 func (eng *Admin) initClientProxy() (err error) {
-	if !eng.runFlag {
-		return
-	}
 	clientproxy.Init()
 	return
 }

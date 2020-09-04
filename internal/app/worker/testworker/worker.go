@@ -34,7 +34,7 @@ type (
 		client      *resty.Client
 		taskChan    chan view.TestTask
 		queue       *goque.Queue
-		jobHandlers map[db.JobType]JobHandler
+		jobHandlers map[db.TestJobType]JobHandler
 	}
 
 	Option struct {
@@ -80,7 +80,7 @@ func Instance() *TestWorker {
 			taskChan: make(chan view.TestTask),
 		}
 
-		instance.jobHandlers = map[db.JobType]JobHandler{
+		instance.jobHandlers = map[db.TestJobType]JobHandler{
 			db.JobGitPull:   instance.gitPull,
 			db.JobHttpTest:  instance.httpTest,
 			db.JobUnitTest:  instance.unitTest,

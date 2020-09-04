@@ -40,6 +40,7 @@ func Init() {
 		gormConfig.DSN = cfg.Cfg.Database.DSN
 		JunoMysql = gormConfig.Build()
 		JunoMysql.LogMode(cfg.Cfg.Database.Debug)
+		JunoMysql.SingularTable(true)
 	}
 
 	var err error
