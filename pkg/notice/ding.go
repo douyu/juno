@@ -20,10 +20,9 @@ const (
 
 type DingNotice struct {}
 
-func (d *DingNotice)Send(){
-	content := cfg.Cfg.Notice.Ding.TextParam.Content
-	atMobiles := cfg.Cfg.Notice.Ding.TextParam.AtMobiles
-	isAtAll := cfg.Cfg.Notice.Ding.TextParam.IsAtAll
+func (d *DingNotice)Send(content string){
+	atMobiles := []string{}
+	isAtAll :=  true
 	NewtDingNotice(TextMsgType).InitText(content,atMobiles,isAtAll).sendDingMsg()
 }
 
@@ -56,19 +55,19 @@ func NewtDingNotice(msgtype string) *dingMsg {
 
 	switch msgtype {
 	case TextMsgType:
-		dingNotice.MsgList.Text.Msgtype = "text"
+		dingNotice.MsgList.Text.Msgtype = TextMsgType
 		dingNotice.Content = dingNotice.MsgList.Text
 	case LinkMsgType:
-		dingNotice.MsgList.Link.Msgtype = "link"
+		dingNotice.MsgList.Link.Msgtype = LinkMsgType
 		dingNotice.Content = dingNotice.MsgList.Link
 	case MarkDownMsgType:
-		dingNotice.MsgList.Markdown.Msgtype = "markdown"
+		dingNotice.MsgList.Markdown.Msgtype = MarkDownMsgType
 		dingNotice.Content = dingNotice.MsgList.Markdown
 	case ActionCardMsgType:
-		dingNotice.MsgList.ActionCard.Msgtype = "actionCard"
+		dingNotice.MsgList.ActionCard.Msgtype = ActionCardMsgType
 		dingNotice.Content = dingNotice.MsgList.ActionCard
 	default:
-		dingNotice.MsgList.Text.Msgtype = "text"
+		dingNotice.MsgList.Text.Msgtype = TextMsgType
 		dingNotice.Content = dingNotice.MsgList.Text
 	}
 	return dingNotice
@@ -79,6 +78,8 @@ func (d *dingMsg) InitText(content string,atMobiles[]string,isAtAll bool)*msgSub
 	t := new(msgSubject)
 	t.dingMsg = d
 	d.MsgList.Text.Text.Content = content
+	d.MsgList.Text.At.IsAtAll = isAtAll
+	d.MsgList.Text.At.AtMobiles = atMobiles
 	t.dingMsg.Content = d.MsgList.Text
 	return t
 }
