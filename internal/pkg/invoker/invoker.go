@@ -44,12 +44,12 @@ func Init() {
 	}
 
 	var err error
-	if cfg.Cfg.ServerProxy.ConfigEtcd.Enable {
+	if cfg.Cfg.ServerProxy.DefaultEtcd.Enable {
 		ConfgoEtcd, err = clientv3.New(clientv3.Config{
-			Endpoints:   cfg.Cfg.ServerProxy.ConfigEtcd.Endpoints,
+			Endpoints:   cfg.Cfg.ServerProxy.DefaultEtcd.Endpoints,
 			DialTimeout: 2 * time.Second,
-			Username:    cfg.Cfg.ServerProxy.ConfigEtcd.UserName,
-			Password:    cfg.Cfg.ServerProxy.ConfigEtcd.Password,
+			Username:    cfg.Cfg.ServerProxy.DefaultEtcd.UserName,
+			Password:    cfg.Cfg.ServerProxy.DefaultEtcd.Password,
 		})
 		if err != nil {
 			panic(err.Error())

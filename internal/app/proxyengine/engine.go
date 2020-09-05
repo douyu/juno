@@ -97,7 +97,7 @@ func (eng *Proxy) initRegister() (err error) {
 
 	eng.SetRegistry(
 		compound_registry.New(
-			config.BuildRegistry(),
+			config.Build(),
 		),
 	)
 	return
@@ -177,7 +177,7 @@ func (eng *Proxy) serveGovern() (err error) {
 	if err != nil {
 		xlog.Panic(err.Error())
 	}
-	eng.SetGovernor(cfg.Cfg.ServerProxy.GovernServer.Host + ":" + strconv.Itoa(cfg.Cfg.ServerProxy.GovernServer.Port))
+	//eng.SetGovernor(cfg.Cfg.ServerProxy.GovernServer.Host + ":" + strconv.Itoa(cfg.Cfg.ServerProxy.GovernServer.Port))
 	err = client.Close()
 	if err != nil {
 		xlog.Panic(err.Error())
@@ -249,24 +249,21 @@ func (*ProxyGrpc) Notify(stream pb.Proxy_NotifyServer) error {
 }
 
 func (eng *Proxy) defers() (err error) {
-	eng.Defer(func() error {
-		config := etcdv3.DefaultConfig()
-		config.Endpoints = cfg.Cfg.Register.Endpoints
-		config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
-		config.Secure = cfg.Cfg.Register.Secure
-		client := config.Build()
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
-		defer cancel()
-		// todo optimize, jupiter will after support metric
-		_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
-		if err != nil {
-			xlog.Panic(err.Error())
-		}
-		err = client.Close()
-		if err != nil {
-			xlog.Panic(err.Error())
-		}
-		return nil
-	})
+	config := etcdv3.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+	client := config.Build()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	// todo optimize, jupiter will after support metric
+	_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
+	err = client.Close()
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
 	return nil
 }

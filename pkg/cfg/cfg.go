@@ -120,7 +120,7 @@ func defaultConfig() cfg {
 				GovernConfig: "/configs",
 			},
 			SingleProxy: SingleProxy{
-				ConfigEtcd: Etcd{
+				DefaultEtcd: Etcd{
 					Enable:     false,
 					ListenAddr: "127.0.0.1:5379",
 					Endpoints:  []string{"127.0.0.1:2379"},
@@ -184,7 +184,7 @@ func defaultConfig() cfg {
 				MaxIdelPerHost:    60,
 				Timeout:           3,
 			},
-			ConfigEtcd: Etcd{
+			DefaultEtcd: Etcd{
 				Enable:     false,
 				ListenAddr: "",
 				Endpoints:  nil,

@@ -65,12 +65,12 @@
       key = ""
       cacert = ""
 
-[serverProxy.configEtcd]
+[serverProxy.defaultEtcd]
     enable = true
     listenAddr = "127.0.0.1:52379"
     endpoints = ["127.0.0.1:2379"]
     namespace = ""
-    [serverProxy.configEtcd.tls]
+    [serverProxy.defaultEtcd.tls]
       cert = ""
       key = ""
       cacert = ""
