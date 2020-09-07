@@ -3,6 +3,8 @@ package service
 import (
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/loggerplatform"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appDep"
@@ -104,6 +106,8 @@ func Init() (err error) {
 	taskplatform.Init(taskplatform.Option{
 		DB: invoker.JunoMysql,
 	})
+
+	loggerplatform.Init()
 
 	return
 }

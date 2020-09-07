@@ -282,7 +282,7 @@ type AppLogAliyun struct {
 type AppLogDefault struct {
 	DashboardUrl string
 	LogStoreUrl  string
-	Projects     []AppLogDefaultProject
+	Project      []AppLogDefaultProject
 }
 
 // AppLogDefaultProject ..

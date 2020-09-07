@@ -240,7 +240,7 @@ func defaultConfig() cfg {
 			Default: AppLogDefault{
 				DashboardUrl: "",
 				LogStoreUrl:  "",
-				Projects: []AppLogDefaultProject{
+				Project: []AppLogDefaultProject{
 					{
 						Project:         "",
 						Env:             []string{""},
@@ -270,9 +270,7 @@ func InitCfg() {
 	}
 	config.parseHeartBeat()
 	Cfg = config
-
-	xlog.Info("InitCfg parse", zap.Any("config", config))
-
+	xlog.Info("InitCfg", xlog.Any("config", config))
 }
 
 func parseAppAndSubURL(rootURL string) (string, string, error) {
