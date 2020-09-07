@@ -75,6 +75,7 @@ type (
 		Enable        bool           `json:"enable"`
 		JobType       db.CronJobType `json:"job_type"`
 		Timers        []CronJobTimer `json:"timers"`
+		Nodes         []string       `json:"nodes"`
 	}
 
 	CronJobListItem struct {
@@ -85,10 +86,9 @@ type (
 	}
 
 	CronJobTimer struct {
-		ID    uint           `json:"id"`
-		JobID uint           `json:"job_id"`
-		Cron  string         `json:"cron"`
-		Nodes db.StringArray `json:"nodes"`
+		ID    uint   `json:"id"`
+		JobID uint   `json:"job_id"`
+		Cron  string `json:"cron"`
 	}
 
 	CronTask struct {

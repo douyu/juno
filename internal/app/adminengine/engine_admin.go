@@ -39,8 +39,6 @@ import (
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/flag"
-	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
-	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -140,25 +138,6 @@ func (eng *Admin) initConfig() (err error) {
 	bizConfig.Dir = cfg.Cfg.Logger.Biz.Dir
 	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
 	xlog.DefaultLogger = bizConfig.Build()
-	return
-}
-
-func (eng *Admin) initRegister() (err error) {
-	if !eng.runFlag || !cfg.Cfg.Register.Enable {
-		return
-	}
-	config := etcdv3_registry.DefaultConfig()
-	config.Endpoints = cfg.Cfg.Register.Endpoints
-	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
-	config.Secure = cfg.Cfg.Register.Secure
-	config.BasicAuth = cfg.Cfg.Register.BasicAuth
-	config.UserName = cfg.Cfg.Register.UserName
-	config.Password = cfg.Cfg.Register.Password
-	eng.SetRegistry(
-		compound_registry.New(
-			config.Build(),
-		),
-	)
 	return
 }
 

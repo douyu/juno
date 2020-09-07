@@ -9,16 +9,17 @@ import (
 type (
 	CronJob struct {
 		gorm.Model
-		Name          string `gorm:"column:name"`
-		Uid           uint   `gorm:"column:uid"`
-		AppName       string `gorm:"column:app_name"`
-		Env           string `gorm:"column:env"`
-		Zone          string `gorm:"column:zone"`
-		Timeout       uint   `gorm:"column:timeout"`
-		RetryCount    uint   `gorm:"column:retry_count"`
-		RetryInterval uint   `gorm:"column:retry_interval"`
-		Script        string `gorm:"column:script"`
-		Enable        bool   `gorm:"column:enable"`
+		Name          string      `gorm:"column:name"`
+		Uid           uint        `gorm:"column:uid"`
+		AppName       string      `gorm:"column:app_name"`
+		Env           string      `gorm:"column:env"`
+		Zone          string      `gorm:"column:zone"`
+		Timeout       uint        `gorm:"column:timeout"`
+		RetryCount    uint        `gorm:"column:retry_count"`
+		RetryInterval uint        `gorm:"column:retry_interval"`
+		Script        string      `gorm:"column:script"`
+		Enable        bool        `gorm:"column:enable"`
+		Nodes         StringArray `gorm:"type:json"`
 		JobType       CronJobType
 
 		User       User           `gorm:"foreignKey:Uid;association_foreignkey:Uid"`
@@ -28,9 +29,8 @@ type (
 
 	CronJobTimer struct {
 		gorm.Model
-		JobID uint        `gorm:"column:job_id"`
-		Cron  string      `gorm:"column:cron"` // crontab-like DSL
-		Nodes StringArray `gorm:"type:json"`
+		JobID uint   `gorm:"column:job_id"`
+		Cron  string `gorm:"column:cron"` // crontab-like DSL
 
 		Job CronJob `gorm:"foreignKey:JobID"`
 	}

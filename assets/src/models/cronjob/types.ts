@@ -14,6 +14,7 @@ export interface Job {
   retry_count: number
   retry_interval: number
   timers: Timer[]
+  nodes: string[]
   enable: boolean
 }
 

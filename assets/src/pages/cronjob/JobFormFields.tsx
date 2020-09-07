@@ -194,6 +194,18 @@ function JobFormFields(props: JobFormProps) {
 
     </Row>
 
+    <Row>
+      <Col span={24}>
+        <Form.Item name={"nodes"} label={"Nodes"}>
+          <Select placeholder={"nodes"} mode={"multiple"}>
+            {nodeList && nodeList.map((node: any, index) => <Select.Option key={index} value={node.host_name}>
+              {node.host_name}
+            </Select.Option>)}
+          </Select>
+        </Form.Item>
+      </Col>
+    </Row>
+
     <Form.Item
       label={"Script Path"}
       name={"script"}
@@ -222,18 +234,6 @@ function JobFormFields(props: JobFormProps) {
               <Input placeholder={"Cron. example: 0 * * * * *"}/>
             </Form.Item>
 
-            <Form.Item
-              name={[field.name, 'nodes']}
-              rules={[
-                {required: true, message: '请选择节点'}
-              ]}
-            >
-              <Select placeholder={"nodes"} mode={"multiple"}>
-                {nodeList && nodeList.map((node: any, index) => <Select.Option key={index} value={node.host_name}>
-                  {node.host_name}
-                </Select.Option>)}
-              </Select>
-            </Form.Item>
             <Form.Item noStyle>
               <Button
                 onClick={() => operation.remove(index)}

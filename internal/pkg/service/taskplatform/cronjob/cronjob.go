@@ -112,7 +112,6 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 				ID:    timer.ID,
 				JobID: timer.JobID,
 				Cron:  timer.Cron,
-				Nodes: timer.Nodes,
 			})
 		}
 
@@ -131,6 +130,7 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 				Timers:        timers,
 				Enable:        job.Enable,
 				JobType:       job.JobType,
+				Nodes:         job.Nodes,
 			},
 			LastExecutedAt: job.ExecutedAt,
 			Status:         job.Status,
@@ -157,12 +157,12 @@ func (j *CronJob) Create(uid uint, params view.CronJob) (err error) {
 		Script:        params.Script,
 		Enable:        params.Enable,
 		JobType:       params.JobType,
+		Nodes:         params.Nodes,
 	}
 
 	for idx, timer := range params.Timers {
 		timers[idx] = db.CronJobTimer{
-			Cron:  timer.Cron,
-			Nodes: timer.Nodes,
+			Cron: timer.Cron,
 		}
 	}
 	job.Timers = timers
@@ -187,8 +187,7 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 
 	for idx, timer := range params.Timers {
 		timers[idx] = db.CronJobTimer{
-			Cron:  timer.Cron,
-			Nodes: timer.Nodes,
+			Cron: timer.Cron,
 		}
 	}
 
@@ -216,6 +215,7 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 	job.Script = params.Script
 	job.Enable = params.Enable
 	job.JobType = params.JobType
+	job.Nodes = params.Nodes
 
 	err = tx.Save(&job).Error
 	if err != nil {
@@ -336,7 +336,7 @@ func (j *CronJob) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pag
 			"status", "node"}).
 			Limit(pageSize).
 			Offset(offset).
-			Order("id desc").
+			Order("created_at desc").
 			Find(&tasks).
 			Error
 	})
@@ -569,13 +569,13 @@ func makeJob(job db.CronJob) Job {
 		JobType:       job.JobType,
 		Env:           job.Env,
 		Zone:          job.Zone,
+		Nodes:         job.Nodes,
 	}
 
 	for _, timer := range job.Timers {
 		cronjob.Timers = append(cronjob.Timers, Timer{
-			ID:    strconv.Itoa(int(timer.ID)),
-			Cron:  timer.Cron,
-			Nodes: timer.Nodes,
+			ID:   strconv.Itoa(int(timer.ID)),
+			Cron: timer.Cron,
 		})
 	}
 

@@ -18,16 +18,17 @@ type (
 	}
 
 	Job struct {
-		ID            string  `json:"id"`
-		Name          string  `json:"name"`
-		Script        string  `json:"script"`
-		Timers        []Timer `json:"timers"`
-		Enable        bool    `json:"enable"`  // 可手工控制的状态
-		Timeout       uint    `json:"timeout"` // 单位时间秒，任务执行时间超时设置，大于 0 时有效
-		RetryCount    uint    `json:"retry_count"`
-		RetryInterval uint    `json:"retry_interval"`
-		Env           string  `json:"env"`
-		Zone          string  `json:"zone"`
+		ID            string   `json:"id"`
+		Name          string   `json:"name"`
+		Script        string   `json:"script"`
+		Timers        []Timer  `json:"timers"`
+		Enable        bool     `json:"enable"`  // 可手工控制的状态
+		Timeout       uint     `json:"timeout"` // 单位时间秒，任务执行时间超时设置，大于 0 时有效
+		RetryCount    uint     `json:"retry_count"`
+		RetryInterval uint     `json:"retry_interval"`
+		Env           string   `json:"env"`
+		Zone          string   `json:"zone"`
+		Nodes         []string `json:"nodes"`
 
 		JobType db.CronJobType `json:"job_type"`
 	}
@@ -39,9 +40,8 @@ type (
 	}
 
 	Timer struct {
-		ID    string   `json:"id"`
-		Cron  string   `json:"timer"`
-		Nodes []string `json:"nodes"` // 可运行的节点
+		ID   string `json:"id"`
+		Cron string `json:"timer"`
 	}
 )
 
