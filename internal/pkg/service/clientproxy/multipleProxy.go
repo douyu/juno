@@ -71,9 +71,6 @@ func (c *multiProxy) initProxyConfigEtcdMap() {
 }
 
 func (c *multiProxy) loadEtcdClient(etcd cfg.Etcd, zone view.UniqZone) (conn *EtcdClient, err error) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	conn, err = NewEtcdClient(
 		clientv3.Config{
 			Endpoints:   etcd.Endpoints,
