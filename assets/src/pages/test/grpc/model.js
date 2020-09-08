@@ -25,12 +25,15 @@ export default {
       hosts: []
     },
     selected_service: [],
+    use_case_loading: false,
+    request_loading: false,
     editor: {
       form: {
         case_name: "",
         input: "",
         autoTestId: 0,
-        metadata: []
+        metadata: [],
+        script: null
       },
       response: "",
       info: {
@@ -114,7 +117,20 @@ export default {
       })
     },
     * loadUseCase({payload}, {call, put}) {
+      yield put({
+        type: 'apply',
+        payload: {
+          use_case_loading: true
+        }
+      })
+
       let res = yield call(loadUseCaseById, payload.id);
+      yield put({
+        type: 'apply',
+        payload: {
+          use_case_loading: false
+        }
+      })
       if (res.code === 0) {
         let data = res.data;
         yield put({
@@ -126,7 +142,8 @@ export default {
                 case_name: data.name,
                 input: data.input,
                 method_id: data.method_id,
-                metadata: data.metadata
+                metadata: data.metadata,
+                script: data.script
               },
               info: {
                 app_name: data.app_name,
@@ -150,7 +167,7 @@ export default {
             editor: {
               form: {
                 case_name: res.data.name + "-" + (new Date()).getTime(),
-                input: JSON.stringify(formatProtoDesc(res.data.input_type), null, 2),
+                input: JSON.stringify(formatProtoDesc(res.data.input_type), null, 4),
                 method_id: parseInt(payload.id),
                 metadata: []
               },
@@ -201,6 +218,12 @@ export default {
         payload: payload
       })
     },
+    * updateCaseScript({payload}, {call, put}) {
+      yield put({
+        type: '_updateCaseScript',
+        payload: payload
+      })
+    },
     * updateUserCase({payload}, {call, put}) {
       let res = yield call(updateUserCase, payload);
       if (res.code === 0) {
@@ -229,13 +252,25 @@ export default {
       return res;
     },
     * sendRequest({payload}, {call, put}) {
+      yield put({
+        type: 'apply',
+        payload: {
+          request_loading: true
+        }
+      })
       let res = yield call(sendRequest, payload);
+      yield put({
+        type: 'apply',
+        payload: {
+          request_loading: false
+        }
+      })
       if (res.code === 0) {
         let data = res.data;
         let output = data.output;
         try {
           output = JSON.parse(output);
-          output = JSON.stringify(output, null, 2);
+          output = JSON.stringify(output, null, 4);
         } catch (e) {
           console.error("invalid response data:");
           console.error(e);
@@ -263,12 +298,12 @@ export default {
         let input = res.data.input;
         let output = res.data.output;
         try {
-          output = JSON.stringify(JSON.parse(output), null, 2);
+          output = JSON.stringify(JSON.parse(output), null, 4);
         } catch (e) {
           console.error(e);
         }
         try {
-          input = JSON.stringify(JSON.parse(input), null, 2);
+          input = JSON.stringify(JSON.parse(input), null, 4);
         } catch (e) {
           console.error(e);
         }
@@ -320,7 +355,7 @@ export default {
       if (res.code === 0) {
         let input = res.data.input;
         try {
-          input = JSON.stringify(JSON.parse(input), null, 2);
+          input = JSON.stringify(JSON.parse(input), null, 4);
         } catch (e) {
           console.error(e);
         }
@@ -412,6 +447,14 @@ export default {
     _updateCaseInput(state, {payload}) {
       let editor = state.editor;
       editor.form.input = payload;
+      return {
+        ...state,
+        editor
+      }
+    },
+    _updateCaseScript(state, {payload}) {
+      let editor = state.editor;
+      editor.form.script = payload;
       return {
         ...state,
         editor

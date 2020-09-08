@@ -113,12 +113,6 @@ function InstanceDetail(props) {
       return;
     }
 
-    if (usedTyp == 1) {
-      setContent('暂时不支持supervisor类型重启');
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     ServiceAppAction({
       action: action,

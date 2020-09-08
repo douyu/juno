@@ -1,6 +1,6 @@
-# JUNO: Governance-oriented Microservice Platform
-
 ![logo](docs/logo.png)
+
+# JUNO - A distributed application management system
 
 [![Build Status](https://travis-ci.org/douyu/juno.svg?branch=master)](https://travis-ci.org/douyu/juno)
 [![codecov](https://codecov.io/gh/douyu/juno/branch/master/graph/badge.svg)](https://codecov.io/gh/douyu/juno)
@@ -10,22 +10,35 @@
 
 ## Introduction
 
-JUNO is a governance-oriented microservice platform, and used for many years in [Douyu](https://www.douyu.com).
+JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，核心功能为配置中心，能集中化管理应用不同环境、不同机房的配置；并且集成了监控中心、测试平台、日志中心等功能模块，采用Casbin进行规范化的权限管理，适用于微服务生命周期管理。
 
-## Documention
+## Documentation
 
-See the [中文文档](http://jupiter.douyu.com/juno) for document in Chinese.
+更多产品介绍参见 [Juno微服务治理系统介绍](http://jupiter.douyu.com/juno)
 
-[Quick Start](docs/wiki-cn/quickstart.md)
-
-[在线演示](http://jupiterconsole.douyu.com/user/login?return_url=/)
+演示环境（Demo）:
+- [在线演示](http://jupiterconsole.douyu.com/user/login?return_url=/)
+- 账号/密码:admin/admin
 
 ## Bugs and Feedback
 
 For bug report, questions and discussions please submit GitHub Issues.
 
-## Contributing
+## Contribution
 
-Contributions are always welcomed! Please see [CONTRIBUTING](CONTRIBUTING.md) for detailed guidelines.
+Please make sure to read the [CONTRIBUTING](CONTRIBUTING.md) before making a pull request.
 
-You can start with the issues labeled with good first issue.
+Thanks for all the people who contributed to Juno！
+
+## License
+The project is licensed under the [Apache 2 license](https://github.com/ctripcorp/apollo/blob/master/LICENSE).
+
+## Known Users
+
+按照登记顺序排序，更多接入公司，欢迎在[https://github.com/douyu/juno/issues/43](https://github.com/douyu/juno/issues/43) 登记（仅供开源用户参考）
+
+<table>
+<tr>
+<td>斗鱼</td>
+</tr>
+</table>

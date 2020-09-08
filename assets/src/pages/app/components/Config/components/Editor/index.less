@@ -1,15 +1,31 @@
 @import "../../var";
 
 @editorW: 100%;
+@editorTipH: 40px;
 
 .editorContainer {
-  width: @editorW;
-  height: @editorH;
+  flex: 1;
+  height: 0;
+  display: flex;
+  flex-direction: column;
   position: relative;
 
-  .editor, .diffEditor, .loadingMask, .fileUnSelectedMask {
+  .editorTip {
+    height: @editorTipH;
+    color: #949494;
+    padding: 10px 0 10px 30px;
+  }
+
+  .diffEditor, .loadingMask, .fileUnSelectedMask {
     width: @editorW;
-    height: @editorH;
+    flex: 1;
+    height: 0;
+  }
+
+  .editor {
+    width: @editorW;
+    height: 0;
+    flex: 1;
   }
 
   .diffEditor {

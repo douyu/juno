@@ -7,20 +7,30 @@
  */
 export default {
   dev: {
+    '/ant/js': {
+      target: 'http://localhost:8000',
+      changeOrigin: true,
+      pathRewrite: { '^/ant': '' },
+    },
     '/api/admin': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://jupiterconsole.douyu.com',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://jupiterconsole.douyu.com',
       changeOrigin: true,
     },
     '/grafana': {
-      target: 'http://127.0.0.1:50000',
+      target: 'http://jupiterconsole.douyu.com',
     },
   },
   test: {
+    '/ant/': {
+      target: 'http://localhost:8000',
+      changeOrigin: true,
+      pathRewrite: { '^/ant': '' },
+    },
     '/api/admin': {
       target: 'http://192.168.56.101:50000',
       changeOrigin: true,
@@ -31,6 +41,11 @@ export default {
     },
   },
   pre: {
+    '/ant/': {
+      target: 'http://localhost:8000',
+      changeOrigin: true,
+      pathRewrite: { '^/ant': '' },
+    },
     '/api/admin': {
       target: 'http://127.0.0.1:50000',
       changeOrigin: true,

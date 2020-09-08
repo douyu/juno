@@ -1,0 +1,29 @@
+[juno]
+address = "http://juno.local:50000"
+token = "token"
+
+[worker]
+parallelWorker = 1
+repoStorageDir = "/tmp/repos"
+testTaskQueueDir = "/tmp/taskQueue"
+
+[heartbeat]
+debug = true
+addr = "http://juno.local:50000/api/v1/worker/heartbeat"
+internal = "3s"
+hostName = "localhost" # 环境变量的名称，或者命令行参数的名称
+regionCode = "wh" # 环境变量的名称，或者命令行参数的名称
+regionName = "wh"
+zoneCode = "whyl"
+zoneName = "whyl"
+env = "dev"
+
+[jupiter]
+
+[jupiter.logger.default]
+name = "default"
+debug = true
+
+[jupiter.server.http]
+host = "0.0.0.0"
+port = 50011

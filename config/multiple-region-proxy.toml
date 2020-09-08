@@ -55,12 +55,22 @@
     zoneName = "ZONE_NAME"
     env = "env"
 
-[serverProxy.etcd]
+[serverProxy.registerEtcd]
+    enable = true
+    listenAddr = "127.0.0.1:62379"
+    endpoints = ["127.0.0.1:2379"]
+    namespace = ""
+    [serverProxy.registerEtcd.tls]
+      cert = ""
+      key = ""
+      cacert = ""
+
+[serverProxy.defaultEtcd]
     enable = true
     listenAddr = "127.0.0.1:52379"
     endpoints = ["127.0.0.1:2379"]
     namespace = ""
-    [serverProxy.etcd.tls]
+    [serverProxy.defaultEtcd.tls]
       cert = ""
       key = ""
       cacert = ""
@@ -73,3 +83,16 @@
     maxIdleConns = 100
     maxIdelPerHost = 200
     timeout = 3
+
+#################################### notice #########################
+[notice]
+   [notice.email]
+       serverHost="smtp.163.com"
+       serverPort=465
+       fromEmail="xxx@163.com"
+       fromPasswd="xxx"
+       toers= ["xxxxxxx@qq.com"]
+       cCers = ["xxx@qq.com"]
+   [notice.ding]
+       webHook="http://XXX.com"
+       msgType="text"

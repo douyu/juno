@@ -9,18 +9,21 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-type RestyClient struct {
+//ClientDefaultTimeout ..
+const ClientDefaultTimeout = 1
+
+type restyClient struct {
 	conn *resty.Client
 	mode string
 	err  error
 }
 
-func NewRestyClient(mode string, proxyAddr string) (obj *RestyClient) {
-	obj = &RestyClient{
+func newRestyClient(mode string, proxyAddr string) (obj *restyClient) {
+	obj = &restyClient{
 		mode: mode,
 	}
 	obj.conn = resty.New().SetDebug(true).
-		SetTimeout(3*time.Second).
+		SetTimeout(ClientDefaultTimeout*time.Second).
 		SetHeader("Content-Type", "application/json;charset=utf-8")
 	if mode == constx.ModeMultiple {
 		obj.conn.SetHostURL(proxyAddr)
@@ -28,20 +31,40 @@ func NewRestyClient(mode string, proxyAddr string) (obj *RestyClient) {
 	return
 }
 
-func (r *RestyClient) Get(req view.ReqHTTPProxy) (*resty.Response, error) {
+//Get ..
+func (r *restyClient) Get(req view.ReqHTTPProxy) (*resty.Response, error) {
+	timeout := req.Timeout
+	if timeout == 0 {
+		timeout = ClientDefaultTimeout
+	}
+	request := r.conn.SetTimeout(time.Duration(timeout) * time.Second).R()
 	if r.mode == constx.ModeMultiple {
 		req.Type = "GET"
 		r.conn.Debug = true
-		return r.conn.R().SetBody(req).Post(req.URL)
+		request.SetBody(req)
+		return request.Post(req.URL)
+	} else {
+		request.SetQueryParams(req.Params)
+		request.SetBody(req.Body)
+		return request.Get(fmt.Sprintf("http://%s%s", req.Address, req.URL))
 	}
-	return r.conn.R().SetQueryParams(req.Params).Get(fmt.Sprintf("http://%s%s", req.Address, req.URL))
 }
 
-func (r *RestyClient) Post(req view.ReqHTTPProxy) (*resty.Response, error) {
+//Post ..
+func (r *restyClient) Post(req view.ReqHTTPProxy) (*resty.Response, error) {
+	timeout := req.Timeout
+	if timeout == 0 {
+		timeout = ClientDefaultTimeout
+	}
+	request := r.conn.SetTimeout(time.Duration(timeout) * time.Second).R()
 	if r.mode == constx.ModeMultiple {
 		req.Type = "POST"
 		r.conn.Debug = true
-		return r.conn.R().SetBody(req).Post(req.URL)
+		request.SetBody(req)
+		return request.Post(req.URL)
+	} else {
+		request.SetQueryParams(req.Params)
+		request.SetBody(req.Body)
+		return request.Post(fmt.Sprintf("http://%s%s", req.Address, req.URL))
 	}
-	return r.conn.R().SetBody(req.Params).Post(fmt.Sprintf("http://%s%s", req.Address, req.URL))
 }

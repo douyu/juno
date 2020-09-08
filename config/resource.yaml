@@ -69,6 +69,30 @@ permission:
       - path: /api/admin/event/list
         name: 事件流列表
         method: GET
+      - path: /api/admin/test/grpc/platform/pipeline/create
+        name: 创建测试Pipeline
+        method: POST
+      - path: /api/admin/test/grpc/platform/pipeline/list
+        name: 测试Pipeline列表
+        method: GET
+      - path: /api/admin/test/grpc/platform/pipeline/update
+        name: 更新测试Pipeline
+        method: POST
+      - path: /api/admin/test/grpc/platform/pipeline/run
+        name: 手动触发测试Pipeline
+        method: POST
+      - path: /api/admin/test/grpc/platform/pipeline/tasks
+        name: 测试Task列表
+        method: GET
+      - path: /api/admin/test/grpc/platform/pipeline/delete
+        name: 删除测试Pipeline
+        method: POST
+      - path: /api/admin/test/grpc/platform/pipeline/tasks/steps
+        name: 测试任务执行详情
+        method: GET
+      - path: /api/admin/test/grpc/services
+        name: GRPC服务用例树
+        method: GET
 
   - name: 功能看板
     path: /analysis
@@ -112,7 +136,18 @@ permission:
           - path: /api/admin/analysis/deppkg/list
             method: GET
             name: 应用版本列表
-
+      - name: 注册信息
+        path: /analysis/register
+        api:
+          - path: /api/admin/analysis/topology/select
+            method: GET
+            name: 看板拓扑
+          - path: /api/admin/analysis/register/list
+            method: GET
+            name: 注册列表
+  - name: 任务中心
+    icon: ClockCircleOutlined
+    path: /cronjob
   - name: 资源中心
     path: /resource
     icon: UngroupOutlined

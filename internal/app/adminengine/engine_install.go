@@ -106,6 +106,13 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&db.HttpTestLog{},
 			&db.HttpTestCase{},
 			&db.HttpTestCollection{},
+			&db.TestPipeline{},
+			&db.TestPipelineTask{},
+			&db.TestPipelineStepStatus{},
+			&db.WorkerNode{},
+			&db.CronJob{},
+			&db.CronTask{},
+			&db.CronJobTimer{},
 		}
 		gormdb = gormdb.Debug()
 		gormdb.SingularTable(true)

@@ -19,27 +19,26 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/appDep"
-	"github.com/douyu/juno/internal/pkg/service/confgo"
-	"go.uber.org/zap"
-
 	"github.com/douyu/juno/api/apiv1/resource"
+	"github.com/douyu/juno/api/apiv1/test/platform"
+	"github.com/douyu/juno/api/apiv1/worker"
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service"
+	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
+	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/notify"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
 	"github.com/douyu/jupiter/pkg"
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/flag"
-	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
-	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -94,10 +93,10 @@ func New() *Admin {
 		eng.parseFlag,
 		eng.initConfig,
 		eng.migrateDB,
+		eng.initClientProxy,
 		eng.initInvoker,
 		eng.cmdMock,
 		eng.initNotify,
-		eng.initClientProxy,
 		eng.serveHTTP,
 		eng.serveGovern,
 		eng.defers,
@@ -142,25 +141,6 @@ func (eng *Admin) initConfig() (err error) {
 	return
 }
 
-func (eng *Admin) initRegister() (err error) {
-	if !eng.runFlag || !cfg.Cfg.Register.Enable {
-		return
-	}
-	config := etcdv3_registry.DefaultConfig()
-	config.Endpoints = cfg.Cfg.Register.Endpoints
-	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
-	config.Secure = cfg.Cfg.Register.Secure
-	config.BasicAuth = cfg.Cfg.Register.BasicAuth
-	config.UserName = cfg.Cfg.Register.UserName
-	config.Password = cfg.Cfg.Register.Password
-	eng.SetRegistry(
-		compound_registry.New(
-			config.BuildRegistry(),
-		),
-	)
-	return
-}
-
 func (eng *Admin) initNotify() (err error) {
 	if !eng.runFlag {
 		return
@@ -175,7 +155,9 @@ func (eng *Admin) initNotify() (err error) {
 				ProxyClient[value] = pb.NewProxyClient(gconfig.Build())
 			}
 			notify.InitStreamStore(ProxyClient)
-			notify.StreamStore.AddRouter(resource.NodeHeartBeat)
+			notify.StreamStore.AddRouter(constx.MsgNodeHeartBeatResp, resource.NodeHeartBeat)
+			notify.StreamStore.AddRouter(constx.MsgTestStepUpdateResp, platform.TaskStepStatusUpdate)
+			notify.StreamStore.AddRouter(constx.MsgWorkerHeartBeatResp, worker.Heartbeat)
 		}
 	}
 	return nil
@@ -230,7 +212,7 @@ func (eng *Admin) serveGovern() (err error) {
 	if err != nil {
 		xlog.Panic(err.Error())
 	}
-	eng.SetGovernor(cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port))
+	//eng.SetGovernor(cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port))
 	err = client.Close()
 	if err != nil {
 		xlog.Panic(err.Error())
@@ -253,9 +235,6 @@ func (eng *Admin) initInvoker() (err error) {
 }
 
 func (eng *Admin) initClientProxy() (err error) {
-	if !eng.runFlag {
-		return
-	}
 	clientproxy.Init()
 	return
 }
@@ -264,25 +243,22 @@ func (eng *Admin) defers() (err error) {
 	if !eng.runFlag {
 		return
 	}
-	eng.Defer(func() error {
-		config := etcdv3.DefaultConfig()
-		config.Endpoints = cfg.Cfg.Register.Endpoints
-		config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
-		config.Secure = cfg.Cfg.Register.Secure
-		client := config.Build()
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
-		defer cancel()
-		// todo optimize, jupiter will after support metric
-		_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
-		if err != nil {
-			xlog.Panic(err.Error())
-		}
-		err = client.Close()
-		if err != nil {
-			xlog.Panic(err.Error())
-		}
-		return nil
-	})
+	config := etcdv3.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+	client := config.Build()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	// todo optimize, jupiter will after support metric
+	_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
+	err = client.Close()
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
 	return nil
 }
 
@@ -301,10 +277,7 @@ func (eng *Admin) initWorker() (err error) {
 
 func (eng *Admin) initParseWorker() (err error) {
 	// 获取配置解析依赖时间
-	interval, err := confgo.ConfuSrv.GetConfigParseWorkerTime()
-	if err != nil {
-		xlog.Error("GetConfigParseWorkerTime", zap.Error(err))
-	}
+	interval := confgo.ConfuSrv.GetConfigParseWorkerTime()
 	// 默认值 7200s
 	if interval == 0 {
 		interval = 7200

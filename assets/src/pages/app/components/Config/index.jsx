@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import LeftSide from "./components/LeftSide/index";
 import styles from './index.less';
 import Editor from "./components/Editor/index";
@@ -7,9 +7,12 @@ import ModalSave from "@/pages/app/components/Config/components/ModalSave";
 import ModalHistory from "@/pages/app/components/Config/components/ModalHistory";
 import EditorMaskLayer from "@/pages/app/components/Config/components/EditorMaskLayer";
 import ModalDiff from "@/pages/app/components/Config/components/ModalDiff";
+import {useFullscreen} from "ahooks"
 
 function ConfigEdit(props) {
   const {aid, env, zoneList, zoneCode, appName} = props;
+  const ref = useRef()
+  const [isFullscreen, { setFull, exitFull, toggleFull }] = useFullscreen(ref);
 
   useEffect(() => {
     if (!appName) return
@@ -62,8 +65,13 @@ function ConfigEdit(props) {
   }, [aid, appName, env, zoneCode])
 
   return (
-    <div className={styles.container}>
-      <LeftSide/>
+    <div className={styles.container} ref={ref}>
+      <LeftSide
+        onFullScreen={full => {
+          full ? setFull() : exitFull()
+        }}
+        isFullScreen={isFullscreen}
+      />
 
       <div className={styles.main}>
         <EditorMaskLayer/>

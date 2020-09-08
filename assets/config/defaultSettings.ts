@@ -57,5 +57,5 @@ export default {
   },
   title: 'Juno',
   pwa: false,
-  iconfontUrl: '/ant/home.png',
+  // iconfontUrl: '/ant/home.png',
 } as DefaultSettings;

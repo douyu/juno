@@ -78,16 +78,18 @@ type HttpRouter struct {
 
 // SingleProxy ..
 type SingleProxy struct {
-	Etcd Etcd
+	DefaultEtcd  Etcd
+	RegisterEtcd Etcd
 }
 
 // MultiProxy ..
 type MultiProxy struct {
-	Env      string
-	ZoneCode string
-	Stream   ProxyStream
-	HTTP     HTTPProxy
-	Etcd     Etcd
+	Env          string
+	ZoneCode     string
+	Stream       ProxyStream
+	HTTP         HTTPProxy
+	DefaultEtcd  Etcd
+	RegisterEtcd Etcd
 }
 
 // ServerProxy ..
@@ -98,7 +100,8 @@ type ServerProxy struct {
 	GrpcServer   ServerSchema
 	GovernServer ServerSchema
 	HeartBeat    HeartBeat
-	Etcd         Etcd
+	DefaultEtcd  Etcd
+	RegisterEtcd Etcd
 	Prometheus   HTTPProxy
 }
 
@@ -112,7 +115,6 @@ type Gateway struct {
 	Name   string
 }
 
-// Etcd ..
 type Etcd struct {
 	Enable     bool          `json:"enable"`
 	ListenAddr string        `json:"listenAddr"`
@@ -280,4 +282,36 @@ type AppLogCustomize struct {
 	Enable       bool
 	DashboardUrl string
 	LogStoreUrl  string
+}
+
+type ProxyAuth struct {
+	Token string
+}
+
+type CodePlatform struct {
+	Token string
+}
+
+type Notice struct {
+	Email struct {
+		ServerHost   string   `json:"serverHost" toml:"serverHost"`
+		ServerPort   int      `json:"serverPort" toml:"serverPort"`
+		FromEmail    string   `json:"fromEmail" toml:"fromEmail"`
+		FromPasswd   string   `json:"fromPasswd" toml:"fromPasswd"`
+		Subject      string   `json:"subject" toml:"subject"`
+		TemplatePath string   `json:"templatePath" toml:"templatePath"`
+		Toers        []string `json:"toers" toml:"toers"`
+		CCers        []string `json:"cCers" toml:"cCers"`
+	}
+	Ding struct {
+		WebHook string `json:"webHook" toml:"webHook"`
+	} `json:"ding" toml:"ding"`
+}
+
+type TestPlatform struct {
+	Enable bool
+	Worker struct {
+		LocalQueueDir    string
+		HeartbeatTimeout time.Duration
+	}
 }

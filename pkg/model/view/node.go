@@ -1,5 +1,7 @@
 package view
 
+import "encoding/json"
+
 // ReqNodeHeartBeat ..
 type ReqNodeHeartBeat struct {
 	Hostname     string `json:"hostname"`
@@ -20,6 +22,8 @@ type ReqNodeHeartBeat struct {
 type ReqHTTPProxy struct {
 	Address string            `json:"address"`
 	URL     string            `json:"url"`
-	Type    string            `json:"type"` // GET POST
+	Type    string            `json:"type"`    // GET POST
+	Timeout int               `json:"timeout"` // seconds
+	Body    json.RawMessage   `json:"body"`
 	Params  map[string]string `json:"params"`
 }

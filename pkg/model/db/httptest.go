@@ -10,25 +10,26 @@ import (
 type (
 	HttpTestCollection struct {
 		gorm.Model
-		CreatedBy uint // 创建人ID
-		AppName   string
-		Name      string
+		CreatedBy uint   `json:"created_by"` // 创建人ID
+		AppName   string `json:"app_name"`
+		Name      string `json:"name"`
 
-		TestCases []HttpTestCase `gorm:"foreignKey:CollectionID"`
+		TestCases []HttpTestCase `gorm:"foreignKey:CollectionID" json:"-"`
 	}
 
 	HttpTestCase struct {
 		gorm.Model
-		CollectionID uint
-		Name         string
-		URL          string
-		Method       string
-		Query        HttpTestParam `gorm:"type:json"`
-		Headers      HttpTestParam `gorm:"type:json"`
-		ContentType  string
-		Body         string
+		CollectionID uint          `json:"collection_id"`
+		Name         string        `json:"name"`
+		URL          string        `json:"url"`
+		Method       string        `json:"method"`
+		Query        HttpTestParam `gorm:"type:json" json:"query"`
+		Headers      HttpTestParam `gorm:"type:json" json:"headers"`
+		ContentType  string        `json:"content_type"`
+		Body         string        `json:"body"`
+		Script       string        `gorm:"type:longtext;" json:"script"`
 
-		Collection HttpTestCollection `gorm:"foreignKey:CollectionID"`
+		Collection HttpTestCollection `gorm:"foreignKey:CollectionID" json:"-"`
 	}
 
 	HttpTestLog struct {
@@ -46,25 +47,26 @@ type (
 		Query       HttpTestParam `gorm:"type:json"`
 		Headers     HttpTestParam `gorm:"type:json"`
 		ContentType string
-		Body        string
+		Body        string `gorm:"type:longtext"`
 
 		// Response
-		ResponseBody    string
+		ResponseBody    string         `gorm:"type:longtext"`
 		ResponseHeaders MapStringArray `gorm:"type:json"`
 		Size            int64
 		Cost            int64
 		Code            int
 		Status          string
 		Error           string
+		TestLogs        MapStringString `gorm:"type:json"` // 测试脚本产生的Log
 	}
 
-	HttpTestParam []struct {
+	HttpTestParam []HttpTestParamItem
+
+	HttpTestParamItem struct {
 		Key         string `json:"key"`
 		Value       string `json:"value"`
 		Description string `json:"description"`
 	}
-
-	MapStringArray map[string][]string
 )
 
 func (h *HttpTestParam) Scan(val interface{}) error {
@@ -72,19 +74,6 @@ func (h *HttpTestParam) Scan(val interface{}) error {
 }
 
 func (h HttpTestParam) Value() (val driver.Value, err error) {
-	if h == nil {
-		val = "[]"
-		return
-	}
-	val, err = json.Marshal(&h)
-	return
-}
-
-func (h *MapStringArray) Scan(val interface{}) error {
-	return json.Unmarshal(val.([]byte), h)
-}
-
-func (h MapStringArray) Value() (val driver.Value, err error) {
 	if h == nil {
 		val = "[]"
 		return

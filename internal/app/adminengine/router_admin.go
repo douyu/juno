@@ -18,15 +18,13 @@ import (
 	"net/http"
 	"strings"
 
-	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
-
-	http2 "github.com/douyu/juno/api/apiv1/test/http"
-
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/confgov2"
 	"github.com/douyu/juno/api/apiv1/confgov2/configresource"
 	configstatics "github.com/douyu/juno/api/apiv1/confgov2/configstatistics"
+	"github.com/douyu/juno/api/apiv1/cronjob"
+	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 	"github.com/douyu/juno/api/apiv1/event"
 	"github.com/douyu/juno/api/apiv1/openauth"
 	"github.com/douyu/juno/api/apiv1/permission"
@@ -35,6 +33,8 @@ import (
 	"github.com/douyu/juno/api/apiv1/static"
 	"github.com/douyu/juno/api/apiv1/system"
 	"github.com/douyu/juno/api/apiv1/test/grpc"
+	http2 "github.com/douyu/juno/api/apiv1/test/http"
+	"github.com/douyu/juno/api/apiv1/test/platform"
 	"github.com/douyu/juno/api/apiv1/user"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/app/middleware"
@@ -144,6 +144,8 @@ func apiAdmin(server *xecho.Server) {
 		configWriteByIDMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigWrite)
 		configReadInstanceMW := middleware.CasbinAppMW(middleware.ParseAppEnvFromConfigID, db.AppPermConfigReadInstance)
 
+		configV2G.POST("/config/lock", core.Handle(confgov2.Lock), configWriteByIDMW)       // 获取配置编辑锁
+		configV2G.POST("/config/unlock", core.Handle(confgov2.Unlock), configWriteByIDMW)   // 解锁配置
 		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                     // 配置文件列表
 		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)                  // 配置文件内容
 		configV2G.POST("/config/create", confgov2.Create, configWriteBodyMW)                // 配置新建
@@ -216,6 +218,7 @@ func apiAdmin(server *xecho.Server) {
 			grpcG.GET("/proto/methods/detail", core.Handle(grpc.MethodDetail))           // PB Method 详情
 			grpcG.POST("/proto/bind", core.Handle(grpc.BindProtoToApp))                  // 绑定 PB 到应用
 			grpcG.GET("/appServiceTree", core.Handle(grpc.AppServiceTree))               // app > pb-service 树
+			grpcG.GET("/services", core.Handle(grpc.Services))                           // services -> method -> use-cases tree
 			grpcG.GET("/useCases", core.Handle(grpc.UseCases))                           // pb-method > use-cases 树
 			grpcG.POST("/useCases/create", core.Handle(grpc.CreateUseCase))              // 创建用例
 			grpcG.POST("/useCases/update", core.Handle(grpc.UpdateUseCase))              // 更新用例
@@ -239,6 +242,34 @@ func apiAdmin(server *xecho.Server) {
 			httpG.GET("/request/history", core.Handle(http2.RequestHistory))       // 请求历史
 			httpG.GET("/request/history/detail", core.Handle(http2.RequestDetail)) // 请求历史详情
 		}
+
+		// 自动化测试平台
+		platformG := testGroup.Group("/platform")
+		{
+			platformG.POST("/pipeline/create", core.Handle(platform.CreatePipeline))
+			platformG.GET("/pipeline/list", core.Handle(platform.ListPipeline))
+			platformG.POST("/pipeline/update", core.Handle(platform.UpdatePipeline))
+			platformG.POST("/pipeline/run", core.Handle(platform.RunPipeline))
+			platformG.GET("/pipeline/tasks", core.Handle(platform.TaskList))
+			platformG.POST("/pipeline/delete", core.Handle(platform.DeletePipeline))
+			platformG.GET("/pipeline/tasks/steps", core.Handle(platform.TaskSteps))
+			platformG.GET("/worker/zones", core.Handle(platform.WorkerZones))
+		}
+	}
+
+	cronjobG := g.Group("/cronjob", loginAuthWithJSON)
+	{
+		// Job
+		cronjobG.GET("/list", core.Handle(cronjob.ListJob))
+		cronjobG.POST("/create", core.Handle(cronjob.CreateJob))
+		cronjobG.POST("/update", core.Handle(cronjob.UpdateJob))
+		cronjobG.POST("/delete", core.Handle(cronjob.DeleteJob))
+		cronjobG.POST("/dispatch", core.Handle(cronjob.Dispatch)) // 手动触发操作
+
+		// Task
+		taskG := cronjobG.Group("/task")
+		taskG.GET("/list", core.Handle(cronjob.ListTask))     // 任务列表
+		taskG.GET("/detail", core.Handle(cronjob.DetailTask)) // 任务详情（日志等）
 	}
 
 	analysisGroup := g.Group("/analysis", loginAuthWithJSON)
@@ -248,6 +279,7 @@ func apiAdmin(server *xecho.Server) {
 		analysisGroup.GET("/topology/list", analysis.TopologyList)
 		analysisGroup.GET("/topology/relationship", analysis.TopologyRelationship)
 		analysisGroup.GET("/deppkg/list", analysis.DependenceList)
+		analysisGroup.GET("/register/list", core.Handle(etcdHandle.ProTableList))
 	}
 
 	systemGroup := g.Group("/system", loginAuthWithJSON)

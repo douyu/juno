@@ -22,12 +22,19 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var StreamStore *streamStore
+var (
+	StreamStore *streamStore
+
+	msgRouteMap = map[uint32]string{
+		constx.MsgNodeHeartBeatResp:   "/heartbeat",
+		constx.MsgTestStepUpdateResp:  "/testStepUpdate",
+		constx.MsgWorkerHeartBeatResp: "/worker/heartbeat",
+	}
+)
 
 type streamStore struct {
 	store  map[string]*proxyStream
 	router *echo.Echo
-	path   string
 }
 
 func InitStreamStore(clientMap map[string]pb.ProxyClient) {
@@ -39,12 +46,16 @@ func InitStreamStore(clientMap map[string]pb.ProxyClient) {
 		obj.store[key] = initProxyStream(client)
 	}
 	obj.router = echo.New()
-	obj.path = "/heartbeat"
 	StreamStore = obj
 }
 
-func (s *streamStore) AddRouter(handlerFunc echo.HandlerFunc) {
-	s.router.POST(s.path, handlerFunc)
+func (s *streamStore) AddRouter(msgId uint32, handlerFunc echo.HandlerFunc) {
+	path, ok := msgRouteMap[msgId]
+	if ok {
+		s.router.POST(path, handlerFunc)
+	} else {
+		xlog.Error("invalid route. AddRouter failed", xlog.Uint("msgId", uint(msgId)))
+	}
 }
 
 type proxyStream struct {
@@ -118,7 +129,7 @@ func (c *proxyStream) syncProxy(client pb.ProxyClient) {
 				continue
 			}
 			if reply.Code == 0 {
-				StreamStore.PostForm(reply.Msg)
+				StreamStore.PostForm(reply.MsgId, reply.Msg)
 				//switch reply.MsgId {
 				//case common.MsgBattleBroadResp:
 				//	Frontend.OutputRaw(ConnManage.GetConn(reply.ConnId), reply.Code, reply.MsgId, []byte(reply.Msg))
@@ -146,9 +157,15 @@ func (c *proxyStream) syncProxy(client pb.ProxyClient) {
 	}()
 }
 
-func (s *streamStore) PostForm(param []byte) []byte {
+func (s *streamStore) PostForm(msgId uint32, param []byte) []byte {
+	path, ok := msgRouteMap[msgId]
+	if !ok {
+		xlog.Error("PostForm: invalid msgid", xlog.Uint("msgId", uint(msgId)))
+		return nil
+	}
+
 	// 构造post请求
-	req := httptest.NewRequest("POST", s.path, bytes.NewReader(param))
+	req := httptest.NewRequest("POST", path, bytes.NewReader(param))
 	req.Header.Set("Content-Type", "application/json")
 
 	// 初始化响应

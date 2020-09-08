@@ -24,7 +24,8 @@ type (
 		ProtoID uint
 		Name    string
 
-		Proto GrpcProto `gorm:"foreignKey:ProtoID"`
+		Proto   GrpcProto           `gorm:"foreignKey:ProtoID"`
+		Methods []GrpcServiceMethod `gorm:"foreignKey:ServiceID"`
 	}
 
 	// Protobuf Method 描述，通过解析 PB 文件获取到 PB 描述
@@ -51,6 +52,7 @@ type (
 		Name     string
 		Input    string        `gorm:"type:longtext;"`
 		Metadata ProtoMetadata `gorm:"type:longtext;"`
+		Script   string        `gorm:"type:longtext;"`
 
 		Method GrpcServiceMethod `gorm:"foreignKey:MethodID"`
 	}
@@ -64,13 +66,15 @@ type (
 		OperatorType string // 执行方的类型
 		OperatorID   uint   // 执行方ID
 
-		Input    string        `gorm:"type:longtext;"`
-		Output   string        `gorm:"type:longtext;"`
-		Status   string        `gorm:"type:varchar(20);"` // 状态
-		Error    string        `gorm:"type:longtext;"`
-		TimeCost int64         `gorm:"type:int unsigned;"`
-		Addr     string        `gorm:"type:varchar(30)"` // 访问的地址
-		Metadata ProtoMetadata `gorm:"type:longtext;"`
+		Input      string        `gorm:"type:longtext;"`
+		Output     string        `gorm:"type:longtext;"`
+		Status     string        `gorm:"type:varchar(20);"` // 状态
+		Error      string        `gorm:"type:longtext;"`
+		TimeCost   int64         `gorm:"type:int unsigned;"`
+		Addr       string        `gorm:"type:varchar(30)"` // 访问的地址
+		Metadata   ProtoMetadata `gorm:"type:longtext;"`
+		Script     string        `gorm:"type:longtext;"`
+		TestPassed bool
 
 		Method GrpcServiceMethod `gorm:"foreignKey:MethodID"`
 	}

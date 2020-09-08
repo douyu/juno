@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -38,40 +37,40 @@ func Instance() *ProtoCmd {
 
 //  ./grpctest --ProtoFile=aggregation.ProtoFile --ckall=pb.Aggregation.BatchRoomInfo --m='{"Aid":"1"}' --d='{"Rids":[20]}' --Host=10.1.41.166:50127
 type ReqProtoConfig struct {
-	PackageName string
-	ServiceName string
-	MethodName  string
-	call        string
-	InputParams string
-	MetaData    string
-	ProtoFile   string
-	Host        string
-	Timeout     time.Duration
+	PackageName      string
+	ServiceName      string
+	MethodName       string
+	call             string
+	InputParams      string
+	MetaData         string
+	Host             string
+	Timeout          time.Duration
+	MethodDescriptor *desc.MethodDescriptor
 }
 
 func MakeRequest(r ReqProtoConfig) (resp *dynamic.Message, err error) {
-	// 判断proto是否存在
-	_, err = os.Stat(r.ProtoFile)
-	if err != nil {
-		err = errors.New("file path is error, err: " + err.Error())
-		return
-	}
-	r.call = r.PackageName + "." + r.ServiceName + "." + r.MethodName
-	mtd, err := protoData(r.call, r.ProtoFile)
-	if err != nil {
-		return
-	}
+	xlog.Info("request", xlog.String("call", r.call), xlog.String("inputParam", r.InputParams))
 
-	xlog.Info("request", xlog.String("call", r.call), xlog.String("protoFile", r.ProtoFile),
-		xlog.String("inputParam", r.InputParams))
+	ctx := context.Background()
+	var cancel context.CancelFunc
+	if r.Timeout > 0 {
+		ctx, cancel = context.WithTimeout(ctx, r.Timeout)
+	} else {
+		ctx, cancel = context.WithCancel(ctx)
+	}
+	defer cancel()
 
+	return makeRequest(ctx, r.MethodDescriptor, r.InputParams, r.MetaData, r.Host)
+}
+
+func makeRequest(ctx context.Context, mtd *desc.MethodDescriptor, inputParams, md /* Metadata */, host string) (resp *dynamic.Message, err error) {
 	ctd := newCallTemplateData(mtd)
-	inputs, err := getMessages(ctd, r.InputParams, mtd)
+	inputs, err := getMessages(ctd, inputParams, mtd)
 	if err != nil {
 		return
 	}
 
-	mdMap, err := ctd.executeMetadata(string(r.MetaData))
+	mdMap, err := ctd.executeMetadata(md)
 	if err != nil {
 		return
 	}
@@ -81,16 +80,6 @@ func MakeRequest(r ReqProtoConfig) (resp *dynamic.Message, err error) {
 		md := metadata.New(*mdMap)
 		reqMD = &md
 	}
-
-	ctx := context.Background()
-	var cancel context.CancelFunc
-
-	if r.Timeout > 0 {
-		ctx, cancel = context.WithTimeout(ctx, r.Timeout)
-	} else {
-		ctx, cancel = context.WithCancel(ctx)
-	}
-	defer cancel()
 
 	// include the metadata
 	if reqMD != nil {
@@ -103,22 +92,25 @@ func MakeRequest(r ReqProtoConfig) (resp *dynamic.Message, err error) {
 		return
 	}
 
-	conn, err := getGrpcConn(r.Host)
+	conn, err := getGrpcConn(host)
 	if err != nil {
 		err = fmt.Errorf("grpc conn fail:" + err.Error())
 		return
 	}
+
 	respInterface, err := grpcdynamic.NewStub(conn).InvokeRpc(ctx, mtd, (*inputs)[0])
 	if err != nil {
 		return
 	}
+
 	if respInterface != nil {
 		resp = respInterface.(*dynamic.Message)
 	}
+
 	return
 }
 
-func protoData(call string, proto string) (mtd *desc.MethodDescriptor, err error) {
+func GetMethodDescriptor(call string, proto string) (mtd *desc.MethodDescriptor, err error) {
 	var importPaths []string
 
 	dir := filepath.Dir(proto)
@@ -153,17 +145,16 @@ func getGrpcConn(host string) (*grpc.ClientConn, error) {
 func getMessages(ctd *callTemplateData, callData string, mtd *desc.MethodDescriptor) (*[]*dynamic.Message, error) {
 	var inputs *[]*dynamic.Message
 
-	strData := string(callData)
+	strData := callData
 	data, err := ctd.executeData(strData)
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Println(string(data), 2)
+
 	inputs, err = createPayloadsFromJSON(string(data), mtd)
 	if err != nil {
 		return nil, err
 	}
-	// Json messages are not cached due to templating
 
 	return inputs, nil
 }

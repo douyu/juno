@@ -17,11 +17,11 @@ package invoker
 import (
 	"time"
 
+	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/util/xtime"
 	"github.com/go-resty/resty/v2"
-	"go.etcd.io/etcd/clientv3"
 )
 
 var (
@@ -40,15 +40,16 @@ func Init() {
 		gormConfig.DSN = cfg.Cfg.Database.DSN
 		JunoMysql = gormConfig.Build()
 		JunoMysql.LogMode(cfg.Cfg.Database.Debug)
+		JunoMysql.SingularTable(true)
 	}
 
 	var err error
-	if cfg.Cfg.ServerProxy.Etcd.Enable {
+	if cfg.Cfg.ServerProxy.DefaultEtcd.Enable {
 		ConfgoEtcd, err = clientv3.New(clientv3.Config{
-			Endpoints:   cfg.Cfg.ServerProxy.Etcd.Endpoints,
+			Endpoints:   cfg.Cfg.ServerProxy.DefaultEtcd.Endpoints,
 			DialTimeout: 2 * time.Second,
-			Username:    cfg.Cfg.ServerProxy.Etcd.UserName,
-			Password:    cfg.Cfg.ServerProxy.Etcd.Password,
+			Username:    cfg.Cfg.ServerProxy.DefaultEtcd.UserName,
+			Password:    cfg.Cfg.ServerProxy.DefaultEtcd.Password,
 		})
 		if err != nil {
 			panic(err.Error())

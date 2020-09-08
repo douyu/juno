@@ -1,0 +1,47 @@
+.logs {
+  background-color: #000000;
+  color: #bfceca;
+  overflow-y: scroll;
+  min-height: 200px;
+  max-height: 800px;
+
+  > pre {
+    padding: 10px;
+    min-height: 200px;
+    margin: 0;
+  }
+
+}
+
+.codeCheckItem {
+  flex: 1;
+  width: 0;
+
+  .lineText {
+    position: relative;
+    color: #152e5d;
+    background-color: #f5f3ee;
+    padding: 10px 10px 10px 40px;
+    border-radius: 8px;
+    margin-top: 10px;
+    overflow: hidden;
+
+    .lineNumber {
+      position: absolute;
+      width: 40px;
+      height: 60px;
+      top: 0;
+      left: -5px;
+      text-align: right;
+      background-color: #eceae5;
+      padding: 10px;
+    }
+  }
+}
+
+.testCaseStatus {
+  > div {
+    display: inline-block;
+    margin-left: 10px;
+  }
+}

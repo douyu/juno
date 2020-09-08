@@ -36,6 +36,10 @@
 }
 
 .publish {
+  flex: 1;
+  height: 0;
+  display: flex;
+  flex-direction: column;
 
   .optionBlock {
     height: @optionBlockH;
@@ -56,7 +60,44 @@
   }
 
   .instanceListScroll {
-    height: @editorH - @optionBlockH;
+    height: 0;
+    flex: 1;
+  }
+
+  .clusterList {
+    margin: 0;
+    padding: 10px;
+    color: #ccc;
+
+    .clusterOpt {
+      display: flex;
+
+      .title {
+        flex: 1;
+      }
+
+      .options {
+        flex: 0 0 auto;
+      }
+    }
+
+    .clusterItem {
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #2a2d2e;
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 30px auto;
+      color: #ffffff;
+
+      .clusterIcon {
+        font-size: 20px;
+      }
+
+      .clusterName {
+        line-height: 30px;
+      }
+    }
   }
 
   .instanceList {
@@ -117,15 +158,19 @@
       }
 
       .instanceStatus {
-        display: grid;
-        grid-template-columns: auto auto auto;
-        grid-column-gap: 10px;
+        display: flex;
+        flex-wrap: nowrap;
         margin-top: 10px;
         font-size: 12px;
 
         > div {
           text-align: center;
           border-radius: 5px;
+          flex: 1;
+
+          &:nth-child(n+2) {
+            margin-left: 10px;
+          }
 
           &.statusSynced {
             background-color: @success-color;
@@ -140,4 +185,10 @@
 
     }
   }
+}
+
+
+.emptyTip {
+  text-align: center;
+  padding: 20px 0;
 }

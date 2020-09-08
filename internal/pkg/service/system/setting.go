@@ -1,7 +1,11 @@
 package system
 
 import (
+	"encoding/json"
 	"sync"
+	"time"
+
+	"github.com/douyu/jupiter/pkg/xlog"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
@@ -21,10 +25,35 @@ type (
 )
 
 func newSetting(db *gorm.DB) *setting {
-	return &setting{
+	ret := &setting{
 		db:           db,
 		settingCache: map[string]string{},
 		subscribers:  map[string][]SubscribeCallback{},
+	}
+
+	go ret.intervalSync()
+
+	return ret
+}
+
+// 间隔时间从数据库同步
+func (s *setting) intervalSync() {
+	for {
+		settingRecords := make([]db.SystemConfig, 0)
+		err := s.db.Find(&settingRecords).Error
+		if err != nil {
+			xlog.Error("query setting records failed", xlog.String("err", err.Error()))
+			goto End
+		}
+
+		s.settingCacheMtx.Lock()
+		for _, record := range settingRecords {
+			s.settingCache[record.Name] = record.Content
+		}
+		s.settingCacheMtx.Unlock()
+
+	End:
+		time.Sleep(30 * time.Second)
 	}
 }
 
@@ -199,4 +228,18 @@ func (s *setting) Subscribe(name string, callback SubscribeCallback) {
 
 		callback(content)
 	}
+}
+
+func (s *setting) K8SClusterSetting() (cluster view.SettingK8SCluster, err error) {
+	content, err := s.Get(view.K8SClusterSettingName)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal([]byte(content), &cluster)
+	if err != nil {
+		return
+	}
+
+	return
 }

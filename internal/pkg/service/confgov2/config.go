@@ -15,6 +15,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
@@ -76,6 +77,7 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 	if err != nil {
 		return
 	}
+
 	resp = view.RespDetailConfig{
 		ID:          configuration.ID,
 		AID:         configuration.AID,
@@ -88,6 +90,23 @@ func Detail(param view.ReqDetailConfig) (resp view.RespDetailConfig, err error) 
 		UpdatedAt:   configuration.UpdatedAt,
 		PublishedAt: configuration.PublishedAt,
 	}
+
+	if configuration.LockUid != 0 {
+		var u db.User
+		err = mysql.Where("uid = ?", configuration.LockUid).First(&u).Error
+		if err != nil {
+			return
+		}
+
+		resp.CurrentEditUser = &view.User{
+			Uid:      u.Uid,
+			Username: u.Username,
+			Nickname: u.Nickname,
+			Email:    u.Email,
+			Avatar:   u.Avatar,
+		}
+	}
+
 	return
 }
 
@@ -103,14 +122,31 @@ func Create(c echo.Context, param view.ReqCreateConfig) (resp view.RespDetailCon
 	}
 
 	// 验证Zone-env是否存在
-	err = mysql.Where("env = ? and zone_code = ?", param.Env, param.Zone).First(&appNode).Error
-	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			err = fmt.Errorf("该应用不存在该机房-环境")
+	{
+		envZoneExists := false
+		k8sCluster, err := system.System.Setting.K8SClusterSetting()
+		if err != nil {
+			xlog.Error("get k8s cluster setting failed", xlog.String("err", err.Error()))
+		} else {
+			for _, cluster := range k8sCluster.List {
+				if cluster.ZoneCode == param.Zone &&
+					util.FindIndex(cluster.Env, param.Env, func(a, b interface{}) bool { return a.(string) == b.(string) }) > -1 {
+					envZoneExists = true
+					break
+				}
+			}
 		}
-		return
-	}
 
+		if !envZoneExists {
+			err = mysql.Where("env = ? and zone_code = ?", param.Env, param.Zone).First(&appNode).Error
+			if err != nil {
+				if gorm.IsRecordNotFoundError(err) {
+					err = fmt.Errorf("该应用不存在该机房-环境")
+				}
+				return resp, err
+			}
+		}
+	}
 	configuration := db.Configuration{
 		AID:    uint(app.Aid),
 		Name:   param.FileName, // 不带后缀
@@ -234,6 +270,7 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 
 	// 授权对象
 	ok, accessToken := openauth.GetAccessToken(c)
+	u := user.GetUser(c)
 	if ok {
 		// 获取Open Auth信息
 		history.AccessTokenID = accessToken.ID
@@ -251,7 +288,6 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 		appevent.AppEvent.OpenAPIConfigFileUpdate(int(configuration.AID), app.AppName, configuration.Zone, configuration.Env,
 			string(eventMetadata), accessToken)
 	} else {
-		u := user.GetUser(c)
 		if u != nil && u.Uid != 0 {
 			history.UID = uint(u.Uid)
 			// 配置内容可能会很长，metadata会被前端完整获取到，不保存配置内容
@@ -276,13 +312,24 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	}
 
 	// 配置/资源 关联关系
-	resourceValues, err := ParseConfigResourceValuesFromConfig(history)
+	resourceValues, err := parseConfigResourceValuesFromConfig(history)
 	if err != nil {
 		return
 	}
 
 	tx := mysql.Begin()
 	{
+		err = tx.Where("id = ?", param.ID).First(&configuration).Error
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+
+		if configuration.LockUid != 0 && configuration.LockUid != uint(u.Uid) {
+			tx.Rollback()
+			return fmt.Errorf("当前有其他人正在编辑，更新失败")
+		}
+
 		err = tx.Where("version=?", version).Delete(&db.ConfigurationHistory{}).Error
 		if err != nil {
 			tx.Rollback()
@@ -327,7 +374,8 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	return
 }
 
-func ParseConfigResourceValuesFromConfig(history db.ConfigurationHistory) ([]db.ConfigResourceValue, error) {
+// parseConfigResourceValuesFromConfig ..
+func parseConfigResourceValuesFromConfig(history db.ConfigurationHistory) ([]db.ConfigResourceValue, error) {
 	var resourceValues []db.ConfigResourceValue
 	resources := configresource.ParseResourceFromConfig(history.Content)
 	resourceValueIds := make([]uint, 0) // 版本就是资源值ID，全局唯一
@@ -337,7 +385,7 @@ func ParseConfigResourceValuesFromConfig(history db.ConfigurationHistory) ([]db.
 
 	err := mysql.Where("id in (?)", resourceValueIds).Find(&resourceValues).Error
 	if err != nil {
-		xlog.Error("confgov2.ParseConfigResourceValuesFromConfig", xlog.String("error", "query resource-values failed:"+err.Error()))
+		xlog.Error("confgov2.parseConfigResourceValuesFromConfig", xlog.String("error", "query resource-values failed:"+err.Error()))
 		return nil, err
 	}
 
@@ -455,35 +503,45 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 
 	eg.Go(func() error {
 		respNew, err := syncUsedStatus(nodes, resp, env, zoneCode, filePath)
-
+		if err != nil {
+			xlog.Error("syncUsedStatus", xlog.Any("err", err.Error()))
+			return errorconst.ConfigInstanceSyncUsedStatusError.Error()
+		}
 		respMtx.Lock()
 		defer respMtx.Unlock()
 
 		resp = respNew
 
-		return err
+		return nil
 	})
 
 	eg.Go(func() error {
 		respNew, err := syncPublishStatus(app.AppName, env, zoneCode, configuration, nodesMap, resp)
-
+		if err != nil {
+			xlog.Error("syncPublishStatus", xlog.Any("err", err.Error()))
+			return errorconst.ConfigInstanceSyncPublishStatusError.Error()
+		}
 		respMtx.Lock()
 		defer respMtx.Unlock()
 
 		resp = respNew
 
-		return err
+		return nil
 	})
 
 	eg.Go(func() error {
-		respNew, err := syncTakeEffectStatus(app.AppName, app.GovernPort, env, zoneCode, configuration, nodesMap, resp)
+		respNew, err := syncTakeEffectStatus(app.AppName, env, zoneCode, app.GovernPort, configuration, nodesMap, resp)
 
 		respMtx.Lock()
 		defer respMtx.Unlock()
-
 		resp = respNew
 
-		return err
+		if err != nil {
+			xlog.Error("syncTakeEffectStatus", xlog.Any("err", err.Error()))
+			return errorconst.ConfigInstanceErrorSyncTakeEffectStatusError.Error()
+		}
+
+		return nil
 	})
 
 	err = eg.Wait()
@@ -542,22 +600,22 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 		return
 	}
 
-	if len(instanceList) == 0 { // 如果没有传机器列表，则发布所有机器
-		instanceList = totalInstanceList
-	} else { // 否则发布选择的机器
-		// check node list valid
-		for _, hostName := range instanceList {
-			exists := false
-			for _, item := range totalInstanceList {
-				if item == hostName {
-					exists = true
-					break
-				}
-			}
+	if len(totalInstanceList) == 0 && !param.PubK8S {
+		return fmt.Errorf("未选择发布实例或集群")
+	}
 
-			if !exists {
-				return fmt.Errorf("机器 %s 不存在", hostName)
+	// check node list valid
+	for _, hostName := range instanceList {
+		exists := false
+		for _, item := range totalInstanceList {
+			if item == hostName {
+				exists = true
+				break
 			}
+		}
+
+		if !exists {
+			return fmt.Errorf("机器 %s 不存在", hostName)
 		}
 	}
 
@@ -578,6 +636,7 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 		InstanceList: instanceList,
 		Env:          env,
 		Version:      version,
+		PubK8S:       param.PubK8S,
 	}); err != nil {
 		return
 	}
@@ -665,9 +724,6 @@ func getPublishInstance(aid int, env string, zoneCode string) (instanceList []st
 		Env:      env,
 		ZoneCode: zoneCode,
 	})
-	if len(nodes) == 0 {
-		return instanceList, fmt.Errorf(errorconst.ParamNoInstances.Code().String() + errorconst.ParamNoInstances.Name())
-	}
 	for _, node := range nodes {
 		instanceList = append(instanceList, node.HostName)
 	}
@@ -710,20 +766,31 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 		for _, prefix := range cfg.Cfg.Configure.Prefixes {
 			key := fmt.Sprintf("/%s/%s/%s/%s/static/%s/%s", prefix, hostName, req.AppName, req.Env, req.FileName, req.Port)
 			// The migration is complete, only write independent ETCD of the configuration center
-			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, string(buf))
+			_, err = clientproxy.ClientProxy.DefaultEtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, string(buf))
 			if err != nil {
 				return
 			}
 
 			// for k8s
 			clusterKey := fmt.Sprintf("/%s/cluster/%s/%s/static/%s", prefix, req.AppName, req.Env, req.FileName)
-			_, err = clientproxy.ClientProxy.EtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, clusterKey, string(buf))
+			_, err = clientproxy.ClientProxy.DefaultEtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, clusterKey, string(buf))
 			if err != nil {
 				return
 			}
-
 		}
 	}
+
+	if req.PubK8S {
+		for _, prefix := range cfg.Cfg.Configure.Prefixes {
+			// for k8s
+			clusterKey := fmt.Sprintf("/%s/cluster/%s/%s/static/%s", prefix, req.AppName, req.Env, req.FileName)
+			_, err = clientproxy.ClientProxy.DefaultEtcdPut(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, clusterKey, string(buf))
+			if err != nil {
+				return
+			}
+		}
+	}
+
 	return nil
 }
 

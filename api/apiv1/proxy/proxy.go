@@ -3,6 +3,7 @@ package proxy
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -15,7 +16,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//ProxyPost ..
 func ProxyPost(c echo.Context) (err error) {
 	if c.Request().URL.String() == "/api/v1/resource/node/heartbeat" {
 		return NodeHeartBeat(c)
@@ -26,17 +26,18 @@ func ProxyPost(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
+	request := invoker.Resty.R().SetBody(reqModel.Body).SetQueryParams(reqModel.Params)
 	switch reqModel.Type {
 	case "POST":
 		xlog.Info("post info", xlog.Any("path", c.Request().URL.String()), xlog.Any("req", reqModel))
-		resp, err := invoker.Resty.R().SetBody(reqModel.Params).Post(fmt.Sprintf("http://%s%s", reqModel.Address, reqModel.URL))
+		resp, err := request.Post(fmt.Sprintf("http://%s%s", reqModel.Address, reqModel.URL))
 		if err != nil {
 			return c.String(http.StatusOK, err.Error())
 		}
 		return c.HTMLBlob(http.StatusOK, resp.Body())
 	case "GET":
 		xlog.Info("get info", xlog.Any("path", c.Request().URL.String()), xlog.Any("req", reqModel))
-		resp, err := invoker.Resty.R().SetQueryParams(reqModel.Params).Get(fmt.Sprintf("http://%s%s", reqModel.Address, reqModel.URL))
+		resp, err := request.Get(fmt.Sprintf("http://%s%s", reqModel.Address, reqModel.URL))
 		if err != nil {
 			return c.String(http.StatusOK, err.Error())
 		}
@@ -65,6 +66,23 @@ func NodeHeartBeat(c echo.Context) error {
 		err = proxy.StreamStore.GetStream().Send(&pb.NotifyResp{
 			MsgId: constx.MsgNodeHeartBeatResp,
 			Msg:   info,
+		})
+		if err != nil {
+			return output.JSON(c, output.MsgErr, err.Error())
+		}
+	} else {
+		return output.JSON(c, output.MsgErr, "stream is not exist")
+	}
+	return output.JSON(c, output.MsgOk, "success")
+}
+
+func WorkerHeartbeat(c echo.Context) error {
+	var err error
+	body, _ := ioutil.ReadAll(c.Request().Body)
+	if proxy.StreamStore.IsStreamExist() {
+		err = proxy.StreamStore.GetStream().Send(&pb.NotifyResp{
+			MsgId: constx.MsgWorkerHeartBeatResp,
+			Msg:   body,
 		})
 		if err != nil {
 			return output.JSON(c, output.MsgErr, err.Error())

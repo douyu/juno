@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appDep"
@@ -20,6 +22,8 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/pprof"
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
+	"github.com/douyu/juno/internal/pkg/service/taskplatform"
+	"github.com/douyu/juno/internal/pkg/service/testplatform"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/auth/social"
 	"github.com/douyu/juno/pkg/cfg"
@@ -83,6 +87,23 @@ func Init() (err error) {
 	})
 
 	appDep.Init()
+
+	testplatform.Init(testplatform.Option{
+		Enable:         cfg.Cfg.TestPlatform.Enable,
+		DB:             invoker.JunoMysql,
+		GitAccessToken: cfg.Cfg.CodePlatform.Token,
+		Worker: struct {
+			HeartbeatTimeout time.Duration
+			LocalQueueDir    string
+		}{
+			HeartbeatTimeout: cfg.Cfg.TestPlatform.Worker.HeartbeatTimeout,
+			LocalQueueDir:    cfg.Cfg.TestPlatform.Worker.LocalQueueDir,
+		},
+	})
+
+	taskplatform.Init(taskplatform.Option{
+		DB: invoker.JunoMysql,
+	})
 
 	return
 }

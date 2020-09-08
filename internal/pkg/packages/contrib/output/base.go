@@ -13,6 +13,13 @@ type JSONResult struct {
 	Data    interface{} `json:"data"`
 }
 
+// pro-table-data  json
+type ProTableResult struct {
+	Success bool        `json:"success"`
+	Total   int         `json:"total"`
+	Data    interface{} `json:"data"`
+}
+
 // Pagination
 type Pagination struct {
 	Total       int `json:"total"`

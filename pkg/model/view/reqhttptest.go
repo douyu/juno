@@ -53,6 +53,7 @@ type (
 		Headers     db.HttpTestParam `json:"headers"`
 		ContentType string           `json:"content_type"`
 		Body        string           `json:"body"`
+		Script      string           `json:"script"` //测试脚本
 	}
 
 	ReqListHttpTestHistory struct {

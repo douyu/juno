@@ -4,7 +4,7 @@
   productionEnvs = ["production"]
 
 [configure]
-  dirs = ["C:/tmp/www/server"]
+  dir = "/tmp/www/server"
   prefix = "juno-agent"
 
 [agent]
@@ -69,7 +69,10 @@
 #################################### Proxy ##############################
 [clientProxy]
 
-  [clientProxy.singleProxy.etcd]
+  [clientProxy.singleProxy.registerEtcd]
+    endpoints = ["127.0.0.1:2379"]
+
+  [clientProxy.singleProxy.defaultEtcd]
     endpoints = ["127.0.0.1:2379"]
 
 [auth]
@@ -113,7 +116,7 @@
     allowedOrganizations = []
 
 [casbin]
-    enable = true
+    enable = false
     debug = true
     model = "./config/model.conf"
     autoLoad = true
@@ -124,11 +127,14 @@
 #################################### Config Dependency Parse #########################
 [jupiter.cron.parse]
     withSeconds = false
-    concurrentDelay= "10s"
+    concurrentDelay= 10
     immediatelyRun = false
 
+[proxyAuth]
+    token = "token" # 用于对 Juno Proxy 的请求进行授权
+
 [grpcTest]
-    enable = false
+    enable = true
     # PB文件目录，该目录下的所有PB文件会被遍历
     protoDir = '../proto'
 
@@ -137,3 +143,25 @@
     host="https://gitlab.com"
     token="RgZev8zy6dtP2y8EA4sB"
     frameName="gitlab.com/douyu/jupiter"
+
+[codeplatform]
+token = "token" # 代码仓库访问凭证
+
+[testplatform]
+enable = false # 是否启用测试平台
+
+[testplatform.worker]
+localQueueDir = "C:/tmp/localworkerqueue"
+heartbeatTimeout = "6s"
+#################################### notice #########################
+[notice]
+   [notice.email]
+       serverHost="smtp.163.com"
+       serverPort=465
+       fromEmail="xxx@163.com"
+       fromPasswd="xxx"
+       toers= ["xxxxxxx@qq.com"]
+       cCers = ["xxx@qq.com"]
+   [notice.ding]
+       webHook="http://XXX.com"
+       msgType="text"

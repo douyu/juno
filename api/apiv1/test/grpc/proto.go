@@ -59,3 +59,13 @@ func AppServiceTree(c *core.Context) error {
 
 	return c.OutputJSON(output.MsgOk, "success", c.WithData(resp))
 }
+
+func Services(c *core.Context) error {
+	appName := c.QueryParam("app_name")
+	services, err := grpctest.Services(appName)
+	if err != nil {
+		return c.OutputJSON(output.MsgErr, err.Error())
+	}
+
+	return c.OutputJSON(output.MsgOk, "success", c.WithData(services))
+}

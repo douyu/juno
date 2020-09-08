@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/app"
+
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/cfg"
@@ -74,15 +76,17 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 	}
 
 	var (
-		governPort = appInfo.GovernPort
+		governPort = app.GovernPort(appInfo.GovernPort, env, zoneCode, appName, hostName)
 		ip         = appNode.IP
 		fileList   = make([]db.PProfFileInfo, 0)
 	)
-
+	if governPort == "" || governPort == "0" {
+		return errors.New("治理端口为空")
+	}
 	// 4 range pprof type list, get the pprof info
 	for _, fileType := range p.PProfTypeList {
 		var resp []byte
-		resp, err = p.GetPprof(view.UniqZone{env, zoneCode}, ip, governPort, fileType)
+		resp, err = p.getPprof(view.UniqZone{Env: env, Zone: zoneCode}, ip, governPort, fileType)
 		if err != nil {
 			xlog.Error("PostPprof err", zap.Error(err), zap.String("fileType", fileType))
 			continue
@@ -199,23 +203,26 @@ func getFlameGraph(fileName, tagFileName string) error {
 	return nil
 }
 
-func (g *pprof) GetPprof(uniqZone view.UniqZone, ip, port, pprofType string) (resp []byte, err error) {
+//GetPprof ..
+func (p *pprof) getPprof(uniqZone view.UniqZone, ip, port, pprofType string) (resp []byte, err error) {
 	url := "/debug/pprof"
 	_, err = clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
 		Address: fmt.Sprintf("%s:%s", ip, port),
 		URL:     url,
+		Timeout: 15,
 	})
 	if err != nil {
 		return
 	}
 	// 耗时比较久
 	if pprofType == "profile" {
-		pprofType = pprofType + "?seconds=15"
+		pprofType = fmt.Sprintf("%s?seconds=%d", pprofType, clientproxy.ClientDefaultTimeout)
 	}
 	url = url + "/" + pprofType
 	resp2, err := clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
 		Address: fmt.Sprintf("%s:%s", ip, port),
 		URL:     url,
+		Timeout: 15,
 	})
 	if err != nil {
 		return

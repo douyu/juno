@@ -181,7 +181,7 @@ class Search extends React.Component {
                             select.onChange(e);
                         }}
                     >
-                        {select.data.map((op, opIndex) => {
+                        {(select.data || []).map((op, opIndex) => {
                             return <Option value={op.value} key={opIndex}>{op.name}</Option>;
                         })}
                     </Select>

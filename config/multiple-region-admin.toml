@@ -71,9 +71,14 @@
     enable = true
     proxyAddr = ["127.0.0.1:50001"]
 
-  [clientProxy.multiProxy.etcd]
+  [clientProxy.multiProxy.registerEtcd]
     enable = true
-    endpoints = ["127.0.0.1:52379"]
+    endpoints = ["127.0.0.1:62379"]
+    timeout = "3s"
+
+[clientProxy.singleProxy.defaultEtcd]
+    endpoints = ["127.0.0.1:2379"]
+    enable = true
     timeout = "3s"
 
   [clientProxy.multiProxy.http]
@@ -145,7 +150,7 @@
 #################################### Config Dependency Parse #########################
 [jupiter.cron.parse]
     withSeconds = false
-    concurrentDelay= "10s"
+    concurrentDelay= 10
     immediatelyRun = false
 
 
@@ -172,3 +177,26 @@
 host="https://gitlab.com"
 token="RgZev8zy6dtP2y8EA4sB"
 frameName="gitlab.com/douyu/jupiter"
+
+[codeplatform]
+token = "token" # 代码仓库访问凭证
+
+[testplatform]
+enable = false # 是否启用测试平台
+
+[testplatform.worker]
+localQueueDir = "C:/tmp/localworkerqueue"
+heartbeatTimeout = "6s"
+
+#################################### notice #########################
+[notice]
+   [notice.email]
+       serverHost="smtp.163.com"
+       serverPort=465
+       fromEmail="xxx@163.com"
+       fromPasswd="xxx"
+       toers= ["xxxxxxx@qq.com"]
+       cCers = ["xxx@qq.com"]
+   [notice.ding]
+       webHook="http://XXX.com"
+       msgType="text"

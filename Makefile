@@ -6,7 +6,7 @@ JUNO_NAME:=juno
 JUNO_ADMIN_NAME:=juno-admin
 JUNO_PROXY_NAME:=juno-proxy
 COMPILE_OUT:=$(BASE_PATH)/release
-APP_VERSION:=0.3.0
+APP_VERSION:=0.4.0
 
 .DEFAULT_GOAL := default
 .PHONY: run run.grpc run.npm
@@ -33,8 +33,8 @@ docker:
 	@docker-compose -f ./build/docker/standalone.yaml up
 
 
-all:print fmt lint buildall
-alltar:print fmt lint buildall
+all:print fmt lint build_all
+alltar:print fmt lint build_all
 
 print:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making print<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
@@ -103,4 +103,8 @@ run:
 
 
 tar:
-	@cd $(BASE_PATH)/release && tar zcvf $(APP_VERSION).tar.gz $(APP_VERSION)
+	@cd $(BASE_PATH)/release && tar zcvf juno_$(APP_VERSION).tar.gz $(APP_VERSION)
+run-front: 
+	cd assets && yarn run start 
+install-front: 
+	cd assets && yarn run start 	

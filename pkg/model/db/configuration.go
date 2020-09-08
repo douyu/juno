@@ -24,6 +24,8 @@ type (
 		UpdatedAt     time.Time  `gorm:"column:updated_at" json:"updated_at"`
 		DeletedAt     *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 		PublishedAt   *time.Time `gorm:"column:published_at" json:"published_at"` // 未发布/发布时间
+		LockUid       uint       `gorm:"column:lock_uid" json:"lock_uid"`         // 正在编辑用户
+		LockAt        *time.Time `gorm:"column:lock_at" json:"lock_at"`
 
 		App AppInfo `gorm:"foreignKey:AID" json:"-"`
 	}
@@ -40,7 +42,7 @@ type (
 		CreatedAt       time.Time  `gorm:"column:created_at" json:"created_at"`
 		DeletedAt       *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 
-		User             *User                           `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
+		User             *User                           `json:"-" gorm:"foreignKey:UID;association_foreignkey:Username"`
 		AccessToken      *AccessToken                    `json:"-" gorm:"foreignKey:AccessTokenID;association_foreignkey:ID"`
 		Configuration    *Configuration                  `json:"-" gorm:"foreignKey:ConfigurationID;"`
 		ResourceRelation []ConfigurationResourceRelation `json:"-" gorm:"association_foreignkey:ConfigurationHistoryID"`
@@ -67,7 +69,7 @@ type (
 		FilePath               string    `gorm:"column:file_path" json:"file_path"`
 		CreatedAt              time.Time `gorm:"column:created_at" json:"created_at"`
 
-		User                 *User                 `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
+		User                 *User                 `json:"-" gorm:"foreignKey:UID;association_foreignkey:Username"`
 		Configuration        *Configuration        `json:"-" gorm:"foreignKey:ConfigurationID;"`
 		ConfigurationHistory *ConfigurationHistory `json:"-" gorm:"foreignKey:ConfigurationHistoryID;association_foreignkey:configuration_history_id"`
 	}

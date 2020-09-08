@@ -20,21 +20,21 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/invoker"
-	"github.com/douyu/jupiter/pkg"
-	"github.com/douyu/jupiter/pkg/client/etcdv3"
-
 	apiproxy "github.com/douyu/juno/api/apiv1/proxy"
+	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/proxy"
 	"github.com/douyu/juno/internal/pkg/service/report"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
+	"github.com/douyu/jupiter/pkg"
+	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
 	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/server/xgrpc"
 	"github.com/douyu/jupiter/pkg/xlog"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/metadata"
 )
@@ -97,7 +97,7 @@ func (eng *Proxy) initRegister() (err error) {
 
 	eng.SetRegistry(
 		compound_registry.New(
-			config.BuildRegistry(),
+			config.Build(),
 		),
 	)
 	return
@@ -105,7 +105,11 @@ func (eng *Proxy) initRegister() (err error) {
 
 func (eng *Proxy) initServerProxy() (err error) {
 	proxy.InitStreamStore()
-	err = eng.Schedule(proxy.NewProxyGrpcWorker())
+	err = eng.Schedule(proxy.NewProxyGrpcRegisterWorker())
+	if err != nil {
+		return
+	}
+	err = eng.Schedule(proxy.NewProxyGrpcConfigWorker())
 	if err != nil {
 		return
 	}
@@ -129,6 +133,7 @@ func (eng *Proxy) serveHTTP() (err error) {
 
 	server := serverConfig.Build()
 	server.Debug = true
+	server.Validator = &FormValidator{validator: validator.New()}
 	apiV1(server)
 
 	err = eng.Serve(server)
@@ -172,7 +177,7 @@ func (eng *Proxy) serveGovern() (err error) {
 	if err != nil {
 		xlog.Panic(err.Error())
 	}
-	eng.SetGovernor(cfg.Cfg.ServerProxy.GovernServer.Host + ":" + strconv.Itoa(cfg.Cfg.ServerProxy.GovernServer.Port))
+	//eng.SetGovernor(cfg.Cfg.ServerProxy.GovernServer.Host + ":" + strconv.Itoa(cfg.Cfg.ServerProxy.GovernServer.Port))
 	err = client.Close()
 	if err != nil {
 		xlog.Panic(err.Error())
@@ -182,7 +187,11 @@ func (eng *Proxy) serveGovern() (err error) {
 
 func apiV1(server *xecho.Server) {
 	server.POST("/*", apiproxy.ProxyPost)
+	server.POST("/api/v1/worker/heartbeat", apiproxy.WorkerHeartbeat)
 	server.POST("/api/v1/resource/node/heartbeat", apiproxy.NodeHeartBeat)
+	server.POST("/api/v1/testworker/platform/dispatch", apiproxy.DispatchTask)
+	server.POST("/api/v1/testworker/platform/consume", apiproxy.ConsumeTask)
+	server.POST("/api/v1/worker/testTask/update", apiproxy.TaskStatusUpdate)
 
 	//// work for juno -> agent
 	//server.GET("/api/v1/configuration/takeEffect", apiproxy.ConfigurationTakeEffect)
@@ -240,24 +249,21 @@ func (*ProxyGrpc) Notify(stream pb.Proxy_NotifyServer) error {
 }
 
 func (eng *Proxy) defers() (err error) {
-	eng.Defer(func() error {
-		config := etcdv3.DefaultConfig()
-		config.Endpoints = cfg.Cfg.Register.Endpoints
-		config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
-		config.Secure = cfg.Cfg.Register.Secure
-		client := config.Build()
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
-		defer cancel()
-		// todo optimize, jupiter will after support metric
-		_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
-		if err != nil {
-			xlog.Panic(err.Error())
-		}
-		err = client.Close()
-		if err != nil {
-			xlog.Panic(err.Error())
-		}
-		return nil
-	})
+	config := etcdv3.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+	client := config.Build()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	// todo optimize, jupiter will after support metric
+	_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
+	err = client.Close()
+	if err != nil {
+		xlog.Panic(err.Error())
+	}
 	return nil
 }

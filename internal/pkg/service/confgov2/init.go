@@ -9,4 +9,6 @@ var (
 // Init ..
 func Init(d *gorm.DB) {
 	mysql = d
+
+	go clearLockPeriodically()
 }

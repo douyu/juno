@@ -38,29 +38,33 @@ const (
 	// ConfigResourceValueNotExist ..
 	ConfigResourceValueNotExist myErrorConst = 10006
 	// CannotFindClientHTTP ..
-	CannotFindClientHTTP myErrorConst = 10007
-
-	AppActionFailed myErrorConst = 10008
-
-	AppLogCustomizeDashboard myErrorConst = 10009
-	AppLogCustomizeLogStore  myErrorConst = 10010
-	AppNotExists             myErrorConst = 10011
+	CannotFindClientHTTP                         myErrorConst = 10007
+	AppActionFailed                              myErrorConst = 10008
+	AppLogCustomizeDashboard                     myErrorConst = 10009
+	AppLogCustomizeLogStore                      myErrorConst = 10010
+	AppNotExists                                 myErrorConst = 10011
+	ConfigInstanceSyncUsedStatusError            myErrorConst = 10012
+	ConfigInstanceSyncPublishStatusError         myErrorConst = 10013
+	ConfigInstanceErrorSyncTakeEffectStatusError myErrorConst = 10014
 )
 
 // errNameMap 错误名称映射map，维护错误码的同时需维护此map
 var errNameMap = map[myErrorConst]string{
-	ResultOK:                    "返回成功",
-	CannotFindClientETCD:        "对应环境的机房中没有部署Juno-Proxy（ETCD）服务",
-	CannotFindClientHTTP:        "对应环境的机房中没有部署Juno-Proxy（HTTP）服务",
-	ParamConfigNotExists:        "配置不存在",
-	ParamNoInstances:            "实例不存在",
-	ParamConfigCallbackKvIsZero: "配置发布同步状态回调数据为空",
-	JunoAgentQueryOverSize:      "请求的Agent超过400的数量限制",
-	ConfigResourceValueNotExist: "配置资源对应值不存在",
-	AppActionFailed:             "服务操作失败",
-	AppLogCustomizeDashboard:    "未获取到监控面板访问地址",
-	AppLogCustomizeLogStore:     "未获取到日志存储访问地址",
-	AppNotExists:                "应用不存在",
+	ResultOK:                                     "返回成功",
+	CannotFindClientETCD:                         "对应环境的机房中没有部署Juno-Proxy（ETCD）服务",
+	CannotFindClientHTTP:                         "对应环境的机房中没有部署Juno-Proxy（HTTP）服务",
+	ParamConfigNotExists:                         "配置不存在",
+	ParamNoInstances:                             "实例不存在",
+	ParamConfigCallbackKvIsZero:                  "配置发布同步状态回调数据为空",
+	JunoAgentQueryOverSize:                       "请求的Agent超过400的数量限制",
+	ConfigResourceValueNotExist:                  "配置资源对应值不存在",
+	AppActionFailed:                              "服务操作失败",
+	AppLogCustomizeDashboard:                     "未获取到监控面板访问地址",
+	AppLogCustomizeLogStore:                      "未获取到日志存储访问地址",
+	AppNotExists:                                 "应用不存在",
+	ConfigInstanceSyncUsedStatusError:            "配置接入状态同步失败，排查Agent故障",
+	ConfigInstanceSyncPublishStatusError:         "配置发布状态同步失败，排查ETCD或者Agent故障",
+	ConfigInstanceErrorSyncTakeEffectStatusError: "配置生效状态同步失败，确认当前目标服务是否正常启动",
 }
 
 // Code 返回codes.Code类型

@@ -16,10 +16,10 @@ export async function srvLoadConfigInstances(env, zoneCode, configurationID) {
   );
 }
 
-export async function srvConfigPublish(id, version, host_name) {
+export async function srvConfigPublish(id, version, host_name, pub_k8s) {
   return request(`/api/admin/confgov2/config/publish`, {
     method: 'post',
-    data: {id: id, version: version, host_name},
+    data: {id, version, host_name, pub_k8s},
   });
 }
 
@@ -67,4 +67,16 @@ export async function fetchInstanceConfig(id, hostName) {
     id,
     host_name: hostName
   })}`)
+}
+
+export async function fetchLock(id) {
+  return request(`/api/admin/confgov2/config/lock?id=${id}`, {
+    method: 'POST'
+  })
+}
+
+export async function unLock(id) {
+  return request(`/api/admin/confgov2/config/unlock?id=${id}`, {
+    method: 'POST'
+  })
 }

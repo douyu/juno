@@ -1,6 +1,8 @@
 package view
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	// ConfigFormatToml ..
@@ -51,16 +53,17 @@ type (
 
 	// RespDetailConfig Contains configuration content
 	RespDetailConfig struct {
-		ID          uint       `json:"id"`
-		AID         uint       `json:"aid"`
-		Name        string     `json:"name"`
-		Content     string     `json:"content"`
-		Format      string     `json:"format"` // Yaml/Toml
-		Env         string     `json:"env"`    // 环境
-		Zone        string     `json:"zone"`   // 机房Zone
-		CreatedAt   time.Time  `json:"created_time"`
-		UpdatedAt   time.Time  `json:"update_time"`
-		PublishedAt *time.Time `json:"published"` // 未发布/发布时间
+		ID              uint       `json:"id"`
+		AID             uint       `json:"aid"`
+		Name            string     `json:"name"`
+		Content         string     `json:"content"`
+		Format          string     `json:"format"` // Yaml/Toml
+		Env             string     `json:"env"`    // 环境
+		Zone            string     `json:"zone"`   // 机房Zone
+		CreatedAt       time.Time  `json:"created_time"`
+		UpdatedAt       time.Time  `json:"update_time"`
+		PublishedAt     *time.Time `json:"published"`         // 未发布/发布时间
+		CurrentEditUser *User      `json:"current_edit_user"` //当前正在编辑的用户名
 	}
 
 	// ReqCreateConfig ..
@@ -84,6 +87,7 @@ type (
 		ID       uint     `json:"id" validate:"required"` // 配置ID
 		HostName []string `json:"host_name"`              // 发布的实例机器名称的列表，如果为空，则发布所有机器
 		Version  *string  `json:"version"`                // 版本号
+		PubK8S   bool     `json:"pub_k8s"`                // 是否发布集群
 	}
 
 	// ReqHistoryConfig ..
@@ -186,11 +190,16 @@ type (
 		InstanceList []string `json:"instance_list"`
 		Env          string   `json:"env"`
 		Version      string   `json:"version"`
+		PubK8S       bool     `json:"pub_k8s"`
 	}
 
 	ReqReadInstanceConfig struct {
 		ConfigID uint   `query:"id" validate:"required"`
 		HostName string `query:"host_name" validate:"required"`
+	}
+
+	ReqLockConfig struct {
+		ConfigID uint `query:"id" validate:"required"`
 	}
 
 	RespReadInstanceConfigItem struct {

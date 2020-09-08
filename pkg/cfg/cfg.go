@@ -53,6 +53,10 @@ type cfg struct {
 	Assist            Assist
 	AppLog            AppLog
 	GrpcTest          GrpcTest
+	ProxyAuth         ProxyAuth
+	CodePlatform      CodePlatform
+	TestPlatform      TestPlatform
+	Notice            Notice
 }
 
 // DefaultConfig ...
@@ -116,10 +120,18 @@ func defaultConfig() cfg {
 				GovernConfig: "/configs",
 			},
 			SingleProxy: SingleProxy{
-				Etcd: Etcd{
+				DefaultEtcd: Etcd{
 					Enable:     false,
-					ListenAddr: "",
-					Endpoints:  nil,
+					ListenAddr: "127.0.0.1:5379",
+					Endpoints:  []string{"127.0.0.1:2379"},
+					Namespace:  "",
+					Timeout:    0,
+					TLS:        TLS{},
+				},
+				RegisterEtcd: Etcd{
+					Enable:     false,
+					ListenAddr: "127.0.0.1:62379",
+					Endpoints:  []string{"127.0.0.1:2379"},
 					Namespace:  "",
 					Timeout:    0,
 					TLS:        TLS{},
@@ -171,6 +183,22 @@ func defaultConfig() cfg {
 				MaxIdleConns:      30,
 				MaxIdelPerHost:    60,
 				Timeout:           3,
+			},
+			DefaultEtcd: Etcd{
+				Enable:     false,
+				ListenAddr: "",
+				Endpoints:  nil,
+				Namespace:  "",
+				Timeout:    0,
+				TLS:        TLS{},
+			},
+			RegisterEtcd: Etcd{
+				Enable:     false,
+				ListenAddr: "",
+				Endpoints:  nil,
+				Namespace:  "",
+				Timeout:    0,
+				TLS:        TLS{},
 			},
 		},
 		Pprof: Pprof{

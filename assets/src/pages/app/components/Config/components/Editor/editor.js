@@ -43,7 +43,8 @@ export function createEditor(ref, option) {
     {
       theme: 'dy-vs-dark',
       language: 'dy/' + option.format,
-      automaticLayout: true
+      automaticLayout: true,
+      readOnly: option.readOnly
     }
   )
 

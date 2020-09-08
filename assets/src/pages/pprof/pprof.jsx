@@ -320,7 +320,7 @@ export default class PPofList extends React.PureComponent {
               dropdownMatchSelectWidth
               showSearch
               allowClear={true}
-              style={{ width: 300 }}
+              style={{ width: 500 }}
               placeholder="选择实例"
               onChange={this.changeNode}
             >
