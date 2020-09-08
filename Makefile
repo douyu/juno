@@ -104,3 +104,7 @@ run:
 
 tar:
 	@cd $(BASE_PATH)/release && tar zcvf juno_$(APP_VERSION).tar.gz $(APP_VERSION)
+run-front: 
+	cd assets && yarn run start 
+install-front: 
+	cd assets && yarn run start 	
