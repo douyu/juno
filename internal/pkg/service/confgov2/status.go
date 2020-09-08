@@ -46,7 +46,7 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 			eg.Go(func() error {
 				if status := getUsedStatus(env, zoneCode, _fp, _ag.IPPort); status > 0 {
 					usedMapMtx.Lock()
-					usedMap[ag.HostName] = status
+					usedMap[_ag.HostName] = status
 					usedMapMtx.Unlock()
 				}
 				return nil
