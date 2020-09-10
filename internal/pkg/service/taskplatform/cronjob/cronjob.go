@@ -532,8 +532,10 @@ func (j *CronJob) checkTask(id uint64) {
 	taskId := strconv.FormatUint(task.ID, 10)
 	jobId := strconv.FormatUint(uint64(task.JobID), 10)
 
-	resp, err := client.Get(context.Background(),
-		EtcdKeyPrefixProc+jobId+"/"+taskId+"/", clientv3.WithPrefix(), clientv3.WithLimit(1))
+	ctx, cancelFn := context.WithTimeout(context.Background(), time.Second)
+	defer cancelFn()
+	resp, err := client.Get(ctx, EtcdKeyPrefixProc+jobId+"/"+taskId+"/", clientv3.WithPrefix(),
+		clientv3.WithLimit(1))
 	if err == nil {
 		xlog.Error("CronJob.clearTasks: read etcd failed", xlog.FieldErr(err), xlog.Any("zone", uniqZone))
 	}
