@@ -45,7 +45,7 @@ func New(db *gorm.DB) *CronJob {
 // List Job 列表
 func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, pagination core.Pagination, err error) {
 	type _cronjob struct {
-		db.CronJob
+		*db.CronJob
 
 		ExecutedAt *time.Time
 		Status     *db.CronTaskStatus
