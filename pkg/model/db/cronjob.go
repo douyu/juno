@@ -37,7 +37,7 @@ type (
 
 	CronTask struct {
 		ID          uint64         `gorm:"column:id;primary_key"`
-		JobID       uint           `gorm:"column:job_id"`
+		JobID       uint           `gorm:"column:job_id;index"`
 		Node        string         `gorm:"column:node"`
 		Env         string         `gorm:"column:env"`
 		Zone        string         `gorm:"column:zone"`
