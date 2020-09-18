@@ -18,6 +18,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// CronJob ..
 type CronJob struct {
 	db         *gorm.DB
 	dispatcher *Dispatcher
@@ -31,6 +32,7 @@ const (
 	EtcdKeyPrefixProc   = "/juno/cronjob/proc/"                       // 当前运行的进程
 )
 
+// New ..
 func New(db *gorm.DB) *CronJob {
 	ret := &CronJob{
 		db:         db,
@@ -253,10 +255,10 @@ func (j *CronJob) Delete(id uint) (err error) {
 		err = tx.Where("id = ?", id).First(&job).Error
 		if err != nil {
 			tx.Rollback()
-			return errors.Wrapf(err, "cannot found job")
+			return errors.Wrap(err, "cannot found job")
 		}
 
-		err := j.dispatcher.revokeJob(makeJob(job))
+		err = j.dispatcher.revokeJob(makeJob(job))
 		if err != nil {
 			tx.Rollback()
 			return errors.Wrap(err, "revoke job failed")
@@ -265,7 +267,7 @@ func (j *CronJob) Delete(id uint) (err error) {
 		err = tx.Delete(&job).Error
 		if err != nil {
 			tx.Rollback()
-			return errors.Wrapf(err, "delete failed")
+			return errors.Wrap(err, "delete failed")
 		}
 	}
 	tx.Commit()

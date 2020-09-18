@@ -369,6 +369,6 @@ func apiAdmin(server *xecho.Server) {
 
 	loggerGroup := g.Group("/logger", loginAuthWithJSON)
 	{
-		loggerGroup.GET("/logstore", loggerplatform.LogStore)
+		loggerGroup.GET("/logstore", core.Handle(loggerplatform.LogStore))
 	}
 }
