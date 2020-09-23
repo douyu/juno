@@ -46,14 +46,7 @@ func New(db *gorm.DB) *CronJob {
 
 // List Job 列表
 func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, pagination core.Pagination, err error) {
-	type _cronjob struct {
-		*db.CronJob
-
-		ExecutedAt *time.Time
-		Status     *db.CronTaskStatus
-	}
-
-	var jobs []_cronjob
+	var jobs []db.CronJob
 
 	page := params.Page
 	if page == 0 {
@@ -82,13 +75,7 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 
 	eg := errgroup.Group{}
 	eg.Go(func() error {
-		subQueryExecutedAt := j.db.Model(&db.CronTask{}).Select("executed_at").Where("cron_job.id = cron_task.job_id").
-			Order("executed_at desc").Limit(1).SubQuery()
-		subQueryStatus := j.db.Model(&db.CronTask{}).Select("status").Where("cron_job.id = cron_task.job_id").
-			Order("executed_at desc").Limit(1).SubQuery()
-
 		return query.Table("cron_job").Offset(offset).
-			Select("cron_job.*, ? as executed_at, ? as status", subQueryExecutedAt, subQueryStatus).
 			Preload("Timers").
 			Preload("User").
 			Limit(pageSize).
@@ -134,8 +121,19 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 				JobType:       job.JobType,
 				Nodes:         job.Nodes,
 			},
-			LastExecutedAt: job.ExecutedAt,
-			Status:         job.Status,
+		}
+
+		var lastTask db.CronTask
+		err = j.db.Where("job_id = ?", item.ID).Last(&lastTask).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+
+			} else {
+				return
+			}
+		} else {
+			item.LastExecutedAt = lastTask.ExecutedAt
+			item.Status = &lastTask.Status
 		}
 
 		list = append(list, item)
@@ -412,10 +410,11 @@ func (j *CronJob) StartWatch() {
 func (j *CronJob) startSyncJob() {
 	config := xcron.DefaultConfig()
 	config.WithSeconds = true
+	config.ImmediatelyRun = true
 	cron := config.Build()
 
 	// run every minute
-	_, _ = cron.AddFunc("@every 5s", func() error {
+	_, _ = cron.AddFunc("@every 15s", func() error {
 		//load all jobs and write jobs to etcd
 		j.writeJobsToEtcd()
 
@@ -520,7 +519,7 @@ func (j *CronJob) checkTask(id uint64) {
 		return
 	}
 
-	if task.ExecutedAt != nil && task.ExecutedAt.Add(time.Duration(task.Timeout)*time.Second).Before(time.Now()) {
+	if task.ExecutedAt != nil && task.ExecutedAt.Add(time.Duration(task.Timeout)*time.Second).After(time.Now()) {
 		// not expired
 		tx.Rollback()
 		return
@@ -549,6 +548,11 @@ func (j *CronJob) checkTask(id uint64) {
 		task.Status = db.CronTaskStatusFailed
 		task.Log += "\nprocess exited unexpectedly"
 		tx.Save(&task)
+
+		// clear result
+		ctx, cancelFn = context.WithTimeout(context.Background(), time.Second)
+		defer cancelFn()
+		_, _ = client.Delete(ctx, EtcdKeyResultPrefix+jobId+"/"+taskId)
 	}
 
 	tx.Commit()

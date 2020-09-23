@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
@@ -74,6 +75,7 @@ func (d *Dispatcher) dispatchOnceJob(job OnceJob, hostname string) (err error) {
 func (d *Dispatcher) dispatchJob(job Job) (err error) {
 	etcdKey := EtcdKeyJobPrefix + job.ID
 	jobBytes, _ := json.Marshal(job)
+	etcdValue := string(jobBytes)
 
 	uniqZone := view.UniqZone{
 		Env:  job.Env,
@@ -82,7 +84,12 @@ func (d *Dispatcher) dispatchJob(job Job) (err error) {
 
 	ctx, cancelFn := context.WithTimeout(context.Background(), time.Second)
 	defer cancelFn()
-	_, err = clientproxy.ClientProxy.DefaultEtcdPut(uniqZone, ctx, etcdKey, string(jobBytes))
+
+	client := clientproxy.ClientProxy.DefaultEtcd(uniqZone)
+
+	cmp := clientv3.Compare(clientv3.Value(etcdKey), "=", etcdValue)
+	opPut := clientv3.OpPut(etcdKey, etcdValue)
+	_, err = client.Txn(ctx).If(cmp).Then().Else(opPut).Commit()
 	if err != nil {
 		xlog.Error("Dispatcher.dispatchJob write etcd failed", xlog.Any("uniqZone", uniqZone),
 			xlog.String("key", etcdKey))
