@@ -184,6 +184,7 @@ func (j *CronJob) Create(uid uint, params view.CronJob) (err error) {
 func (j *CronJob) Update(params view.CronJob) (err error) {
 	var job db.CronJob
 	var timers = make([]db.CronJobTimer, len(params.Timers))
+	var oldTimers []db.CronJobTimer
 
 	for idx, timer := range params.Timers {
 		timers[idx] = db.CronJobTimer{
@@ -199,7 +200,20 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 		return errors.Wrap(err, "can not found params")
 	}
 
-	err = tx.Model(&job).Association("Timers").Replace(&timers).Error
+	err = tx.Model(&job).Association("Timers").Find(&oldTimers).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	for _, t := range oldTimers {
+		err = tx.Delete(&t).Error
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+	}
+
+	err = tx.Model(&job).Association("Timers").Append(timers).Error
 	if err != nil {
 		tx.Rollback()
 		return

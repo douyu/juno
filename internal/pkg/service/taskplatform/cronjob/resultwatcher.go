@@ -3,7 +3,6 @@ package cronjob
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
 )
 
 type (
@@ -25,13 +23,14 @@ type (
 	}
 
 	TaskResult struct {
-		TaskID     uint64            `json:"task_id"`
-		Status     db.CronTaskStatus `json:"status"`
-		Job        Job               `json:"job"`
-		Logs       string            `json:"logs"`
-		RunOn      string            `json:"run_on"`
-		ExecutedAt time.Time         `json:"executed_at"`
-		FinishedAt *time.Time        `json:"finished_at"`
+		TaskID      uint64            `json:"task_id"`
+		ExecuteType int               `json:"execute_type"`
+		Status      db.CronTaskStatus `json:"status"`
+		Job         Job               `json:"job"`
+		Logs        string            `json:"logs"`
+		RunOn       string            `json:"run_on"`
+		ExecutedAt  time.Time         `json:"executed_at"`
+		FinishedAt  *time.Time        `json:"finished_at"`
 	}
 )
 
@@ -63,7 +62,7 @@ func (r *ResultWatcher) Start() {
 func (r *ResultWatcher) loadAllResult() int64 {
 	resp, err := r.Get(context.Background(), EtcdKeyResultPrefix, clientv3.WithPrefix(), clientv3.WithLimit(0))
 	if err != nil {
-		log.Error("loadAllResult: load task result failed", xlog.String("err", err.Error()))
+		xlog.Error("loadAllResult: load task result failed", xlog.String("err", err.Error()))
 		return 0
 	}
 
@@ -87,7 +86,6 @@ func (r *ResultWatcher) loadAllResult() int64 {
 func (r *ResultWatcher) getTaskResultFromKV(kv *mvccpb.KeyValue) (result TaskResult, err error) {
 	result = TaskResult{}
 	err = json.Unmarshal(kv.Value, &result)
-	fmt.Printf("jobId = %s", result.Job.ID)
 	if err != nil {
 		xlog.Error("unmarshall task-result failed", xlog.String("err", err.Error()))
 		return
@@ -101,7 +99,7 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 
 	tx := r.DB.Begin()
 	{
-		err := tx.Where("id = ?", result.TaskID).Find(&task).Error
+		err := tx.Where("id = ?", result.TaskID).First(&task).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
 			tx.Rollback()
 			xlog.Error("ResultWatcher.updateTask: query task failed", xlog.Any("err", err.Error()))
@@ -110,7 +108,9 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 
 		jobId, err := strconv.Atoi(result.Job.ID)
 		if err != nil {
+			tx.Rollback()
 			xlog.Error("ResultWatcher.updateTask: invalid job id", xlog.Any("result", result))
+			return
 		}
 
 		task.ID = result.TaskID
@@ -124,6 +124,7 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 		task.FinishedAt = result.FinishedAt
 		task.Env = result.Job.Env
 		task.Zone = result.Job.Zone
+		task.ExecuteType = result.ExecuteType
 
 		err = tx.Save(&task).Error
 		if err != nil {
