@@ -111,6 +111,7 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 		jobId, err := strconv.Atoi(result.Job.ID)
 		if err != nil {
 			xlog.Error("ResultWatcher.updateTask: invalid job id", xlog.Any("result", result))
+			return
 		}
 
 		task.ID = result.TaskID
