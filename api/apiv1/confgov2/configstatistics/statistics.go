@@ -1,10 +1,11 @@
 package configstatics
 
 import (
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/labstack/echo/v4"
-	"time"
 )
 
 // Statics ..

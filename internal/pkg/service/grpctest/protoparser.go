@@ -182,12 +182,12 @@ func MessageParser(desc *desc.MessageDescriptor) db.ProtoFields {
 	fields := desc.GetFields()
 	for _, field := range fields {
 		fieldType := db.ProtoField{
-			JsonName:    field.GetJSONName(),
-			Type:        int32(field.GetType()),
-			Label:       int32(field.GetLabel()),
-			IsRepeated:  field.IsRepeated(),
-			Number:      field.GetNumber(),
-			MessageType: MessageParser(field.GetMessageType()),
+			JsonName:   field.GetJSONName(),
+			Type:       int32(field.GetType()),
+			Label:      int32(field.GetLabel()),
+			IsRepeated: field.IsRepeated(),
+			Number:     field.GetNumber(),
+			//MessageType: MessageParser(field.GetMessageType()),
 		}
 		sourceInfo := field.GetSourceInfo()
 		if sourceInfo != nil && sourceInfo.LeadingComments != nil {

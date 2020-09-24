@@ -1,16 +1,17 @@
 package loggerplatform
 
 import (
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/loggerplatform"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/labstack/echo/v4"
 )
 
-// LogStore get logs
-func LogStore(c echo.Context) (err error) {
+// LogStore ..
+func LogStore(c *core.Context) (err error) {
+
 	var param view.ReqAliyunLogDefault
 	err = c.Bind(&param)
 	if err != nil {
@@ -20,10 +21,11 @@ func LogStore(c echo.Context) (err error) {
 	data, err := loggerplatform.LogStore(param)
 	if err != nil {
 		xlog.Error("LogStore", xlog.String("step", "logstore"), xlog.Any("err", "GetBaseLogger error: "+err.Error()), xlog.Any("param", param))
-		return output.JSON(c, output.MsgErr, err.Error())
+		return c.OutputJSON(output.MsgErr, err.Error())
 	}
 	if data == "" {
-		return output.JSON(c, output.MsgErr, errorconst.AppLogNoPermission.Error().Error(), "")
+		return c.OutputJSON(output.MsgErr, errorconst.AppLogNoPermission.Error().Error())
+
 	}
-	return output.JSON(c, output.MsgOk, "success", data)
+	return c.OutputJSON(output.MsgOk, "success", c.WithData(data))
 }

@@ -32,9 +32,7 @@ run.multiple-region-proxy:
 docker:
 	@docker-compose -f ./build/docker/standalone.yaml up
 
-
 all:print fmt lint build_all
-alltar:print fmt lint build_all
 
 print:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making print<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
@@ -51,6 +49,7 @@ fmt:
 
 lint:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making lint<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+
 ifndef REVIVE
 	go get -u github.com/mgechev/revive
 endif
@@ -97,10 +96,6 @@ build_data:
 	@chmod +x $(SCRIPT_PATH)/build/*.sh
 	@$(SCRIPT_PATH)/build/build_data.sh $(JUNO_NAME) $(APP_VERSION) $(BASE_PATH) $(COMPILE_OUT)/$(APP_VERSION)
 	@echo -e "\n"
-
-run:
-	go run cmd/main.go --config=config/config.toml
-
 
 tar:
 	@cd $(BASE_PATH)/release && tar zcvf juno_$(APP_VERSION).tar.gz $(APP_VERSION)

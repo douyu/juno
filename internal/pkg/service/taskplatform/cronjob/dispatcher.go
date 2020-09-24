@@ -112,8 +112,7 @@ func (d *Dispatcher) revokeJob(job Job) (err error) {
 	defer cancelFn()
 	_, err = clientproxy.ClientProxy.DefaultEtcd(uniqZone).Delete(ctx, etcdKey)
 	if err != nil {
-		xlog.Error("Dispatcher.revokeJob write etcd failed", xlog.Any("uniqZone", uniqZone),
-			xlog.String("key", etcdKey))
+		xlog.Error("Dispatcher.revokeJob write etcd failed", xlog.Any("uniqZone", uniqZone), xlog.String("key", etcdKey))
 		return
 	}
 
