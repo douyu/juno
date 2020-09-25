@@ -132,7 +132,7 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 		err = j.db.Where("job_id = ?", item.ID).Last(&lastTask).Error
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
-
+				err = nil
 			} else {
 				return
 			}
