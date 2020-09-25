@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {ModalProps} from "antd/es/modal";
 import {Form, message, Modal} from "antd";
 import JobFormFields from "@/pages/cronjob/JobFormFields";
@@ -13,6 +13,9 @@ interface ModalNewJobProps extends ModalProps {
 function ModalNewJOb(props: ModalNewJobProps) {
   const [form] = Form.useForm()
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const {visible} = props
+
+  useEffect(() => form.resetFields(), [visible])
 
   return <Modal
     {...props}
