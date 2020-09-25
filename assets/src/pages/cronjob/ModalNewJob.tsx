@@ -27,8 +27,14 @@ function ModalNewJOb(props: ModalNewJobProps) {
       form.validateFields().then(fields => {
         createJob(fields as Job).then(r => {
           setConfirmLoading(false)
-          message.success("创建成功")
-          props.onOk && props.onOk(ev)
+
+          if (r.code === 0) {
+            message.success("创建成功")
+            props.onOk && props.onOk(ev)
+          } else {
+            message.error("创建失败: " + r.msg)
+          }
+
         }).catch(e => {
           message.error("创建失败")
           setConfirmLoading(false)
