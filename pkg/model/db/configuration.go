@@ -12,7 +12,7 @@ type (
 	Configuration struct {
 		ID            uint       `gorm:"column:id;primary_key" json:"id"`
 		AID           uint       `gorm:"column:aid" json:"aid"`
-		Name          string     `gorm:"column:name;type:varchar(20)" json:"name"`
+		Name          string     `gorm:"column:name;type:varchar(32)" json:"name"`
 		Content       string     `gorm:"column:content;type:longtext" json:"content"`
 		Format        string     `gorm:"column:format;type:varchar(20)" json:"format"` // Yaml/Toml
 		Env           string     `gorm:"column:env;type:varchar(20)" json:"env"`       // 环境
