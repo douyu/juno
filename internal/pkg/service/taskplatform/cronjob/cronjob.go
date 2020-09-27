@@ -74,8 +74,9 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 		query = query.Where("app_name = ?", *params.AppName)
 	}
 	if params.User != nil {
-		username := "%" + *params.User + "%s"
-		query = query.Joins("user on cron_job.uid = user.uid and (user.username like %s or user.nickname like %s)", username, username)
+		username := "%" + *params.User + "%"
+		query = query.Joins("left join user on cron_job.uid = user.uid")
+		query = query.Where("user.username like ? or user.nickname like ?", username, username)
 	}
 
 	eg := errgroup.Group{}
