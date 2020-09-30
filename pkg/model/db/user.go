@@ -24,7 +24,7 @@ type User struct {
 	authenticated bool   `form:"-" db:"-" json:"-"`
 	Oauth         string `gorm:"not null;"json:"oauth"`   // 来源
 	OauthId       string `gorm:"not null;"json:"oauthId"` // 来源id
-	Password      string `gorm:"not null;comment:'注释'"json:"password"`
+	Password      string `gorm:"not null;comment:'注释'"json:"-"`
 	// open source user data
 	CurrentAuthority string `json:"currentAuthority"`
 	Access           string `json:"access"`
