@@ -60,10 +60,16 @@ func (d *Dispatcher) dispatchOnceJob(job OnceJob, hostname string) (err error) {
 		Zone: job.Zone,
 	}
 
-	ctx, cancelFn := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancelFn := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancelFn()
 
-	_, err = clientproxy.ClientProxy.DefaultEtcdPut(uniqZone, ctx, etcdKey, string(jobBytes))
+	client := clientproxy.ClientProxy.DefaultEtcd(uniqZone)
+	resp, err := clientv3.NewLease(client).Grant(ctx, 1)
+	if err != nil {
+		return
+	}
+
+	_, err = client.Put(ctx, etcdKey, string(jobBytes), clientv3.WithLease(resp.ID))
 	if err != nil {
 		return
 	}

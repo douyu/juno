@@ -38,29 +38,36 @@ func (r *ResultWatcher) Start() {
 	// load all task result
 	lastRevision := r.loadAllResult()
 
-	ch := r.Watch(context.Background(), EtcdKeyResultPrefix, clientv3.WithPrefix(), clientv3.WithRev(lastRevision))
+	for {
+		xlog.Info("ResultWatcher.Start: start watch result....")
+		ch := r.Watch(context.TODO(), EtcdKeyResultPrefix, clientv3.WithPrefix(), clientv3.WithRev(lastRevision))
 
-	for resp := range ch {
-		for _, ev := range resp.Events {
-			if ev.IsCreate() || ev.IsModify() {
-				result, err := r.getTaskResultFromKV(ev.Kv)
-				if err != nil {
-					continue
-				}
+		for resp := range ch {
+			for _, ev := range resp.Events {
+				if ev.IsCreate() || ev.IsModify() {
+					result, err := r.getTaskResultFromKV(ev.Kv)
+					if err != nil {
+						continue
+					}
 
-				r.updateTask(result)
+					r.updateTask(result)
 
-				if result.Status == db.CronTaskStatusSuccess || result.Status == db.CronTaskStatusTimeout ||
-					result.Status == db.CronTaskStatusFailed {
-					r.deleteResult(ev.Kv.Key)
+					if result.Status == db.CronTaskStatusSuccess || result.Status == db.CronTaskStatusTimeout ||
+						result.Status == db.CronTaskStatusFailed {
+						r.deleteResult(ev.Kv.Key)
+					}
 				}
 			}
 		}
+
+		xlog.Info("ResultWatcher.Start: exit for watch chan closed")
 	}
 }
 
 func (r *ResultWatcher) loadAllResult() int64 {
-	resp, err := r.Get(context.Background(), EtcdKeyResultPrefix, clientv3.WithPrefix(), clientv3.WithLimit(0))
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	resp, err := r.Get(ctx, EtcdKeyResultPrefix, clientv3.WithPrefix(), clientv3.WithLimit(0))
 	if err != nil {
 		xlog.Error("loadAllResult: load task result failed", xlog.String("err", err.Error()))
 		return 0
@@ -137,7 +144,9 @@ func (r *ResultWatcher) updateTask(result TaskResult) {
 }
 
 func (r *ResultWatcher) deleteResult(key []byte) {
-	_, err := r.Delete(context.Background(), string(key))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	_, err := r.Delete(ctx, string(key))
 	if err != nil {
 		xlog.Error("ResultWatcher.deleteResult: delete finished task failed.", xlog.FieldErr(err))
 	}

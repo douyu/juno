@@ -39,7 +39,8 @@ function getColumns(options: {
     {
       title: 'Status',
       dataIndex: 'status',
-      valueEnum: StatusValueEnums
+      valueEnum: StatusValueEnums,
+      hideInSearch: true
     },
     {
       title: 'User',
@@ -50,7 +51,7 @@ function getColumns(options: {
       dataIndex: 'app_name',
       order: 100,
       renderFormItem() {
-        return <Select showSearch>
+        return <Select showSearch allowClear>
           {options.apps.map(app => <Select.Option key={app.app_name} value={app.app_name}>
             {app.app_name}
           </Select.Option>)}
@@ -68,8 +69,19 @@ function getColumns(options: {
         1: "未启用"
       },
       renderFormItem(item, config, form) {
-        return <Select value={config.value != undefined && (config.value ? 'true' : 'false') || undefined}
-                       onChange={val => config.onChange && config.onChange(val === "true")}>
+        return <Select
+          value={(config.value != undefined && (config.value ? 'true' : 'false')) || undefined}
+          onChange={val => {
+            if (config.onChange) {
+              let v: any = undefined
+              if (val) {
+                v = (val === "true")
+              }
+              config.onChange(v)
+            }
+          }}
+          allowClear
+        >
           <Select.Option value={"true"}>启用</Select.Option>
           <Select.Option value={"false"}>未启用</Select.Option>
         </Select>

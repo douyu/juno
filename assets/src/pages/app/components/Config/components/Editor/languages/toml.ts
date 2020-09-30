@@ -54,6 +54,8 @@ export const Toml: Language = {
 
           // whitespace
           {include: '@whitespace'},
+          { include: '@comment' },
+          [/\s*(true|false)(\s*)/, ['keyword', '']],
 
           // numbers
           [/\d+/, 'number'],
@@ -86,7 +88,11 @@ export const Toml: Language = {
         variableCounting: [
           [/[^\}]+/, 'variable'],
           [/\}\}/, 'delimiter.bracket', '@pop'],
-        ]
+        ],
+
+        comment: [
+          [/#.*$/, 'comment']
+        ],
       },
     } as languages.IMonarchLanguage | Thenable<languages.IMonarchLanguage>
   }
