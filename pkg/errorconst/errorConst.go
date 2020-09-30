@@ -40,12 +40,14 @@ const (
 	// CannotFindClientHTTP ..
 	CannotFindClientHTTP                         myErrorConst = 10007
 	AppActionFailed                              myErrorConst = 10008
-	AppLogCustomizeDashboard                     myErrorConst = 10009
-	AppLogCustomizeLogStore                      myErrorConst = 10010
+	AppLogDefaultDashboard                       myErrorConst = 10009
+	AppLogDefaultLogStore                        myErrorConst = 10010
 	AppNotExists                                 myErrorConst = 10011
 	ConfigInstanceSyncUsedStatusError            myErrorConst = 10012
 	ConfigInstanceSyncPublishStatusError         myErrorConst = 10013
 	ConfigInstanceErrorSyncTakeEffectStatusError myErrorConst = 10014
+	AppLogModeError                              myErrorConst = 10015
+	AppLogNoPermission                           myErrorConst = 10016
 )
 
 // errNameMap 错误名称映射map，维护错误码的同时需维护此map
@@ -59,12 +61,14 @@ var errNameMap = map[myErrorConst]string{
 	JunoAgentQueryOverSize:                       "请求的Agent超过400的数量限制",
 	ConfigResourceValueNotExist:                  "配置资源对应值不存在",
 	AppActionFailed:                              "服务操作失败",
-	AppLogCustomizeDashboard:                     "未获取到监控面板访问地址",
-	AppLogCustomizeLogStore:                      "未获取到日志存储访问地址",
+	AppLogDefaultDashboard:                       "未获取到监控面板访问地址",
+	AppLogDefaultLogStore:                        "未获取到日志存储访问地址",
 	AppNotExists:                                 "应用不存在",
 	ConfigInstanceSyncUsedStatusError:            "配置接入状态同步失败，排查Agent故障",
 	ConfigInstanceSyncPublishStatusError:         "配置发布状态同步失败，排查ETCD或者Agent故障",
 	ConfigInstanceErrorSyncTakeEffectStatusError: "配置生效状态同步失败，确认当前目标服务是否正常启动",
+	AppLogModeError:                              "日志获取模式错误",
+	AppLogNoPermission:                           "没有日志查询权限",
 }
 
 // Code 返回codes.Code类型

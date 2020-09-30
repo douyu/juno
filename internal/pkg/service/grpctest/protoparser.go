@@ -146,9 +146,9 @@ func saveProtoMethod(service *desc.ServiceDescriptor, method *desc.MethodDescrip
 		protoMethod.ServiceID = protoService.ID
 		protoMethod.Name = method.GetName()
 		protoMethod.InputName = method.GetInputType().GetName()
-		protoMethod.InputType = MessageParser(method.GetInputType())
+		protoMethod.InputType = ParseMessage(method.GetInputType())
 		protoMethod.OutputName = method.GetOutputType().GetName()
-		protoMethod.OutputType = MessageParser(method.GetOutputType())
+		protoMethod.OutputType = ParseMessage(method.GetOutputType())
 		protoMethod.MethodComment = getMethodComment(method)
 	}
 	err = option.DB.Save(&protoMethod).Error
@@ -172,28 +172,50 @@ func getMethodComment(method *desc.MethodDescriptor) string {
 	return comments
 }
 
-//MessageParser 解析 Proto 结构描述
-func MessageParser(desc *desc.MessageDescriptor) db.ProtoFields {
-	if desc == nil {
-		return nil
+//ParseMessage 解析 Proto 结构描述
+func ParseMessage(descriptor *desc.MessageDescriptor) db.ProtoFields {
+	var parseFn func(d *desc.MessageDescriptor) db.ProtoFields
+	var msgTypeStack []string
+
+	parseFn = func(d *desc.MessageDescriptor) db.ProtoFields {
+		if d == nil {
+			return nil
+		}
+
+		msgTypeName := d.GetFullyQualifiedName()
+		for _, parentName := range msgTypeStack {
+			if parentName == msgTypeName {
+				// 避免循环引用造成的栈溢出
+				return nil
+			}
+		}
+		// push
+		msgTypeStack = append(msgTypeStack, msgTypeName)
+
+		fieldsParsed := make(db.ProtoFields)
+		fields := d.GetFields()
+		for _, field := range fields {
+			fieldType := db.ProtoField{
+				JsonName:    field.GetJSONName(),
+				Type:        int32(field.GetType()),
+				Label:       int32(field.GetLabel()),
+				IsRepeated:  field.IsRepeated(),
+				Number:      field.GetNumber(),
+				MessageType: parseFn(field.GetMessageType()),
+			}
+
+			sourceInfo := field.GetSourceInfo()
+			if sourceInfo != nil && sourceInfo.LeadingComments != nil {
+				fieldType.Comment = strings.Trim(*sourceInfo.LeadingComments, " \n\t")
+			}
+			fieldsParsed[field.GetName()] = fieldType
+		}
+
+		// pop
+		msgTypeStack = msgTypeStack[:len(msgTypeStack)-1]
+
+		return fieldsParsed
 	}
 
-	fieldsParsed := make(db.ProtoFields)
-	fields := desc.GetFields()
-	for _, field := range fields {
-		fieldType := db.ProtoField{
-			JsonName:    field.GetJSONName(),
-			Type:        int32(field.GetType()),
-			Label:       int32(field.GetLabel()),
-			IsRepeated:  field.IsRepeated(),
-			Number:      field.GetNumber(),
-			MessageType: MessageParser(field.GetMessageType()),
-		}
-		sourceInfo := field.GetSourceInfo()
-		if sourceInfo != nil && sourceInfo.LeadingComments != nil {
-			fieldType.Comment = strings.Trim(*sourceInfo.LeadingComments, " \n\t")
-		}
-		fieldsParsed[field.GetName()] = fieldType
-	}
-	return fieldsParsed
+	return parseFn(descriptor)
 }

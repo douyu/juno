@@ -1,27 +1,18 @@
 // https://umijs.org/config/
-import { defineConfig } from 'umi';
+import {defineConfig} from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
-import MonacoEditorWebpackPlugin from 'monaco-editor-webpack-plugin';
-import scripts from './scripts';
-const { REACT_APP_ENV } = process.env;
-const env = process.env.NODE_ENV;
+import MonacoEditorWebpackPlugin from "monaco-editor-webpack-plugin";
+
+const {REACT_APP_ENV} = process.env;
 export default defineConfig({
   hash: true,
   antd: {},
   dva: {
     hmr: true,
   },
-  externals: {
-    prettier: 'prettier',
-    react: 'React',
-    'react-dom': 'ReactDOM',
-    antd: 'antd',
-    // echarts: 'echarts',
-  },
-  scripts: scripts,
-  // favicon: '/ant/home.png',
+  favicon: '/ant/home.png',
   locale: {
     // default zh-CN
     default: 'zh-CN',
@@ -34,9 +25,6 @@ export default defineConfig({
   },
   targets: {
     ie: 11,
-  },
-  nodeModulesTransform: {
-    type: 'none',
   },
   // umi routes: https://umijs.org/docs/routing
   routes: [
@@ -86,7 +74,7 @@ export default defineConfig({
                 {
                   path: '/analysis/grafana',
                   name: 'Grafana',
-                  component: './analysis/grafana/index',
+                  component: './analysis/grafana/index'
                 },
                 {
                   name: '依赖拓扑',
@@ -175,7 +163,7 @@ export default defineConfig({
                 {
                   name: '资源',
                   path: '/confgo/resource',
-                  component: './confgo/resource/index',
+                  component: './confgo/resource/index'
                 },
                 {
                   name: '配置依赖解析模板',
@@ -199,19 +187,19 @@ export default defineConfig({
                 {
                   name: '用户组',
                   path: '/permission/user_group',
-                  component: './permission/UserGroup',
+                  component: './permission/UserGroup'
                 },
                 {
                   name: '菜单接口权限',
                   path: '/permission/menu_api_permission',
-                  component: './permission/MenuAPI',
+                  component: './permission/MenuAPI'
                 },
                 {
                   name: '应用权限',
                   path: '/permission/app',
-                  component: './permission/App',
+                  component: './permission/App'
                 },
-              ],
+              ]
             },
             {
               path: '/test',
@@ -220,14 +208,14 @@ export default defineConfig({
                 {
                   name: 'GRPC测试',
                   path: '/test/grpc',
-                  component: './test/grpc/index',
+                  component: './test/grpc/index'
                 },
                 {
                   name: 'HTTP测试',
                   path: '/test/http',
-                  component: './test/http/index',
-                },
-              ],
+                  component: './test/http/index'
+                }
+              ]
             },
             {
               path: '/admin',
@@ -247,21 +235,21 @@ export default defineConfig({
                 {
                   name: 'Access Tokens',
                   path: '/admin/accessTokens',
-                  component: './manage/AccessTokens',
-                },
+                  component: './manage/AccessTokens'
+                }
               ],
             },
             {
               path: '/',
               redirect: '/workspace',
             },
-          ],
+          ]
         },
 
         {
           component: './404',
         },
-      ],
+      ]
     },
   ],
   publicPath: '/ant/',
@@ -277,22 +265,10 @@ export default defineConfig({
   manifest: {
     basePath: '/ant/',
   },
-  chainWebpack(config, { env, webpack, createCSSRule }) {
-    config.plugin('monaco-editor').use(MonacoEditorWebpackPlugin, [
-      {
-        languages: ['javascript', 'typescript', 'json', 'shell'],
-        features: [
-          'coreCommands',
-          'find',
-          'comment',
-          'format',
-          'bracketMatching',
-          'wordOperations',
-          'suggest',
-          'multicursor',
-          'links',
-        ],
-      },
-    ]);
-  },
+  chainWebpack(config, {env, webpack, createCSSRule}) {
+    config.plugin("monaco-editor").use(MonacoEditorWebpackPlugin, [{
+      languages: ["javascript", "typescript", "json", "shell"],
+      features: ["coreCommands", "find", 'comment', "format", 'bracketMatching', 'wordOperations', 'suggest', 'multicursor', 'links']
+    }])
+  }
 });

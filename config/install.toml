@@ -1,25 +1,28 @@
 [database]
-    enable = true
-    connMaxLifetime = "300s"
-    debug = true
-    dsn = "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
-    level = "panic"
-    maxIdleConns = 50
-    maxOpenConns = 100
+enable = true
+connMaxLifetime = "300s"
+debug = true
+dsn = "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+level = "panic"
+maxIdleConns = 50
+maxOpenConns = 100
+
 [logger.system]
-    debug = false          # 是否在命令行输出
-    enableConsole = false  # 是否按命令行格式输出
-    level = "debug"
-    async = false
-    name = "system.json" # 日志名称
-    dir = "./"
+debug = false # 是否在命令行输出
+enableConsole = false # 是否按命令行格式输出
+level = "debug"
+async = false
+name = "system.json" # 日志名称
+dir = "./"
+
 [logger.biz]
-    debug = false          # 是否在命令行输出
-    enableConsole = false  # 是否按命令行格式输出
-    level = "debug"
-    async = false
-    name = "biz.json" # 日志名称
-    dir = "./"
+debug = false # 是否在命令行输出
+enableConsole = false # 是否按命令行格式输出
+level = "debug"
+async = false
+name = "biz.json" # 日志名称
+dir = "./"
+
 [testplatform]
 enable = false # 是否启用测试平台
 

@@ -262,14 +262,14 @@ type GrpcTest struct {
 
 // AppLog ..
 type AppLog struct {
-	Mode      string
-	Aliyun    AppLogAliyun
-	Customize AppLogCustomize
+	Enable  bool
+	Mode    string
+	Aliyun  AppLogAliyun
+	Default AppLogDefault
 }
 
 // AppLogAliyun ...
 type AppLogAliyun struct {
-	Enable          bool
 	Key             string
 	Secret          string
 	RoleArn         string
@@ -278,10 +278,20 @@ type AppLogAliyun struct {
 	LoginURL        string `json:"loginUrl" toml:"loginUrl"`
 }
 
-type AppLogCustomize struct {
-	Enable       bool
+// AppLogDefault ..
+type AppLogDefault struct {
 	DashboardUrl string
 	LogStoreUrl  string
+	Project      []AppLogDefaultProject
+}
+
+// AppLogDefaultProject ..
+type AppLogDefaultProject struct {
+	Project         string
+	Env             []string
+	LogStoreConsole string
+	LogStoreJupiter string
+	LogStoreBiz     string
 }
 
 type ProxyAuth struct {

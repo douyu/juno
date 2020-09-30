@@ -71,7 +71,7 @@ func Create(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, "参数无效: "+err.Error())
 	}
 
-	fileNameRegex := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_-]{1,20}$")
+	fileNameRegex := regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_-]{1,32}$")
 	if !fileNameRegex.MatchString(param.FileName) {
 		return output.JSON(c, output.MsgErr, "无效的文件名")
 	}

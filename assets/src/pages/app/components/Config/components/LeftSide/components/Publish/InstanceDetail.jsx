@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { connect } from 'dva';
+import React, {useState} from 'react';
+import {connect} from 'dva';
 import styles from './InstanceDetail.less';
-import { DatabaseOutlined, ReloadOutlined } from '@ant-design/icons';
-import { Button, Tag, Modal, Spin, message, Space } from 'antd';
-import { ServiceAppAction } from '@/services/confgo';
-import { EyeOutlined } from '@ant-design/icons';
+import {CopyOutlined, DatabaseOutlined, EyeOutlined, ReloadOutlined} from '@ant-design/icons';
+import {Button, message, Modal, Space, Spin, Tag} from 'antd';
+import {ServiceAppAction} from '@/services/confgo';
 import ModalRealtimeConfig from './ModalRealtimeConfig';
+import copyToClipBoard from 'copy-to-clipboard'
 
-const { confirm } = Modal;
+const {confirm} = Modal;
 
 function InstanceDetail(props) {
-  const { currentInstance, dispatch, config, appName, env } = props;
+  const {currentInstance, dispatch, config, appName, env} = props;
   const [visibleRestartModal, setVisibleRestartModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
 
   if (!currentInstance) {
-    return <div />;
+    return <div/>;
   }
 
   const {
@@ -29,9 +29,6 @@ function InstanceDetail(props) {
     change_log,
     host_name,
   } = currentInstance;
-  let cfpArr = config_file_path.split(';');
-  let cfpShow = [];
-  cfpArr.forEach((ele) => cfpShow.push(<Tag color="#108ee9">{ele}</Tag>));
 
   let info = [
     {
@@ -51,7 +48,15 @@ function InstanceDetail(props) {
     },
     {
       title: '文件路径',
-      content: config_file_path ? <span>{cfpShow}</span> : '---',
+      content: config_file_path ? config_file_path.split(';').map((item, idx) => {
+        return <div key={idx} className={styles.configPathItem}>
+          <span>{item}</span>
+          <CopyOutlined onClick={() => {
+            copyToClipBoard(item)
+            message.success("已复制到剪切板")
+          }} className={styles.configPathCopyBtn}/>
+        </div>
+      }) : '---',
     },
     {
       title: '配置版本',
@@ -100,14 +105,15 @@ function InstanceDetail(props) {
 
         doAction(action, zoneCode, hostname, usedTyp);
       },
-      onCancel() {},
+      onCancel() {
+      },
       okText: '确定',
       cancelText: '取消',
     });
   };
 
   let doAction = (action, zoneCode, hostname, usedTyp) => {
-    if (usedTyp == 0) {
+    if (usedTyp === 0) {
       setContent('配置文件未接入，无法进行重启操作');
       setLoading(false);
       return;
@@ -122,19 +128,19 @@ function InstanceDetail(props) {
       app_name: appName,
       env: env,
     }).then((res) => {
-      if (res.code != 0) {
+      if (res.code !== 0) {
         setContent(res.data);
         setLoading(false);
       } else {
         let result = [];
-        for (var itemListKey in res.data) {
+        for (const itemListKey in res.data) {
           let itemList = res.data[itemListKey];
-          if (itemList['code'] != 0) {
+          if (itemList['code'] !== 0) {
             result.push(<p>状态：重启失败</p>);
           } else {
             result.push(<p>状态：重启成功</p>);
           }
-          for (var item in itemList) {
+          for (const item in itemList) {
             result.push(<p>{item + ':' + itemList[item]}</p>);
           }
         }
@@ -147,20 +153,20 @@ function InstanceDetail(props) {
   return (
     <div className={styles.instanceDetail}>
       <div className={styles.topHeader}>
-        <div style={{ fontSize: '48px', textAlign: 'center', padding: '10px' }}>
-          <DatabaseOutlined />
+        <div style={{fontSize: '48px', textAlign: 'center', padding: '10px'}}>
+          <DatabaseOutlined/>
         </div>
-        <div style={{ padding: '10px' }}>
-          <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{currentInstance.host_name}</div>
+        <div style={{padding: '10px'}}>
+          <div style={{fontSize: '24px', fontWeight: 'bold'}}>{currentInstance.host_name}</div>
           <div>
             {currentInstance.region_name} {currentInstance.zone_name} {currentInstance.ip}
           </div>
-          <div style={{ marginTop: '10px' }}>
+          <div style={{marginTop: '10px'}}>
             <Space>
               <Button
                 size={'small'}
                 type={'primary'}
-                icon={<ReloadOutlined />}
+                icon={<ReloadOutlined/>}
                 onClick={() => {
                   showConfirm(
                     'restart',
@@ -175,7 +181,7 @@ function InstanceDetail(props) {
 
               <Button
                 size={'small'}
-                icon={<EyeOutlined />}
+                icon={<EyeOutlined/>}
                 onClick={() => {
                   dispatch({
                     type: 'config/fetchInstanceConfig',
@@ -212,18 +218,18 @@ function InstanceDetail(props) {
         onCancel={() => setVisibleRestartModal(false)}
       >
         <div>
-          <Spin spinning={loading} />
+          <Spin spinning={loading}/>
         </div>
-        <div style={{ backgroundColor: 'black', borderRadius: '5px' }}>
-          <p style={{ color: 'green' }}>{content}</p>
+        <div style={{backgroundColor: 'black', borderRadius: '5px'}}>
+          <p style={{color: 'green'}}>{content}</p>
         </div>
       </Modal>
-      <ModalRealtimeConfig />
+      <ModalRealtimeConfig/>
     </div>
   );
 }
 
-const mapStateToProps = ({ config }) => {
+const mapStateToProps = ({config}) => {
   return {
     currentInstance: config.currentInstance,
     appName: config.appName,

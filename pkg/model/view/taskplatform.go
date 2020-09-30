@@ -49,7 +49,7 @@ type (
 		AppName  *string `query:"app_name"`
 		Enable   *bool   `query:"enable"`
 		Name     *string `query:"name"`
-		User     *string `query:"user"`
+		User     *string `query:"username"`
 		Page     uint    `query:"page"`
 		PageSize uint    `query:"page_size"`
 	}

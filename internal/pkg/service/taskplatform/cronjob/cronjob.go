@@ -15,9 +15,11 @@ import (
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
+	"github.com/robfig/cron/v3"
 	"golang.org/x/sync/errgroup"
 )
 
+// CronJob ..
 type CronJob struct {
 	db         *gorm.DB
 	dispatcher *Dispatcher
@@ -31,6 +33,11 @@ const (
 	EtcdKeyPrefixProc   = "/juno/cronjob/proc/"                       // 当前运行的进程
 )
 
+var (
+	cronParser = cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+)
+
+// New ..
 func New(db *gorm.DB) *CronJob {
 	ret := &CronJob{
 		db:         db,
@@ -44,14 +51,7 @@ func New(db *gorm.DB) *CronJob {
 
 // List Job 列表
 func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, pagination core.Pagination, err error) {
-	type _cronjob struct {
-		db.CronJob
-
-		ExecutedAt *time.Time
-		Status     *db.CronTaskStatus
-	}
-
-	var jobs []_cronjob
+	var jobs []db.CronJob
 
 	page := params.Page
 	if page == 0 {
@@ -74,19 +74,14 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 		query = query.Where("app_name = ?", *params.AppName)
 	}
 	if params.User != nil {
-		username := "%" + *params.User + "%s"
-		query = query.Joins("user on cron_job.uid = user.uid and (user.username like %s or user.nickname like %s)", username, username)
+		username := "%" + *params.User + "%"
+		query = query.Joins("left join user on cron_job.uid = user.uid")
+		query = query.Where("user.username like ? or user.nickname like ?", username, username)
 	}
 
 	eg := errgroup.Group{}
 	eg.Go(func() error {
-		subQueryExecutedAt := j.db.Model(&db.CronTask{}).Select("executed_at").Where("cron_job.id = cron_task.job_id").
-			Order("executed_at desc").Limit(1).SubQuery()
-		subQueryStatus := j.db.Model(&db.CronTask{}).Select("status").Where("cron_job.id = cron_task.job_id").
-			Order("executed_at desc").Limit(1).SubQuery()
-
 		return query.Table("cron_job").Offset(offset).
-			Select("cron_job.*, ? as executed_at, ? as status", subQueryExecutedAt, subQueryStatus).
 			Preload("Timers").
 			Preload("User").
 			Limit(pageSize).
@@ -132,8 +127,19 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 				JobType:       job.JobType,
 				Nodes:         job.Nodes,
 			},
-			LastExecutedAt: job.ExecutedAt,
-			Status:         job.Status,
+		}
+
+		var lastTask db.CronTask
+		err = j.db.Where("job_id = ?", item.ID).Last(&lastTask).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				err = nil
+			} else {
+				return
+			}
+		} else {
+			item.LastExecutedAt = lastTask.ExecutedAt
+			item.Status = &lastTask.Status
 		}
 
 		list = append(list, item)
@@ -161,6 +167,11 @@ func (j *CronJob) Create(uid uint, params view.CronJob) (err error) {
 	}
 
 	for idx, timer := range params.Timers {
+		_, err := cronParser.Parse(timer.Cron)
+		if err != nil {
+			return errors.Wrapf(err, "parse cron failed: %s", timer.Cron)
+		}
+
 		timers[idx] = db.CronJobTimer{
 			Cron: timer.Cron,
 		}
@@ -184,8 +195,14 @@ func (j *CronJob) Create(uid uint, params view.CronJob) (err error) {
 func (j *CronJob) Update(params view.CronJob) (err error) {
 	var job db.CronJob
 	var timers = make([]db.CronJobTimer, len(params.Timers))
+	var oldTimers []db.CronJobTimer
 
 	for idx, timer := range params.Timers {
+		_, err := cronParser.Parse(timer.Cron)
+		if err != nil {
+			return errors.Wrapf(err, "parse cron failed: %s", timer.Cron)
+		}
+
 		timers[idx] = db.CronJobTimer{
 			Cron: timer.Cron,
 		}
@@ -199,7 +216,20 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 		return errors.Wrap(err, "can not found params")
 	}
 
-	err = tx.Model(&job).Association("Timers").Replace(&timers).Error
+	err = tx.Model(&job).Association("Timers").Find(&oldTimers).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	for _, t := range oldTimers {
+		err = tx.Delete(&t).Error
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+	}
+
+	err = tx.Model(&job).Association("Timers").Append(timers).Error
 	if err != nil {
 		tx.Rollback()
 		return
@@ -253,10 +283,10 @@ func (j *CronJob) Delete(id uint) (err error) {
 		err = tx.Where("id = ?", id).First(&job).Error
 		if err != nil {
 			tx.Rollback()
-			return errors.Wrapf(err, "cannot found job")
+			return errors.Wrap(err, "cannot found job")
 		}
 
-		err := j.dispatcher.revokeJob(makeJob(job))
+		err = j.dispatcher.revokeJob(makeJob(job))
 		if err != nil {
 			tx.Rollback()
 			return errors.Wrap(err, "revoke job failed")
@@ -265,7 +295,7 @@ func (j *CronJob) Delete(id uint) (err error) {
 		err = tx.Delete(&job).Error
 		if err != nil {
 			tx.Rollback()
-			return errors.Wrapf(err, "delete failed")
+			return errors.Wrap(err, "delete failed")
 		}
 	}
 	tx.Commit()
@@ -410,10 +440,13 @@ func (j *CronJob) StartWatch() {
 func (j *CronJob) startSyncJob() {
 	config := xcron.DefaultConfig()
 	config.WithSeconds = true
+	config.ImmediatelyRun = true
 	cron := config.Build()
 
 	// run every minute
-	_, _ = cron.AddFunc("@every 5s", func() error {
+	_, _ = cron.AddFunc("@every 15s", func() error {
+		xlog.Debug("start sync job")
+
 		//load all jobs and write jobs to etcd
 		j.writeJobsToEtcd()
 
@@ -432,7 +465,9 @@ func (j *CronJob) startSyncJob() {
 //removeInvalidJob remove jobs that not exists in DB
 func (j *CronJob) removeInvalidJob() {
 	for _, client := range clientproxy.ClientProxy.DefaultEtcdClients() {
-		resp, err := client.Conn().Get(context.Background(), EtcdKeyJobPrefix, clientv3.WithPrefix())
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		resp, err := client.Conn().Get(ctx, EtcdKeyJobPrefix, clientv3.WithPrefix())
+		cancel()
 		if err != nil {
 			xlog.Error("load jobs from etcd failed", xlog.Any("uniqZone", client.UniqueZone),
 				xlog.Any("etcdEndpoints", client.Conn().Endpoints()))
@@ -477,6 +512,8 @@ func (j *CronJob) writeJobsToEtcd() {
 }
 
 func (j *CronJob) clearTasks() {
+	xlog.Info("CronJob.clearTasks: start clear tasks")
+
 	const pageSize = 1024
 	var total int
 
@@ -487,6 +524,7 @@ func (j *CronJob) clearTasks() {
 		xlog.Error("CronJob.clearTasks: count failed", xlog.FieldErr(err))
 		return
 	}
+	xlog.Infof("Cronjob.clearTasks: find %d processing-tasks", total)
 
 	pages := total / pageSize
 	if total%pageSize > 0 {
@@ -518,7 +556,7 @@ func (j *CronJob) checkTask(id uint64) {
 		return
 	}
 
-	if task.ExecutedAt != nil && task.ExecutedAt.Add(time.Duration(task.Timeout)*time.Second).Before(time.Now()) {
+	if task.ExecutedAt != nil && task.ExecutedAt.Add(time.Duration(task.Timeout)*time.Second).After(time.Now()) {
 		// not expired
 		tx.Rollback()
 		return
@@ -532,9 +570,11 @@ func (j *CronJob) checkTask(id uint64) {
 	taskId := strconv.FormatUint(task.ID, 10)
 	jobId := strconv.FormatUint(uint64(task.JobID), 10)
 
-	resp, err := client.Get(context.Background(),
-		EtcdKeyPrefixProc+jobId+"/"+taskId+"/", clientv3.WithPrefix(), clientv3.WithLimit(1))
-	if err == nil {
+	ctx, cancelFn := context.WithTimeout(context.Background(), time.Second)
+	defer cancelFn()
+	resp, err := client.Get(ctx, EtcdKeyPrefixProc+jobId+"/"+taskId+"/", clientv3.WithPrefix(),
+		clientv3.WithLimit(1))
+	if err != nil {
 		xlog.Error("CronJob.clearTasks: read etcd failed", xlog.FieldErr(err), xlog.Any("zone", uniqZone))
 	}
 
@@ -545,6 +585,11 @@ func (j *CronJob) checkTask(id uint64) {
 		task.Status = db.CronTaskStatusFailed
 		task.Log += "\nprocess exited unexpectedly"
 		tx.Save(&task)
+
+		// clear result
+		ctx, cancelFn = context.WithTimeout(context.Background(), time.Second)
+		defer cancelFn()
+		_, _ = client.Delete(ctx, EtcdKeyResultPrefix+jobId+"/"+taskId)
 	}
 
 	tx.Commit()

@@ -1,98 +1,99 @@
-
 [app]
-  secretKey = "ASDFASDFASDF"
+secretKey = "ASDFASDFASDF"
 
 [logger.system]
-    debug = false          # 是否在命令行输出
-    level = "debug"
-    async = true
-    name = "system.json" # 日志名称
-    dir = "."
+debug = false # 是否在命令行输出
+level = "debug"
+async = true
+name = "system.json" # 日志名称
+dir = "."
 
 [logger.biz]
-    debug = false          # 是否在命令行输出
-    level = "debug"
-    async = false
-    name = "biz.json" # 日志名称
-    dir = "."
-
+debug = false # 是否在命令行输出
+level = "debug"
+async = false
+name = "biz.json" # 日志名称
+dir = "."
 
 [register]
-    enable=true
-    connectTimeout = "1s"
-    endpoints=["127.0.0.1:2379"]
-    secure = false
-
+enable = true
+connectTimeout = "1s"
+endpoints = ["127.0.0.1:2379"]
+secure = false
 
 #################################### Server ##############################
 [serverProxy.httpServer]
-    # The ip address to bind to, empty will bind to all interfaces
-    host = "0.0.0.0"
-    # The http port to use
-    port = 50000
+# The ip address to bind to, empty will bind to all interfaces
+host = "0.0.0.0"
+# The http port to use
+port = 50000
 
 [serverProxy.grpcServer]
-    # The ip address to bind to, empty will bind to all interfaces
-    host = "0.0.0.0"
-    # The http port to use
-    port = 50001
+# The ip address to bind to, empty will bind to all interfaces
+host = "0.0.0.0"
+# The http port to use
+port = 50001
 
 [serverProxy.governServer]
-    # The ip address to bind to, empty will bind to all interfaces
-    host = "0.0.0.0"
-    # The http port to use
-    port = 50008
+# The ip address to bind to, empty will bind to all interfaces
+host = "0.0.0.0"
+# The http port to use
+port = 50008
 
 [serverProxy.heartbeat]
-    enable = false
-    debug = true
-    addr = "stream"
-    internal = "120s"
-    hostName = "JUNO_HOST" # 环境变量的名称，或者命令行参数的名称
-    regionCode = "REGION_CODE" # 环境变量的名称，或者命令行参数的名称
-    regionName = "REGION_NAME"
-    zoneCode = "ZONE_CODE"
-    zoneName = "ZONE_NAME"
-    env = "env"
+enable = false
+debug = true
+addr = "stream"
+internal = "120s"
+hostName = "JUNO_HOST" # 环境变量的名称，或者命令行参数的名称
+regionCode = "REGION_CODE" # 环境变量的名称，或者命令行参数的名称
+regionName = "REGION_NAME"
+zoneCode = "ZONE_CODE"
+zoneName = "ZONE_NAME"
+env = "env"
 
 [serverProxy.registerEtcd]
-    enable = true
-    listenAddr = "127.0.0.1:62379"
-    endpoints = ["127.0.0.1:2379"]
-    namespace = ""
-    [serverProxy.registerEtcd.tls]
-      cert = ""
-      key = ""
-      cacert = ""
+enable = true
+listenAddr = "127.0.0.1:62379"
+endpoints = ["127.0.0.1:2379"]
+namespace = ""
+
+[serverProxy.registerEtcd.tls]
+cert = ""
+key = ""
+cacert = ""
 
 [serverProxy.defaultEtcd]
-    enable = true
-    listenAddr = "127.0.0.1:52379"
-    endpoints = ["127.0.0.1:2379"]
-    namespace = ""
-    [serverProxy.defaultEtcd.tls]
-      cert = ""
-      key = ""
-      cacert = ""
+enable = true
+listenAddr = "127.0.0.1:52379"
+endpoints = ["127.0.0.1:2379"]
+namespace = ""
+
+[serverProxy.defaultEtcd.tls]
+cert = ""
+key = ""
+cacert = ""
 
 [serverProxy.prometheus]
-    enable = false
-    listenAddr = "127.0.0.1:59090"
-    backend = "127.0.0.1:9090"
-    disableKeepAlives = true
-    maxIdleConns = 100
-    maxIdelPerHost = 200
-    timeout = 3
+enable = false
+listenAddr = "127.0.0.1:59090"
+backend = "127.0.0.1:9090"
+disableKeepAlives = true
+maxIdleConns = 100
+maxIdelPerHost = 200
+timeout = 3
 
 #################################### notice #########################
 [notice]
-   [notice.email]
-       serverHost="smtp.163.com"
-       serverPort=465
-       fromEmail="xxx@163.com"
-       fromPasswd="xxx"
-       toers= ["xxxxxxx@qq.com"]
-       cCers = ["xxx@qq.com"]
-   [notice.ding]
-       webHook="http://XXX.com"
-       msgType="text"
+
+[notice.email]
+serverHost = "smtp.163.com"
+serverPort = 465
+fromEmail = "xxx@163.com"
+fromPasswd = "xxx"
+toers = ["xxxxxxx@qq.com"]
+cCers = ["xxx@qq.com"]
+
+[notice.ding]
+webHook = "http://XXX.com"
+msgType = "text"

@@ -27,8 +27,8 @@ type resp struct {
 func newCustomize() *customize {
 	return &customize{
 		client:       resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(xtime.Duration("3s")),
-		dashboardUrl: cfg.Cfg.AppLog.Customize.DashboardUrl,
-		logStoreUrl:  cfg.Cfg.AppLog.Customize.LogStoreUrl,
+		dashboardUrl: cfg.Cfg.AppLog.Default.DashboardUrl,
+		logStoreUrl:  cfg.Cfg.AppLog.Default.LogStoreUrl,
 	}
 }
 
@@ -37,12 +37,12 @@ func (c *customize) DashboardUrl(project, dashboard string) (string, error) {
 	out, err := c.client.R().Get(fmt.Sprintf(c.dashboardUrl, project, dashboard))
 	if err != nil {
 		xlog.Error("DashboardUrl", xlog.String("step", "query"), xlog.String("project", project), xlog.String("dashboard", dashboard), xlog.Any("err", err.Error()))
-		return "", errorconst.AppLogCustomizeDashboard.Error()
+		return "", errorconst.AppLogDefaultDashboard.Error()
 	}
 	var result resp
 	if err = json.Unmarshal(out.Body(), &result); err != nil {
 		xlog.Error("DashboardUrl", xlog.String("step", "Unmarshal"), xlog.String("project", project), xlog.String("dashboard", dashboard), xlog.Any("err", err.Error()))
-		return "", errorconst.AppLogCustomizeDashboard.Error()
+		return "", errorconst.AppLogDefaultDashboard.Error()
 	}
 	return result.Data, nil
 }
@@ -52,12 +52,12 @@ func (c *customize) LogStoreUrl(project, store, query string) (string, error) {
 	out, err := c.client.R().Get(fmt.Sprintf(c.logStoreUrl, project, store, query))
 	if err != nil {
 		xlog.Error("DashboardUrl", xlog.String("step", "query"), xlog.String("project", project), xlog.String("store", store), xlog.String("query", query), xlog.Any("err", err.Error()))
-		return "", errorconst.AppLogCustomizeDashboard.Error()
+		return "", errorconst.AppLogDefaultDashboard.Error()
 	}
 	var result resp
 	if err = json.Unmarshal(out.Body(), &result); err != nil {
 		xlog.Error("DashboardUrl", xlog.String("step", "Unmarshal"), xlog.String("project", project), xlog.String("store", store), xlog.String("query", query), xlog.Any("err", err.Error()))
-		return "", errorconst.AppLogCustomizeDashboard.Error()
+		return "", errorconst.AppLogDefaultDashboard.Error()
 	}
 	return result.Data, nil
 }

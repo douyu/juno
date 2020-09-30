@@ -228,19 +228,27 @@ func defaultConfig() cfg {
 			ProtoDir: "",
 		},
 		AppLog: AppLog{
-			Mode: "aliyun",
+			Mode:   "default",
+			Enable: true,
 			Aliyun: AppLogAliyun{
-				Enable:          true,
 				Secret:          "",
 				Key:             "",
 				RoleArn:         "",
 				RoleSessionName: "",
 				RegionID:        "",
 			},
-			Customize: AppLogCustomize{
-				Enable:       false,
+			Default: AppLogDefault{
 				DashboardUrl: "",
 				LogStoreUrl:  "",
+				Project: []AppLogDefaultProject{
+					{
+						Project:         "",
+						Env:             []string{""},
+						LogStoreConsole: "",
+						LogStoreJupiter: "",
+						LogStoreBiz:     "",
+					},
+				},
 			},
 		},
 	}
@@ -262,9 +270,7 @@ func InitCfg() {
 	}
 	config.parseHeartBeat()
 	Cfg = config
-
-	xlog.Info("InitCfg parse", zap.Any("config", config))
-
+	xlog.Info("InitCfg", xlog.Any("config", config))
 }
 
 func parseAppAndSubURL(rootURL string) (string, string, error) {

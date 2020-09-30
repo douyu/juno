@@ -15,20 +15,21 @@ type Aliyun struct {
 	key             string
 	secret          string
 	roleArn         string
-	roleSessionName string
 	loginURL        string
 	regionID        string
+	roleSessionName string
 }
 
-//New ..
+// New ..
 func New(key, secret, roleArn, roleSessionName, loginURL, regionID string) *Aliyun {
 	return &Aliyun{
 		client:          resty.New().SetDebug(true).SetTimeout(3*time.Second).SetHeader("Content-Type", "application/json;charset=utf-8"),
 		key:             key,
 		secret:          secret,
 		roleArn:         roleArn,
-		roleSessionName: roleSessionName,
 		loginURL:        loginURL,
+		regionID:        regionID,
+		roleSessionName: roleSessionName,
 	}
 }
 
@@ -62,7 +63,7 @@ func (t *Aliyun) Token(accessKeyId, accessKeySecret, safeToken string) (signInTo
 	v["AccessKeySecret"] = accessKeySecret
 	v["SecurityToken"] = safeToken
 	v["TicketType"] = "mini"
-	response, err := t.client.R().SetQueryParams(v).Get("http://signin.Aliyun.com/federation")
+	response, err := t.client.R().SetQueryParams(v).Get("http://signin.aliyun.com/federation")
 	if err != nil {
 		return
 	}
@@ -86,7 +87,7 @@ func (t *Aliyun) Url(destination string) (url string, err error) {
 		return
 	}
 	signInToken, err := t.Token(resq.Credentials.AccessKeyId, resq.Credentials.AccessKeySecret, resq.Credentials.SecurityToken)
-	url = fmt.Sprintf("http://signin.Aliyun.com/federation?Action=Login&SigninToken=%s&LoginUrl=%s&Destination=%s",
+	url = fmt.Sprintf("http://signin.aliyun.com/federation?Action=Login&SigninToken=%s&LoginUrl=%s&Destination=%s",
 		signInToken,
 		t.loginURL,
 		destination)
