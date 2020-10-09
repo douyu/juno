@@ -55,6 +55,7 @@ rootUrl = "http://jupiterconsole.douyu.com/"
 #################################### Jupiter Config #########################
 [jupiter]
 
+#################################### Config Dependency Parse #########################
 [jupiter.cron]
 
 [jupiter.cron.parse]
@@ -139,12 +140,6 @@ autoLoadInternal = 60
 # 资源配置
 resourceFile = './config/resource.yaml'
 
-#################################### Config Dependency Parse #########################
-[jupiter.cron.parse]
-withSeconds = false
-concurrentDelay = 10
-immediatelyRun = false
-
 [proxyAuth]
 token = "token" # 用于对 Juno Proxy 的请求进行授权
 
@@ -166,7 +161,7 @@ token = "token" # 代码仓库访问凭证
 enable = false # 是否启用测试平台
 
 [testplatform.worker]
-localQueueDir = "C:/tmp/localworkerqueue"
+localQueueDir = "/tmp/localworkerqueue"
 heartbeatTimeout = "6s"
 
 #################################### notice #########################
