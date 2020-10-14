@@ -207,14 +207,6 @@ export default class Etcd extends React.PureComponent {
     } = this.state;
 
     const {etcd} = this.props.setting.settings;
-    console.log(" --- etcd", etcd);
-    let etcdList = [];
-    etcd && etcd.map((item) => {
-      if (item.prefix) {
-        etcdList.push(item.prefix);
-      }
-    })
-    console.log("etcd --- etcdList", etcdList);
     const colSpan = {
       xxl: 6,
       xl: 6,
@@ -255,26 +247,22 @@ export default class Etcd extends React.PureComponent {
               <Col {...colSpan}>
                 <Select
                   showSearch
-                  //mode="tags"
-                  //size={`small`}
                   style={{width: '90%'}}
                   placeholder="选择查询前缀"
                   optionFilterProp="children"
-                  //defaultValue={appName}
                   value={prefix}
                   onSelect={this.onSelectPrefix}
-                  // disabled={true}
                 >
-                  {etcdList.map((v) => {
+                  {etcd?.filter(item => item.prefix).map((item, idx) => {
                     return (
-                      <Select.Option key={v} value={v}>
-                        {v}
+                      <Select.Option key={idx} value={item.prefix}>
+                        {item.prefix}
                       </Select.Option>
                     );
                   })}
                 </Select>
               </Col>
-              
+
               <Col {...colSpan}>
                 <Input style={{width: '90%'}} value={suffix} onChange={this.onChangeSuffix}
                        placeholder="输入查询后缀"/>

@@ -13,12 +13,12 @@ export default {
       pathRewrite: { '^/ant': '' },
     },
     '/api/admin': {
-      target: 'http://jupiterconsole.douyu.com',
+      target: 'http://localhost:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'http://jupiterconsole.douyu.com',
+      target: 'http://localhost:50000',
       changeOrigin: true,
     },
     '/grafana': {

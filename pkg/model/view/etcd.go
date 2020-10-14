@@ -13,7 +13,7 @@ type ReqGetEtcdList struct {
 	AppName     string `json:"appName"`
 	ServiceName string `json:"serviceName"`
 	Suffix      string `json:"suffix"`
-	ZoneCode    string `json:"zone_code"`
+	ZoneCode    string `json:"zoneCode"`
 	Env         string `json:"env"`
 }
 
