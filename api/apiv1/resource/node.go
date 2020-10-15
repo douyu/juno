@@ -1,6 +1,7 @@
 package resource
 
 import (
+	"sync"
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -254,7 +255,25 @@ func NodeStatics(c echo.Context) error {
 	}
 	now := time.Now().Unix()
 	envMap := make(map[string]map[string]int)
-	for _, v := range list {
+
+	counts := make([]int, len(list))
+	wg := sync.WaitGroup{}
+	for _idx, _v := range list {
+		v := _v
+		idx := _idx
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			cnt, _ := resource.Resource.CountAppNode(db.AppNode{
+				HostName: v.HostName,
+				IP:       v.Ip,
+			})
+			counts[idx] = cnt
+		}()
+	}
+	wg.Wait()
+
+	for idx, v := range list {
 		zoneMap, ok := envMap[v.Env]
 		if !ok {
 			zoneMapNew := make(map[string]int)
@@ -270,10 +289,7 @@ func NodeStatics(c echo.Context) error {
 			envMap[v.Env] = zoneMap
 		}
 
-		cnt, _ := resource.Resource.CountAppNode(db.AppNode{
-			HostName: v.HostName,
-			IP:       v.Ip,
-		})
+		cnt := counts[idx]
 		if cnt == 0 {
 			app0.Value++
 		}

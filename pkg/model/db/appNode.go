@@ -12,7 +12,7 @@ type AppNode struct {
 	AppName    string `json:"app_name" gorm:"not null;column:app_name"`
 	Aid        int    `json:"aid" gorm:"not null;column:aid"` // id类型?
 	HostName   string `json:"host_name" gorm:"not null;column:host_name"`
-	IP         string `json:"ip" gorm:"not null;column:ip"`
+	IP         string `json:"ip" gorm:"not null;column:ip;index"`
 	DeviceID   int    `json:"device_id" gorm:"not null;column:device_id"`
 	Env        string `json:"env" gorm:"not null"`
 	RegionCode string `json:"region_code" gorm:"not null"`
