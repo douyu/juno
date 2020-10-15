@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 4,
-  "iteration": 1592466005984,
+  "id": 17,
+  "iteration": 1602729116611,
   "links": [],
   "panels": [
     {
@@ -35,7 +35,11 @@
       "cacheTimeout": null,
       "colorBackground": true,
       "colorValue": false,
-      "colors": ["#E02F44", "#FF780A", "#56A64B"],
+      "colors": [
+        "#E02F44",
+        "#FF780A",
+        "#56A64B"
+      ],
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
@@ -107,18 +111,23 @@
         {
           "alias": "",
           "dsType": "influxdb",
-          "expr": "avg(jupiter_up{job=\"$appname\",instance=~\"$instance\"})by(job)",
+          "expr": "avg(up{job=\"$appname\",instance=~\"$instance\"})by(job)",
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$interval"],
+              "params": [
+                "$interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
+          "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{instance}}",
           "measurement": "application.httprequests__active",
@@ -128,7 +137,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -215,28 +226,36 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["mean"],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
-      "pluginVersion": "7.0.3",
+      "pluginVersion": "7.1.1",
       "targets": [
         {
           "alias": "",
           "dsType": "influxdb",
-          "expr": "sum(jupiter_up{job=\"$appname\"})",
+          "expr": "sum(up{job=\"$appname\"})",
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$interval"],
+              "params": [
+                "$interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
+          "interval": "",
           "intervalFactor": 2,
           "legendFormat": "{{instance}}",
           "measurement": "application.httprequests__active",
@@ -246,7 +265,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -280,7 +301,11 @@
       "cacheTimeout": null,
       "colorBackground": false,
       "colorValue": false,
-      "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
       "datasource": "$datasource",
       "decimals": 2,
       "fieldConfig": {
@@ -418,12 +443,15 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["mean"],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
-      "pluginVersion": "7.0.3",
+      "pluginVersion": "7.1.1",
       "targets": [
         {
           "expr": "max(process_resident_memory_bytes{instance=~\"$instance\",job=\"$appname\"})\n",
@@ -483,12 +511,15 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["mean"],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
-      "pluginVersion": "7.0.3",
+      "pluginVersion": "7.1.1",
       "targets": [
         {
           "expr": "max(sum(irate(jupiter_server_handle_seconds_count{job=\"$appname\",instance=~\"$instance\"}[1m])) by (instance))",
@@ -549,12 +580,15 @@
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["mean"],
+          "calcs": [
+            "mean"
+          ],
           "fields": "",
           "values": false
-        }
+        },
+        "textMode": "auto"
       },
-      "pluginVersion": "7.0.3",
+      "pluginVersion": "7.1.1",
       "targets": [
         {
           "expr": "max(sum(irate(jupiter_server_handle_seconds_count{job=\"$appname\"}[1m])) by (job)) ",
@@ -573,7 +607,11 @@
       "cacheTimeout": null,
       "colorBackground": false,
       "colorValue": false,
-      "colors": ["#299c46", "rgba(237, 129, 40, 0.89)", "#d44a3a"],
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
       "datasource": "$datasource",
       "description": "GC 持续时间",
       "fieldConfig": {
@@ -680,7 +718,8 @@
       "description": "GC 持续时间",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -707,10 +746,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -777,7 +814,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -806,10 +844,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -825,15 +861,21 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$interval"],
+              "params": [
+                "$interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["route"],
+              "params": [
+                "route"
+              ],
               "type": "tag"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -847,7 +889,9 @@
           "select": [
             [
               {
-                "params": ["rate1m"],
+                "params": [
+                  "rate1m"
+                ],
                 "type": "field"
               },
               {
@@ -923,7 +967,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -954,10 +999,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -973,15 +1016,21 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$interval"],
+              "params": [
+                "$interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["route"],
+              "params": [
+                "route"
+              ],
               "type": "tag"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -995,7 +1044,9 @@
           "select": [
             [
               {
-                "params": ["p95"],
+                "params": [
+                  "p95"
+                ],
                 "type": "field"
               },
               {
@@ -1003,7 +1054,9 @@
                 "type": "last"
               },
               {
-                "params": ["95th Percentile"],
+                "params": [
+                  "95th Percentile"
+                ],
                 "type": "alias"
               }
             ]
@@ -1045,6 +1098,8 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:161",
+          "decimals": 2,
           "format": "ms",
           "label": null,
           "logBase": 1,
@@ -1053,6 +1108,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:162",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -1075,7 +1131,8 @@
       "description": "文件句柄数线性回归趋势",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1102,10 +1159,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1174,7 +1229,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1202,10 +1258,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1221,11 +1275,15 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$interval"],
+              "params": [
+                "$interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1238,7 +1296,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1314,7 +1374,8 @@
       "description": "Go程序占用的常驻内存和虚拟内存容量",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1341,10 +1402,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1442,7 +1501,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1469,10 +1529,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1488,15 +1546,21 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$interval"],
+              "params": [
+                "$interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["route"],
+              "params": [
+                "route"
+              ],
               "type": "tag"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1509,7 +1573,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1585,7 +1651,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1615,10 +1682,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1634,11 +1699,15 @@
           "format": "time_series",
           "groupBy": [
             {
-              "params": ["$interval"],
+              "params": [
+                "$interval"
+              ],
               "type": "time"
             },
             {
-              "params": ["null"],
+              "params": [
+                "null"
+              ],
               "type": "fill"
             }
           ],
@@ -1651,7 +1720,9 @@
           "select": [
             [
               {
-                "params": ["value"],
+                "params": [
+                  "value"
+                ],
                 "type": "field"
               },
               {
@@ -1727,7 +1798,8 @@
       "description": "文件句柄数",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1754,10 +1826,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1838,7 +1908,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1865,10 +1936,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1935,7 +2004,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1968,10 +2038,8 @@
         }
       ],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2038,7 +2106,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -2065,10 +2134,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2136,7 +2203,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -2163,10 +2231,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2233,7 +2299,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -2260,10 +2327,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2330,7 +2395,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -2357,10 +2423,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2422,7 +2486,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 25,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -2430,8 +2494,8 @@
       {
         "current": {
           "selected": false,
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "text": "dev.HB-WHYL.v1.6.x",
+          "value": "dev.HB-WHYL.v1.6.x"
         },
         "hide": 0,
         "includeAll": false,
@@ -2450,8 +2514,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "prometheus",
-          "value": "prometheus"
+          "text": "grafana",
+          "value": "grafana"
         },
         "datasource": "$datasource",
         "definition": "label_values(go_info{},job)",
@@ -2572,7 +2636,9 @@
         "current": {
           "selected": true,
           "text": "All",
-          "value": ["$__all"]
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "$datasource",
         "definition": "label_values(jupiter_server_handle_seconds_count{job=~'$appname'},method) ",
@@ -2611,10 +2677,20 @@
       "2h",
       "1d"
     ],
-    "time_options": ["5m", "15m", "1h", "6h", "12h", "24h", "2d", "7d", "30d"]
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
   },
   "timezone": "",
   "title": "Instance",
   "uid": "instance",
-  "version": 1
+  "version": 3
 }

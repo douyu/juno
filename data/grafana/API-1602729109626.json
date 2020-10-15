@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 3,
-  "iteration": 1592466015051,
+  "id": 16,
+  "iteration": 1602729096240,
   "links": [],
   "panels": [
     {
@@ -41,7 +41,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -68,10 +69,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -139,7 +138,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -172,10 +172,8 @@
         }
       ],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -242,7 +240,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -269,10 +268,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -340,7 +337,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -367,10 +365,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -437,7 +433,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -464,10 +461,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -534,7 +529,8 @@
       "datasource": "$datasource",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -561,10 +557,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -626,7 +620,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 25,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -634,8 +628,8 @@
       {
         "current": {
           "selected": false,
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "text": "dev.HB-WHYL.v1.6.x",
+          "value": "dev.HB-WHYL.v1.6.x"
         },
         "hide": 0,
         "includeAll": false,
@@ -654,8 +648,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "jupiter",
-          "value": "jupiter"
+          "text": "grafana",
+          "value": "grafana"
         },
         "datasource": "$datasource",
         "definition": "label_values(go_info{},job)",
@@ -832,5 +826,5 @@
   "timezone": "",
   "title": "API",
   "uid": "api",
-  "version": 1
+  "version": 2
 }
