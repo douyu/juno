@@ -2,16 +2,13 @@ package etcdHandle
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
-	"github.com/douyu/juno/internal/app/core"
-
 	"github.com/coreos/etcd/clientv3"
+	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
-	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
@@ -35,7 +32,11 @@ func List(c echo.Context) error {
 		return output.JSON(c, output.MsgOk, "success", resp)
 	}
 
-	resp = list(req)
+	resp, err := list(req)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "查询失败："+err.Error())
+	}
+
 	return output.JSON(c, output.MsgOk, "success", resp)
 }
 
@@ -55,7 +56,12 @@ func ProTableList(c *core.Context) error {
 	if req.ZoneCode == "all" {
 		return output.JSON(c, output.MsgOk, "success", resp)
 	}
-	resp = list(req)
+
+	resp, err := list(req)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "查询失败："+err.Error())
+	}
+
 	total := len(resp)
 	res := output.ProTableResult{
 		Success: true,
@@ -65,7 +71,7 @@ func ProTableList(c *core.Context) error {
 	return c.OutputJSON(output.MsgOk, "", c.WithData(res))
 }
 
-func list(req view.ReqGetEtcdList) (resp []view.RespEtcdInfo) {
+func list(req view.ReqGetEtcdList) (resp []view.RespEtcdInfo, err error) {
 	resp = make([]view.RespEtcdInfo, 0)
 	key := req.Prefix
 	if req.AppName != "" {
@@ -77,20 +83,24 @@ func list(req view.ReqGetEtcdList) (resp []view.RespEtcdInfo) {
 		key = req.Prefix + req.ServiceName + req.Suffix
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	registerRes, registerErr := clientproxy.ClientProxy.RegisterEtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
-	res, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
-	if err != nil || registerErr != nil {
-		errSrt := fmt.Sprintf("configErr: %s; registerErr: %s", err.Error(), registerErr.Error())
-		xlog.Error("etcdList", zap.String("step", "DefaultEtcdGet"), zap.String("appName", req.AppName), zap.String("env", req.Env), zap.String("zoneCode", req.ZoneCode), zap.String("key", key), zap.String("error", errSrt))
+
+	registerRes, err := clientproxy.ClientProxy.RegisterEtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
+	if err != nil {
+		xlog.Error("etcdList", zap.String("step", "RegisterEtcdGet"),
+			zap.String("appName", req.AppName), zap.String("env", req.Env),
+			zap.String("zoneCode", req.ZoneCode), zap.String("key", key),
+			zap.String("error", err.Error()))
 		return
 	}
 
-	if len(res.Kvs) == 0 && len(registerRes.Kvs) == 0 {
-		err = errorconst.ParamConfigCallbackKvIsZero.Error()
-		xlog.Warn("etcdList", zap.String("step", "resp.Kvs"), zap.String("appName", req.AppName), zap.String("env", req.Env), zap.String("zoneCode", req.ZoneCode), zap.String("key", key), zap.Any("res", res))
+	res, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ctx, key, clientv3.WithPrefix())
+	if err != nil {
+		xlog.Error("etcdList", zap.String("step", "DefaultEtcdGet"),
+			zap.String("appName", req.AppName), zap.String("env", req.Env),
+			zap.String("zoneCode", req.ZoneCode), zap.String("key", key),
+			zap.String("error", err.Error()))
 		return
 	}
 
