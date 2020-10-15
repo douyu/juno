@@ -16,8 +16,8 @@
   "editable": true,
   "gnetId": 2204,
   "graphTooltip": 1,
-  "id": 5,
-  "iteration": 1592465964731,
+  "id": 18,
+  "iteration": 1602729130409,
   "links": [],
   "panels": [
     {
@@ -30,7 +30,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -61,10 +62,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -242,7 +241,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -273,10 +273,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -452,7 +450,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -483,10 +482,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -644,7 +641,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -675,10 +673,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -855,7 +851,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -886,10 +883,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1048,7 +1043,8 @@
       "error": false,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {},
+          "links": []
         },
         "overrides": []
       },
@@ -1079,10 +1075,8 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1233,7 +1227,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 25,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [
     "prometheus"
@@ -1243,8 +1237,8 @@
       {
         "current": {
           "selected": false,
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "text": "dev.HB-WHYL.v1.6.x",
+          "value": "dev.HB-WHYL.v1.6.x"
         },
         "hide": 0,
         "includeAll": false,
@@ -1262,8 +1256,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "jupiter",
-          "value": "jupiter"
+          "text": "grafana",
+          "value": "grafana"
         },
         "datasource": "$datasource",
         "definition": "label_values(go_info{},job)",
@@ -1287,11 +1281,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "monitor-demo",
-          "value": [
-            "monitor-demo"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "$datasource",
         "definition": "label_values(go_info{job=~'$appname'},instance)",
