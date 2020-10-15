@@ -6,24 +6,25 @@ package notice
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/douyu/juno/pkg/cfg"
 	"net/http"
 	"strings"
+
+	"github.com/douyu/juno/pkg/cfg"
 )
 
 const (
-	TextMsgType = "text"
-	LinkMsgType = "link"
-	MarkDownMsgType = "markdown"
+	TextMsgType       = "text"
+	LinkMsgType       = "link"
+	MarkDownMsgType   = "markdown"
 	ActionCardMsgType = "actionCard"
 )
 
-type DingNotice struct {}
+type DingNotice struct{}
 
-func (d *DingNotice)Send(content string){
+func (d *DingNotice) Send(content string) {
 	atMobiles := []string{}
-	isAtAll :=  true
-	NewtDingNotice(TextMsgType).InitText(content,atMobiles,isAtAll).sendDingMsg()
+	isAtAll := true
+	NewtDingNotice(TextMsgType).InitText(content, atMobiles, isAtAll).sendDingMsg()
 }
 
 type dingMsg struct {
@@ -36,6 +37,7 @@ type dingMsg struct {
 		ActionCard DingActionCard
 	}
 }
+
 //钉钉通知消息对象实体获取
 func NewtDingNotice(msgtype string) *dingMsg {
 	dingNotice := &dingMsg{
@@ -45,9 +47,9 @@ func NewtDingNotice(msgtype string) *dingMsg {
 			Markdown   DingMarkdown
 			ActionCard DingActionCard
 		}{
-			Text: DingText{},
-			Link: DingLink{},
-			Markdown: DingMarkdown{},
+			Text:       DingText{},
+			Link:       DingLink{},
+			Markdown:   DingMarkdown{},
 			ActionCard: DingActionCard{},
 		},
 	}
@@ -73,8 +75,7 @@ func NewtDingNotice(msgtype string) *dingMsg {
 	return dingNotice
 }
 
-
-func (d *dingMsg) InitText(content string,atMobiles[]string,isAtAll bool)*msgSubject {
+func (d *dingMsg) InitText(content string, atMobiles []string, isAtAll bool) *msgSubject {
 	t := new(msgSubject)
 	t.dingMsg = d
 	d.MsgList.Text.Text.Content = content
@@ -84,8 +85,7 @@ func (d *dingMsg) InitText(content string,atMobiles[]string,isAtAll bool)*msgSub
 	return t
 }
 
-
-func (d *dingMsg) InitLink(text,title,picUrl,messageUrl string)*msgSubject {
+func (d *dingMsg) InitLink(text, title, picUrl, messageUrl string) *msgSubject {
 	t := new(msgSubject)
 	t.dingMsg = d
 	d.MsgList.Link.Link.Text = text
@@ -96,8 +96,7 @@ func (d *dingMsg) InitLink(text,title,picUrl,messageUrl string)*msgSubject {
 	return t
 }
 
-
-func (d *dingMsg) InitMarkdownDing(title,text string,atMobiles []string,isAtAll bool)*msgSubject {
+func (d *dingMsg) InitMarkdownDing(title, text string, atMobiles []string, isAtAll bool) *msgSubject {
 	t := new(msgSubject)
 	t.dingMsg = d
 	d.MsgList.Markdown.Markdown.Text = text
@@ -108,8 +107,7 @@ func (d *dingMsg) InitMarkdownDing(title,text string,atMobiles []string,isAtAll 
 	return t
 }
 
-
-func (d *dingMsg) InitActionCardDing(title,text,singleTitle,singleURL,btnOrientation string)*msgSubject {
+func (d *dingMsg) InitActionCardDing(title, text, singleTitle, singleURL, btnOrientation string) *msgSubject {
 	t := new(msgSubject)
 	t.dingMsg = d
 	d.MsgList.ActionCard.ActionCard.Text = text
@@ -128,13 +126,13 @@ type msgSubject struct {
 func (d *msgSubject) sendDingMsg() (err error) {
 	//请求地址模板
 	webHook := d.dingMsg.WebHook
-	b,err :=json.Marshal(d.dingMsg.Content)
-	if err!=nil{
+	b, err := json.Marshal(d.dingMsg.Content)
+	if err != nil {
 		return
 	}
 
 	jsonStr := string(b)
-	fmt.Println(jsonStr,887766)
+	fmt.Println(jsonStr, 887766)
 	//创建一个请求
 	req, err := http.NewRequest("POST", webHook, strings.NewReader(jsonStr))
 	if err != nil {
@@ -147,5 +145,3 @@ func (d *msgSubject) sendDingMsg() (err error) {
 	defer resp.Body.Close()
 	return
 }
-
-

@@ -38,7 +38,7 @@ func (s *workerSelector) push(node db.WorkerNode) {
 	}
 
 	keys := make([]string, 0)
-	for k, _ := range s.nodes {
+	for k := range s.nodes {
 		keys = append(keys, k)
 	}
 
