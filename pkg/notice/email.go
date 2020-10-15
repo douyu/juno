@@ -3,11 +3,12 @@ package notice
 import (
 	"bytes"
 	"errors"
+	"html/template"
+
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-gomail/gomail"
 	"go.uber.org/zap"
-	"html/template"
 )
 
 type Email struct {
@@ -33,42 +34,41 @@ type Email struct {
 
 type EmailOption func(*Email)
 
-
 func EmailBody(fields map[string]interface{}) EmailOption {
 	return func(args *Email) {
-		templ,err:=template.ParseFiles(".\\template\\emailnotice.html")
-		if err!=nil{
-			xlog.Error("NewEmailNotice", zap.String("step", "template.ParseFiles"),zap.String("err", err.Error()))
+		templ, err := template.ParseFiles(".\\template\\emailnotice.html")
+		if err != nil {
+			xlog.Error("NewEmailNotice", zap.String("step", "template.ParseFiles"), zap.String("err", err.Error()))
 			return
 		}
 
 		var mailBody bytes.Buffer
-		if err :=templ.Execute(&mailBody,map[string]interface{}{
-			"fields":fields,
-		});err!=nil{
-			xlog.Error("NewEmailNotice", zap.String("step", "templ.Execute"),zap.String("err", err.Error()))
+		if err := templ.Execute(&mailBody, map[string]interface{}{
+			"fields": fields,
+		}); err != nil {
+			xlog.Error("NewEmailNotice", zap.String("step", "templ.Execute"), zap.String("err", err.Error()))
 			return
 		}
-		args.Body =  mailBody.String()
+		args.Body = mailBody.String()
 	}
 }
 
 // SendEmail body支持html格式字符串
-func(ep *Email) Send(fields map[string]interface{}) {
+func (ep *Email) Send(fields map[string]interface{}) {
 	NewEmailNotice(EmailBody(fields)).send()
 }
 
 //默认邮件通知初始化
-func NewEmailNotice(setters ...EmailOption)(email *Email){
+func NewEmailNotice(setters ...EmailOption) (email *Email) {
 	email = new(Email)
 	email.m = gomail.NewMessage()
 	email.ServerHost = cfg.Cfg.Notice.Email.ServerHost
 	email.ServerPort = cfg.Cfg.Notice.Email.ServerPort
-	email.FromEmail =cfg.Cfg.Notice.Email.FromEmail
+	email.FromEmail = cfg.Cfg.Notice.Email.FromEmail
 	email.FromPasswd = cfg.Cfg.Notice.Email.FromPasswd
 	email.Toers = cfg.Cfg.Notice.Email.Toers
 	email.CCers = cfg.Cfg.Notice.Email.CCers
-	email.Subject =  "日志服务"
+	email.Subject = "日志服务"
 
 	for _, setter := range setters {
 		setter(email)
@@ -77,8 +77,7 @@ func NewEmailNotice(setters ...EmailOption)(email *Email){
 	return
 }
 
-
-func (ep *Email)send()(err error){
+func (ep *Email) send() (err error) {
 
 	if len(ep.Toers) == 0 {
 		err = errors.New("邮件接收者邮箱不能为空")
