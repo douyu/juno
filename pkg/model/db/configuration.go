@@ -42,7 +42,7 @@ type (
 		CreatedAt       time.Time  `gorm:"column:created_at" json:"created_at"`
 		DeletedAt       *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
 
-		User             *User                           `json:"-" gorm:"foreignKey:UID;association_foreignkey:Username"`
+		User             *User                           `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
 		AccessToken      *AccessToken                    `json:"-" gorm:"foreignKey:AccessTokenID;association_foreignkey:ID"`
 		Configuration    *Configuration                  `json:"-" gorm:"foreignKey:ConfigurationID;"`
 		ResourceRelation []ConfigurationResourceRelation `json:"-" gorm:"association_foreignkey:ConfigurationHistoryID"`
