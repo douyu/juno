@@ -258,9 +258,11 @@ func NodeStatics(c echo.Context) error {
 
 	counts := make([]int, len(list))
 	wg := sync.WaitGroup{}
+	blockCh := make(chan struct{}, 100) // 限制并发查询数量
 	for _idx, _v := range list {
 		v := _v
 		idx := _idx
+		blockCh <- struct{}{}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -269,6 +271,7 @@ func NodeStatics(c echo.Context) error {
 				IP:       v.Ip,
 			})
 			counts[idx] = cnt
+			<-blockCh
 		}()
 	}
 	wg.Wait()
