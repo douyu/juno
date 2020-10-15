@@ -5,7 +5,7 @@ import {
   ServiceNodeStatistics,
   ServiceCmcStatistics,
 } from '@/services/event';
-import { message, Card, Row, Col } from 'antd';
+import {message, Card, Row, Col, Spin} from 'antd';
 import EventList from './components/EventList';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 export interface HomeProps {}
@@ -16,7 +16,7 @@ export default class Base extends React.Component<HomeProps, any> {
     super(props);
     this.state = {
       stat: {},
-      node_stat: {},
+      node_stat: null,
       cmc_stat: {},
       data: {
         list: [],
@@ -248,9 +248,9 @@ export default class Base extends React.Component<HomeProps, any> {
 
   render() {
     const { data, stat, node_stat, cmc_stat } = this.state;
-    const { app_cnt, node_cnt, region_cnt, zone_cnt } = stat;
-    const { node_status = [], node_app = [], day_cnt = [], env_zone = [] } = node_stat;
-    const { total = 0, env_cnt = [], cmc_cnt = [] } = cmc_stat;
+    const { app_cnt, node_cnt, zone_cnt } = stat;
+    const { node_status = [], day_cnt = [], env_zone = [] } = node_stat || {};
+    const { total = 0, env_cnt = []} = cmc_stat;
 
     return (
       <PageHeaderWrapper>
@@ -287,24 +287,28 @@ export default class Base extends React.Component<HomeProps, any> {
               <Row gutter={4} style={{ marginTop: '4px' }}>
                 <Col span={24}>
                   <Card title={'环境对应可用区'}>
-                    <ReactEcharts
-                      option={this.getOptionZhu(env_zone)}
-                      notMerge={true}
-                      lazyUpdate={true}
-                      theme={'light'}
-                    />
+                    <Spin spinning={!node_stat}>
+                      <ReactEcharts
+                        option={this.getOptionZhu(env_zone)}
+                        notMerge={true}
+                        lazyUpdate={true}
+                        theme={'light'}
+                      />
+                    </Spin>
                   </Card>
                 </Col>
               </Row>
               <Row gutter={4} style={{ marginTop: '4px' }}>
                 <Col span={24}>
                   <Card title={'节点新增趋势图'}>
-                    <ReactEcharts
-                      option={this.getOption(day_cnt)}
-                      notMerge={true}
-                      lazyUpdate={true}
-                      theme={'light'}
-                    />
+                    <Spin spinning={!node_stat}>
+                      <ReactEcharts
+                        option={this.getOption(day_cnt)}
+                        notMerge={true}
+                        lazyUpdate={true}
+                        theme={'light'}
+                      />
+                    </Spin>
                   </Card>
                 </Col>
               </Row>
@@ -328,12 +332,14 @@ export default class Base extends React.Component<HomeProps, any> {
               <Row gutter={4} style={{ marginTop: '4px' }}>
                 <Col span={24}>
                   <Card title={'节点基本情况统计'}>
-                    <ReactEcharts
-                      option={this.getOptionBin(node_status)}
-                      notMerge={true}
-                      lazyUpdate={true}
-                      theme={'light'}
-                    />
+                    <Spin spinning={!node_stat}>
+                      <ReactEcharts
+                        option={this.getOptionBin(node_status)}
+                        notMerge={true}
+                        lazyUpdate={true}
+                        theme={'light'}
+                      />
+                    </Spin>
                   </Card>
                 </Col>
               </Row>
