@@ -17,8 +17,10 @@ package invoker
 import (
 	"time"
 
+	rocketmq2 "github.com/apache/rocketmq-client-go"
 	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/jupiter/pkg/client/rocketmq"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/util/xtime"
 	"github.com/go-resty/resty/v2"
@@ -31,6 +33,9 @@ var (
 	ConfgoEtcd *clientv3.Client
 	// Resty ..
 	Resty *resty.Client
+
+	// event producer
+	EventProducer rocketmq2.Producer
 )
 
 // Init invoker
@@ -56,4 +61,19 @@ func Init() {
 		}
 	}
 	Resty = resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(xtime.Duration("20s"))
+
+	if cfg.Cfg.JunoEvent.Rocketmq.Enable {
+		config := cfg.Cfg.JunoEvent.Rocketmq
+		mqConfig := rocketmq.DefaultProducerConfig()
+		mqConfig.Group = config.Group
+		mqConfig.Retry = config.Retry
+		mqConfig.Topic = config.Topic
+		mqConfig.Addr = config.Addr
+		mqConfig.DialTimeout = config.DialTimeout
+
+		EventProducer, err = mqConfig.Build()
+		if err != nil {
+			panic("init junoevnet producer failed. err=" + err.Error())
+		}
+	}
 }

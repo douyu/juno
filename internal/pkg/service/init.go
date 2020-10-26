@@ -36,7 +36,7 @@ import (
 func Init() (err error) {
 
 	// 事件最先初始化，最低层
-	appevent.InitAppEvent()
+	appevent.InitAppEvent(invoker.EventProducer, cfg.Cfg.JunoEvent.Rocketmq.Topic)
 
 	// 初始化资源
 	sresource.InitResource(invoker.JunoMysql)

@@ -57,6 +57,7 @@ type cfg struct {
 	CodePlatform      CodePlatform
 	TestPlatform      TestPlatform
 	Notice            Notice
+	JunoEvent         JunoEvent
 }
 
 // DefaultConfig ...

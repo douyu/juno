@@ -1,7 +1,15 @@
 package appevent
 
 import (
+	"context"
+	"encoding/json"
 	"time"
+
+	"github.com/douyu/juno/pkg/cfg"
+
+	"github.com/apache/rocketmq-client-go/primitive"
+
+	rocketmq2 "github.com/apache/rocketmq-client-go"
 
 	"github.com/douyu/juno/pkg/model/view"
 
@@ -14,12 +22,16 @@ var (
 )
 
 type appEvent struct {
-	eventChan chan db.AppEvent
+	eventChan     chan db.AppEvent
+	eventProducer rocketmq2.Producer
+	topic         string
 }
 
-func InitAppEvent() *appEvent {
+func InitAppEvent(eventProducer rocketmq2.Producer, topic string) *appEvent {
 	obj := &appEvent{
-		eventChan: make(chan db.AppEvent, 10000),
+		eventChan:     make(chan db.AppEvent, 10000),
+		eventProducer: eventProducer,
+		topic:         topic,
 	}
 	go obj.ConsumeEvent()
 	AppEvent = obj
@@ -45,7 +57,25 @@ func (a *appEvent) ConsumeEvent() {
 }
 
 func (a *appEvent) insert(event db.AppEvent) error {
-	if err := invoker.JunoMysql.Create(&event).Error; err != nil {
+	tx := invoker.JunoMysql.Begin()
+	if err := tx.Create(&event).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if cfg.Cfg.JunoEvent.Rocketmq.Enable {
+		eventMsg, _ := json.Marshal(&event)
+		ctx, cancelFn := context.WithTimeout(context.Background(), time.Second)
+		_, err := a.eventProducer.SendSync(ctx, primitive.NewMessage(a.topic, eventMsg))
+		cancelFn()
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err := tx.Commit().Error
+	if err != nil {
 		return err
 	}
 

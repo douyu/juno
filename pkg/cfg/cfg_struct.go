@@ -325,3 +325,14 @@ type TestPlatform struct {
 		HeartbeatTimeout time.Duration
 	}
 }
+
+type JunoEvent struct {
+	Rocketmq struct {
+		Enable      bool          `yaml:"enable"`
+		Addr        []string      `yaml:"addr"`
+		Topic       string        `yaml:"topic"`
+		Group       string        `yaml:"group"`
+		Retry       int           `yaml:"retry"`
+		DialTimeout time.Duration `yaml:"dialTimeout"`
+	}
+}

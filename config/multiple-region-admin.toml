@@ -223,3 +223,12 @@ cCers = ["xxx@qq.com"]
 [notice.ding]
 webHook = "http://XXX.com"
 msgType = "text"
+
+# 系统事件的 RocektMQ 配置
+[junoevent.rocketmq]
+enable = false # 开关.如果为false，则系统事件不写MQ.
+addr = ["127.0.0.1:9876"] # mq地址
+topic = "juno_test_job" # mq topic
+group = "juno_devops_go" # mq producer group
+retry = 3 # MQ写重试次数
+dialTimeout = "3s" # MQ连接超时时间

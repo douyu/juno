@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/alibaba/sentinel-golang v0.4.0
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190802083043-4cd0c391755e
+	github.com/apache/rocketmq-client-go v0.0.0-20191211114916-85ee94b43cef
 	github.com/beeker1121/goque v2.1.0+incompatible
 	github.com/bojand/ghz v0.56.0
 	github.com/casbin/casbin/v2 v2.7.2
