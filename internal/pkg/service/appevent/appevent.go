@@ -64,6 +64,8 @@ func (a *appEvent) insert(event db.AppEvent) error {
 	}
 
 	if cfg.Cfg.JunoEvent.Rocketmq.Enable {
+		event.HandleOperationName()
+		event.HandleSourceName()
 		eventMsg, _ := json.Marshal(&event)
 		ctx, cancelFn := context.WithTimeout(context.Background(), time.Second)
 		_, err := a.eventProducer.SendSync(ctx, primitive.NewMessage(a.topic, eventMsg))
