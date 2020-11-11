@@ -8,6 +8,7 @@ import (
 	"github.com/douyu/jupiter/pkg/util/xgo"
 	"net/http"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -927,6 +928,43 @@ func Diff(configID, historyID uint) (resp view.RespDiffConfig, err error) {
 	return
 }
 
+// DiffVersion ..
+func DiffVersion(param view.ReqDiffVersionConfig) (resp view.RespDiffConfig, err error) {
+	d :=strings.Split(param.ServiceVersion,"-")
+
+	if len(d) != 3 {
+		err = errors.New("param.ServiceVersion split 不合法")
+		xlog.Error("DiffVersion", xlog.String("step", "strings.Split"), xlog.String("err", err.Error()))
+		return
+	}
+
+	serviceVersion := d[0]
+	aid :=d[1]
+	env :=d[2]
+	publishVersion :=param.PublishVersion
+
+
+	serviceConfiguration := db.Configuration{}
+	publishConfiguration := db.Configuration{}
+	err = mysql.Where("aid = ? && env = ? && version = ?", aid, env, serviceVersion).First(&serviceConfiguration).Error
+	if err != nil {
+		xlog.Error("DiffVersion", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+		return
+	}
+
+	err = mysql.Where("aid = ? && env = ? && version = ?", aid, env, publishVersion).First(&publishConfiguration).Error
+	if err != nil {
+		xlog.Error("DiffVersion", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+		return
+	}
+	configID :=serviceConfiguration.ID
+	historyID := publishConfiguration.ID
+
+	return Diff(configID,historyID)
+
+}
+
+
 // DiffReleaseConfig ..
 func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffReleaseConfig, err error) {
 	if len(param.Ips) == 0 {
@@ -1026,9 +1064,9 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 		resp.DiffUrl = ""
 		return
 	}
-
+	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl,"/")
 	resp.HasNew = false
-	resp.DiffUrl = fmt.Sprintf("&publishVersion=%s&serviceVersion=%s",publishVersion,effectVersion)
+	resp.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s",rootUrl,appNodeInfo.Aid,appNodeInfo.AppName,appNodeInfo.Env,publishVersion,effectVersion)
 	return
 }
 

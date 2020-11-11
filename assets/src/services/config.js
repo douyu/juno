@@ -56,6 +56,10 @@ export async function loadConfigDiff(configID, historyID) {
   return request(`/api/admin/confgov2/config/diff?id=${configID}&history_id=${historyID}`);
 }
 
+export async function loadConfigVersionDiff(serviceVersion,publishVersion) {
+  return request(`/api/admin/confgov2/config/diffVersion?serviceVersion=${serviceVersion}&publishVersion=${publishVersion}`);
+}
+
 export async function deleteConfig(id) {
   return request(`/api/admin/confgov2/config/delete?id=${id}`, {
     method: 'POST',

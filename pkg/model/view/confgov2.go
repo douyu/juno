@@ -118,9 +118,15 @@ type (
 
 	// ReqDiffConfig ..
 	ReqDiffConfig struct {
-		ID        uint `query:"id" validate:"required"`         // 配置ID
-		HistoryID uint `query:"history_id" validate:"required"` // 版本ID
+		ID        uint `query:"id"`         // 配置ID
+		HistoryID uint `query:"history_id"` // 版本ID
 	}
+	// ReqDiffVersionConfig ..
+	ReqDiffVersionConfig struct {
+		ServiceVersion string `query:"serviceVersion"` // 配置ID
+		PublishVersion string `query:"publishVersion"` // 版本ID
+	}
+
 	// RespDiffConfig ..
 	RespDiffConfig struct {
 		Origin   *RespDetailConfig `json:"origin,omitempty"`
@@ -135,7 +141,7 @@ type (
 	}
 	// RespDiffReleaseConfig ..
 	RespDiffReleaseConfig struct {
-		HasNew  bool `query:"hasNew"`  // 配置是否有更新：true：是，false：否
+		HasNew  bool   `query:"hasNew"`  // 配置是否有更新：true：是，false：否
 		DiffUrl string `query:"diffUrl"` // diff链接地址
 	}
 
