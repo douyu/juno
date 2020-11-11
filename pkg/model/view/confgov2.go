@@ -121,11 +121,22 @@ type (
 		ID        uint `query:"id" validate:"required"`         // 配置ID
 		HistoryID uint `query:"history_id" validate:"required"` // 版本ID
 	}
-
 	// RespDiffConfig ..
 	RespDiffConfig struct {
 		Origin   *RespDetailConfig `json:"origin,omitempty"`
 		Modified RespDetailConfig  `json:"modified"`
+	}
+
+	// ReqDiffReleaseConfig ..
+	ReqDiffReleaseConfig struct {
+		AppName string   `query:"appName" validate:"required"` // 应用名
+		Env     string   `query:"env" validate:"required"`     // 环境
+		Ips     []string `query:"ips" validate:"required"`     // ips
+	}
+	// RespDiffReleaseConfig ..
+	RespDiffReleaseConfig struct {
+		HasNew  bool `query:"hasNew"`  // 配置是否有更新：true：是，false：否
+		DiffUrl string `query:"diffUrl"` // diff链接地址
 	}
 
 	// ReqDeleteConfig ..

@@ -164,6 +164,20 @@ func Diff(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "", resp)
 }
 
+// DiffReleaseConfig ..
+func DiffReleaseConfig(c echo.Context) (err error) {
+	param := view.ReqDiffReleaseConfig{}
+	err = c.Bind(&param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+	}
+	resp, err := confgov2.DiffReleaseConfig(param)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	return output.JSON(c, output.MsgOk, "", resp)
+}
+
 // Delete ..
 func Delete(c echo.Context) (err error) {
 	param := view.ReqDeleteConfig{}
