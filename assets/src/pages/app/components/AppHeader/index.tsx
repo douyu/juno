@@ -132,7 +132,7 @@ function AppHeader(props: AppHeaderInterface) {
         </Col>
         <Col span={3}>
           <Select
-            showSearch
+            // showSearch
             size="large"
             style={{width: '100%'}}
             placeholder="环境"

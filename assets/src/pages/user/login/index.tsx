@@ -153,7 +153,7 @@ const Login: React.FC<LoginProps> = (props: LoginProps) => {
       <Button
         style={{width: '100%'}}
         onClick={() => {
-          window.open(`/api/admin/user/login/${key}`)
+          window.open(`/api/admin/user/login/${key}`, "_self")
         }}
       >
         {loginItem.icon} {loginItem.title}
