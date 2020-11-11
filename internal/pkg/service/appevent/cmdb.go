@@ -1,6 +1,7 @@
 package appevent
 
 import (
+	"strings"
 	"time"
 
 	"github.com/douyu/juno/pkg/model/db"
@@ -303,7 +304,7 @@ func (a *appEvent) ConfgoItemDeleteEvent(aid int, appName, zoneCode, env, metaDa
 	a.PutEvent(appEvent)
 }
 
-func (a *appEvent) OpenAPIConfigPublish(aid int, appName, env, zoneCode, metaData string, token db.AccessToken) {
+func (a *appEvent) OpenAPIConfigPublish(aid int, appName, env, zoneCode, metaData string, hostname []string, token db.AccessToken) {
 	// app事件
 	appEvent := db.AppEvent{
 		ZoneCode:     zoneCode,
@@ -316,11 +317,12 @@ func (a *appEvent) OpenAPIConfigPublish(aid int, appName, env, zoneCode, metaDat
 		UserName:     token.Name,
 		UID:          int(token.ID),
 		OperatorType: "openapi",
+		HostName:     strings.Join(hostname, ","),
 	}
 	a.PutEvent(appEvent)
 }
 
-func (a *appEvent) ConfgoFilePublishEvent(aid int, appName, env, zoneCode, metaData string, user *db.User) {
+func (a *appEvent) ConfgoFilePublishEvent(aid int, appName, env, zoneCode, metaData string, hostname []string, user *db.User) {
 	// app事件
 	appEvent := db.AppEvent{
 		ZoneCode:  zoneCode,
@@ -330,6 +332,7 @@ func (a *appEvent) ConfgoFilePublishEvent(aid int, appName, env, zoneCode, metaD
 		Operation: event.EventConfgoFilePublish,
 		Source:    event.SourceConfgo,
 		Metadata:  metaData,
+		HostName:  strings.Join(hostname, ","),
 	}
 	if user != nil {
 		appEvent.UserName = user.Username

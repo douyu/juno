@@ -3,6 +3,7 @@ package appevent
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/douyu/juno/pkg/cfg"
@@ -66,7 +67,8 @@ func (a *appEvent) insert(event db.AppEvent) error {
 	if cfg.Cfg.JunoEvent.Rocketmq.Enable {
 		event.HandleOperationName()
 		event.HandleSourceName()
-		eventMsg, _ := json.Marshal(&event)
+		msg := &eventMessage{AppEvent: event, HostName: strings.Split(event.HostName, ",")}
+		eventMsg, _ := json.Marshal(&msg)
 		ctx, cancelFn := context.WithTimeout(context.Background(), time.Second)
 		_, err := a.eventProducer.SendSync(ctx, primitive.NewMessage(a.topic, eventMsg))
 		cancelFn()

@@ -696,9 +696,9 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 		"format":                   configuration.Format,
 	})
 	if authWithToken {
-		appevent.AppEvent.OpenAPIConfigPublish(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), token)
+		appevent.AppEvent.OpenAPIConfigPublish(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), instanceList, token)
 	} else {
-		appevent.AppEvent.ConfgoFilePublishEvent(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), u)
+		appevent.AppEvent.ConfgoFilePublishEvent(appInfo.Aid, appInfo.AppName, env, zoneCode, string(meta), instanceList, u)
 	}
 
 	return
