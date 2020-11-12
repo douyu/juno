@@ -155,6 +155,8 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.GET("/config/history", confgov2.History, configReadByIDMW)                                               // 配置文件历史
 		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)                                               // 配置删除
 		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                                                     // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/diffVersion", confgov2.DiffVersion)                                                     // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/diffReleaseConfig", confgov2.DiffReleaseConfig,configReadQueryMW)                           // 配置文件Diif，返回node节点实际使用的配置版本跟发布版本是否存在差别
 		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW)                                    // 配置文件Diif，返回两个版本的配置内容
 		configV2G.GET("/config/instance/configContent", core.Handle(confgov2.InstanceConfigContent), configReadInstanceMW) // 读取机器上的配置文件
 		configV2G.GET("/config/statics", configstatics.Statics)                                                            // 全局的统计信息，不走应用权限

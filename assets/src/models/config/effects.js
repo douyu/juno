@@ -6,6 +6,7 @@ import {
   loadConfigDiff,
   loadConfigs,
   loadHistoryList,
+  loadConfigVersionDiff,
   saveConfig,
   srvConfigPublish,
   srvLoadConfigInstances,
@@ -79,14 +80,16 @@ export default {
     });
   },
   * setCurrentEnv({payload}, {call, put}) {
-    const {aid, env, appName, zoneCode} = payload;
+    const {aid, env, appName, zoneCode,publishVersion,serviceVersion} = payload;
     yield put({
       type: '_apply',
       payload: {
         aid,
         env,
         appName,
-        zoneCode
+        zoneCode,
+        publishVersion,
+        serviceVersion
       },
     });
   },
@@ -240,15 +243,19 @@ export default {
   },
   * showDiffEditor({payload}, {call, put}) {
     const { /*配置版本对应的id*/ configID, historyID} = payload;
-
+    console.log(configID,historyID,333)
     yield put({
       type: '_apply',
       payload: {
         diffContentLoading: true,
       },
     });
-
-    const res = yield call(loadConfigDiff, configID, historyID);
+  let res= ""
+    if(typeof(configID) == "string"){
+      res = yield call(loadConfigVersionDiff, configID, historyID);
+    }else{
+      res = yield call(loadConfigDiff, configID, historyID);
+    }
 
     yield put({
       type: '_apply',

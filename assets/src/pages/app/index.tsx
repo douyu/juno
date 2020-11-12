@@ -41,6 +41,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      serviceVersion: this.props.location.query.serviceVersion,
+      publishVersion: this.props.location.query.publishVersion,
       appName: this.props.location.query.appName,
       env: this.props.location.query.env,
       aid: parseInt(this.props.location.query.aid),
@@ -287,7 +289,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
 
   render() {
     let view = null;
-    const { aid, appName, env, monitorVersion, versionKey, tab } = this.state;
+    const { aid, appName, env, monitorVersion, versionKey, tab,serviceVersion,publishVersion } = this.state;
     let { appEnvZone } = this.state;
     let { disable } = this.state;
     const { version } = this.props.setting.settings;
@@ -370,6 +372,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
           </TabPane>
           <TabPane tab="配置" key="confgo">
             <Config
+              serviceVersion={serviceVersion}
+              publishVersion={publishVersion}
               aid={aid}
               env={env}
               appName={appName}
