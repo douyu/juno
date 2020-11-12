@@ -1058,16 +1058,16 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	}
 	xlog.Info("DiffReleaseConfig", xlog.String("step", "publishEffectVersion"), xlog.String("effectVersion", effectVersion), xlog.String("publishVersion", publishVersion))
 
+	diffUrlList := view.DiffUrlList{}
+	resp.HasNew = false
 	if effectVersion != "" && effectVersion == publishVersion {
-		resp.Name = configuration.Name
 		resp.HasNew = true
-		resp.DiffUrl = ""
-		return
+
 	}
 	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
-	resp.Name = configuration.Name
-	resp.HasNew = false
-	resp.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s", rootUrl, appNodeInfo.Aid, appNodeInfo.AppName, appNodeInfo.Env, publishVersion, effectVersion)
+	diffUrlList.Name = configuration.Name
+	diffUrlList.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s", rootUrl, appNodeInfo.Aid, appNodeInfo.AppName, appNodeInfo.Env, publishVersion, effectVersion)
+	resp.DiffUrlList= append(resp.DiffUrlList,diffUrlList)
 	return
 }
 

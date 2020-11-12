@@ -139,8 +139,12 @@ type (
 	}
 	// RespDiffReleaseConfig ..
 	RespDiffReleaseConfig struct {
+		HasNew      bool `query:"hasNew"` // 服务器配置与发布配置是否一致；true：一直，false：不一致
+		DiffUrlList []DiffUrlList `query:"diffUrlList"`
+	}
+
+	DiffUrlList struct {
 		Name    string `query:"name"`    // 配置文件名称
-		HasNew  bool   `query:"hasNew"`  // 服务器配置与发布配置是否一致；true：一直，false：不一致
 		DiffUrl string `query:"diffUrl"` // diff链接地址
 	}
 
