@@ -118,15 +118,13 @@ type (
 
 	// ReqDiffConfig ..
 	ReqDiffConfig struct {
-		ID        uint `query:"id"`         // 配置ID
-		HistoryID uint `query:"history_id"` // 版本ID
+		ID             uint   `query:"id"`             // 配置ID
+		HistoryID      uint   `query:"history_id"`     // 版本ID
+		AppName        string `query:"appName"`        // 应用名称
+		Env            string `query:"env"`            // 环境
+		ServiceVersion string `query:"serviceVersion"` // 服务器版本
+		PublishVersion string `query:"publishVersion"` // 发布版本
 	}
-	// ReqDiffVersionConfig ..
-	ReqDiffVersionConfig struct {
-		ServiceVersion string `query:"serviceVersion"` // 配置ID
-		PublishVersion string `query:"publishVersion"` // 版本ID
-	}
-
 	// RespDiffConfig ..
 	RespDiffConfig struct {
 		Origin   *RespDetailConfig `json:"origin,omitempty"`
@@ -141,7 +139,8 @@ type (
 	}
 	// RespDiffReleaseConfig ..
 	RespDiffReleaseConfig struct {
-		HasNew  bool   `query:"hasNew"`  // 配置是否有更新：true：是，false：否
+		Name    string `query:"name"`    // 配置文件名称
+		HasNew  bool   `query:"hasNew"`  // 服务器配置与发布配置是否一致；true：一直，false：不一致
 		DiffUrl string `query:"diffUrl"` // diff链接地址
 	}
 

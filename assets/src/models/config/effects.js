@@ -80,7 +80,7 @@ export default {
     });
   },
   * setCurrentEnv({payload}, {call, put}) {
-    const {aid, env, appName, zoneCode,publishVersion,serviceVersion} = payload;
+    const {aid, env, appName, zoneCode, publishVersion, serviceVersion} = payload;
     yield put({
       type: '_apply',
       payload: {
@@ -243,19 +243,46 @@ export default {
   },
   * showDiffEditor({payload}, {call, put}) {
     const { /*配置版本对应的id*/ configID, historyID} = payload;
-    console.log(configID,historyID,333)
     yield put({
       type: '_apply',
       payload: {
         diffContentLoading: true,
       },
     });
-  let res= ""
-    if(typeof(configID) == "string"){
-      res = yield call(loadConfigVersionDiff, configID, historyID);
-    }else{
-      res = yield call(loadConfigDiff, configID, historyID);
+    const res = yield call(loadConfigDiff, configID, historyID);
+
+    yield put({
+      type: '_apply',
+      payload: {
+        diffContentLoading: false,
+      },
+    });
+
+    if (res.code !== 0) {
+      message.error('配置加载失败: ' + res.msg);
+      return res;
     }
+
+    yield put({
+      type: '_apply',
+      payload: {
+        diffOriginConfig: res.data.origin,
+        diffModifiedConfig: res.data.modified,
+        visibleModalDiff: true,
+      },
+    });
+
+    return res;
+  },
+  * showDiffVersionEditor({payload}, {call, put}) {
+    const { /*配置版本对应的id*/ appName, env, serviceVersion, publishVersion} = payload;
+    yield put({
+      type: '_apply',
+      payload: {
+        diffContentLoading: true,
+      },
+    });
+    const res = yield call(loadConfigVersionDiff, appName, env, serviceVersion, publishVersion);
 
     yield put({
       type: '_apply',

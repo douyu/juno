@@ -10,9 +10,9 @@ import ModalDiff from "@/pages/app/components/Config/components/ModalDiff";
 import {useFullscreen} from "ahooks"
 
 function ConfigEdit(props) {
-  const {aid, env, zoneList, zoneCode, appName, serviceVersion,publishVersion} = props;
+  const {aid, env, zoneList, zoneCode, appName, serviceVersion, publishVersion} = props;
   const ref = useRef()
-  const [isFullscreen, { setFull, exitFull, toggleFull }] = useFullscreen(ref);
+  const [isFullscreen, {setFull, exitFull, toggleFull}] = useFullscreen(ref);
   useEffect(() => {
     if (!appName) return
     if (!env) return
@@ -63,7 +63,7 @@ function ConfigEdit(props) {
         serviceVersion
       }
     })
-  }, [aid, appName, env, zoneCode,publishVersion,serviceVersion])
+  }, [aid, appName, env, zoneCode, publishVersion, serviceVersion])
 
   return (
     <div className={styles.container} ref={ref}>

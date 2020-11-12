@@ -26,12 +26,11 @@ const historyTableColumns = [
 function ModalHistory(props) {
   const {
     visible, currentConfig, historyList, historyListLoading,
-    historyListPagination, loadHistory, showHistoryModal, showDiffEditor, serviceVersion, publishVersion,env,aid
+    historyListPagination, loadHistory, showHistoryModal, showDiffEditor,showDiffVersionEditor, serviceVersion, publishVersion,env,aid,appName
   } = props
   useEffect(() => {
     if (serviceVersion != "" && serviceVersion != undefined) {
-      let sd = serviceVersion+"-" + aid + "-"+ env
-      showDiffEditor(sd, publishVersion)
+      showDiffVersionEditor(appName,env,serviceVersion, publishVersion)
     }
 
     if (!visible) return
@@ -40,7 +39,7 @@ function ModalHistory(props) {
       page: 0,
       size: 10
     })
-  }, [visible, publishVersion, serviceVersion,env,aid])
+  }, [visible, publishVersion, serviceVersion,env,appName])
 
   return <Modal
     visible={visible}
@@ -89,6 +88,7 @@ function ModalHistory(props) {
 
 const mapStateToProps = ({config}) => {
   return {
+    appName: config.appName,
     aid: config.aid,
     env: config.env,
     serviceVersion: config.serviceVersion,
@@ -117,6 +117,17 @@ const mapDispatchToProps = dispatch => {
         payload: {
           configID,
           historyID,
+        }
+      })
+    },
+    showDiffVersionEditor: (appName,env,serviceVersion,publishVersion) => {
+      dispatch({
+        type: 'config/showDiffVersionEditor',
+        payload: {
+          appName,
+          env,
+          serviceVersion,
+          publishVersion,
         }
       })
     }

@@ -929,23 +929,23 @@ func Diff(configID, historyID uint) (resp view.RespDiffConfig, err error) {
 }
 
 // DiffVersion ..
-func DiffVersion(param view.ReqDiffVersionConfig) (resp view.RespDiffConfig, err error) {
-	d :=strings.Split(param.ServiceVersion,"-")
-
-	if len(d) != 3 {
-		err = errors.New("param.ServiceVersion split 不合法")
-		xlog.Error("DiffVersion", xlog.String("step", "strings.Split"), xlog.String("err", err.Error()))
-		return
-	}
-
-	serviceVersion := d[0]
-	aid :=d[1]
-	env :=d[2]
-	publishVersion :=param.PublishVersion
-
-
+func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error) {
+	appInfo := &db.AppInfo{}
 	serviceConfiguration := db.Configuration{}
 	publishConfiguration := db.Configuration{}
+
+	err = mysql.Where("app_name = ?", param.AppName).First(appInfo).Error
+	if err != nil {
+		xlog.Error("DiffVersion", xlog.String("step", "mysql.app"), xlog.String("err", err.Error()))
+		return resp, err
+	}
+
+	serviceVersion := param.ServiceVersion
+	aid := appInfo.Aid
+	env := param.Env
+	publishVersion := param.PublishVersion
+
+
 	err = mysql.Where("aid = ? && env = ? && version = ?", aid, env, serviceVersion).First(&serviceConfiguration).Error
 	if err != nil {
 		xlog.Error("DiffVersion", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
@@ -957,13 +957,12 @@ func DiffVersion(param view.ReqDiffVersionConfig) (resp view.RespDiffConfig, err
 		xlog.Error("DiffVersion", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
 		return
 	}
-	configID :=serviceConfiguration.ID
+	configID := serviceConfiguration.ID
 	historyID := publishConfiguration.ID
 
-	return Diff(configID,historyID)
+	return Diff(configID, historyID)
 
 }
-
 
 // DiffReleaseConfig ..
 func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffReleaseConfig, err error) {
@@ -988,7 +987,7 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	}
 
 	// get app info
-	appInfo, err := resource.Resource.GetApp(appNodeInfo.Aid);
+	appInfo, err := resource.Resource.GetApp(appNodeInfo.Aid)
 	if err != nil {
 		xlog.Error("DiffReleaseConfig", xlog.String("step", "resource.Resource.GetApp"), xlog.String("err", err.Error()))
 		return
@@ -1037,7 +1036,7 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 			}()
 
 			newSyncDataMap, err := configurationSynced(appName, env, appNodeInfo.ZoneCode, configuration.Name, configuration.Format, _prefix, notSyncFlag)
-			xlog.Info("DiffReleaseConfig", xlog.String("step", "newSyncDataMap"), xlog.Any("newSyncDataMap",newSyncDataMap))
+			xlog.Info("DiffReleaseConfig", xlog.String("step", "newSyncDataMap"), xlog.Any("newSyncDataMap", newSyncDataMap))
 
 			if err != nil {
 				xlog.Error("DiffReleaseConfig", xlog.String("step", "configurationSynced"), xlog.String("err", err.Error()))
@@ -1051,22 +1050,24 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 
 	}
 	publishVersion := ""
-	for i:=0;i<len(cfg.Cfg.Configure.Prefixes);i++{
+	for i := 0; i < len(cfg.Cfg.Configure.Prefixes); i++ {
 		publishVersion = <-versionChan
 		if publishVersion != "" {
 			break
 		}
 	}
-	xlog.Info("DiffReleaseConfig", xlog.String("step", "publishEffectVersion"), xlog.String("effectVersion",effectVersion), xlog.String("publishVersion",publishVersion))
+	xlog.Info("DiffReleaseConfig", xlog.String("step", "publishEffectVersion"), xlog.String("effectVersion", effectVersion), xlog.String("publishVersion", publishVersion))
 
 	if effectVersion != "" && effectVersion == publishVersion {
+		resp.Name = configuration.Name
 		resp.HasNew = true
 		resp.DiffUrl = ""
 		return
 	}
-	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl,"/")
+	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
+	resp.Name = configuration.Name
 	resp.HasNew = false
-	resp.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s",rootUrl,appNodeInfo.Aid,appNodeInfo.AppName,appNodeInfo.Env,publishVersion,effectVersion)
+	resp.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s", rootUrl, appNodeInfo.Aid, appNodeInfo.AppName, appNodeInfo.Env, publishVersion, effectVersion)
 	return
 }
 

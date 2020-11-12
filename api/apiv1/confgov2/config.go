@@ -157,26 +157,25 @@ func Diff(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-	resp, err := confgov2.Diff(param.ID, param.HistoryID)
-	if err != nil {
-		return output.JSON(c, output.MsgErr, err.Error())
-	}
-	return output.JSON(c, output.MsgOk, "", resp)
-}
-// DiffVersion ..
-func DiffVersion(c echo.Context) (err error) {
-	reqDiffVersionConfig := view.ReqDiffVersionConfig{}
-	err = c.Bind(&reqDiffVersionConfig)
-	if err != nil {
-		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
+
+	//老业务对比流程
+	if param.ID > 0 {
+		resp, err := confgov2.Diff(param.ID, param.HistoryID)
+		if err != nil {
+			return output.JSON(c, output.MsgErr, err.Error())
+		}
+		return output.JSON(c, output.MsgOk, "", resp)
 	}
 
-	resp, err := confgov2.DiffVersion(reqDiffVersionConfig)
+	//对比已发布的跟服务器实际运行的配置
+	resp, err := confgov2.DiffVersion(param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 	return output.JSON(c, output.MsgOk, "", resp)
+
 }
+
 // DiffReleaseConfig ..
 func DiffReleaseConfig(c echo.Context) (err error) {
 	param := view.ReqDiffReleaseConfig{}
