@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/douyu/juno/internal/pkg/service/app"
-	"github.com/douyu/jupiter/pkg/util/xgo"
 	"net/http"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/douyu/juno/internal/pkg/service/app"
+	"github.com/douyu/jupiter/pkg/util/xgo"
 
 	"github.com/douyu/juno/internal/pkg/service/agent"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
@@ -934,7 +935,7 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 	serviceConfiguration := db.Configuration{}
 	publishConfiguration := db.Configuration{}
 
-	err = mysql.Where("app_name = ?", param.AppName).First(appInfo).Error
+	err = mysql.Where("app_name = ? && env = ?", param.AppName, param.Env).First(appInfo).Error
 	if err != nil {
 		xlog.Error("DiffVersion", xlog.String("step", "mysql.app"), xlog.String("err", err.Error()))
 		return resp, err
@@ -944,7 +945,6 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 	aid := appInfo.Aid
 	env := param.Env
 	publishVersion := param.PublishVersion
-
 
 	err = mysql.Where("aid = ? && env = ? && version = ?", aid, env, serviceVersion).First(&serviceConfiguration).Error
 	if err != nil {
@@ -1066,7 +1066,7 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
 	diffUrlList.Name = configuration.Name
 	diffUrlList.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s", rootUrl, appNodeInfo.Aid, appNodeInfo.AppName, appNodeInfo.Env, publishVersion, effectVersion)
-	resp.DiffUrlList= append(resp.DiffUrlList,diffUrlList)
+	resp.DiffUrlList = append(resp.DiffUrlList, diffUrlList)
 	return
 }
 
