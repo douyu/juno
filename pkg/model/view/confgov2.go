@@ -135,17 +135,17 @@ type (
 	ReqDiffReleaseConfig struct {
 		AppName string   `query:"appName" validate:"required"` // 应用名
 		Env     string   `query:"env" validate:"required"`     // 环境
-		Ips     []string `query:"ips" validate:"required"`     // ips
+		IpList  []string `query:"ipList" validate:"required"`     // ips
 	}
 	// RespDiffReleaseConfig ..
 	RespDiffReleaseConfig struct {
-		HasNew      bool `query:"hasNew"` // 服务器配置与发布配置是否一致；true：一直，false：不一致
-		DiffUrlList []DiffUrlList `query:"diffUrlList"`
+		HasNew      bool          `json:"hasNew" query:"hasNew"` // 服务器配置与发布配置是否一致；true：一直，false：不一致
+		DiffUrlList []DiffUrlList `json:"diffUrlList" query:"diffUrlList"`
 	}
 
 	DiffUrlList struct {
-		Name    string `query:"name"`    // 配置文件名称
-		DiffUrl string `query:"diffUrl"` // diff链接地址
+		Name    string `json:"name" query:"name"`       // 配置文件名称
+		DiffUrl string `json:"diffUrl" query:"diffUrl"` // diff链接地址
 	}
 
 	// ReqDeleteConfig ..

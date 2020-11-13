@@ -966,13 +966,13 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 
 // DiffReleaseConfig ..
 func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffReleaseConfig, err error) {
-	if len(param.Ips) == 0 {
-		err = errors.New("param.Ips 长度不合法")
-		xlog.Error("DiffReleaseConfig", xlog.String("step", "param.Ips.leng"), xlog.String("err", err.Error()))
+	if len(param.IpList) == 0 {
+		err = errors.New("param.IpList 长度不合法")
+		xlog.Error("DiffReleaseConfig", xlog.String("step", "param.IpList.leng"), xlog.String("err", err.Error()))
 		return
 	}
 
-	ip := param.Ips[0]
+	ip := param.IpList[0]
 	appName := param.AppName
 	env := param.Env
 	where := db.AppNode{
@@ -1010,7 +1010,6 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	}
 	_ = json.Unmarshal(agentQuestResp.Body(), &out)
 	effectVersion := out.JunoConfigurationVersion
-
 	xlog.Info("DiffReleaseConfig", xlog.String("agentQuestResp", string(agentQuestResp.Body())), xlog.String("effectVersion", effectVersion), xlog.Any("param", param), xlog.Any("appNodeInfo", appNodeInfo), xlog.Any("appInfo", appInfo))
 
 	configuration := db.Configuration{}
