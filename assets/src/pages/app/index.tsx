@@ -1,8 +1,8 @@
 import React from 'react';
 import PPofList from '../pprof/pprof';
 import Monitor from '../monitor/monitor';
-import { Col, Empty, message, Row, Tabs } from 'antd';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import {Col, Empty, message, Row, Tabs} from 'antd';
+import {PageHeaderWrapper} from '@ant-design/pro-layout';
 import AppHeader from './components/AppHeader/index';
 import {
   ServiceAppEnvZone,
@@ -10,21 +10,21 @@ import {
   ServiceAppList,
   ServiceAppNodeList,
 } from '@/services/app';
-import { ConfgoBase } from '../confgo/config/view';
-import { ServiceGetIdcList } from '@/services/idc';
-import { history } from 'umi';
+import {ConfgoBase} from '../confgo/config/view';
+import {ServiceGetIdcList} from '@/services/idc';
+import {history} from 'umi';
 import Detail from './components/Detail/index';
 import ZoneSelect from '@/components/ZoneSelect';
 import Config from './components/Config';
-import { connect } from 'dva';
+import {connect} from 'dva';
 import Etcd from '@/pages/etcd/etcd';
 import Applog from '@/pages/applog/applog';
-import { getFrameVersion } from '@/pages/monitor/services';
+import {getFrameVersion} from '@/pages/monitor/services';
 import Event from '@/pages/app/components/Event';
 import Test from '@/pages/app/components/Test';
-import { Dispatch } from '@@/plugin-dva/connect';
+import {Dispatch} from '@@/plugin-dva/connect';
 
-const { TabPane } = Tabs;
+const {TabPane} = Tabs;
 
 interface AppProps {
   location: { query: any };
@@ -33,7 +33,7 @@ interface AppProps {
   k8sClusters: any[];
 }
 
-@connect(({ setting }: any) => ({
+@connect(({setting}: any) => ({
   setting,
   k8sClusters: setting.settings.k8s_cluster?.list || [],
 }))
@@ -41,6 +41,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      serviceVersion: this.props.location.query.serviceVersion,
+      publishVersion: this.props.location.query.publishVersion,
       appName: this.props.location.query.appName,
       env: this.props.location.query.env,
       aid: parseInt(this.props.location.query.aid),
@@ -79,7 +81,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
         message.error(res.msg);
       }
     });
-    const { aid, appName, tab } = this.state;
+    const {aid, appName, tab} = this.state;
     if (aid != undefined && aid != 0 && appName != undefined && appName != 0) {
       this.getAppInfo(aid, appName);
       this.GetList(this.state.aid, this.state.env);
@@ -96,7 +98,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
       },
     });
 
-    const { zone, versionKey } = queries;
+    const {zone, versionKey} = queries;
     if (zone) {
       this.setState({
         zoneCode: zone,
@@ -120,7 +122,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   }
 
   getAppInfo = (aid: number, appName: string) => {
-    const { env } = this.state;
+    const {env} = this.state;
     this.getAppEnvZone(appName);
     this.GetList(aid, env);
     ServiceAppInfo(aid, appName).then((res) => {
@@ -145,13 +147,13 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   };
 
   getFrameVersion = (appName: string) => {
-    getFrameVersion({ appName }).then((res) => {
-      const { code, data } = res;
+    getFrameVersion({appName}).then((res) => {
+      const {code, data} = res;
       if (code !== 0) {
         // message.error(msg);
         return;
       }
-      const { versionKey } = data;
+      const {versionKey} = data;
 
       this.setState({
         versionKey,
@@ -224,7 +226,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   };
 
   GetList = (aid: number, env: string) => {
-    ServiceAppNodeList({ aid: aid, env: env, pageSize: 10000 }).then((res: any) => {
+    ServiceAppNodeList({aid: aid, env: env, pageSize: 10000}).then((res: any) => {
       if (res.code == 0) {
         this.setState({
           appNodeList: res.data.list,
@@ -259,7 +261,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   changeZone = (e: any) => {
     const zone = e.target.value;
     this.onChangeZone(zone);
-    this.setState({ zoneCode: zone });
+    this.setState({zoneCode: zone});
     let queries = this.props.location.query;
     history.push({
       query: {
@@ -271,7 +273,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
 
   changeVersion = (e: any) => {
     const versionKey = e;
-    this.setState({ versionKey });
+    this.setState({versionKey});
     let queries = this.props.location.query;
     history.push({
       query: {
@@ -282,16 +284,16 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   };
 
   onSelectMonitorVersion = (e: any) => {
-    this.setState({ monitorVersion: e });
+    this.setState({monitorVersion: e});
   };
 
   render() {
     let view = null;
-    const { aid, appName, env, monitorVersion, versionKey, tab } = this.state;
-    let { appEnvZone } = this.state;
-    let { disable } = this.state;
-    const { version } = this.props.setting.settings;
-    const { k8sClusters } = this.props;
+    const {aid, appName, env, monitorVersion, versionKey, tab, serviceVersion, publishVersion} = this.state;
+    let {appEnvZone} = this.state;
+    let {disable} = this.state;
+    const {version} = this.props.setting.settings;
+    const {k8sClusters} = this.props;
 
     let envList = appEnvZone?.map((item: any) => item.env) || [];
     let zoneList: any[] = [];
@@ -310,7 +312,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
           env === envItem &&
           zoneList.findIndex((zoneItem: any) => zoneItem.zone_code === item.zone_code) < 0
         ) {
-          zoneList.push({ zone_code: item.zone_code, zone_name: item.zone_name });
+          zoneList.push({zone_code: item.zone_code, zone_name: item.zone_name});
         }
       });
     });
@@ -321,14 +323,14 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
 
     if (aid == undefined || isNaN(aid) || aid == 0) {
       view = (
-        <div style={{ marginTop: 10, width: '100%' }}>
-          <Empty description={'请选择应用'} style={{ padding: '100px' }} />
+        <div style={{marginTop: 10, width: '100%'}}>
+          <Empty description={'请选择应用'} style={{padding: '100px'}}/>
         </div>
       );
     } else if (env == undefined || env == '') {
       view = (
-        <div style={{ marginTop: 10, width: '100%' }}>
-          <Empty description={'请选择环境'} style={{ padding: '100px' }} />
+        <div style={{marginTop: 10, width: '100%'}}>
+          <Empty description={'请选择环境'} style={{padding: '100px'}}/>
         </div>
       );
     } else {
@@ -337,8 +339,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
           defaultActiveKey={this.state.tab}
           activeKey={tab}
           onChange={this.onChangeTab}
-          style={{ width: '100%', marginTop: '-10px' }}
-          tabBarStyle={{ paddingLeft: '10px', marginBottom: 0 }}
+          style={{width: '100%', marginTop: '-10px'}}
+          tabBarStyle={{paddingLeft: '10px', marginBottom: 0}}
           destroyInactiveTabPane
         >
           <TabPane tab="详情" key="detail">
@@ -370,6 +372,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
           </TabPane>
           <TabPane tab="配置" key="confgo">
             <Config
+              serviceVersion={serviceVersion}
+              publishVersion={publishVersion}
               aid={aid}
               env={env}
               appName={appName}
@@ -429,12 +433,12 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
           </TabPane>
 
           <TabPane tab={'事件'} key={'event'}>
-            <Event active={tab === 'event'} appName={appName} env={env} />
+            <Event active={tab === 'event'} appName={appName} env={env}/>
           </TabPane>
 
           {this.props.setting.settings.test_platform?.enable && (
             <TabPane tab={'Test'} key={'test'}>
-              <Test appName={appName} env={env} zoneCode={this.state.zoneCode} />
+              <Test appName={appName} env={env} zoneCode={this.state.zoneCode}/>
             </TabPane>
           )}
         </Tabs>
@@ -442,8 +446,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
     }
     return (
       <PageHeaderWrapper>
-        <div style={{ backgroundColor: '#fff', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ padding: 10 }}>
+        <div style={{backgroundColor: '#fff', borderRadius: '8px', overflow: 'hidden'}}>
+          <div style={{padding: 10}}>
             <Row>
               <AppHeader
                 appInfo={this.state.appInfo}

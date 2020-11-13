@@ -10,7 +10,7 @@ export interface DashboardProps {
   onReset?: () => void
 }
 
-export interface HomeInfoItem{
+export interface HomeInfoItem {
   zone_code: string
   nodeCount: any
   podCount: any
@@ -18,8 +18,8 @@ export interface HomeInfoItem{
 }
 
 
-export interface EventItem{
-  color:string
+export interface EventItem {
+  color: string
   content: string
   eventType: string
   reason: string
