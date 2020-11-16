@@ -183,7 +183,7 @@ func DiffReleaseConfig(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-	if param.ConfigName != "" {
+	if param.ConfigName == "" {
 		resp, err := confgov2.DiffReleaseConfig(param)
 		if err != nil {
 			return output.JSON(c, output.MsgErr, err.Error())

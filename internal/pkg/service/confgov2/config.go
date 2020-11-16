@@ -1015,19 +1015,19 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	}
 
 	effectVersion := out.JunoConfigurationVersion
-	xlog.Info("DiffReleaseConfig", xlog.String("agentQuestResp", string(agentQuestResp.Body())), xlog.String("effectVersion", effectVersion), xlog.Any("param", param), xlog.Any("appNodeInfo", appNodeInfo), xlog.Any("appInfo", appInfo))
+	xlog.Info("DiffReleaseConfig56", xlog.String("agentQuestResp", string(agentQuestResp.Body())), xlog.String("effectVersion", effectVersion), xlog.Any("param", param), xlog.Any("appNodeInfo", appNodeInfo), xlog.Any("appInfo", appInfo))
 
 	configuration := db.Configuration{}
 	err = mysql.Where("aid = ? && env = ? && version = ?", appNodeInfo.Aid, appNodeInfo.Env, effectVersion).First(&configuration).Error
 
 	if err != nil {
-		xlog.Error("DiffReleaseConfig", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig6", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
 		return
 	}
 
 	historyInfo, err := getConfigurationHistory(configuration.ID)
 	if err != nil {
-		xlog.Error("DiffReleaseConfig6", xlog.String("step", "DiffReleaseConfig6.getConfigurationHistory"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig7", xlog.String("step", "DiffReleaseConfig6.getConfigurationHistory"), xlog.String("err", err.Error()))
 		return
 	}
 	publishVersion := historyInfo.Version
@@ -1075,7 +1075,13 @@ func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDif
 	}
 
 	configuration := db.Configuration{}
-	err = mysql.Where("aid = ? && env = ? && name = ?", appInfo.Aid, param.Env, param.ConfigName).First(&configuration).Error
+	pathInfo := strings.Split(param.ConfigName, ".")
+	if len(pathInfo) != 2 {
+		xlog.Error("DiffReleaseConfigByFile2.5", xlog.String("step", "strings.Spli"), xlog.String("param.ConfigName", param.ConfigName), xlog.String("err", "pathInfo len too less"))
+		return
+	}
+
+	err = mysql.Where("aid = ? && env = ? && name = ? && format = ?", appInfo.Aid, param.Env, pathInfo[0], pathInfo[1]).First(&configuration).Error
 	if err != nil {
 		xlog.Error("DiffReleaseConfigByFile3", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
 		return
