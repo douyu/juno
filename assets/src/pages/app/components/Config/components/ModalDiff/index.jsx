@@ -32,7 +32,7 @@ function ModalDiff(props) {
   }, [diffModifiedConfig, diffOriginConfig, editor, loading, visible])
 
   return <Modal
-    title={"配置版本对比"}
+    title={"配置版本对比(左边老版本，右边发布版本)"}
     loading={loading}
     visible={visible}
     width={"95vw"}

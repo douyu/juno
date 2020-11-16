@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/douyu/juno/internal/pkg/service/app"
-	"github.com/douyu/jupiter/pkg/util/xgo"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -934,7 +933,7 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 	serviceConfiguration := db.Configuration{}
 	publishConfiguration := db.Configuration{}
 
-	err = mysql.Where("app_name = ? && env = ?", param.AppName,param.Env).First(appInfo).Error
+	err = mysql.Where("app_name = ? && env = ?", param.AppName, param.Env).First(appInfo).Error
 	if err != nil {
 		xlog.Error("DiffVersion", xlog.String("step", "mysql.app"), xlog.String("err", err.Error()))
 		return resp, err
@@ -944,7 +943,6 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 	aid := appInfo.Aid
 	env := param.Env
 	publishVersion := param.PublishVersion
-
 
 	err = mysql.Where("aid = ? && env = ? && version = ?", aid, env, serviceVersion).First(&serviceConfiguration).Error
 	if err != nil {
@@ -968,10 +966,11 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffReleaseConfig, err error) {
 	if len(param.IpList) == 0 {
 		err = errors.New("param.IpList 长度不合法")
-		xlog.Error("DiffReleaseConfig", xlog.String("step", "param.IpList.leng"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig1", xlog.String("step", "param.IpList.leng"), xlog.String("err", err.Error()))
 		return
 	}
 
+	uri := cfg.Cfg.ClientProxy.HttpRouter.GovernConfig
 	ip := param.IpList[0]
 	appName := param.AppName
 	env := param.Env
@@ -982,25 +981,27 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	}
 	appNodeInfo, err := resource.Resource.GetAppNode(where)
 	if err != nil {
-		xlog.Error("DiffReleaseConfig", xlog.String("step", "resource.Resource.GetAppNode(where)"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig2", xlog.String("step", "resource.Resource.GetAppNode(where)"), xlog.String("err", err.Error()))
 		return
 	}
 
 	// get app info
 	appInfo, err := resource.Resource.GetApp(appNodeInfo.Aid)
 	if err != nil {
-		xlog.Error("DiffReleaseConfig", xlog.String("step", "resource.Resource.GetApp"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig3", xlog.String("step", "resource.Resource.GetApp"), xlog.String("err", err.Error()))
 		return
 	}
 
 	//通过http方式获取指定ip+端口的服务正在使用的配置版本
 	governPort := appInfo.GovernPort
+	governPort = app.GovernPort(governPort, env, appNodeInfo.ZoneCode, appName, appNodeInfo.HostName)
+	address := ip + ":" + governPort
 	agentQuestResp, err := clientproxy.ClientProxy.HttpGet(view.UniqZone{Env: env, Zone: appNodeInfo.ZoneCode}, view.ReqHTTPProxy{
-		Address: appNodeInfo.IP + ":" + app.GovernPort(governPort, env, appNodeInfo.ZoneCode, appName, appNodeInfo.AppName),
-		URL:     cfg.Cfg.ClientProxy.HttpRouter.GovernConfig,
+		Address: address,
+		URL:     uri,
 	})
 	if err != nil {
-		xlog.Error("DiffReleaseConfig", xlog.String("step", " clientproxy.ClientProxy.HttpGet"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig4", xlog.String("step", " clientproxy.ClientProxy.HttpGet"), xlog.String("err", err.Error()))
 		return
 	}
 
@@ -1008,7 +1009,11 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	var out struct {
 		JunoConfigurationVersion string `json:"juno_configuration_version"`
 	}
-	_ = json.Unmarshal(agentQuestResp.Body(), &out)
+	if err = json.Unmarshal(agentQuestResp.Body(), &out); err != nil {
+		xlog.Error("DiffReleaseConfig5", xlog.String("step", "json.Unmarshal"), xlog.String("err", err.Error()), xlog.String("agentQuestResp.Body()", string(agentQuestResp.Body())))
+		return
+	}
+
 	effectVersion := out.JunoConfigurationVersion
 	xlog.Info("DiffReleaseConfig", xlog.String("agentQuestResp", string(agentQuestResp.Body())), xlog.String("effectVersion", effectVersion), xlog.Any("param", param), xlog.Any("appNodeInfo", appNodeInfo), xlog.Any("appInfo", appInfo))
 
@@ -1020,42 +1025,101 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 		return
 	}
 
-	notSyncFlag := map[string]db.AppNode{
-		appNodeInfo.HostName: appNodeInfo,
+	historyInfo, err := getConfigurationHistory(configuration.ID)
+	if err != nil {
+		xlog.Error("DiffReleaseConfig6", xlog.String("step", "DiffReleaseConfig6.getConfigurationHistory"), xlog.String("err", err.Error()))
+		return
+	}
+	publishVersion := historyInfo.Version
+
+	xlog.Info("DiffReleaseConfig7",
+		xlog.String("step", "publishEffectVersion"),
+		xlog.String("effectVersion", effectVersion),
+		xlog.String("address", address),
+		xlog.String("uri", uri),
+		xlog.Any("param", param),
+		xlog.String("agentQuestResp.Body()", string(agentQuestResp.Body())),
+		xlog.String("publishVersion", publishVersion))
+
+	diffUrlList := view.DiffUrlList{}
+	resp.HasNew = false
+	if effectVersion != "" && effectVersion == publishVersion {
+		resp.HasNew = true
+	}
+	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
+	diffUrlList.Name = configuration.Name
+	diffUrlList.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s", rootUrl, appNodeInfo.Aid, appNodeInfo.AppName, appNodeInfo.Env, publishVersion, effectVersion)
+	resp.DiffUrlList = append(resp.DiffUrlList, diffUrlList)
+	return
+}
+
+// DiffReleaseConfigByFile ..
+func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDiffReleaseConfig, err error) {
+	if len(param.IpList) == 0 {
+		err = errors.New("param.IpList 长度不合法")
+		xlog.Error("DiffReleaseConfigByFile1", xlog.String("step", "param.IpList.leng"), xlog.String("err", err.Error()))
+		return
 	}
 
-	versionChan := make(chan string, 0)
-	for _, prefix := range cfg.Cfg.Configure.Prefixes {
-		_prefix := prefix
+	ip := param.IpList[0]
+	appName := param.AppName
+	env := param.Env
+	hostName := "" //后续追加预留
+	uri := cfg.Cfg.ClientProxy.HttpRouter.GovernConfig
 
-		xgo.Go(func() {
-			version := ""
-			defer func() {
-				versionChan <- version
-			}()
-
-			newSyncDataMap, err := configurationSynced(appName, env, appNodeInfo.ZoneCode, configuration.Name, configuration.Format, _prefix, notSyncFlag)
-			xlog.Info("DiffReleaseConfig", xlog.String("step", "newSyncDataMap"), xlog.Any("newSyncDataMap", newSyncDataMap))
-
-			if err != nil {
-				xlog.Error("DiffReleaseConfig", xlog.String("step", "configurationSynced"), xlog.String("err", err.Error()))
-				return
-			}
-
-			if data, ok := newSyncDataMap[appNodeInfo.HostName]; ok {
-				version = data.Version
-			}
-		})
-
+	// get app info
+	appInfo, err := resource.Resource.GetApp(param.AppName)
+	if err != nil {
+		xlog.Error("DiffReleaseConfigByFile2", xlog.String("step", "resource.Resource.GetApp"), xlog.String("err", err.Error()))
+		return
 	}
-	publishVersion := ""
-	for i := 0; i < len(cfg.Cfg.Configure.Prefixes); i++ {
-		publishVersion = <-versionChan
-		if publishVersion != "" {
-			break
-		}
+
+	configuration := db.Configuration{}
+	err = mysql.Where("aid = ? && env = ? && name = ?", appInfo.Aid, param.Env, param.ConfigName).First(&configuration).Error
+	if err != nil {
+		xlog.Error("DiffReleaseConfigByFile3", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+		return
 	}
-	xlog.Info("DiffReleaseConfig", xlog.String("step", "publishEffectVersion"), xlog.String("effectVersion", effectVersion), xlog.String("publishVersion", publishVersion))
+
+	//通过http方式获取指定ip+端口的服务正在使用的配置版本
+	governPort := appInfo.GovernPort
+	governPort = app.GovernPort(governPort, env, configuration.Zone, appName, hostName)
+	address := ip + ":" + governPort
+	agentQuestResp, err := clientproxy.ClientProxy.HttpGet(view.UniqZone{Env: env, Zone: configuration.Zone}, view.ReqHTTPProxy{
+		Address: address,
+		URL:     uri,
+	})
+	if err != nil {
+		xlog.Error("DiffReleaseConfigByFile4", xlog.String("step", " clientproxy.ClientProxy.HttpGet"), xlog.String("err", err.Error()))
+		return
+	}
+
+	//通过etcd 方式获取改版本发布的配置
+	var out struct {
+		JunoConfigurationVersion string `json:"juno_configuration_version"`
+	}
+	if err = json.Unmarshal(agentQuestResp.Body(), &out); err != nil {
+		xlog.Error("DiffReleaseConfigByFile52", xlog.String("step", "json.Unmarshal"), xlog.String("err", err.Error()), xlog.String("agentQuestResp.Body()", string(agentQuestResp.Body())))
+		return
+	}
+
+	effectVersion := out.JunoConfigurationVersion
+
+	historyInfo, err := getConfigurationHistory(configuration.ID)
+	if err != nil {
+		xlog.Error("DiffReleaseConfigByFile5", xlog.String("step", " DiffReleaseConfig6.getConfigurationHistory"), xlog.String("err", err.Error()))
+		return
+	}
+	publishVersion := historyInfo.Version
+
+	xlog.Info("DiffReleaseConfigByFile66",
+		xlog.String("step", "publishEffectVersion"),
+		xlog.String("effectVersion", effectVersion),
+		xlog.String("address", address),
+		xlog.String("uri", uri),
+		xlog.Any("param", param),
+		xlog.String("agentQuestResp.Body()", string(agentQuestResp.Body())),
+		xlog.String("publishVersion", publishVersion))
 
 	diffUrlList := view.DiffUrlList{}
 	resp.HasNew = false
@@ -1065,8 +1129,8 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	}
 	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
 	diffUrlList.Name = configuration.Name
-	diffUrlList.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s", rootUrl, appNodeInfo.Aid, appNodeInfo.AppName, appNodeInfo.Env, publishVersion, effectVersion)
-	resp.DiffUrlList= append(resp.DiffUrlList,diffUrlList)
+	diffUrlList.DiffUrl = fmt.Sprintf("%s/app?aid=%d&appName=%s&env=%s&tab=confgo&publishVersion=%s&serviceVersion=%s", rootUrl, appInfo.Aid, appInfo.AppName, param.Env, publishVersion, effectVersion)
+	resp.DiffUrlList = append(resp.DiffUrlList, diffUrlList)
 	return
 }
 
