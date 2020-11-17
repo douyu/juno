@@ -895,6 +895,10 @@ func Diff(configID, historyID uint, scene int) (resp view.RespDiffConfig, err er
 	case DiffSpecifyScene:
 		err = mysql.Preload("Configuration").Preload("User").
 			Where("configuration_id = ?", configID).Order("id desc").First(&originConfig).Error
+		//是的发布版本在右边
+		indexConfig := modifiedConfig
+		modifiedConfig = originConfig
+		originConfig = indexConfig
 		break
 	default:
 		err = mysql.Preload("Configuration").Preload("User").
