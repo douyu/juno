@@ -4,14 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/douyu/juno/internal/pkg/service/app"
-	"net/http"
-	"path/filepath"
-	"strings"
-	"sync"
-	"time"
-
 	"github.com/douyu/juno/internal/pkg/service/agent"
+	"github.com/douyu/juno/internal/pkg/service/app"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/configresource"
@@ -32,6 +26,11 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
+	"net/http"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
 )
 
 const (

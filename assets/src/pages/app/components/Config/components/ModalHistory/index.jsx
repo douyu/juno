@@ -30,15 +30,12 @@ function ModalHistory(props) {
     historyListPagination, loadHistory, showHistoryModal, showDiffEditor,showDiffVersionEditor, serviceVersion, publishVersion,env,aid,appName
   } = props
   useEffect(() => {
-    console.log(serviceV,2233,serviceVersion)
     if(serviceV == "" || serviceV == undefined){
       if (serviceVersion != "" && serviceVersion != undefined) {
         showDiffVersionEditor(appName,env,serviceVersion, publishVersion)
       }
     }
     serviceV = serviceVersion
-
-
     if (!visible) return
     loadHistory({
       id: currentConfig.id,
