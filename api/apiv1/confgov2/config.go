@@ -160,7 +160,7 @@ func Diff(c echo.Context) (err error) {
 
 	//老业务对比流程
 	if param.ID > 0 {
-		resp, err := confgov2.Diff(param.ID, param.HistoryID)
+		resp, err := confgov2.Diff(param.ID, param.HistoryID, confgov2.DiffDefaultScene)
 		if err != nil {
 			return output.JSON(c, output.MsgErr, err.Error())
 		}

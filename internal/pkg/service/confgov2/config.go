@@ -38,6 +38,11 @@ const (
 	queryAgentUsedStatus = "/api/v1/conf/command_line/status"
 )
 
+const (
+	DiffDefaultScene = 1 //默认最近2版本对比
+	DiffSpecifyScene = 2 //指定版本与最新版本对比
+)
+
 func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
 	var app db.AppInfo
 
@@ -877,17 +882,26 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 }
 
 // Diff ..
-func Diff(configID, historyID uint) (resp view.RespDiffConfig, err error) {
+func Diff(configID, historyID uint, scene int) (resp view.RespDiffConfig, err error) {
 	modifiedConfig := db.ConfigurationHistory{}
 	err = mysql.Preload("Configuration").Preload("User").
 		Where("id = ?", historyID).First(&modifiedConfig).Error
 	if err != nil {
 		return
 	}
-
 	originConfig := db.ConfigurationHistory{}
-	err = mysql.Preload("Configuration").Preload("User").
-		Where("id < ? and configuration_id = ?", historyID, configID).Order("id desc").First(&originConfig).Error
+
+	switch scene {
+	case DiffSpecifyScene:
+		err = mysql.Preload("Configuration").Preload("User").
+			Where("configuration_id = ?", configID).Order("id desc").First(&originConfig).Error
+		break
+	default:
+		err = mysql.Preload("Configuration").Preload("User").
+			Where("id < ? and configuration_id = ?", historyID, configID).Order("id desc").First(&originConfig).Error
+		break
+	}
+
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			resp.Origin = nil
@@ -952,14 +966,14 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 
 	err = mysql.Where("aid = ? && env = ? && version = ?", aid, env, publishVersion).First(&publishConfiguration).Error
 	if err != nil {
-		xlog.Error("DiffVersion", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+		xlog.Error("DiffVersion100", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
 		return
 	}
 	xlog.Info("DiffVersion1", xlog.Any("publishConfiguration", publishConfiguration))
 
 	err = mysql.Where("configuration_id = ? && version = ?", publishConfiguration.ID, serviceVersion).First(&serviceConfiguration).Error
 	if err != nil {
-		xlog.Error("DiffVersion", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+		xlog.Error("DiffVersion101", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
 		return
 	}
 
@@ -969,7 +983,7 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 	historyID := serviceConfiguration.ID
 
 	xlog.Info("DiffVersion767", xlog.Any("configID", configID), xlog.Any("historyID", historyID))
-	return Diff(configID, historyID)
+	return Diff(configID, historyID, DiffSpecifyScene)
 
 }
 
