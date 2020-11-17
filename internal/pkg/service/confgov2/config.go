@@ -932,7 +932,7 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 	serviceConfiguration := db.Configuration{}
 	publishConfiguration := db.Configuration{}
 
-	err = mysql.Where("app_name = ? && env = ?", param.AppName, param.Env).First(appInfo).Error
+	err = mysql.Where("app_name = ?", param.AppName).First(appInfo).Error
 	if err != nil {
 		xlog.Error("DiffVersion", xlog.String("step", "mysql.app"), xlog.String("err", err.Error()))
 		return resp, err
