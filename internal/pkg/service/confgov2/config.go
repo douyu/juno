@@ -943,11 +943,19 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 	env := param.Env
 	publishVersion := param.PublishVersion
 
+	xlog.Info("DiffVersion",
+		xlog.String("step", "DiffVersion——info"),
+		xlog.String("serviceVersion", serviceVersion),
+		xlog.Int("aid", aid),
+		xlog.String("env", env),
+		xlog.Any("publishVersion", publishVersion))
+
 	err = mysql.Where("aid = ? && env = ? && version = ?", aid, env, publishVersion).First(&publishConfiguration).Error
 	if err != nil {
 		xlog.Error("DiffVersion", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
 		return
 	}
+	xlog.Info("DiffVersion1", xlog.Any("publishConfiguration", publishConfiguration))
 
 	err = mysql.Where("configuration_id = ? && version = ?", publishConfiguration.ID, serviceVersion).First(&serviceConfiguration).Error
 	if err != nil {
@@ -955,9 +963,12 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 		return
 	}
 
+	xlog.Info("DiffVersion67", xlog.Any("serviceConfiguration", serviceConfiguration))
+
 	configID := publishConfiguration.ID
 	historyID := serviceConfiguration.ID
 
+	xlog.Info("DiffVersion767", xlog.Any("configID", configID), xlog.Any("historyID", historyID))
 	return Diff(configID, historyID)
 
 }
