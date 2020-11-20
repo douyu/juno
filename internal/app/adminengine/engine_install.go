@@ -113,6 +113,7 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&db.CronJob{},
 			&db.CronTask{},
 			&db.CronJobTimer{},
+			&db.K8sPod{},
 		}
 		gormdb = gormdb.Debug()
 		gormdb.SingularTable(true)

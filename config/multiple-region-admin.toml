@@ -232,3 +232,10 @@ topic = "juno_test_job" # mq topic
 group = "juno_devops_go" # mq producer group
 retry = 3 # MQ写重试次数
 dialTimeout = "3s" # MQ连接超时时间
+
+[k8s]
+enable = false
+
+[[k8s.HB-WHYL]]
+domain = ""
+token = ""
