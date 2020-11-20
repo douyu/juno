@@ -1,8 +1,9 @@
 package notice
 
 import (
-	"github.com/douyu/juno/pkg/cfg"
 	"testing"
+
+	"github.com/douyu/juno/pkg/cfg"
 )
 
 func TestSendEmail(t *testing.T) {
