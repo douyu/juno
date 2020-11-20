@@ -175,6 +175,22 @@ func getConfigurationStatus(configurationID uint, hostName string) (res db.Confi
 	return
 }
 
+func getConfigurationHistory(configurationID uint) (res db.ConfigurationHistory, err error) {
+	configurationPublish := db.ConfigurationPublish{}
+	query := mysql.Where("configuration_id=?", configurationID).Order("created_at desc", false).First(&configurationPublish)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+	queryHistory := mysql.Where("configuration_id=?", configurationID).Order("created_at desc", false).First(&res)
+	if queryHistory.Error != nil {
+		err = queryHistory.Error
+		return
+	}
+
+	return
+}
+
 func configurationSynced(appName, env, zoneCode, filename, format, prefix string, notSyncFlag map[string]db.AppNode) (list map[string]view.ConfigurationStatus, err error) {
 	list = make(map[string]view.ConfigurationStatus, 0)
 	fileNameWithSuffix := fmt.Sprintf("%s.%s", filename, format)

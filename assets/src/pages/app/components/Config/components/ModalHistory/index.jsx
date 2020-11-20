@@ -22,6 +22,7 @@ const historyTableColumns = [
     title: '提交时间'
   },
 ]
+var serviceV = ""
 
 function ModalHistory(props) {
   const {
@@ -29,10 +30,12 @@ function ModalHistory(props) {
     historyListPagination, loadHistory, showHistoryModal, showDiffEditor,showDiffVersionEditor, serviceVersion, publishVersion,env,aid,appName
   } = props
   useEffect(() => {
-    if (serviceVersion != "" && serviceVersion != undefined) {
-      showDiffVersionEditor(appName,env,serviceVersion, publishVersion)
+    if(serviceV == "" || serviceV == undefined){
+      if (serviceVersion != "" && serviceVersion != undefined) {
+        showDiffVersionEditor(appName,env,serviceVersion, publishVersion)
+      }
     }
-
+    serviceV = serviceVersion
     if (!visible) return
     loadHistory({
       id: currentConfig.id,

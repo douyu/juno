@@ -133,9 +133,10 @@ type (
 
 	// ReqDiffReleaseConfig ..
 	ReqDiffReleaseConfig struct {
-		AppName string   `query:"appName" validate:"required"` // 应用名
-		Env     string   `query:"env" validate:"required"`     // 环境
-		IpList  []string `query:"ipList" validate:"required"`     // ips
+		AppName    string   `query:"appName" validate:"required"` // 应用名
+		Env        string   `query:"env" validate:"required"`     // 环境
+		ConfigName string   `query:"configName"`                  // 配置文件名称
+		IpList     []string `query:"ipList"`                      // ips
 	}
 	// RespDiffReleaseConfig ..
 	RespDiffReleaseConfig struct {

@@ -84,7 +84,8 @@ maxOpenConns = 100
 
 #################################### Proxy ##############################
 [clientProxy]
-
+[clientProxy.httpRouter]
+governConfig = "/debug/config"
 [clientProxy.singleProxy.registerEtcd]
 endpoints = ["127.0.0.1:2379"]
 
