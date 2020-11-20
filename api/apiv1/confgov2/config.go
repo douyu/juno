@@ -160,7 +160,7 @@ func Diff(c echo.Context) (err error) {
 
 	//老业务对比流程
 	if param.ID > 0 {
-		resp, err := confgov2.Diff(param.ID, param.HistoryID)
+		resp, err := confgov2.Diff(param.ID, param.HistoryID, confgov2.DiffDefaultScene)
 		if err != nil {
 			return output.JSON(c, output.MsgErr, err.Error())
 		}
@@ -183,11 +183,19 @@ func DiffReleaseConfig(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())
 	}
-	resp, err := confgov2.DiffReleaseConfig(param)
-	if err != nil {
-		return output.JSON(c, output.MsgErr, err.Error())
+	if param.ConfigName == "" {
+		resp, err := confgov2.DiffReleaseConfig(param)
+		if err != nil {
+			return output.JSON(c, output.MsgErr, err.Error())
+		}
+		return output.JSON(c, output.MsgOk, "", resp)
+	} else {
+		resp, err := confgov2.DiffReleaseConfigByFile(param)
+		if err != nil {
+			return output.JSON(c, output.MsgErr, err.Error())
+		}
+		return output.JSON(c, output.MsgOk, "", resp)
 	}
-	return output.JSON(c, output.MsgOk, "", resp)
 }
 
 // Delete ..

@@ -114,17 +114,17 @@ func syncTakeEffectStatus(appName, env string, zoneCode, governPort string, conf
 
 	var version = configuration.Version
 	for k, v := range resp {
-		if resp[k].ConfigFileTakeEffect == 1 {
-			continue
-		}
 		if configVersion, ok := newSyncDataMap[resp[k].HostName]; ok {
 			if configVersion == version {
 				resp[k].ConfigFileTakeEffect = 1
 				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("take_effect", 1)
+			} else {
+				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("take_effect", 0)
 			}
 		} else {
 			// sync failed
 			resp[k].ConfigFileTakeEffect = 2
+			mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("take_effect", 2)
 		}
 	}
 
@@ -172,6 +172,22 @@ func getConfigurationStatus(configurationID uint, hostName string) (res db.Confi
 		err = query.Error
 		return
 	}
+	return
+}
+
+func getConfigurationHistory(configurationID uint) (res db.ConfigurationHistory, err error) {
+	configurationPublish := db.ConfigurationPublish{}
+	query := mysql.Where("configuration_id=?", configurationID).Order("created_at desc", false).First(&configurationPublish)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+	queryHistory := mysql.Where("configuration_id=?", configurationID).Order("created_at desc", false).First(&res)
+	if queryHistory.Error != nil {
+		err = queryHistory.Error
+		return
+	}
+
 	return
 }
 
