@@ -1069,9 +1069,9 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 		xlog.String("publishVersion", publishVersion))
 
 	diffUrlList := view.DiffUrlList{}
-	resp.HasNew = false
+	resp.HasNew = true
 	if effectVersion != "" && effectVersion == publishVersion {
-		resp.HasNew = true
+		resp.HasNew = false
 	}
 	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
 	diffUrlList.Name = configuration.Name
@@ -1155,9 +1155,9 @@ func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDif
 		xlog.String("publishVersion", publishVersion))
 
 	diffUrlList := view.DiffUrlList{}
-	resp.HasNew = false
+	resp.HasNew = true
 	if effectVersion != "" && effectVersion == publishVersion {
-		resp.HasNew = true
+		resp.HasNew = false
 
 	}
 	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
