@@ -948,7 +948,6 @@ func Diff(configID, historyID uint, scene int) (resp view.RespDiffConfig, err er
 func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error) {
 	appInfo := &db.AppInfo{}
 	serviceConfiguration := db.ConfigurationHistory{}
-	configurationInfo := db.Configuration{}
 
 	err = mysql.Where("app_name = ?", param.AppName).First(appInfo).Error
 	if err != nil {
@@ -968,11 +967,12 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 		xlog.String("env", env),
 		xlog.Any("publishVersion", publishVersion))
 
-	err = mysql.Where("aid = ? && env = ?", aid, env).Order("id desc").First(&configurationInfo).Error
-	if err != nil {
-		xlog.Error("DiffVersion100", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+	configurationInfo := resource.Resource.GetConfigureByVersion(aid, env, param.PublishVersion)
+	if configurationInfo.ID <= 0 {
+		xlog.Error("DiffReleaseConfig6", xlog.String("step", "mysql.Where"), xlog.Any("param", param))
 		return
 	}
+
 	xlog.Info("DiffVersion1", xlog.Any("configurationInfo", configurationInfo))
 
 	err = mysql.Where("configuration_id = ? && version = ?", configurationInfo.ID, serviceVersion).First(&serviceConfiguration).Error
@@ -1046,11 +1046,9 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	effectVersion := out.JunoConfigurationVersion
 	xlog.Info("DiffReleaseConfig56", xlog.String("agentQuestResp", string(agentQuestResp.Body())), xlog.String("effectVersion", effectVersion), xlog.Any("param", param), xlog.Any("appNodeInfo", appNodeInfo), xlog.Any("appInfo", appInfo))
 
-	configuration := db.Configuration{}
-	err = mysql.Where("aid = ? && env = ? && version = ?", appNodeInfo.Aid, appNodeInfo.Env, effectVersion).First(&configuration).Error
-
-	if err != nil {
-		xlog.Error("DiffReleaseConfig6", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()), xlog.Any("param", param))
+	configuration := resource.Resource.GetConfigureByVersion(appNodeInfo.Aid, appNodeInfo.Env, effectVersion)
+	if configuration.ID <= 0 {
+		xlog.Error("DiffReleaseConfig6", xlog.String("step", "mysql.Where"), xlog.Any("param", param), xlog.String("effectVersion", effectVersion), xlog.Any("appNodeInfo", appNodeInfo))
 		return
 	}
 

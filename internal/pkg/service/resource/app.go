@@ -630,3 +630,10 @@ func (r *resource) WhereNickname(username, qs string, page, pageSize uint) (apps
 
 	return
 }
+
+// getConfigureByVersion 更具应用发布版本查出 id
+func (r *resource) GetConfigureByVersion(aid int, env string, version string) (configuration db.Configuration) {
+	r.DB.Table("configuration").Where("configuration.aid = ? && configuration.env = ? && configuration_history.version = ?", aid, env, version).
+		Joins("left join configuration_history on configuration_history.configuration_id = configuration.id").First(&configuration)
+	return
+}
