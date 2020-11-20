@@ -7,7 +7,6 @@ type Message struct {
 	To      []string
 }
 
-
 //钉钉消息
 type DingText struct {
 	Msgtype string `json:"msgtype"`
