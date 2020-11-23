@@ -114,17 +114,17 @@ func syncTakeEffectStatus(appName, env string, zoneCode, governPort string, conf
 
 	var version = configuration.Version
 	for k, v := range resp {
-		if resp[k].ConfigFileTakeEffect == 1 {
-			continue
-		}
 		if configVersion, ok := newSyncDataMap[resp[k].HostName]; ok {
 			if configVersion == version {
 				resp[k].ConfigFileTakeEffect = 1
 				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("take_effect", 1)
+			} else {
+				mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("take_effect", 0)
 			}
 		} else {
 			// sync failed
 			resp[k].ConfigFileTakeEffect = 2
+			mysql.Model(&db.ConfigurationStatus{}).Where("id=?", v.ConfigurationStatusID).Update("take_effect", 2)
 		}
 	}
 
