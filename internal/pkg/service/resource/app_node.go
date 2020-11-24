@@ -4,8 +4,10 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/douyu/juno/pkg/model/view"
@@ -42,11 +44,44 @@ func (r *resource) GetAllAppEnvZone(where db.AppNode) (resp []db.AppNode, err er
 	return
 }
 
-func (r *resource) GetAppNodeList(where db.AppNode, currentPage, pageSize int, sort string) (resp []db.AppNode, page *view.Pagination, err error) {
+func (r *resource) GetAppNodeList(where db.AppNode, currentPage, pageSize int) (resp []db.AppNode, page *view.Pagination, err error) {
+	nodeSql := `select * from
+(select a.aid,a.host_name,a.ip,a.zone_name,a.region_name,a.env,a.update_time,a.zone_code  from app_node a
+UNION
+select k.aid,k.node_name host_name,k.host_ip ip,z.zone_name,z.region_name,k.env,UNIX_TIMESTAMP(k.update_time) update_time,k.zone_code from k8s_pod k left join zone z on z.zone_code =k.zone_code
+) t where 1=1 %s order by t.update_time desc`
+
+	whereSql := "&&"
+	whereArr := make([]interface{}, 0)
+	if where.AppName != "" {
+		whereSql += " t.app_name = ? &&"
+		whereArr = append(whereArr, where.AppName)
+	}
+	if where.Aid != 0 {
+		whereSql += " t.aid = ? &&"
+		whereArr = append(whereArr, where.Aid)
+	}
+	if where.HostName != "" {
+		whereSql += " t.home_name = ? &&"
+		whereArr = append(whereArr, where.HostName)
+	}
+	if where.IP != "" {
+		whereSql += " t.ip = ? &&"
+		whereArr = append(whereArr, where.IP)
+	}
+	if where.Env != "" {
+		whereSql += " t.env = ? &&"
+		whereArr = append(whereArr, where.Env)
+	}
+	if where.ZoneCode != "" {
+		whereSql += " t.zone_code = ? &&"
+		whereArr = append(whereArr, where.ZoneCode)
+	}
+	whereSql = strings.TrimRight(whereSql, "&&")
+	nodeSql = fmt.Sprintf(nodeSql, whereSql)
 	page = view.NewPagination(currentPage, pageSize)
-	sql := r.DB.Model(db.AppNode{}).Where(where)
-	sql.Count(&page.Total)
-	err = sql.Order(sort).Offset((page.Current - 1) * page.PageSize).Limit(page.PageSize).Find(&resp).Error
+	dbw := r.DB.Raw(nodeSql, whereArr...).Offset(page.Current - 1).Limit(page.PageSize).Scan(&resp)
+	dbw.Count(&page.Total)
 	return
 }
 

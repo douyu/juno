@@ -949,7 +949,6 @@ func Diff(configID, historyID uint, scene int) (resp view.RespDiffConfig, err er
 func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error) {
 	appInfo := &db.AppInfo{}
 	serviceConfiguration := db.ConfigurationHistory{}
-	configurationInfo := db.Configuration{}
 
 	err = mysql.Where("app_name = ?", param.AppName).First(appInfo).Error
 	if err != nil {
@@ -969,11 +968,12 @@ func DiffVersion(param view.ReqDiffConfig) (resp view.RespDiffConfig, err error)
 		xlog.String("env", env),
 		xlog.Any("publishVersion", publishVersion))
 
-	err = mysql.Where("aid = ? && env = ?", aid, env).Order("id desc").First(&configurationInfo).Error
-	if err != nil {
-		xlog.Error("DiffVersion100", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+	configurationInfo := resource.Resource.GetConfigureByVersion(aid, env, param.PublishVersion)
+	if configurationInfo.ID <= 0 {
+		xlog.Error("DiffReleaseConfig6", xlog.String("step", "mysql.Where"), xlog.Any("param", param))
 		return
 	}
+
 	xlog.Info("DiffVersion1", xlog.Any("configurationInfo", configurationInfo))
 
 	err = mysql.Where("configuration_id = ? && version = ?", configurationInfo.ID, serviceVersion).First(&serviceConfiguration).Error
@@ -1011,14 +1011,14 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 	}
 	appNodeInfo, err := resource.Resource.GetAppNode(where)
 	if err != nil {
-		xlog.Error("DiffReleaseConfig2", xlog.String("step", "resource.Resource.GetAppNode(where)"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig2", xlog.String("step", "resource.Resource.GetAppNode(where)"), xlog.Any("where", where), xlog.Any("param", param), xlog.String("err", err.Error()))
 		return
 	}
 
 	// get app info
 	appInfo, err := resource.Resource.GetApp(appNodeInfo.Aid)
 	if err != nil {
-		xlog.Error("DiffReleaseConfig3", xlog.String("step", "resource.Resource.GetApp"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig3", xlog.String("step", "resource.Resource.GetApp"), xlog.String("err", err.Error()), xlog.Any("param", param))
 		return
 	}
 
@@ -1031,7 +1031,7 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 		URL:     uri,
 	})
 	if err != nil {
-		xlog.Error("DiffReleaseConfig4", xlog.String("step", " clientproxy.ClientProxy.HttpGet"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig4", xlog.String("step", " clientproxy.ClientProxy.HttpGet"), xlog.String("err", err.Error()), xlog.Any("param", param))
 		return
 	}
 
@@ -1040,24 +1040,22 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 		JunoConfigurationVersion string `json:"juno_configuration_version"`
 	}
 	if err = json.Unmarshal(agentQuestResp.Body(), &out); err != nil {
-		xlog.Error("DiffReleaseConfig5", xlog.String("step", "json.Unmarshal"), xlog.String("err", err.Error()), xlog.String("agentQuestResp.Body()", string(agentQuestResp.Body())))
+		xlog.Error("DiffReleaseConfig5", xlog.String("step", "json.Unmarshal"), xlog.String("err", err.Error()), xlog.String("agentQuestResp.Body()", string(agentQuestResp.Body())), xlog.Any("param", param))
 		return
 	}
 
 	effectVersion := out.JunoConfigurationVersion
 	xlog.Info("DiffReleaseConfig56", xlog.String("agentQuestResp", string(agentQuestResp.Body())), xlog.String("effectVersion", effectVersion), xlog.Any("param", param), xlog.Any("appNodeInfo", appNodeInfo), xlog.Any("appInfo", appInfo))
 
-	configuration := db.Configuration{}
-	err = mysql.Where("aid = ? && env = ? && version = ?", appNodeInfo.Aid, appNodeInfo.Env, effectVersion).First(&configuration).Error
-
-	if err != nil {
-		xlog.Error("DiffReleaseConfig6", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+	configuration := resource.Resource.GetConfigureByVersion(appNodeInfo.Aid, appNodeInfo.Env, effectVersion)
+	if configuration.ID <= 0 {
+		xlog.Error("DiffReleaseConfig6", xlog.String("step", "mysql.Where"), xlog.Any("param", param), xlog.String("effectVersion", effectVersion), xlog.Any("appNodeInfo", appNodeInfo))
 		return
 	}
 
 	historyInfo, err := getConfigurationHistory(configuration.ID)
 	if err != nil {
-		xlog.Error("DiffReleaseConfig7", xlog.String("step", "DiffReleaseConfig6.getConfigurationHistory"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfig7", xlog.String("step", "DiffReleaseConfig6.getConfigurationHistory"), xlog.String("err", err.Error()), xlog.Any("param", param))
 		return
 	}
 	publishVersion := historyInfo.Version
@@ -1072,9 +1070,9 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 		xlog.String("publishVersion", publishVersion))
 
 	diffUrlList := view.DiffUrlList{}
-	resp.HasNew = false
+	resp.HasNew = true
 	if effectVersion != "" && effectVersion == publishVersion {
-		resp.HasNew = true
+		resp.HasNew = false
 	}
 	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
 	diffUrlList.Name = configuration.Name
@@ -1087,7 +1085,7 @@ func DiffReleaseConfig(param view.ReqDiffReleaseConfig) (resp view.RespDiffRelea
 func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDiffReleaseConfig, err error) {
 	if len(param.IpList) == 0 {
 		err = errors.New("param.IpList 长度不合法")
-		xlog.Error("DiffReleaseConfigByFile1", xlog.String("step", "param.IpList.leng"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfigByFile1", xlog.String("step", "param.IpList.leng"), xlog.Any("param", param), xlog.String("err", err.Error()))
 		return
 	}
 
@@ -1100,20 +1098,20 @@ func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDif
 	// get app info
 	appInfo, err := resource.Resource.GetApp(param.AppName)
 	if err != nil {
-		xlog.Error("DiffReleaseConfigByFile2", xlog.String("step", "resource.Resource.GetApp"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfigByFile2", xlog.String("step", "resource.Resource.GetApp"), xlog.Any("param", param), xlog.String("err", err.Error()))
 		return
 	}
 
 	configuration := db.Configuration{}
 	pathInfo := strings.Split(param.ConfigName, ".")
 	if len(pathInfo) != 2 {
-		xlog.Error("DiffReleaseConfigByFile2.5", xlog.String("step", "strings.Spli"), xlog.String("param.ConfigName", param.ConfigName), xlog.String("err", "pathInfo len too less"))
+		xlog.Error("DiffReleaseConfigByFile2.5", xlog.String("step", "strings.Spli"), xlog.Any("param", param), xlog.String("param.ConfigName", param.ConfigName), xlog.String("err", "pathInfo len too less"))
 		return
 	}
 
 	err = mysql.Where("aid = ? && env = ? && name = ? && format = ?", appInfo.Aid, param.Env, pathInfo[0], pathInfo[1]).First(&configuration).Error
 	if err != nil {
-		xlog.Error("DiffReleaseConfigByFile3", xlog.String("step", "mysql.Where"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfigByFile3", xlog.String("step", "mysql.Where"), xlog.Any("param", param), xlog.String("err", err.Error()))
 		return
 	}
 
@@ -1126,7 +1124,7 @@ func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDif
 		URL:     uri,
 	})
 	if err != nil {
-		xlog.Error("DiffReleaseConfigByFile4", xlog.String("step", " clientproxy.ClientProxy.HttpGet"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfigByFile4", xlog.String("step", " clientproxy.ClientProxy.HttpGet"), xlog.Any("param", param), xlog.String("err", err.Error()))
 		return
 	}
 
@@ -1135,7 +1133,7 @@ func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDif
 		JunoConfigurationVersion string `json:"juno_configuration_version"`
 	}
 	if err = json.Unmarshal(agentQuestResp.Body(), &out); err != nil {
-		xlog.Error("DiffReleaseConfigByFile52", xlog.String("step", "json.Unmarshal"), xlog.String("err", err.Error()), xlog.String("agentQuestResp.Body()", string(agentQuestResp.Body())))
+		xlog.Error("DiffReleaseConfigByFile52", xlog.String("step", "json.Unmarshal"), xlog.Any("param", param), xlog.String("err", err.Error()), xlog.String("agentQuestResp.Body()", string(agentQuestResp.Body())))
 		return
 	}
 
@@ -1143,7 +1141,7 @@ func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDif
 
 	historyInfo, err := getConfigurationHistory(configuration.ID)
 	if err != nil {
-		xlog.Error("DiffReleaseConfigByFile5", xlog.String("step", " DiffReleaseConfig6.getConfigurationHistory"), xlog.String("err", err.Error()))
+		xlog.Error("DiffReleaseConfigByFile5", xlog.String("step", " DiffReleaseConfig6.getConfigurationHistory"), xlog.Any("param", param), xlog.String("err", err.Error()))
 		return
 	}
 	publishVersion := historyInfo.Version
@@ -1158,9 +1156,9 @@ func DiffReleaseConfigByFile(param view.ReqDiffReleaseConfig) (resp view.RespDif
 		xlog.String("publishVersion", publishVersion))
 
 	diffUrlList := view.DiffUrlList{}
-	resp.HasNew = false
+	resp.HasNew = true
 	if effectVersion != "" && effectVersion == publishVersion {
-		resp.HasNew = true
+		resp.HasNew = false
 
 	}
 	rootUrl := strings.TrimRight(cfg.Cfg.Server.Http.RootUrl, "/")
