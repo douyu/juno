@@ -44,6 +44,15 @@ function ClusterForm(props) {
     <Form.Item label={"Zone Name"} name={"zone_name"}>
       <Input/>
     </Form.Item>
+
+    <Form.Item label={"domain"} name={"domain"} >
+      <Input/>
+    </Form.Item>
+
+    <Form.Item  label={"token"} name={"token"}>
+      <Input/>
+    </Form.Item>
+
   </Form>
 }
 
