@@ -28,6 +28,7 @@ type k8sImpl struct {
 // newK8sImpl ..
 func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 	var d k8sImpl
+	d.clientMap = make(map[string]*rest.Config)
 	for zoneCode, kcItem := range kc {
 		apiServerURL, err := url.Parse(kcItem.Domain)
 		if err != nil {
@@ -46,18 +47,18 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 	d.config = kc
 	d.resty = resty.
 		New().
-		SetDebug(false).
-		SetTimeout(30*time.Second).
+		SetDebug(true).
+		SetTimeout(3*time.Second).
 		SetHeader("Content-Type", "application/json;charset=utf-8").
 		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	return &d
 }
 
 // allClusterSync ..
-func (g *k8sImpl) allClusterSync() {
+func (g *k8sImpl) allClusterSync(prefix string) {
 	for zc, config := range g.clientMap {
 		xgo.Go(func() {
-			newCluster(zc, config, g.db)
+			newCluster(zc, prefix, config, g.db)
 		})
 	}
 }

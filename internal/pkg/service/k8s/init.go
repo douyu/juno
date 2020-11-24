@@ -28,6 +28,6 @@ func Init() {
 	IK8s = newK8sImpl(kc)
 
 	xgo.Go(func() {
-		IK8s.allClusterSync()
+		IK8s.allClusterSync(cfg.Cfg.K8s.Prefix)
 	})
 }

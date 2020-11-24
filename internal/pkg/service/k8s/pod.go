@@ -5,19 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/douyu/juno/pkg/model/db"
-
 	"github.com/douyu/juno/pkg/model/view"
-
 	"github.com/douyu/juno/pkg/util"
-	"github.com/jinzhu/gorm"
-
-	"github.com/douyu/jupiter/pkg/xlog"
-
 	"github.com/douyu/jupiter/pkg/util/xgo"
-
+	"github.com/douyu/jupiter/pkg/xlog"
+	"github.com/jinzhu/gorm"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/runtime"
@@ -27,11 +23,12 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-func newSyncPod(zoneCode string, config *rest.Config, db *gorm.DB) *syncPod {
+func newSyncPod(zoneCode, prefix string, config *rest.Config, db *gorm.DB) *syncPod {
 	s := &syncPod{
-		ZoneCode: zoneCode,
+		zoneCode: zoneCode,
 		config:   config,
 		db:       db,
+		prefix:   prefix,
 	}
 	xgo.Go(func() {
 		s.watch()
@@ -46,7 +43,8 @@ func newSyncPod(zoneCode string, config *rest.Config, db *gorm.DB) *syncPod {
 }
 
 type syncPod struct {
-	ZoneCode string
+	zoneCode string
+	prefix   string
 	config   *rest.Config
 	db       *gorm.DB
 }
@@ -83,20 +81,20 @@ func (i *syncPod) watch() {
 	if err != nil {
 		xlog.Error("sync",
 			xlog.String("typ", "pod"),
-			xlog.String("act", "ZoneCode"),
-			xlog.String("zoneCode", i.ZoneCode),
+			xlog.String("act", "zoneCode"),
+			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err.Error()))
 	}
 	<-stopCh
 }
 
 func (i *syncPod) add(obj interface{}) {
-	err := i.mysqlCreateOrUpdate(i.ZoneCode, obj.(*v1.Pod))
+	err := i.mysqlCreateOrUpdate(i.zoneCode, obj.(*v1.Pod))
 	if err != nil {
 		xlog.Error("sync",
 			xlog.String("typ", "pod"),
 			xlog.String("act", "add"),
-			xlog.String("ZoneCode", i.ZoneCode),
+			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err))
 		return
 	}
@@ -115,12 +113,12 @@ func (i *syncPod) add(obj interface{}) {
 }
 
 func (i *syncPod) update(old interface{}, new interface{}) {
-	err := i.mysqlCreateOrUpdate(i.ZoneCode, new.(*v1.Pod))
+	err := i.mysqlCreateOrUpdate(i.zoneCode, new.(*v1.Pod))
 	if err != nil {
 		xlog.Error("sync",
 			xlog.String("typ", "pod"),
 			xlog.String("act", "add"),
-			xlog.String("ZoneCode", i.ZoneCode),
+			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err))
 		return
 	}
@@ -144,7 +142,7 @@ func (i *syncPod) delete(obj interface{}) {
 		xlog.Error("sync",
 			xlog.String("typ", "pod"),
 			xlog.String("act", "delete"),
-			xlog.String("ZoneCode", i.ZoneCode),
+			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err),
 			xlog.Any("id", id),
 			xlog.String("name", name))
@@ -160,7 +158,7 @@ func (i *syncPod) clean() {
 		xlog.Error("sync",
 			xlog.String("typ", "pod"),
 			xlog.String("act", "clean"),
-			xlog.String("ZoneCode", i.ZoneCode),
+			xlog.String("zoneCode", i.zoneCode),
 			xlog.String("err", err.Error()))
 		return
 	}
@@ -194,9 +192,13 @@ func (i *syncPod) mysqlCreateOrUpdate(zoneCode string, in *v1.Pod) (err error) {
 	var m db.K8sPod
 	m.Formatting(zoneCode, in)
 
+	if i.prefix != "" && !strings.HasPrefix(m.PodName, i.prefix) {
+		return errors.New(fmt.Sprintf("pod is %s, limit with prefix %s", m.PodName, i.prefix))
+	}
+
 	var row db.K8sPod
 	// 判断数据库中是否已存在
-	err = i.db.Select("id, md5").Where("aid=? and pod_name=? and is_del=?", m.Aid, m.PodName, 0).Find(&row).Error
+	err = i.db.Select("md5").Where("aid=? and pod_name=? and is_del=?", m.Aid, m.PodName, 0).Find(&row).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		xlog.Error("mysqlCreate", xlog.String("err", err.Error()))
 		return
@@ -259,7 +261,7 @@ func (i *syncPod) mysqlDelete(podAid int32, podName string) (err error) {
 
 // mysqlList 获取数据库列表
 func (i *syncPod) mysqlList(zoneCode string) (list []db.K8sPod, err error) {
-	err = i.db.Select("*").Where("idc_code=? and is_del=?", zoneCode, 0).Find(&list).Error
+	err = i.db.Select("*").Where("zone_code=? and is_del=?", zoneCode, 0).Find(&list).Error
 	if err != nil {
 		xlog.Error("mysqlDelete", xlog.Any("err", err))
 		return

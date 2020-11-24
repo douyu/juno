@@ -22,9 +22,9 @@ type cluster struct {
 }
 
 // newCluster Cluster data synchronization initialization
-func newCluster(zoneCode string, config *rest.Config, db *gorm.DB) *cluster {
+func newCluster(zoneCode, prefix string, config *rest.Config, db *gorm.DB) *cluster {
 	return &cluster{
 		zoneCode: zoneCode,
-		syncPod:  newSyncPod(zoneCode, config, db),
+		syncPod:  newSyncPod(zoneCode, prefix, config, db),
 	}
 }
