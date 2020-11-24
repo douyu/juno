@@ -4,6 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/service/agent"
 	"github.com/douyu/juno/internal/pkg/service/app"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
@@ -26,11 +32,6 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
-	"net/http"
-	"path/filepath"
-	"strings"
-	"sync"
-	"time"
 )
 
 const (
