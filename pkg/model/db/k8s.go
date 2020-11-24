@@ -1,6 +1,13 @@
 package db
 
-import "time"
+import (
+	"encoding/json"
+	"strconv"
+	"time"
+
+	"github.com/douyu/juno/pkg/util"
+	v1 "k8s.io/api/core/v1"
+)
 
 // K8sPod ..
 type K8sPod struct {
@@ -29,4 +36,35 @@ type K8sPod struct {
 // TableName ..
 func (t *K8sPod) TableName() string {
 	return "k8s_pod"
+}
+
+// Formatting ..
+func (t *K8sPod) Formatting(zc string, in *v1.Pod) {
+	aid, _ := strconv.Atoi(in.ObjectMeta.Labels["appId"])
+	t.Aid = int32(aid)
+	t.Env = ""
+	t.ZoneCode = zc
+	t.PodName = in.ObjectMeta.Name
+	t.UpdateTime = in.ObjectMeta.CreationTimestamp.Time
+	t.AppName = in.ObjectMeta.Labels["appName"]
+	t.Namespace = in.ObjectMeta.Namespace
+
+	if len(in.Spec.Containers) > 0 {
+		t.Image = in.Spec.Containers[0].Image
+	}
+
+	t.NodeName = in.Spec.NodeName
+	t.HostIp = in.Status.HostIP
+	t.PodIp = in.Status.PodIP
+	t.Status = string(in.Status.Phase)
+	if in.Status.StartTime != nil {
+		t.StartTime = in.Status.StartTime.Time
+	}
+	t.UpdateTime = time.Now()
+	t.InstanceGroupID = in.ObjectMeta.Labels["appDeploymentId"]
+	t.InstanceGroupName = in.ObjectMeta.Labels["name"]
+	t.IsDel = 0
+
+	md5BodyByte, _ := json.Marshal(in)
+	t.MD5 = util.Md5(string(md5BodyByte))
 }

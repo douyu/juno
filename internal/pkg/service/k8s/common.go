@@ -2,8 +2,14 @@ package k8s
 
 import "time"
 
-// DataRetentionTime ..
-const DataRetentionTime = time.Hour * 24 * 3
+// dataRetentionTime ..
+const dataRetentionTime = time.Hour * 24 * 3
 
-// CleanInterval ..
-const CleanInterval = time.Minute * 30
+// cleanInterval ..
+const cleanInterval = time.Minute * 30
+
+const (
+	podListAllNamespaces = "/api/v1/pods"
+	podItem              = "/api/v1/namespaces/%s/pods/%s"
+	podLog               = "/api/v1/namespaces/%s/pods/%s/log"
+)

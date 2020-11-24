@@ -31,7 +31,7 @@ func newRestyClient(mode string, proxyAddr string) (obj *restyClient) {
 	return
 }
 
-//Get ..
+//get ..
 func (r *restyClient) Get(req view.ReqHTTPProxy) (*resty.Response, error) {
 	timeout := req.Timeout
 	if timeout == 0 {
@@ -50,7 +50,7 @@ func (r *restyClient) Get(req view.ReqHTTPProxy) (*resty.Response, error) {
 	}
 }
 
-//Post ..
+//post ..
 func (r *restyClient) Post(req view.ReqHTTPProxy) (*resty.Response, error) {
 	timeout := req.Timeout
 	if timeout == 0 {

@@ -7,6 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/douyu/juno/pkg/model/db"
+
+	"github.com/douyu/juno/pkg/model/view"
+
 	"github.com/douyu/juno/pkg/util"
 	"github.com/jinzhu/gorm"
 
@@ -23,10 +27,11 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-func newSyncPod(zoneCode string, config *rest.Config) *syncPod {
+func newSyncPod(zoneCode string, config *rest.Config, db *gorm.DB) *syncPod {
 	s := &syncPod{
 		ZoneCode: zoneCode,
 		config:   config,
+		db:       db,
 	}
 	xgo.Go(func() {
 		s.watch()
@@ -34,7 +39,7 @@ func newSyncPod(zoneCode string, config *rest.Config) *syncPod {
 	xgo.Go(func() {
 		for {
 			s.clean()
-			time.Sleep(CleanInterval)
+			time.Sleep(cleanInterval)
 		}
 	})
 	return s
@@ -43,7 +48,7 @@ func newSyncPod(zoneCode string, config *rest.Config) *syncPod {
 type syncPod struct {
 	ZoneCode string
 	config   *rest.Config
-	client   *res
+	db       *gorm.DB
 }
 
 func (i *syncPod) watch() {
@@ -96,7 +101,6 @@ func (i *syncPod) add(obj interface{}) {
 		return
 	}
 
-	// todo 执行cloud_app数据增加
 	in := obj.(*v1.Pod)
 	var appName string
 	var ok bool
@@ -150,56 +154,56 @@ func (i *syncPod) delete(obj interface{}) {
 
 func (i *syncPod) clean() {
 	// 数据库中存在对应记录进行delete操作
-	t := time.Now().Add(-DataRetentionTime)
-	err := invoker.CloudMysql.Table("cloud_pod").Where("is_del=? and update_time<?", 1, t).Delete(&db.CloudPod{}).Error
+	t := time.Now().Add(-dataRetentionTime)
+	err := i.db.Table("k8s_pod").Where("is_del=? and update_time<?", 1, t).Delete(&db.K8sPod{}).Error
 	if err != nil {
-		xlog.Error("sync", "typ", "pod", "act", "clean", "ZoneCode", i.ZoneCode, "err", err.Error())
+		xlog.Error("sync",
+			xlog.String("typ", "pod"),
+			xlog.String("act", "clean"),
+			xlog.String("ZoneCode", i.ZoneCode),
+			xlog.String("err", err.Error()))
 		return
 	}
 	return
 }
 
 // list 获取全量pod列表
-func (i *syncPod) list(idcCode string) (res []*v1.Pod) {
+func (i *syncPod) list(zoneCode string) (res []*v1.Pod) {
 	res = make([]*v1.Pod, 0)
-	var list db.PodList
-	err := IK8s.Get(idcCode, PodListAllNamespaces, nil, &list)
+	var list view.PodList
+	err := IK8s.get(zoneCode, podListAllNamespaces, nil, &list)
 	if err != nil {
-		xlog.Error("PodName", "list", err.Error())
+		xlog.Error("PodName", xlog.Any("list", err))
 		return
 	}
 	res = list.Items
-	xlog.Error("pod", "list", res)
 	return
 }
 
-// list 获取全量pod列表
-func (i *syncPod) Log(idcCode, namespace, podName string) (res []byte, err error) {
-	res, err = IK8s.GetStream(idcCode, fmt.Sprintf(PodLog, namespace, podName), nil)
+// Log 获取全量pod列表
+func (i *syncPod) Log(zoneCode, namespace, podName string) (res []byte, err error) {
+	res, err = IK8s.getStream(zoneCode, fmt.Sprintf(podLog, namespace, podName), nil)
 	if err != nil {
-		xlog.Error("PodName", "list", err.Error())
+		xlog.Error("PodName", xlog.Any("list", err))
 		return
 	}
 	return
 }
 
-func (i *syncPod) mysqlCreateOrUpdate(idcCode string, in *v1.Pod) (err error) {
-	var m db.CloudPod
-	//var pc db.CloudPodContent
+func (i *syncPod) mysqlCreateOrUpdate(zoneCode string, in *v1.Pod) (err error) {
+	var m db.K8sPod
+	m.Formatting(zoneCode, in)
 
-	m.Formatting(idcCode, in)
-	//pc.Formatting(in)
-
-	var row db.CloudPod
+	var row db.K8sPod
 	// 判断数据库中是否已存在
-	err = invoker.CloudMysql.Select("id, md5").Where("aid=? and pod_name=? and is_del=?", m.Aid, m.PodName, 0).Find(&row).Error
+	err = i.db.Select("id, md5").Where("aid=? and pod_name=? and is_del=?", m.Aid, m.PodName, 0).Find(&row).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		xlog.Error("mysqlCreate", "err", err.Error)
+		xlog.Error("mysqlCreate", xlog.String("err", err.Error()))
 		return
 	}
 
 	// 数据库中已存在
-	if row.Id != 0 {
+	if row.PodName != "" {
 		// 进行更新操作
 		md5BodyByte, _ := json.Marshal(in)
 		newMD5 := util.Md5(string(md5BodyByte))
@@ -207,9 +211,9 @@ func (i *syncPod) mysqlCreateOrUpdate(idcCode string, in *v1.Pod) (err error) {
 			// 如果md5没有变化
 			return
 		}
-		err = invoker.CloudMysql.Table("cloud_pod").Where("aid=? and pod_name=? and is_del=?", m.Aid, m.PodName, 0).Update(map[string]interface{}{
+		err = i.db.Table("k8s_pod").Where("aid=? and pod_name=? and is_del=?", m.Aid, m.PodName, 0).Update(map[string]interface{}{
 			"env":                 m.Env,
-			"idc_code":            m.IdcCode,
+			"zone_code":           m.ZoneCode,
 			"aid":                 m.Aid,
 			"pod_name":            m.PodName,
 			"app_name":            m.AppName,
@@ -227,15 +231,15 @@ func (i *syncPod) mysqlCreateOrUpdate(idcCode string, in *v1.Pod) (err error) {
 			"is_del":              m.IsDel,
 		}).Error
 		if err != nil {
-			xlog.Error("pod update", "err", err.Error)
+			xlog.Error("pod update", xlog.Any("err", err))
 			return
 		}
 		return
 	}
 	// 数据库中不存在对应记录进行insert操作，或者历史配置被删除了，目前只有日志记录存档
-	err = invoker.CloudMysql.Save(&m).Error
+	err = i.db.Save(&m).Error
 	if err != nil {
-		xlog.Error("mysqlCreate", "err", err.Error)
+		xlog.Error("mysqlCreate", xlog.Any("err", err))
 		return
 	}
 	return
@@ -243,31 +247,31 @@ func (i *syncPod) mysqlCreateOrUpdate(idcCode string, in *v1.Pod) (err error) {
 
 func (i *syncPod) mysqlDelete(podAid int32, podName string) (err error) {
 	// 数据库中存在对应记录进行delete操作
-	err = invoker.CloudMysql.Table("cloud_pod").Where("aid=? and pod_name=?", podAid, podName).Update(map[string]interface{}{
+	err = i.db.Table("k8s_pod").Where("aid=? and pod_name=?", podAid, podName).Update(map[string]interface{}{
 		"is_del": 1,
 	}).Error
 	if err != nil {
-		xlog.Error("mysqlDelete", "err", err.Error)
+		xlog.Error("mysqlDelete", xlog.Any("err", err))
 		return
 	}
 	return
 }
 
 // mysqlList 获取数据库列表
-func (i *syncPod) mysqlList(idcCode string) (list []db.CloudPod, err error) {
-	err = invoker.CloudMysql.Select("*").Where("idc_code=? and is_del=?", idcCode, 0).Find(&list).Error
+func (i *syncPod) mysqlList(zoneCode string) (list []db.K8sPod, err error) {
+	err = i.db.Select("*").Where("idc_code=? and is_del=?", zoneCode, 0).Find(&list).Error
 	if err != nil {
-		xlog.Error("mysqlDelete", "err", err.Error)
+		xlog.Error("mysqlDelete", xlog.Any("err", err))
 		return
 	}
 	return
 }
 
-// list 获取全量Ingress列表
-func (i *syncPod) Item(idcCode, namespace, podName string) (res v1.Pod, err error) {
-	err = IK8s.Get(idcCode, fmt.Sprintf(PodItem, namespace, podName), nil, &res)
+// Item 获取全量Ingress列表
+func (i *syncPod) Item(zoneCode, namespace, podName string) (res v1.Pod, err error) {
+	err = IK8s.get(zoneCode, fmt.Sprintf(podItem, namespace, podName), nil, &res)
 	if err != nil {
-		xlog.Error("Item", "list", err.Error())
+		xlog.Error("Item", xlog.Any("err", err))
 		return
 	}
 	return

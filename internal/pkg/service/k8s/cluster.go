@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"github.com/jinzhu/gorm"
 	"k8s.io/client-go/rest"
 )
 
@@ -20,10 +21,10 @@ type cluster struct {
 	syncIngress sync
 }
 
-// NewCluster Cluster data synchronization initialization
-func NewCluster(zoneCode string, config *rest.Config) *cluster {
+// newCluster Cluster data synchronization initialization
+func newCluster(zoneCode string, config *rest.Config, db *gorm.DB) *cluster {
 	return &cluster{
 		zoneCode: zoneCode,
-		syncPod:  newSyncPod(zoneCode, config),
+		syncPod:  newSyncPod(zoneCode, config, db),
 	}
 }

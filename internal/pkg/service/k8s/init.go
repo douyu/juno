@@ -3,10 +3,12 @@ package k8s
 import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/util/xgo"
 )
 
-var IK8s *ApiServer
+var IK8s apiServer
 
+// Init ..
 func Init() {
 
 	if !cfg.Cfg.K8s.Enable {
@@ -23,6 +25,9 @@ func Init() {
 		kc[v.ZoneCode] = clusterItem
 	}
 
-	IK8s = NewK8sImpl(kc)
+	IK8s = newK8sImpl(kc)
 
+	xgo.Go(func() {
+		IK8s.allClusterSync()
+	})
 }
