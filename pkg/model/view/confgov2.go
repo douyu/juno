@@ -140,7 +140,7 @@ type (
 	}
 	// RespDiffReleaseConfig ..
 	RespDiffReleaseConfig struct {
-		HasNew      bool          `json:"hasNew" query:"hasNew"` // 服务器配置与发布配置是否一致；true：一直，false：不一致
+		HasNew      bool          `json:"hasNew" query:"hasNew"` // 服务器配置与发布配置是否一致；true：有更新，false：没更新
 		DiffUrlList []DiffUrlList `json:"diffUrlList" query:"diffUrlList"`
 	}
 

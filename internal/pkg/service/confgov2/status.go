@@ -182,7 +182,7 @@ func getConfigurationHistory(configurationID uint) (res db.ConfigurationHistory,
 		err = query.Error
 		return
 	}
-	queryHistory := mysql.Where("configuration_id=?", configurationID).Order("created_at desc", false).First(&res)
+	queryHistory := mysql.Where("id=?", configurationPublish.ConfigurationHistoryID).Order("created_at desc", false).First(&res)
 	if queryHistory.Error != nil {
 		err = queryHistory.Error
 		return
