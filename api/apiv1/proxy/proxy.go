@@ -161,7 +161,7 @@ func WorkerHeartbeat(c echo.Context) error {
 //}
 
 //func checkPprof(client *resty.Client, url string) ([]byte, error) {
-//	response, err := client.R().Get(url)
+//	response, err := client.R().get(url)
 //	if err != nil {
 //		return []byte{}, err
 //	}

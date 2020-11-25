@@ -75,14 +75,14 @@ var _ = Describe("Publish", func() {
 			})
 			cmcHistory.Aid = int(cmcApp.Aid)
 			cmcHistory.ProtoID = cmcApp.ProtoID
-			cmcHistory.ZoneCode = cmcApp.ZoneCode
+			cmcHistory.zoneCode = cmcApp.zoneCode
 			cmcHistory.Text = templateToml
 			cmcHistory.OriginText = originToml
 			cmcHistory.Md5 = originMD5
 			cmcHistory.CreateTime = time.Now().Unix()
 			cmcHistory.OpName = "mex"
 
-			instanceList := util.HostNameListFilterEnv(cmcApp.App, cmcHistory.ZoneCode)
+			instanceList := util.HostNameListFilterEnv(cmcApp.App, cmcHistory.zoneCode)
 			// 有些应用在发布系统机器上，需要额外关联发布系统机器
 			pubNode := db.AppNode{}
 			PublishSrv.db.Table("app_node").Where("app_name = ?", cmcApp.App).First(&pubNode)

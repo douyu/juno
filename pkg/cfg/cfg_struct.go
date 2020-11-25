@@ -66,6 +66,18 @@ type Server struct {
 	Govern ServerSchema
 }
 
+type K8s struct {
+	Enable  bool
+	Prefix  string
+	Cluster []Cluster
+}
+
+type Cluster struct {
+	ZoneCode string
+	Domain   string
+	Token    string
+}
+
 type ClientProxy struct {
 	HttpRouter  HttpRouter
 	SingleProxy SingleProxy
