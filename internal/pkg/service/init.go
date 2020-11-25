@@ -3,6 +3,8 @@ package service
 import (
 	"time"
 
+	"github.com/douyu/juno/internal/pkg/service/k8s"
+
 	"github.com/douyu/juno/internal/pkg/service/loggerplatform"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -109,5 +111,6 @@ func Init() (err error) {
 
 	loggerplatform.Init()
 
+	k8s.Init()
 	return
 }

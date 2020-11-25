@@ -58,6 +58,7 @@ type cfg struct {
 	TestPlatform      TestPlatform
 	Notice            Notice
 	JunoEvent         JunoEvent
+	K8s
 }
 
 // DefaultConfig ...
