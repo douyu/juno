@@ -575,7 +575,7 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 		return fmt.Errorf("无法获取授权信息")
 	}
 
-	// Get configuration
+	// get configuration
 	var configuration db.Configuration
 	query := mysql.Where("id=?", param.ID).Find(&configuration)
 	if query.Error != nil {
@@ -587,7 +587,7 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 	zoneCode := configuration.Zone
 	filename := configuration.FileName()
 
-	// Get publish version
+	// get publish version
 	var confHistory db.ConfigurationHistory
 	query = mysql.Where("configuration_id=? and version =?", param.ID, param.Version).Find(&confHistory)
 	if query.Error != nil {
@@ -600,7 +600,7 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 	// resource filter
 	content = configresource.FillConfigResource(content)
 
-	// Get nodes data
+	// get nodes data
 	var instanceList = param.HostName
 	var totalInstanceList []string
 	if totalInstanceList, err = getPublishInstance(aid, env, zoneCode); err != nil {

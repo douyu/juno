@@ -130,7 +130,7 @@ func (c *multiProxy) DefaultEtcdClients() []*EtcdClient {
 	return clients
 }
 
-//ConfigEtcdPut ..
+// DefaultEtcdPut ..
 func (c *multiProxy) DefaultEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
 	conn, ok := c.getDefaultEtcd(uniqZone)
 	if !ok {
@@ -141,7 +141,7 @@ func (c *multiProxy) DefaultEtcdPut(uniqZone view.UniqZone, ctx context.Context,
 	return conn.Put(ctx, key, val, opts...)
 }
 
-//ConfigEtcdPut ..
+// DefaultEtcd ..
 func (c *multiProxy) DefaultEtcd(uniqZone view.UniqZone) *clientv3.Client {
 	conn, ok := c.getDefaultEtcd(uniqZone)
 	if !ok {
@@ -150,7 +150,7 @@ func (c *multiProxy) DefaultEtcd(uniqZone view.UniqZone) *clientv3.Client {
 	return conn.conn
 }
 
-//ConfigEtcdGet ..
+// DefaultEtcdGet ..
 func (c *multiProxy) DefaultEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
 	conn, ok := c.getDefaultEtcd(uniqZone)
 	if !ok {
