@@ -44,7 +44,7 @@ func AppNodeList(c echo.Context) error {
 		IP:       reqModel.Ip,
 		Env:      reqModel.Env,
 		ZoneCode: reqModel.ZoneCode,
-	}, reqModel.CurrentPage, reqModel.PageSize, "update_time desc,id desc")
+	}, reqModel.CurrentPage, reqModel.PageSize)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
