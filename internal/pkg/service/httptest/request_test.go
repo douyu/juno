@@ -46,7 +46,7 @@ test.onResponse = function(res) {
 }
 `,
 				param: view.ReqSendHttpRequest{
-					URL:    "http://www.baidu.com/s",
+					URL:    "http://github.com/s",
 					Method: http.MethodGet,
 				},
 			},
@@ -65,7 +65,7 @@ test.onResponse = function(res) {
 }
 `,
 				param: view.ReqSendHttpRequest{
-					URL:    "http://www.baidu.com/s",
+					URL:    "http://github.com/s",
 					Method: http.MethodGet,
 				},
 			},
