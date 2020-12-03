@@ -627,9 +627,9 @@ func ClusterPublishConfigInfo() (configurationRes db.ConfigurationHistory, err e
 			if err := json.Unmarshal(item.Value, &data); err != nil {
 				continue
 			}
-			fmt.Println(data.Metadata.Version, configurationHistory.Version, 2321)
 			if data.Metadata.Version == configurationHistory.Version {
 				configurationRes = configurationHistory
+				configurationRes.CreatedAt = configurationPublish.CreatedAt
 				return configurationRes, nil
 			}
 		}
