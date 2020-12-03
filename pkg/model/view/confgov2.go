@@ -289,6 +289,17 @@ type (
 		NodeName string `json:"node_name" query:"node_name"`
 		Typ      uint   `json:"typ" query:"typ"`
 	}
+	// ClusterInfo ..
+	ClusterInfo struct {
+		Name     string   `json:"name"`
+		Env      []string `json:"env"`
+		ZoneCode string   `json:"zone_code"`
+		ZoneName string   `json:"zone_name"`
+	}
+	// ClusterList ..
+	ClusterList struct {
+		List []ClusterInfo `json:"list"`
+	}
 )
 
 //CheckConfigFormat 检查配置文件格式是否符合要求

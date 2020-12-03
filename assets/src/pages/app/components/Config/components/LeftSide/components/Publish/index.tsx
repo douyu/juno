@@ -4,6 +4,7 @@ import {Checkbox, Empty, message, Select, Spin} from 'antd';
 import {DatabaseOutlined} from '@ant-design/icons';
 import OptionButton, {ButtonType} from '@/pages/app/components/Config/components/OptionButton';
 import InstanceDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/InstanceDetail';
+import ClusterDetail from '@/pages/app/components/Config/components/LeftSide/components/Publish/ClusterDetail';
 import ScrollArea from 'react-scrollbar';
 import {
   BorderOutlined,
@@ -31,6 +32,9 @@ interface PublishProps {
   k8sClusters: any[]
 }
 
+
+
+
 function Publish(props: PublishProps) {
   const {
     loadConfigInstances,
@@ -41,7 +45,7 @@ function Publish(props: PublishProps) {
     showEditorMaskLayer,
     setCurrentInstance,
     currentConfig,
-    env
+    env,
   } = props;
   let {k8sClusters} = props
   k8sClusters = k8sClusters.filter(item => item.env.indexOf(env) > -1)
@@ -54,8 +58,8 @@ function Publish(props: PublishProps) {
     id: number;
   }>();
   const [checkedInstances, setCheckedInstances] = useState<string[]>([])
+  const [checkedCluters, setCheckedCluters] = useState<string[]>([])
   const [switchPubK8S, switchPubK8SAct] = useBoolean(false)
-
   useEffect(() => {
     if (!configFile) {
       if (currentConfig) {
@@ -121,6 +125,22 @@ function Publish(props: PublishProps) {
     setCheckedInstances(checked)
   }
 
+
+
+  const isCheckedCluter = (name: string): boolean => {
+    return checkedCluters.findIndex(item => item === name) > -1
+  }
+
+  const onToggleCluterCheck = (ev: CheckboxChangeEvent) => {
+    let checked = checkedCluters.filter(name => name != ev.target.name)
+
+    if (ev.target.checked) {
+      checked = [...checked, ev.target.name || '']
+    }
+
+    setCheckedCluters(checked)
+  }
+
   return (
     <div className={styles.publish}>
       <div className={styles.optionBlock}>
@@ -172,37 +192,90 @@ function Publish(props: PublishProps) {
         </div>
       )}
 
-      {configFile && k8sClusters && k8sClusters.length != 0 && <ul className={styles.clusterList}>
-        <div className={styles.clusterOpt}>
-          <div className={styles.title}>集群列表</div>
-          <div className={styles.options}>
-            {switchPubK8S && <OptionButton
-              type={ButtonType.Text}
-              title={"不发布集群"}
-              onClick={switchPubK8SAct.setFalse}
-            >
-              <CheckSquareOutlined/>
-            </OptionButton>}
-            {!switchPubK8S && <OptionButton
-              type={ButtonType.Text}
-              title={"发布集群"}
-              onClick={switchPubK8SAct.setTrue}
-            >
-              <BorderOutlined/>
-            </OptionButton>}
-          </div>
-        </div>
-        {k8sClusters.filter(item => item.env.indexOf(env) > -1).map(item => {
-          return <li className={styles.clusterItem}>
-            <div className={styles.clusterIcon}>
-              <ClusterOutlined/>
+
+
+
+
+      {configFile && k8sClusters && k8sClusters.length != 0 && (
+        <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>
+          <ul className={styles.instanceList}>
+            <div className={styles.instanceListOpt}>
+              <div className={styles.instanceListTitle}>集群列表</div>
+              <div style={{textAlign: 'right'}}>
+                {k8sClusters.length === checkedCluters.length && checkedCluters.length != 0 && <OptionButton
+                  type={ButtonType.Text}
+                  title={"取消选中所有集群"}
+                  onClick={() => {
+                    switchPubK8SAct.setFalse()
+                    setCheckedCluters([])
+                  }}
+                >
+                  <CheckSquareOutlined/>
+                </OptionButton>}
+                {(k8sClusters.length !== checkedCluters.length || checkedCluters.length == 0) &&
+                <OptionButton
+                  type={ButtonType.Text}
+                  title={"选中所有集群"}
+                  onClick={() => {
+                    switchPubK8SAct.setTrue()
+                    setCheckedCluters(k8sClusters.map((item: any) => item.name))
+                  }}
+                >
+                  <BorderOutlined/>
+                </OptionButton>}
+
+              </div>
             </div>
-            <div className={styles.clusterName}>
-              {item.name}
-            </div>
-          </li>
-        })}
-      </ul>}
+
+            {k8sClusters.filter(item => item.env.indexOf(env) > -1).map((item: any, index: any) => {
+
+              return (
+                <li
+                  className={styles.instanceListItem}
+                  key={index}
+                  onClick={() => {
+                    setCurrentInstance(item);
+                    showEditorMaskLayer(true, <ClusterDetail config={configFile}/>);
+                  }}
+                >
+                  <div className={styles.instanceInfo}>
+                    <div className={styles.icon}>
+                      <DatabaseOutlined/>
+                    </div>
+                    <div>
+                      <div className={styles.instanceName}>{item.name}</div>
+                    </div>
+                    <div className={styles.instanceCheckBox}>
+                      <Checkbox onChange={onToggleCluterCheck} name={item.name}
+                                checked={isCheckedCluter(item.name)}/>
+                    </div>
+                  </div>
+
+                  <div className={styles.instanceStatus}>
+
+                  </div>
+                </li>
+              );
+
+
+            })}
+
+            {configFile && k8sClusters && k8sClusters.length != 0 &&
+            <div className={styles.emptyTip}>
+              应用在当前可用区环境下无集群
+            </div>}
+          </ul>
+        </ScrollArea>
+      )}
+
+
+
+
+
+
+
+
+
 
       {configFile && !configInstanceListLoading && configInstanceList && (
         <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>
@@ -308,6 +381,17 @@ function Publish(props: PublishProps) {
           </ul>
         </ScrollArea>
       )}
+
+
+
+
+
+
+
+
+
+
+
 
       <ModalPublish
         visible={visibleModalPublish}
