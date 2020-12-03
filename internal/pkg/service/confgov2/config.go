@@ -561,7 +561,7 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 }
 
 // ClusterPublishConfigInfo ..
-func ClusterPublishConfigInfo() (configurationRes db.ConfigurationHistory, err error) {
+func ClusterPublishConfigInfo() (configurationRes view.ClusterConfigInfo, err error) {
 	// process
 	var (
 		configurationPublish       db.ConfigurationPublish
@@ -599,6 +599,11 @@ func ClusterPublishConfigInfo() (configurationRes db.ConfigurationHistory, err e
 		return
 	}
 
+	configurationRes.Doc = cfg.Cfg.App.Doc
+	configurationRes.Version = configurationHistory.Version
+	configurationRes.CreatedAt = configurationPublish.CreatedAt
+	configurationRes.ChangeLog = configurationHistory.ChangeLog
+
 	query = mysql.Where("aid = ?", configuration.AID).First(&appInfo)
 	if query.Error != nil {
 		err = query.Error
@@ -621,6 +626,8 @@ func ClusterPublishConfigInfo() (configurationRes db.ConfigurationHistory, err e
 			xlog.Warn("configurationSynced", zap.String("step", "resp.Kvs"), zap.String("appName", configuration.App.Name), zap.String("env", configuration.Env), zap.String("zoneCode", configuration.Zone), zap.String("clusterKey", clusterKey), zap.Any("resp", resp))
 			return configurationRes, err
 		}
+
+		configurationRes.SyncStatus = "未生效"
 		// publish status, synced status
 		for _, item := range resp.Kvs {
 			data := view.ConfigurationPublishData{}
@@ -628,8 +635,7 @@ func ClusterPublishConfigInfo() (configurationRes db.ConfigurationHistory, err e
 				continue
 			}
 			if data.Metadata.Version == configurationHistory.Version {
-				configurationRes = configurationHistory
-				configurationRes.CreatedAt = configurationPublish.CreatedAt
+				configurationRes.SyncStatus = "已生效"
 				return configurationRes, nil
 			}
 		}

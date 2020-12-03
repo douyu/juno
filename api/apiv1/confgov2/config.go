@@ -244,13 +244,6 @@ func InstanceList(c echo.Context) (err error) {
 	return output.JSON(c, output.MsgOk, "success", resp)
 }
 
-// cluster ..
-func Cluster(c echo.Context) (err error) {
-	//集群配置信息
-	configuration, _ := confgov2.ClusterPublishConfigInfo()
-	return output.JSON(c, output.MsgOk, "success", configuration)
-}
-
 // AppAction ..
 func AppAction(c echo.Context) (err error) {
 	param := view.ReqAppAction{}

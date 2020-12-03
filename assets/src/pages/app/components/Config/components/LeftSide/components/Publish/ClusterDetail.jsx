@@ -63,22 +63,29 @@ function ClusterDetail(props) {
       <ul className={styles.instanceInfoList}>
         <li key="1">
           <div className={styles.instanceInfoName}>
-            <div className={styles.instanceInfoTitle}>配置版本</div>
+            <div className={styles.instanceInfoTitle}>使用文档</div>
           </div>
-          <div className={styles.instanceInfoContent}>{k8sClusters2? k8sClusters2.version.substring(0, 7) : "未同步"}</div>
+          <div className={styles.instanceInfoContent}><a href={k8sClusters2 && k8sClusters2.doc ?k8sClusters2.doc:""}>点击查看</a></div>
         </li>
         <li key="2">
           <div className={styles.instanceInfoName}>
-            <div className={styles.instanceInfoTitle}>修改备注</div>
+            <div className={styles.instanceInfoTitle}>同步时间</div>
           </div>
-          <div className={styles.instanceInfoContent}>{k8sClusters2? k8sClusters2.change_log : "未同步"}</div>
+          <div className={styles.instanceInfoContent}>{k8sClusters2 && k8sClusters2.created_at? moment(k8sClusters2.created_at).format('YYYY-MM-DD HH:mm:ss') : ""}</div>
         </li>
         <li key="3">
           <div className={styles.instanceInfoName}>
-            <div className={styles.instanceInfoTitle}>同步时间</div>
+            <div className={styles.instanceInfoTitle}>配置状态</div>
           </div>
-          <div className={styles.instanceInfoContent}>{k8sClusters2? moment(k8sClusters2.created_at).format('YYYY-MM-DD HH:mm:ss') : "未同步"}</div>
+          <div className={styles.instanceInfoContent}>{k8sClusters2 && k8sClusters2.sync_status? k8sClusters2.sync_status : ""}</div>
         </li>
+        <li key="4">
+          <div className={styles.instanceInfoName}>
+            <div className={styles.instanceInfoTitle}>配置版本</div>
+          </div>
+          <div className={styles.instanceInfoContent}>{k8sClusters2 && k8sClusters2.version? <Tag>{k8sClusters2?k8sClusters2.version:""}</Tag> : ""} {k8sClusters2?k8sClusters2.change_log:""}</div>
+        </li>
+
       </ul>
 
       <Modal

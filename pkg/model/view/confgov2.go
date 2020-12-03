@@ -300,6 +300,15 @@ type (
 	ClusterList struct {
 		List []ClusterInfo `json:"list"`
 	}
+
+	// ClusterConfigInfo ..
+	ClusterConfigInfo struct {
+		Doc        string    `json:"doc"`
+		SyncStatus string    `json:"sync_status"`
+		ChangeLog  string    `json:"change_log"`
+		Version    string    `json:"version"` // 发布到Juno Proxy的版本号
+		CreatedAt  time.Time `gorm:"column:created_at" json:"created_at"`
+	}
 )
 
 //CheckConfigFormat 检查配置文件格式是否符合要求
