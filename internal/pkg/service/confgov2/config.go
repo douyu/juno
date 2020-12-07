@@ -574,7 +574,8 @@ func ClusterPublishConfigInfo() (configurationRes view.ClusterConfigInfo, err er
 	query := mysql.Order("id desc").First(&configurationClusterStatus)
 
 	if query.Error != nil {
-		err = query.Error
+		configurationRes.Doc = cfg.Cfg.App.Doc
+		configurationRes.ChangeLog = "未发布"
 		return
 	}
 
