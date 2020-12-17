@@ -57,3 +57,10 @@ export async function batchCheckVersion(payload: any[]) {
     data: payload
   })
 }
+
+export async function getCluterInfo(appName,env,payload) {
+  return request(`/api/admin/confgov2/config/list?cluster=cluster&appName=`+appName+"&env="+env, {
+    method: 'GET',
+    data: payload,
+  })
+}

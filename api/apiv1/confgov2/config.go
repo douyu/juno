@@ -19,6 +19,13 @@ import (
 //List 配置文件列表
 func List(c echo.Context) (err error) {
 	param := view.ReqListConfig{}
+	cluster := c.QueryParam("cluster")
+	if cluster != "" {
+		//集群配置信息
+		configuration, _ := confgov2.ClusterPublishConfigInfo()
+		return output.JSON(c, output.MsgOk, "success", configuration)
+	}
+
 	err = c.Bind(&param)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, "参数无效:"+err.Error())

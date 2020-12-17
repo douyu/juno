@@ -50,7 +50,7 @@ test.onResponse = function(res) {
 					Method: http.MethodGet,
 				},
 			},
-			success: true,
+			success: false,
 		},
 		{
 			name: "HTTP script testing",
