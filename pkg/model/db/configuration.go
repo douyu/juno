@@ -88,6 +88,18 @@ type (
 
 		ConfigurationPublish *ConfigurationPublish `json:"-" gorm:"foreignKey:ConfigurationPublishID;association_foreignkey:ID"`
 	}
+	// ConfigurationClusterStatus ..
+	ConfigurationClusterStatus struct {
+		ID                     uint      `gorm:"column:id;primary_key" json:"id"`
+		ConfigurationID        uint      `gorm:"column:configuration_id" json:"configuration_id"`
+		ConfigurationPublishID uint      `gorm:"column:configuration_publish_id" json:"configuration_publish_id"`
+		ClusterName            string    `gorm:"column:cluster_name" json:"cluster_name"`
+		Used                   uint      `gorm:"column:used" json:"used"`               // 命令行是否使用了配置路径
+		Synced                 uint      `gorm:"column:synced" json:"synced"`           // 配置下发是否成功
+		TakeEffect             uint      `gorm:"column:take_effect" json:"take_effect"` // 配置是否生效
+		CreatedAt              time.Time `gorm:"column:created_at" json:"created_at"`
+		UpdateAt               time.Time `gorm:"column:update_at" json:"update_at"`
+	}
 )
 
 // TableName ..
@@ -118,4 +130,9 @@ func (ConfigurationStatus) TableName() string {
 //TableName ..
 func (ConfigurationResourceRelation) TableName() string {
 	return "configuration_resource_relation"
+}
+
+//TableName ..
+func (ConfigurationClusterStatus) TableName() string {
+	return "configuration_cluster_status"
 }

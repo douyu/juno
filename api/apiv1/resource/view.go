@@ -194,3 +194,10 @@ type RespNodeStatics struct {
 	NodeApp    []NodeStaticsInfo `json:"node_app"`
 	EnvZone    []NodeStaticsInfo `json:"env_zone"`
 }
+
+type ReqCluterInfo struct {
+	Name     string   `query:"name"`
+	Env      []string `json:"env"`
+	ZoneCode string   `json:"zone_code"`
+	ZoneName string   `json:"zone_name"`
+}

@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/coreos/etcd/clientv3"
+
 	"github.com/douyu/juno/internal/pkg/service/agent"
 	"github.com/douyu/juno/internal/pkg/service/app"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
@@ -558,6 +560,92 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 	return
 }
 
+// ClusterPublishConfigInfo ..
+func ClusterPublishConfigInfo() (configurationRes view.ClusterConfigInfo, err error) {
+	// process
+	var (
+		configurationPublish       db.ConfigurationPublish
+		configurationHistory       db.ConfigurationHistory
+		configurationClusterStatus db.ConfigurationClusterStatus
+		configuration              db.Configuration
+		appInfo                    db.AppInfo
+	)
+	// get configurationClusterStatus info
+	query := mysql.Order("id desc").First(&configurationClusterStatus)
+
+	if query.Error != nil {
+		configurationRes.Doc = cfg.Cfg.App.Doc
+		configurationRes.ChangeLog = "未发布"
+		return
+	}
+
+	// get configurationPublish info
+	query = mysql.Where("id = ?", configurationClusterStatus.ConfigurationPublishID).First(&configurationPublish)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+
+	// get configurationHistory info
+	query = mysql.Where("id = ?", configurationPublish.ConfigurationHistoryID).First(&configurationHistory)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+
+	// get configuration info
+	query = mysql.Where("id = ?", configurationClusterStatus.ConfigurationID).First(&configuration)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+
+	configurationRes.Doc = cfg.Cfg.App.Doc
+	configurationRes.Version = configurationHistory.Version
+	configurationRes.CreatedAt = configurationPublish.CreatedAt
+	configurationRes.ChangeLog = configurationHistory.ChangeLog
+
+	query = mysql.Where("aid = ?", configuration.AID).First(&appInfo)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+	configuration.PublishedAt = &configurationClusterStatus.CreatedAt
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	for _, prefix := range cfg.Cfg.Configure.Prefixes {
+		// for k8s
+		path := fmt.Sprintf("%s.%s", configuration.Name, configuration.Format)
+		clusterKey := fmt.Sprintf("/%s/cluster/%s/%s/static/%s", prefix, appInfo.AppName, configuration.Env, path)
+		resp, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: configuration.Env, Zone: configuration.Zone}, ctx, clusterKey, clientv3.WithPrefix())
+		if err != nil {
+			return configurationRes, err
+		}
+		if len(resp.Kvs) == 0 {
+			err = errorconst.ParamConfigCallbackKvIsZero.Error()
+			xlog.Warn("configurationSynced", zap.String("step", "resp.Kvs"), zap.String("appName", configuration.App.Name), zap.String("env", configuration.Env), zap.String("zoneCode", configuration.Zone), zap.String("clusterKey", clusterKey), zap.Any("resp", resp))
+			return configurationRes, err
+		}
+
+		configurationRes.SyncStatus = "未生效"
+		// publish status, synced status
+		for _, item := range resp.Kvs {
+			data := view.ConfigurationPublishData{}
+			if err := json.Unmarshal(item.Value, &data); err != nil {
+				continue
+			}
+			if data.Metadata.Version == configurationHistory.Version {
+				configurationRes.SyncStatus = "已生效"
+				return configurationRes, nil
+			}
+		}
+
+	}
+
+	return
+}
+
 func assemblyJunoAgent(nodes []db.AppNode) []view.JunoAgent {
 	res := make([]view.JunoAgent, 0)
 	for _, node := range nodes {
@@ -681,6 +769,33 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 			if err = tx.Save(&cs).Error; err != nil {
 				tx.Rollback()
 				return
+			}
+		}
+
+		settings, err := system.System.Setting.GetAll()
+		clusterList := view.ClusterList{}
+
+		if err == nil {
+			if _, ok := settings["k8s_cluster"]; ok {
+				if err = json.Unmarshal([]byte(settings["k8s_cluster"]), &clusterList); err == nil {
+
+					for _, instance := range clusterList.List {
+						var cs db.ConfigurationClusterStatus
+						cs.ConfigurationID = configuration.ID
+						cs.ConfigurationPublishID = cp.ID
+						cs.ClusterName = instance.Name
+						cs.Used = 0
+						cs.Synced = 0
+						cs.TakeEffect = 0
+						cs.CreatedAt = time.Now()
+						cs.UpdateAt = time.Now()
+						if sErr := tx.Save(&cs).Error; sErr != nil {
+							tx.Rollback()
+							return sErr
+						}
+					}
+
+				}
 			}
 		}
 
