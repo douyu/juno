@@ -11,6 +11,7 @@ type sync interface {
 	add(obj interface{})
 	update(old interface{}, new interface{})
 	delete(obj interface{})
+	close()
 }
 
 type cluster struct {
@@ -23,8 +24,9 @@ type cluster struct {
 
 // newCluster Cluster data synchronization initialization
 func newCluster(zoneCode, prefix string, config *rest.Config, db *gorm.DB) *cluster {
-	return &cluster{
+	c := &cluster{
 		zoneCode: zoneCode,
 		syncPod:  newSyncPod(zoneCode, prefix, config, db),
 	}
+	return c
 }

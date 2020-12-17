@@ -193,6 +193,8 @@ type (
 			Env      []string `json:"env" validate:"required"`
 			ZoneCode string   `json:"zone_code" validate:"required"`
 			ZoneName string   `json:"zone_name" validate:"required"`
+			Token    string   `json:"token" validate:"required"`
+			Domain   string   `json:"domain" validate:"required"`
 		} `json:"list"`
 	}
 

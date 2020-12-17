@@ -67,9 +67,8 @@ type Server struct {
 }
 
 type K8s struct {
-	Enable  bool
-	Prefix  string
-	Cluster []Cluster
+	Enable bool
+	Prefix string
 }
 
 type Cluster struct {

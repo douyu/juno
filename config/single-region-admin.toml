@@ -192,7 +192,3 @@ dialTimeout = "3s" # MQ连接超时时间
 [k8s]
 enable = false
 prefix = ""
-[[k8s.HB-WHYL]]
-zoneCode = ""
-domain = ""
-token = ""

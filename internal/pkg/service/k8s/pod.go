@@ -23,12 +23,21 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
+type syncPod struct {
+	zoneCode string
+	prefix   string
+	config   *rest.Config
+	db       *gorm.DB
+	stopCh   chan struct{}
+}
+
 func newSyncPod(zoneCode, prefix string, config *rest.Config, db *gorm.DB) *syncPod {
 	s := &syncPod{
 		zoneCode: zoneCode,
 		config:   config,
 		db:       db,
 		prefix:   prefix,
+		stopCh:   make(chan struct{}),
 	}
 	xgo.Go(func() {
 		s.watch()
@@ -42,30 +51,23 @@ func newSyncPod(zoneCode, prefix string, config *rest.Config, db *gorm.DB) *sync
 	return s
 }
 
-type syncPod struct {
-	zoneCode string
-	prefix   string
-	config   *rest.Config
-	db       *gorm.DB
-}
-
 func (i *syncPod) watch() {
 	clientSet, err := kubernetes.NewForConfig(i.config)
 	if err != nil {
 		xlog.Error("watchItem", xlog.Any("err", err))
 		return
 	}
-	stopCh := make(chan struct{})
-	defer close(stopCh)
+
+	defer close(i.stopCh)
 
 	factory := informers.NewSharedInformerFactory(clientSet, 0)
 	ObjInformer := factory.Core().V1().Pods()
 	informer := ObjInformer.Informer()
 	defer runtime.HandleCrash()
 
-	go factory.Start(stopCh)
+	go factory.Start(i.stopCh)
 
-	if !cache.WaitForCacheSync(stopCh, informer.HasSynced) {
+	if !cache.WaitForCacheSync(i.stopCh, informer.HasSynced) {
 		runtime.HandleError(fmt.Errorf("sync timeout"))
 		return
 	}
@@ -85,7 +87,12 @@ func (i *syncPod) watch() {
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err.Error()))
 	}
-	<-stopCh
+	<-i.stopCh
+}
+
+// TODO 这个部分的close功能存在问题，watch并未停止
+func (i *syncPod) close() {
+	i.stopCh <- struct{}{}
 }
 
 func (i *syncPod) add(obj interface{}) {
@@ -134,6 +141,8 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 }
 
 func (i *syncPod) delete(obj interface{}) {
+	fmt.Println("delete")
+
 	pod := obj.(*v1.Pod)
 	id, _ := strconv.Atoi(pod.ObjectMeta.Labels["appId"])
 	name := pod.ObjectMeta.Name

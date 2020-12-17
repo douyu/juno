@@ -84,7 +84,7 @@ func (s *setting) GetAll() (settings map[string]string, err error) {
 	return
 }
 
-//get 带缓存的设置获取
+// Get 带缓存的设置获取
 func (s *setting) Get(name string) (val string, err error) {
 	// 先从内存中查
 	{
