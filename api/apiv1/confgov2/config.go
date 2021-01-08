@@ -22,7 +22,7 @@ func List(c echo.Context) (err error) {
 	cluster := c.QueryParam("cluster")
 	if cluster != "" {
 		//集群配置信息
-		configuration, _ := confgov2.ClusterPublishConfigInfo()
+		configuration, _ := confgov2.ClusterPublishConfigInfo(cluster)
 		return output.JSON(c, output.MsgOk, "success", configuration)
 	}
 
