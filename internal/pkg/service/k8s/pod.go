@@ -96,19 +96,15 @@ func (i *syncPod) close() {
 }
 
 func (i *syncPod) add(obj interface{}) {
-	err := i.mysqlCreateOrUpdate(i.zoneCode, obj.(*v1.Pod))
-	if err != nil {
-		xlog.Error("sync",
-			xlog.String("typ", "pod"),
-			xlog.String("act", "add"),
-			xlog.String("zoneCode", i.zoneCode),
-			xlog.Any("err", err))
-		return
-	}
 
 	in := obj.(*v1.Pod)
-	var appName string
-	var ok bool
+	var (
+		appName string
+		env     string
+		ok      bool
+		err     error
+	)
+
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
 		err = errors.New("appName is empty")
 		xlog.Warn("cloudApp",
@@ -117,10 +113,54 @@ func (i *syncPod) add(obj interface{}) {
 			xlog.String("reason", "appName is empty"))
 		return
 	}
+	if env, ok = in.Labels["runEnv"]; !ok || env == "" {
+		err = errors.New("env is empty")
+		xlog.Warn("cloudApp",
+			xlog.String("env", env),
+			xlog.String("podName", in.Name),
+			xlog.String("reason", "env is empty"))
+		return
+	}
+
+	err = i.mysqlCreateOrUpdate(i.zoneCode, obj.(*v1.Pod))
+	if err != nil {
+		xlog.Error("sync",
+			xlog.String("typ", "pod"),
+			xlog.String("act", "add"),
+			xlog.String("zoneCode", i.zoneCode),
+			xlog.Any("err", err))
+		return
+	}
 }
 
 func (i *syncPod) update(old interface{}, new interface{}) {
-	err := i.mysqlCreateOrUpdate(i.zoneCode, new.(*v1.Pod))
+
+	in := new.(*v1.Pod)
+	var (
+		appName string
+		env     string
+		ok      bool
+		err     error
+	)
+
+	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
+		err = errors.New("appName is empty")
+		xlog.Warn("cloudApp",
+			xlog.String("appName", appName),
+			xlog.String("podName", in.Name),
+			xlog.String("reason", "appName is empty"))
+		return
+	}
+	if env, ok = in.Labels["runEnv"]; !ok || env == "" {
+		err = errors.New("env is empty")
+		xlog.Warn("cloudApp",
+			xlog.String("env", env),
+			xlog.String("podName", in.Name),
+			xlog.String("reason", "env is empty"))
+		return
+	}
+
+	err = i.mysqlCreateOrUpdate(i.zoneCode, new.(*v1.Pod))
 	if err != nil {
 		xlog.Error("sync",
 			xlog.String("typ", "pod"),
@@ -130,14 +170,6 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 		return
 	}
 
-	in := new.(*v1.Pod)
-	var appName string
-	var ok bool
-	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
-		err = errors.New("appName is empty")
-		xlog.Warn("cloudApp", xlog.String("appName", appName), xlog.String("podName", in.Name), xlog.String("reason", "appName is empty"))
-		return
-	}
 }
 
 func (i *syncPod) delete(obj interface{}) {
