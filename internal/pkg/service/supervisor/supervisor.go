@@ -2,7 +2,6 @@ package supervisor
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/douyu/juno/pkg/util"
 )
@@ -91,8 +90,5 @@ func (s *Supervisor) DoCtrl(action string, supervisorReq Req) (ret *OpsSuperviso
 	req.Args = []string{supervisorReq.AppName}
 
 	superRet, err := opsClient.Supervisor(req)
-
-	fmt.Println(superRet)
-
 	return superRet, err
 }
