@@ -134,6 +134,12 @@ function Publish(props: PublishProps) {
   const onToggleCluterCheck = (ev: CheckboxChangeEvent) => {
     let checked = checkedCluters.filter(name => name != ev.target.name)
 
+    if (checked.length === 0 && ev.target.checked === false) {
+      switchPubK8SAct.setFalse()
+    }else{
+      switchPubK8SAct.setTrue()
+    }
+
     if (ev.target.checked) {
       checked = [...checked, ev.target.name || '']
     }
@@ -260,7 +266,7 @@ function Publish(props: PublishProps) {
 
             })}
 
-            {configFile && k8sClusters && k8sClusters.length != 0 &&
+            {!configFile || !k8sClusters || k8sClusters.length == 0 &&
             <div className={styles.emptyTip}>
               应用在当前可用区环境下无集群
             </div>}
