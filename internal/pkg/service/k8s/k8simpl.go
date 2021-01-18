@@ -47,7 +47,7 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 	d.config = kc
 	d.resty = resty.
 		New().
-		SetDebug(true).
+		SetDebug(false).
 		SetTimeout(3*time.Second).
 		SetHeader("Content-Type", "application/json;charset=utf-8").
 		SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})

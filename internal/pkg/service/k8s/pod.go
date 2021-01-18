@@ -58,7 +58,7 @@ func (i *syncPod) watch() {
 		return
 	}
 
-	defer close(i.stopCh)
+	//defer close(i.stopCh)
 
 	factory := informers.NewSharedInformerFactory(clientSet, 0)
 	ObjInformer := factory.Core().V1().Pods()
@@ -96,7 +96,6 @@ func (i *syncPod) close() {
 }
 
 func (i *syncPod) add(obj interface{}) {
-
 	in := obj.(*v1.Pod)
 	var (
 		appName string
@@ -104,7 +103,6 @@ func (i *syncPod) add(obj interface{}) {
 		ok      bool
 		err     error
 	)
-
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
 		err = errors.New("appName is empty")
 		xlog.Warn("cloudApp",
@@ -121,7 +119,6 @@ func (i *syncPod) add(obj interface{}) {
 			xlog.String("reason", "env is empty"))
 		return
 	}
-
 	err = i.mysqlCreateOrUpdate(i.zoneCode, obj.(*v1.Pod))
 	if err != nil {
 		xlog.Error("sync",
@@ -134,7 +131,6 @@ func (i *syncPod) add(obj interface{}) {
 }
 
 func (i *syncPod) update(old interface{}, new interface{}) {
-
 	in := new.(*v1.Pod)
 	var (
 		appName string
@@ -142,7 +138,6 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 		ok      bool
 		err     error
 	)
-
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
 		err = errors.New("appName is empty")
 		xlog.Warn("cloudApp",
@@ -173,8 +168,6 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 }
 
 func (i *syncPod) delete(obj interface{}) {
-	fmt.Println("delete")
-
 	pod := obj.(*v1.Pod)
 	id, _ := strconv.Atoi(pod.ObjectMeta.Labels["appId"])
 	name := pod.ObjectMeta.Name
@@ -194,7 +187,7 @@ func (i *syncPod) delete(obj interface{}) {
 func (i *syncPod) clean() {
 	// 数据库中存在对应记录进行delete操作
 	t := time.Now().Add(-dataRetentionTime)
-	err := i.db.Table("k8s_pod").Where("is_del=? and update_time<?", 1, t).Delete(&db.K8sPod{}).Error
+	err := i.db.Table("k8s_pod").Where("is_del=? and update_time<? and zone_code=?", 1, t, i.zoneCode).Delete(&db.K8sPod{}).Error
 	if err != nil {
 		xlog.Error("sync",
 			xlog.String("typ", "pod"),

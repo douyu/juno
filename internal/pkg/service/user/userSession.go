@@ -1,7 +1,7 @@
 package user
 
 import (
-	"fmt"
+	"github.com/douyu/jupiter/pkg/xlog"
 
 	"github.com/douyu/jupiter/pkg/conf"
 
@@ -30,14 +30,14 @@ func InitUserSession() *userSession {
 func (u *userSession) Save(c echo.Context, user *db.User) error {
 	sess, err := session.Get(DefaultKey, c)
 	if err != nil {
-		fmt.Println("userSession get session err:", err.Error())
+		xlog.Error("userSession", xlog.Any("userSession get session err:", err.Error()))
 		return err
 	}
 	sess.Options = &u.option
 	sess.Values["user"] = user
 	err = sess.Save(c.Request(), c.Response())
 	if err != nil {
-		fmt.Println("userSession save session err:", err.Error())
+		xlog.Error("userSession", xlog.Any("userSession save session err:", err.Error()))
 		return err
 	}
 	return err
@@ -46,7 +46,7 @@ func (u *userSession) Save(c echo.Context, user *db.User) error {
 func (u *userSession) Read(c echo.Context) *db.User {
 	sess, err := session.Get(DefaultKey, c)
 	if err != nil {
-		fmt.Println("userSession read err:", err.Error())
+		xlog.Error("userSession", xlog.Any("userSession read session err:", err.Error()))
 		return nil
 	}
 	userTemp := sess.Values["user"]
@@ -74,7 +74,7 @@ func NewSessionStore() sessions.Store {
 	case "redis":
 	case "files":
 	default:
-		fmt.Println("NewSessionStore", "cookie", conf.GetString("session.secret"))
+		xlog.Info("NewSessionStore", xlog.Any("cookie", conf.GetString("session.secret")))
 		return sessions.NewCookieStore([]byte(conf.GetString("session.secret")))
 	}
 	return nil

@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/douyu/jupiter/pkg/xlog"
+
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -49,7 +51,7 @@ func (tp *YamlParse) FusionWithTpl(source string, texts []string) (out string, e
 	dec := yaml.NewDecoder(strings.NewReader(source))
 	dec.SetStrict(true)
 	if err := dec.Decode(&decodeRes); err != nil {
-		fmt.Println("****** FusionWithTpl err 1", err)
+		xlog.Error("FusionWithTpl", xlog.Any("****** FusionWithTpl err 1", err.Error()))
 		return out, err
 	}
 
@@ -127,7 +129,7 @@ func (tp *YamlParse) ParseItem(source []byte) (res []*Item, err error) {
 	err = yaml.UnmarshalStrict(source, &resp)
 	// err = yaml.Unmarshal(yamlFile, &resultMap)
 	if err != nil {
-		fmt.Println("ParseItem -- ", err)
+		xlog.Error("ParseItem", xlog.Any("****** ParseItem err 1", err.Error()))
 	}
 
 	scanMap("", resp, &res)

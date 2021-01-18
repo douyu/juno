@@ -87,7 +87,6 @@ func (c *Client) Supervisor(req *OpsSupervisorReq) (*OpsSupervisorRet, error) {
 	opsHeaders := c.mac.GenarateHeaderMap()
 
 	reqJson, _ := json.Marshal(req)
-	fmt.Println("ops api req", url, string(reqJson), opsHeaders)
 	response, err := PostJSON(url, req, opsHeaders)
 	if err != nil {
 		return nil, err

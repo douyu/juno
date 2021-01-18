@@ -13,12 +13,20 @@ var IK8s apiServer
 // Init ..
 func Init() {
 
+	if !cfg.Cfg.K8s.Enable {
+		xlog.Warn("k8sInit", xlog.String("step", "init"), xlog.Any("cfg.Cfg.K8s", cfg.Cfg.K8s))
+		return
+	}
+
 	k8sSystemConfig, err := system.System.Setting.K8SClusterSetting()
 	if err != nil {
 		xlog.Error("k8sInit", xlog.String("step", "init"), xlog.Any("err", err))
 		return
 	}
 	if len(k8sSystemConfig.List) == 0 {
+		xlog.Error("k8sInit",
+			xlog.String("step", "len"),
+			xlog.Any("k8sSystemConfig", k8sSystemConfig))
 		return
 	}
 
