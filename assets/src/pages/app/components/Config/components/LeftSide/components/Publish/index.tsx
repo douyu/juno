@@ -48,7 +48,6 @@ function Publish(props: PublishProps) {
     env,
   } = props;
   let {k8sClusters} = props
-  k8sClusters = k8sClusters.filter(item => item.env.indexOf(env) > -1)
 
   const [visibleModalPublish, setVisibleModalPublish] = useState(false);
   const [configFile, setConfigFile] = useState<{
@@ -60,6 +59,13 @@ function Publish(props: PublishProps) {
   const [checkedInstances, setCheckedInstances] = useState<string[]>([])
   const [checkedCluters, setCheckedCluters] = useState<string[]>([])
   const [switchPubK8S, switchPubK8SAct] = useBoolean(false)
+
+  k8sClusters = k8sClusters.filter(item => {
+    let zone =  configFile?.zone 
+    let kZone = item?.zone_code
+    return item.env.indexOf(env) > -1 && zone == kZone
+  })
+
   useEffect(() => {
     if (!configFile) {
       if (currentConfig) {
