@@ -2,6 +2,7 @@ package assist
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
@@ -30,7 +31,7 @@ func AliyunLog(project, logStore, query string) (url string, err error) {
 		return
 	}
 	if out.Code != 0 {
-		return "", errorconst.AppLogDefaultLogStore.Error()
+		return "", errors.New(out.Msg)
 	}
 	return out.Data, nil
 }
