@@ -30,7 +30,7 @@ func Init() {
 func LogStore(param view.ReqAliyunLogDefault) (string, error) {
 	switch cfg.Cfg.AppLog.Mode {
 	case appLogModeDefault:
-		return AppLogDefault.LogStore(param.Env, param.Query, param.Typ, param.AppName)
+		return AppLogDefault.LogStore(param.Env, param.Query, param.Typ, param.AppName, param.Aid)
 	case appLogModeAliyun:
 		return "", errors.New("阿里云日志还未支持")
 	}
