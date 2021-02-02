@@ -13,5 +13,6 @@ type (
 		Query   string `json:"query" valid:"required"`
 		Typ     string `json:"typ" valid:"required"`
 		AppName string `json:"app_name" query:"app_name" valid:"required"`
+		Aid     string `json:"aid" query:"aid" valid:"required"`
 	}
 )

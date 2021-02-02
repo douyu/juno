@@ -1,6 +1,7 @@
 package loggerplatform
 
 import (
+	"fmt"
 	"github.com/douyu/juno/internal/pkg/service/assist"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -56,9 +57,21 @@ func newAppLogD() {
 }
 
 //LogStore get log store
-func (a *appLogDefault) LogStore(env, query, typ, appName string) (string, error) {
+func (a *appLogDefault) LogStore(env, query, typ, appName, aid string) (string, error) {
 	project, logStore := a.getLogStoreName(env, typ, appName)
+	query = a.genQuery(typ, aid, query, appName)
 	return assist.AliyunLog(project, logStore, query)
+}
+
+// genQuery ...
+func (a *appLogDefault) genQuery(typ, aid, query, appName string) string {
+	switch typ {
+	case LogTypConsole:
+		return fmt.Sprintf("* and SYSLOG_IDENTIFIER:%s", appName)
+	case LogTypJupiter, LogTypBiz:
+		return fmt.Sprintf("* and aid:%s", aid)
+	}
+	return query
 }
 
 //getLogStoreName ...

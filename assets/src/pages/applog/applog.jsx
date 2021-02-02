@@ -26,6 +26,7 @@ export default class Applog extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
+      aid: props.aid,
       appName: props.appName,
       env: props.env,
       records: [],
@@ -69,12 +70,12 @@ export default class Applog extends React.PureComponent {
     this.setState({
       loading: true,
     });
-    const { appName, query, env, typ } = this.state;
+    const { aid,appName, query, env, typ } = this.state;
     if (!typ) {
       message.error('必须选择查询日志类型');
       return;
     }
-    getLogUrl({ query, env, app_name: appName, typ }).then((res) => {
+    getLogUrl({ query, env, app_name: appName, typ,aid}).then((res) => {
       const { code, msg, data } = res;
       if (code !== 0) {
         message.error(msg);
