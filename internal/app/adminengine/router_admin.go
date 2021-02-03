@@ -114,6 +114,18 @@ func apiAdmin(server *xecho.Server) {
 		publicGroup.GET("/system/config", system.Config)
 		publicGroup.GET("/user/logout", user.Logout, loginAuthWithJSON)
 		publicGroup.GET("/user/info", core.Handle(user.Info), loginAuthWithJSON)
+
+		// 应用浏览记录
+		publicGroup.GET("/user/appViewHistory", user.GetAppViewHistory)
+		publicGroup.POST("/user/appViewHistory", user.PostAppViewHistory)
+
+		// 用户在某个应用下使用的一些配置，比如监控版本等选择
+		publicGroup.GET("/user/appConfig", user.GetAppConfig)
+		publicGroup.POST("/user/appConfig", user.PostAppConfig)
+
+		// 记录用户访问的页面信息
+		publicGroup.GET("/user/tabVisit", user.GetTabVisit)
+		publicGroup.POST("/user/tabVisit", user.PostTabVisit)
 	}
 
 	userGroup := g.Group("/user")
@@ -125,6 +137,7 @@ func apiAdmin(server *xecho.Server) {
 		userGroup.POST("/update", user.Update, loginAuthWithJSON)
 		userGroup.GET("/list", user.List, loginAuthWithJSON)
 		userGroup.POST("/delete", user.Delete, loginAuthWithJSON)
+
 	}
 
 	confgoGroup := g.Group("/confgo", loginAuthWithJSON)

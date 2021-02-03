@@ -571,7 +571,7 @@ func ClusterPublishConfigInfo(clusterName string) (configurationRes view.Cluster
 		appInfo                    db.AppInfo
 	)
 	// get configurationClusterStatus info
-	query := mysql.Order("id desc").Where("cluster_name=?",clusterName).First(&configurationClusterStatus)
+	query := mysql.Order("id desc").Where("cluster_name=?", clusterName).First(&configurationClusterStatus)
 
 	if query.Error != nil {
 		configurationRes.Doc = cfg.Cfg.App.Doc
@@ -1418,5 +1418,19 @@ func ReadInstanceConfig(param view.ReqReadInstanceConfig) (configContentList []v
 func GetAllConfigText() (list []db.Configuration, err error) {
 	list = make([]db.Configuration, 0)
 	err = mysql.Find(&list).Error
+	return
+}
+
+func GetAllConfigByEnv(env string) (resp map[uint]struct{}, err error) {
+	list := make([]db.Configuration, 0)
+	resp = make(map[uint]struct{})
+	err = mysql.Select("id, aid, name, format, env").Where("env = ?", env).Find(&list).Error
+	for _, item := range list {
+		_, ok := resp[item.AID]
+		if !ok {
+			resp[item.AID] = struct{}{}
+		}
+	}
+
 	return
 }

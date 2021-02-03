@@ -10,6 +10,9 @@ import {
   ServiceAppList,
   ServiceAppNodeList,
 } from '@/services/app';
+import {
+  PostAppViewHistory, GetAppConfig, PostAppConfig, PostAppVisit
+} from '@/services/user';
 import {ConfgoBase} from '../confgo/config/view';
 import {ServiceGetIdcList} from '@/services/idc';
 import {history} from 'umi';
@@ -59,6 +62,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
       versionName: '',
       frameVersion: '',
       tab: this.props.location.query.tab == undefined ? 'detail' : this.props.location.query.tab,
+      userConfig: {},
     };
   }
 
@@ -86,6 +90,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
       this.getAppInfo(aid, appName);
       this.GetList(this.state.aid, this.state.env);
       this.getAppEnvZone(appName);
+      this.getUserAppConfig(aid);
       // this.getFrameVersion(appName);
     }
 
@@ -140,6 +145,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
             aid: aid,
           },
         });
+        PostAppViewHistory({aid});  // 记录应用访问
+        this.saveTabVisit(this.state.tab);
       } else {
         message.error(res.msg);
       }
@@ -185,6 +192,34 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
     });
   };
 
+  getUserAppConfig = (aid: number) => {
+    GetAppConfig(aid).then((res) => {
+      if (res.code === 0) {
+        this.setState({
+          userConfig: res.data,
+        });
+        if (!res.data.versionKey || res.data.versionKey === '') {
+          return
+        }
+        let queries = this.props.location.query;
+        const {versionKey} = queries;
+        if (!versionKey) {
+          this.setState({
+            versionKey: res.data.versionKey,
+          });
+          history.push({
+            query: {
+              ...queries,
+              versionKey: res.data.versionKey,
+            },
+          });
+        }
+      } else {
+        message.error(res.msg);
+      }
+    });
+  };
+
   getAppEnvZone = (appName: string) => {
     ServiceAppEnvZone(appName).then((res) => {
       if (res.code === 0) {
@@ -223,6 +258,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
         tab: tab,
       },
     });
+
+    this.saveTabVisit(tab);
   };
 
   GetList = (aid: number, env: string) => {
@@ -273,7 +310,10 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
 
   changeVersion = (e: any) => {
     const versionKey = e;
-    this.setState({versionKey});
+    this.setState({versionKey}, () => {
+        this.saveUserConfig();
+      }
+    );
     let queries = this.props.location.query;
     history.push({
       query: {
@@ -287,9 +327,44 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
     this.setState({monitorVersion: e});
   };
 
+  saveUserConfig = () => {
+    const {versionKey, aid, dashboardPath} = this.state;
+    const para = {
+      aid,
+      config: {
+        versionKey, dashboardPath
+      }
+    };
+    PostAppConfig(para).then((res) => {
+      if (res.code === 0) {
+      } else {
+        message.error(res.msg);
+      }
+    });
+  };
+
+  saveTabVisit = (tab: string) => {
+    //console.log(">>>>>>>>>>>>>>>>>> this.props.location", this.props.location);
+    const url = this.props.location.pathname + '?' + this.props.location.search;
+
+    const {aid, env} = this.state;
+    if (aid && env && tab) {
+      const para = {
+        aid, env, tab,
+        url,
+      };
+      PostAppVisit(para).then((res) => {
+        if (res.code === 0) {
+        } else {
+          message.error(res.msg);
+        }
+      });
+    }
+  };
+
   render() {
     let view = null;
-    const {aid, appName, env, monitorVersion, versionKey, tab, serviceVersion, publishVersion} = this.state;
+    const {aid, appName, env, monitorVersion, versionKey, tab, serviceVersion, publishVersion, userConfig = {}} = this.state;
     let {appEnvZone} = this.state;
     let {disable} = this.state;
     const {version} = this.props.setting.settings;
@@ -368,6 +443,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
               zoneList={this.state.zoneList}
               zoneCode={this.state.zoneCode}
               versionKey={versionKey}
+              location={this.props.location}
+              userConfig={userConfig}
             />
           </TabPane>
           <TabPane tab="配置" key="confgo">

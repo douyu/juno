@@ -348,3 +348,7 @@ type JunoEvent struct {
 		DialTimeout time.Duration `yaml:"dialTimeout"`
 	}
 }
+
+type UserVisit struct {
+	CleanDay uint32 `yaml:"cleanDay"` // 用户访问记录表清除时间
+}

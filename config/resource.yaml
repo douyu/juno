@@ -436,6 +436,9 @@ permission:
           - path: /api/admin/openAuth/accessToken/delete
             name: 删除AccessToken
             method: POST
+      - path: /admin/stat
+        name: 操作统计
+        api:
 
 # 应用权限
 app:
