@@ -13,12 +13,12 @@ export default {
       pathRewrite: { '^/ant': '' },
     },
     '/api/admin': {
-      target: 'http://localhost:50000',
+      target: 'http://192.168.56.101:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'http://localhost:50000',
+      target: 'http://192.168.56.101:50000',
       changeOrigin: true,
     },
     '/grafana': {

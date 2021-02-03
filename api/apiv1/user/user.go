@@ -2,6 +2,12 @@ package user
 
 import (
 	"encoding/json"
+	"github.com/douyu/juno/internal/pkg/service/confgov2"
+	"github.com/douyu/juno/internal/pkg/service/resource"
+	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/xlog"
+	"go.uber.org/zap"
+	"strings"
 	"time"
 
 	"github.com/douyu/juno/internal/app/core"
@@ -140,4 +146,213 @@ func Login(c echo.Context) error {
 func Logout(c echo.Context) error {
 	user.Session.Logout(c)
 	return output.JSON(c, output.MsgOk, "", "")
+}
+
+// 获取应用浏览历史
+func GetAppViewHistory(c echo.Context) error {
+	u := user.GetUser(c)
+	if !u.IsLogin() {
+		return output.JSON(c, output.MsgErr, "invalid user")
+	}
+	resp, err := user.User.GetAppViewHistory(uint32(u.Uid))
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "mysql query failed:"+err.Error())
+	}
+
+	return output.JSON(c, output.MsgOk, "success", resp)
+}
+
+// 添加应用浏览历史
+func PostAppViewHistory(c echo.Context) error {
+	req := view.ReqUserAppViewHistory{}
+	if err := c.Bind(&req); err != nil {
+		return output.JSON(c, output.MsgErr, "invalid params")
+	}
+
+	u := user.GetUser(c)
+	if !u.IsLogin() {
+		return output.JSON(c, output.MsgErr, "invalid user")
+	}
+
+	if req.Aid == 0 {
+		return output.JSON(c, output.MsgErr, "invalid aid")
+	}
+
+	// 基础信息
+	appInfo, err := resource.Resource.GetApp(req.Aid)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "invalid aid")
+	}
+
+	err = user.User.PostAppViewHistory(uint32(u.Uid), uint32(appInfo.Aid), appInfo.AppName)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "mysql query failed:"+err.Error())
+	}
+
+	return output.JSON(c, output.MsgOk, "success")
+}
+
+// 获取用户使用的一些基本情况
+func GetAppConfig(c echo.Context) error {
+	req := view.ReqGetAppConfig{}
+	if err := c.Bind(&req); err != nil {
+		return output.JSON(c, output.MsgErr, "invalid params")
+	}
+
+	u := user.GetUser(c)
+	if !u.IsLogin() {
+		//return output.JSON(c, output.MsgErr, "invalid user")
+	}
+
+	if req.Aid == 0 {
+		return output.JSON(c, output.MsgErr, "invalid aid")
+	}
+
+	resp, err := user.User.GetUserAppConfig(uint32(u.Uid), uint32(req.Aid))
+	if err != nil {
+		xlog.Error("GetUserAppConfig", zap.Any("err", err), zap.Any("uid", u.Uid), zap.Any("aid", req.Aid))
+	}
+
+	return output.JSON(c, output.MsgOk, "success", resp)
+}
+
+func PostAppConfig(c echo.Context) error {
+	req := view.ReqPostAppConfig{}
+	if err := c.Bind(&req); err != nil {
+		return output.JSON(c, output.MsgErr, "invalid params")
+	}
+
+	u := user.GetUser(c)
+	if !u.IsLogin() {
+		//return output.JSON(c, output.MsgErr, "invalid user")
+	}
+
+	if req.Aid == 0 {
+		return output.JSON(c, output.MsgErr, "invalid aid")
+	}
+
+	if req.Config.VersionKey == "" && req.Config.DashboardPath == "" {
+		return output.JSON(c, output.MsgErr, "invalid config")
+	}
+
+	err := user.User.PostUserAppConfig(uint32(u.Uid), uint32(req.Aid), req.Config)
+	if err != nil {
+		xlog.Error("PostUserAppConfig", zap.Any("err", err), zap.Any("uid", u.Uid), zap.Any("aid", req.Aid), zap.Any("config", req.Config))
+		// 返回成功即可
+		return output.JSON(c, output.MsgOk, err.Error())
+	}
+
+	return output.JSON(c, output.MsgOk, "success")
+}
+
+func PostTabVisit(c echo.Context) error {
+	req := view.ReqPostUserVisit{}
+	if err := c.Bind(&req); err != nil {
+		return output.JSON(c, output.MsgErr, "invalid params")
+	}
+
+	if err := req.Check(); err != nil {
+		return output.JSON(c, output.MsgErr, "invalid params:"+err.Error())
+	}
+
+	u := user.GetUser(c)
+	if !u.IsLogin() {
+		return output.JSON(c, output.MsgErr, "invalid user")
+	}
+
+	// 基础信息
+	appInfo, err := resource.Resource.GetApp(req.Aid)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "invalid aid")
+	}
+
+	record := db.UserVisit{
+		Uid:      u.Uid,
+		Aid:      int(req.Aid),
+		AppName:  appInfo.AppName,
+		ZoneCode: req.ZoneCode,
+		Env:      req.Env,
+		Tab:      req.Tab,
+		Url:      req.Url,
+		Ts:       time.Now().Unix(),
+	}
+
+	err = user.User.PostTabVisit(record)
+	if err != nil {
+		xlog.Error("PostTabVisit", zap.Any("err", err), zap.Any("uid", u.Uid), zap.Any("aid", req.Aid), zap.Any("req", req))
+		// 返回成功即可
+		return output.JSON(c, output.MsgOk, err.Error())
+	}
+
+	return output.JSON(c, output.MsgOk, "success")
+}
+
+func GetTabVisit(c echo.Context) error {
+	req := view.ReqGetTabVisit{}
+	if err := c.Bind(&req); err != nil {
+		return output.JSON(c, output.MsgErr, "invalid params")
+	}
+
+	if err := req.Check(); err != nil {
+		return output.JSON(c, output.MsgErr, "invalid params:"+err.Error())
+	}
+
+	// 基础信息
+	//appInfo, err := resource.Resource.GetApp(req.Aid)
+	//if err != nil {
+	//	return output.JSON(c, output.MsgErr, "invalid aid")
+	//}
+
+	records, err := user.User.GetTabVisit(req)
+	if err != nil {
+		return output.JSON(c, output.MsgErr, "db find err:"+err.Error())
+	}
+
+	userTabList, appTabList, pageTabList := user.User.SolveTabVisit(records)
+
+	// 拿到线上所有配置文件
+	appConfMap, _ := confgov2.GetAllConfigByEnv("prod")
+
+	allApp, _ := resource.Resource.GetAllApp()
+
+	appList := make([]db.AppInfo, 0)
+	appSum := 0
+	appConf := 0
+
+	for _, v := range allApp {
+		if v.Lang != "Go" && v.Lang != "go" {
+			continue
+		}
+
+		if !strings.HasSuffix(v.AppName, "-go") {
+			continue
+		}
+
+		if !strings.HasPrefix(v.AppName, "wsd-") {
+			continue
+		}
+
+		if v.BizDomain == "项目A" {
+			continue
+		}
+
+		appSum++
+
+		_, ok := appConfMap[uint(v.Aid)]
+		if !ok {
+			appList = append(appList, v)
+		} else {
+			appConf++
+		}
+
+	}
+
+	return output.JSON(c, output.MsgOk, "success", view.VisitStat{
+		AppVisit:  appTabList,
+		UserVisit: userTabList,
+		PageVisit: pageTabList,
+		AppList:   appList,
+		AppSum:    appSum,
+		AppConf:   appConf,
+	})
 }

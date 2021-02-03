@@ -236,6 +236,11 @@ export default defineConfig({
                   name: 'Access Tokens',
                   path: '/admin/accessTokens',
                   component: './manage/AccessTokens'
+                },
+                {
+                  name: '操作统计',
+                  path: '/admin/stat',
+                  component: './manage/UserStat'
                 }
               ],
             },

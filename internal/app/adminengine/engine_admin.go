@@ -16,6 +16,7 @@ package adminengine
 
 import (
 	"context"
+	"github.com/douyu/juno/internal/pkg/service/user"
 	"strconv"
 	"time"
 
@@ -102,6 +103,7 @@ func New() *Admin {
 		eng.defers,
 		eng.initParseWorker,
 		eng.initVersionWorker,
+		eng.initUserVisitWorker,
 	)
 
 	if err != nil {
@@ -291,5 +293,12 @@ func (eng *Admin) initParseWorker() (err error) {
 func (eng *Admin) initVersionWorker() (err error) {
 	cron := xcron.StdConfig("parse").Build()
 	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(appDep.AppDep.SyncAppVersion))
+	return eng.Schedule(cron)
+}
+
+// 每隔一天清理三个月前的 用户浏览记录数据
+func (eng *Admin) initUserVisitWorker() (err error) {
+	cron := xcron.StdConfig("parse").Build()
+	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(user.User.CronCleanUserVisitRecord))
 	return eng.Schedule(cron)
 }

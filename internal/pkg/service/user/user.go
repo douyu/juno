@@ -1,7 +1,15 @@
 package user
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/xlog"
+	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"sort"
 	"time"
 
 	"github.com/douyu/juno/pkg/model/db"
@@ -169,5 +177,265 @@ func (u *user) Delete(item db.User) (err error) {
 	}
 	err = u.DB.Where("uid = ?", item.Uid).Delete(&db.User{}).Error
 
+	return
+}
+
+func (u *user) GetAppViewHistory(uid uint32) (resp []db.AppViewHistory, err error) {
+	resp = make([]db.AppViewHistory, 0)
+	dbConn := u.DB.Table("app_view_history")
+	ids := make([]uint32, 0)
+	if err = dbConn.Select("max(id) as id").Where("uid = ?", uid).Group("aid").Pluck("id", &ids).Error; err != nil && err != gorm.ErrRecordNotFound {
+		return
+	}
+
+	if err = dbConn.Where("id in (?)", ids).Order("created_at desc").Limit(10).Find(&resp).Error; err != nil && err != gorm.ErrRecordNotFound {
+		return
+	}
+
+	return resp, nil
+}
+
+func (u *user) PostAppViewHistory(uid uint32, aid uint32, appName string) (err error) {
+	return u.DB.Table("app_view_history").Create(&db.AppViewHistory{
+		Aid:     uint(aid),
+		AppName: appName,
+		UID:     uint(uid),
+	}).Error
+}
+
+func (u *user) GetUserAppConfig(uid, aid uint32) (config db.UserConfigInfo, err error) {
+	config = db.UserConfigInfo{}
+	record := db.UserConfig{}
+
+	if err = u.DB.Table("user_config").Where("uid = ? AND aid = ?", uid, aid).Order("update_time desc").Find(&record).Error; err != nil && err != gorm.ErrRecordNotFound {
+		return
+	}
+
+	if record.Id == 0 || record.Content == "" {
+		return config, nil
+	}
+
+	if err = json.Unmarshal([]byte(record.Content), &config); err != nil {
+		return
+	}
+
+	return config, nil
+}
+
+func (u *user) PostUserAppConfig(uid, aid uint32, info db.UserConfigInfo) (err error) {
+	var (
+		tx       = u.DB.Table("user_config").Begin()
+		infoData = make([]byte, 0)
+		record   = db.UserConfig{}
+		config   = db.UserConfigInfo{}
+	)
+
+	if err = tx.Where("uid = ? AND aid = ?", uid, aid).Order("update_time desc").Find(&record).Error; err != nil && err != gorm.ErrRecordNotFound {
+		tx.Rollback()
+		return
+	}
+
+	// 创建
+	if record.Id == 0 {
+		if infoData, err = json.Marshal(info); err != nil {
+			tx.Rollback()
+			return
+		}
+
+		if err = tx.Create(&db.UserConfig{
+			Uid:        int(uid),
+			Aid:        int(aid),
+			Content:    string(infoData),
+			CreateTime: time.Now().Unix(),
+			UpdateTime: time.Now().Unix(),
+		}).Error; err != nil {
+			tx.Rollback()
+			return
+		}
+
+		tx.Commit()
+		return nil
+	}
+
+	if err = json.Unmarshal([]byte(record.Content), &config); err != nil {
+		xlog.Error("PostUserAppConfig.Unmarshal", zap.Any("err", err), zap.Any("content", record.Content), zap.Any("aid", aid), zap.Any("uid", uid))
+	}
+
+	if info.DashboardPath == "" {
+		info.DashboardPath = config.DashboardPath
+	}
+
+	if info.VersionKey == "" {
+		info.VersionKey = config.VersionKey
+	}
+
+	if infoData, err = json.Marshal(info); err != nil {
+		tx.Rollback()
+		return
+	}
+
+	if err = tx.Where("id = ?", record.Id).Update(map[string]interface{}{
+		"content":     string(infoData),
+		"update_time": time.Now().Unix(),
+	}).Error; err != nil {
+		tx.Rollback()
+		return
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (u *user) PostTabVisit(record db.UserVisit) (err error) {
+	return u.DB.Table("user_visit").Create(&record).Error
+}
+
+func (u *user) GetTabVisit(req view.ReqGetTabVisit) (records []db.UserVisit, err error) {
+	dbConn := u.DB.Table("user_visit")
+	records = make([]db.UserVisit, 0)
+	if req.StartTime > 0 && req.EndTime > 0 {
+		dbConn = dbConn.Where("ts > ? AND ts < ?", req.StartTime, req.EndTime)
+	}
+	if err = dbConn.Find(&records).Error; err != nil && err != gorm.ErrRecordNotFound {
+		xlog.Error("GetTabVisit", zap.Any("err", err), zap.Any("req", req))
+		return
+	}
+	return records, nil
+}
+
+func (u *user) SolveTabVisit(records []db.UserVisit) (userTabList []view.UserTabVisit, appTabList []view.AppTabVisit, pageTabList []view.TabVisit) {
+	userTabList = make([]view.UserTabVisit, 0)
+	appTabList = make([]view.AppTabVisit, 0)
+	pageTabList = make([]view.TabVisit, 0)
+	if len(records) == 0 {
+		return
+	}
+
+	var (
+		userPageMap = make(map[int]view.UserTabVisit)
+		appVisitMap = make(map[int]view.AppTabVisit)
+		pageMap     = make(map[string]view.TabVisit)
+	)
+
+	for _, v := range records {
+		info, ok := userPageMap[v.Uid]
+		if !ok {
+			appMap := map[int]struct{}{
+				v.Aid: {},
+			}
+			userPageMap[v.Uid] = view.UserTabVisit{
+				Uid:      uint32(v.Uid),
+				AppSum:   1,
+				VisitSum: 1,
+				AppMap:   appMap,
+			}
+		} else {
+			// 新的app
+			if _, ok1 := info.AppMap[v.Aid]; !ok1 {
+				info.AppSum += 1
+				info.AppMap[v.Aid] = struct{}{} // 记录aid
+			}
+			info.VisitSum += 1
+			userPageMap[v.Uid] = info
+		}
+
+		appStat, ok2 := appVisitMap[v.Aid]
+		if !ok2 {
+			appVisitMap[v.Aid] = view.AppTabVisit{
+				Aid:      uint32(v.Aid),
+				AppName:  v.AppName,
+				VisitSum: 1,
+			}
+		} else {
+			appStat.VisitSum += 1
+			appVisitMap[v.Aid] = appStat
+		}
+
+		record, ok3 := pageMap[v.Tab]
+		if !ok3 {
+			tab, ok4 := view.TabNameMap[v.Tab]
+			if !ok4 {
+				tab = v.Tab
+			}
+			pageMap[v.Tab] = view.TabVisit{
+				Tab:      v.Tab,
+				TabName:  tab,
+				VisitSum: 1,
+			}
+		} else {
+			record.VisitSum += 1
+			pageMap[v.Tab] = record
+		}
+	}
+
+	uids := make([]int, 0)
+
+	for k, v := range userPageMap {
+		userTabList = append(userTabList, v)
+		uids = append(uids, k)
+	}
+
+	uidMap, _ := u.GetListByUids(uids)
+
+	for index, v := range userTabList {
+		userName := fmt.Sprintf("uid:%v", v.Uid)
+		tmp, ok := uidMap[int(v.Uid)]
+		if ok {
+			userName = tmp.Username
+		}
+		userTabList[index].UserName = userName
+	}
+
+	for _, v := range appVisitMap {
+		appTabList = append(appTabList, v)
+	}
+
+	for _, v := range pageMap {
+		pageTabList = append(pageTabList, v)
+	}
+
+	sort.Slice(userTabList, func(i, j int) bool {
+		return userTabList[i].VisitSum > userTabList[j].VisitSum
+	})
+
+	sort.Slice(appTabList, func(i, j int) bool {
+		return appTabList[i].VisitSum > appTabList[j].VisitSum
+	})
+
+	sort.Slice(pageTabList, func(i, j int) bool {
+		return pageTabList[i].VisitSum > pageTabList[j].VisitSum
+	})
+
+	return
+}
+
+func (u *user) CronCleanUserVisitRecord() (err error) {
+	cleanDay := cfg.Cfg.UserVisit.CleanDay // 默认的是90天
+	xlog.Info("CronCleanUserVisitRecord", zap.String("run", "start"), zap.Any("cleanDay", cleanDay))
+
+	ts := time.Now().Unix() - int64(cleanDay*86400)
+	if ts < 0 || cleanDay <= 0 {
+		err = fmt.Errorf("cleanDay error")
+		log.Error("CronCleanUserVisitRecord", zap.Any("err", err), zap.Any("cleanDay", cleanDay))
+		return
+	}
+	if err = u.DB.Table("user_visit").Where("`ts` < ?", time.Now().Unix()-int64(cleanDay*86400)).Delete(&db.UserVisit{}).Error; err != nil {
+		log.Error("CronCleanUserVisitRecord", zap.Any("err", err), zap.Any("cleanDay", cleanDay))
+		return
+	}
+	xlog.Info("CronCleanUserVisitRecord", zap.String("run", "end"))
+	return
+}
+
+func (u *user) GetListByUids(uids []int) (out map[int]db.User, err error) {
+	out = make(map[int]db.User)
+	var resp = make([]db.User, 0)
+	err = u.DB.Model(db.User{}).Where("uid in (?)", uids).Find(&resp).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return
+	}
+	for _, user := range resp {
+		out[user.Uid] = user
+	}
 	return
 }
