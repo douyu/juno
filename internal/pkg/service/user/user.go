@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
+	"time"
+
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/zap"
-	"sort"
-	"time"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"

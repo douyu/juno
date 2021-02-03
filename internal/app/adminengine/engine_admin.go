@@ -16,9 +16,10 @@ package adminengine
 
 import (
 	"context"
-	"github.com/douyu/juno/internal/pkg/service/user"
 	"strconv"
 	"time"
+
+	"github.com/douyu/juno/internal/pkg/service/user"
 
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/test/platform"

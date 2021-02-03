@@ -2,13 +2,14 @@ package user
 
 import (
 	"encoding/json"
+	"strings"
+	"time"
+
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"go.uber.org/zap"
-	"strings"
-	"time"
 
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"

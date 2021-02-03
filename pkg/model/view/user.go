@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/pkg/model/db"
 )
@@ -79,7 +80,7 @@ func (a *ReqPostUserVisit) Check() error {
 	return nil
 }
 
-// GetTabVisit 
+// GetTabVisit
 type ReqGetTabVisit struct {
 	StartTime int64 `json:"startTime"`
 	EndTime   int64 `json:"endTime"`
