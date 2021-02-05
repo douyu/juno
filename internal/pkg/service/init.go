@@ -17,7 +17,6 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/configresource"
 	"github.com/douyu/juno/internal/pkg/service/gateway"
-	"github.com/douyu/juno/internal/pkg/service/grpcgovern"
 	"github.com/douyu/juno/internal/pkg/service/grpctest"
 	"github.com/douyu/juno/internal/pkg/service/httptest"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
@@ -50,8 +49,6 @@ func Init() (err error) {
 	confgov2.Init(invoker.JunoMysql)
 
 	user.Init(invoker.JunoMysql)
-
-	grpcgovern.Init()
 
 	analysis.InitAnalysis(invoker.JunoMysql)
 

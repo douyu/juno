@@ -15,6 +15,7 @@
 package adminengine
 
 import (
+	"github.com/douyu/juno/api/apiv1/provider"
 	"net/http"
 	"strings"
 
@@ -169,6 +170,8 @@ func apiAdmin(server *xecho.Server) {
 		resourceG.POST("/createVersion", configresource.CreateVersion)
 		resourceG.POST("/batchCheckVersion", configresource.BatchCheckVersion)
 		resourceG.GET("/tags", configresource.Tags)
+
+
 	}
 
 	resourceGroup := g.Group("/resource", loginAuthWithJSON)
@@ -358,6 +361,12 @@ func apiAdmin(server *xecho.Server) {
 	etcdGroup := g.Group("/etcd")
 	{
 		etcdGroup.GET("/list", etcdHandle.List)
+	}
+
+	grpcGroup := g.Group("/grpc")
+	{
+		grpcGroup.GET("/aggregation/list", provider.AggregationList)
+		grpcGroup.POST("/configurators/update", provider.ConfiguratorsUpdate)
 	}
 
 	openAuthG := g.Group("/openAuth", loginAuthWithJSON)
