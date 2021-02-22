@@ -32,7 +32,7 @@ var doc = `{
                 "description": "Get an item by its ID",
                 "consumes": [
                     "application/json"
-                ],
+                ],qgcsm
                 "produces": [
                     "application/json"
                 ],
