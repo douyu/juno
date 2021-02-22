@@ -108,7 +108,7 @@ func SendRequest(uid uint, param view.ReqSendHttpRequest) (res view.HttpTestResp
 	}()
 
 	tester := xtest.New(xtest.WithInterpreter(xtest.InterpreterTypeJS))
-	req = NewRequest(option.client, param.Script, param, tester)
+	req = NewRequest(option.Client, param.Script, param, tester)
 	result, err = req.Send(context.Background())
 	if err != nil {
 		return

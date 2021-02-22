@@ -86,7 +86,7 @@ func (c *Client) Supervisor(req *OpsSupervisorReq) (*OpsSupervisorRet, error) {
 	var url = c.Host + "/ctrl_supervisor"
 	opsHeaders := c.mac.GenarateHeaderMap()
 
-	reqJson, _ := json.Marshal(req)
+	//reqJson, _ := json.Marshal(req)
 	response, err := PostJSON(url, req, opsHeaders)
 	if err != nil {
 		return nil, err
