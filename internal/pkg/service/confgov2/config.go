@@ -571,7 +571,7 @@ func ClusterPublishConfigInfo(clusterName string) (configurationRes view.Cluster
 		appInfo                    db.AppInfo
 	)
 	// get configurationClusterStatus info
-	query := mysql.Order("id desc").Where("cluster_name=?",clusterName).First(&configurationClusterStatus)
+	query := mysql.Order("id desc").Where("cluster_name=?", clusterName).First(&configurationClusterStatus)
 
 	if query.Error != nil {
 		configurationRes.Doc = cfg.Cfg.App.Doc

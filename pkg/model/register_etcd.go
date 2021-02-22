@@ -78,7 +78,6 @@ func NewRegisterKey(b []byte) (k RegisterKeyInterface, err error) {
 		url:       u,
 	}
 
-
 	switch pkey.Type() {
 	case TypeRecordProviders:
 		k = &ProviderInfo{
