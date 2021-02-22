@@ -1,9 +1,11 @@
-package httptest
+package httptest_test
 
 import (
 	"context"
 	"net/http"
 	"testing"
+
+	"github.com/douyu/juno/internal/pkg/service/httptest"
 
 	"github.com/douyu/juno/internal/pkg/packages/xtest"
 	"github.com/douyu/juno/pkg/model/view"
@@ -11,9 +13,9 @@ import (
 )
 
 func initClient() {
-	Init(Option{
+	httptest.Init(httptest.Option{
 		DB:     nil,
-		client: resty.New(),
+		Client: resty.New(),
 	})
 }
 
@@ -75,7 +77,7 @@ test.onResponse = function(res) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tester := xtest.New(xtest.WithInterpreter(xtest.InterpreterTypeJS))
-			result, err := NewRequest(resty.New(), tt.args.script, tt.args.param, tester).Send(context.Background())
+			result, err := httptest.NewRequest(resty.New(), tt.args.script, tt.args.param, tester).Send(context.Background())
 			if err != nil {
 				t.Logf("err = %v", err)
 				t.FailNow()
