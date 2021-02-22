@@ -1,5 +1,6 @@
 import React from 'react';
 import PPofList from '../pprof/pprof';
+import Grpcadmin from '../grpcadmin/index';
 import Monitor from '../monitor/monitor';
 import {Col, Empty, message, Row, Tabs} from 'antd';
 import {PageHeaderWrapper} from '@ant-design/pro-layout';
@@ -511,6 +512,23 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
 
           <TabPane tab={'事件'} key={'event'}>
             <Event active={tab === 'event'} appName={appName} env={env}/>
+          </TabPane>
+          <TabPane tab={'grpc'} key={'grpc'}>
+            <Grpcadmin
+              aid={aid}
+              env={env}
+              appName={appName}
+              appInfo={this.state.appInfo}
+              appNodeList={this.state.appNodeList}
+              appIdcList={''}
+              zoneCode={this.state.zoneCode}
+              param={''}
+              appEnvZone={appEnvZone}
+              idcList={this.state.idcList}
+              zoneList={this.state.zoneList}
+              idcCode={this.state.zoneCode}
+            />
+
           </TabPane>
 
           {this.props.setting.settings.test_platform?.enable && (

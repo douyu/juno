@@ -18,6 +18,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/douyu/juno/api/apiv1/provider"
+
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/confgov2"
@@ -167,7 +169,7 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.POST("/config/publish", core.Handle(confgov2.Publish), configWriteByIDMW)                                // 配置发布
 		configV2G.GET("/config/history", confgov2.History, configReadByIDMW)                                               // 配置文件历史
 		configV2G.POST("/config/delete", confgov2.Delete, configWriteByIDMW)                                               // 配置删除
-		configV2G.GET("/config/diff", confgov2.Diff, configReadQueryMW)                                                    // 配置文件Diif，返回两个版本的配置内容
+		configV2G.GET("/config/diff", confgov2.Diff, configReadByIDMW)                                                     // 配置文件Diif，返回两个版本的配置内容
 		configV2G.GET("/config/instance/list", confgov2.InstanceList, configReadByIDMW)                                    // 配置文件Diif，返回两个版本的配置内容
 		configV2G.GET("/config/instance/configContent", core.Handle(confgov2.InstanceConfigContent), configReadInstanceMW) // 读取机器上的配置文件
 		configV2G.GET("/config/statics", configstatics.Statics)                                                            // 全局的统计信息，不走应用权限
@@ -182,6 +184,7 @@ func apiAdmin(server *xecho.Server) {
 		resourceG.POST("/createVersion", configresource.CreateVersion)
 		resourceG.POST("/batchCheckVersion", configresource.BatchCheckVersion)
 		resourceG.GET("/tags", configresource.Tags)
+
 	}
 
 	resourceGroup := g.Group("/resource", loginAuthWithJSON)
@@ -371,6 +374,12 @@ func apiAdmin(server *xecho.Server) {
 	etcdGroup := g.Group("/etcd")
 	{
 		etcdGroup.GET("/list", etcdHandle.List)
+	}
+
+	grpcGroup := g.Group("/grpc")
+	{
+		grpcGroup.GET("/aggregation/list", provider.AggregationList)
+		grpcGroup.POST("/configurators/update", provider.ConfiguratorsUpdate)
 	}
 
 	openAuthG := g.Group("/openAuth", loginAuthWithJSON)

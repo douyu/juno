@@ -96,6 +96,12 @@ permission:
       - path: /api/admin/logger/logstore
         name: 日志查询
         method: GET
+      - path: /api/admin/confgov2/config/diff
+        name: 发布历史记录
+        method: GET
+      - path: /api/admin/confgov2/app/action
+        name: 服务重启
+        method: POST
 
   - name: 功能看板
     path: /analysis
