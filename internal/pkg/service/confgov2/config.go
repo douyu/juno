@@ -1420,3 +1420,17 @@ func GetAllConfigText() (list []db.Configuration, err error) {
 	err = mysql.Find(&list).Error
 	return
 }
+
+func GetAllConfigByEnv(env string) (resp map[uint]struct{}, err error) {
+	list := make([]db.Configuration, 0)
+	resp = make(map[uint]struct{})
+	err = mysql.Select("id, aid, name, format, env").Where("env = ?", env).Find(&list).Error
+	for _, item := range list {
+		_, ok := resp[item.AID]
+		if !ok {
+			resp[item.AID] = struct{}{}
+		}
+	}
+
+	return
+}

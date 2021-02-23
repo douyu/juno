@@ -58,6 +58,7 @@ type cfg struct {
 	TestPlatform      TestPlatform
 	Notice            Notice
 	JunoEvent         JunoEvent
+	UserVisit         UserVisit
 	K8s
 }
 
@@ -256,6 +257,9 @@ func defaultConfig() cfg {
 		K8s: K8s{
 			Enable: false,
 			Prefix: "",
+		},
+		UserVisit: UserVisit{
+			CleanDay: 90,
 		},
 	}
 }

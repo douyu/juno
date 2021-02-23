@@ -7,6 +7,7 @@ import {
 } from '@/services/event';
 import {message, Card, Row, Col, Spin} from 'antd';
 import EventList from './components/EventList';
+import ViewHistory from './components/ViewHistory';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 export interface HomeProps {}
 import ReactEcharts from 'echarts-for-react';
@@ -266,11 +267,6 @@ export default class Base extends React.Component<HomeProps, any> {
                 </Col>
               </Row>
               <Row gutter={4} style={{ marginTop: '4px' }}>
-                <Col span={24}>
-                  <Card title={'最近使用的应用'}>{'暂无'}</Card>
-                </Col>
-              </Row>
-              <Row gutter={4} style={{ marginTop: '4px' }}>
                 <Col span={6}>
                   <Card title={'应用总数'}>{app_cnt}</Card>
                 </Col>
@@ -282,6 +278,11 @@ export default class Base extends React.Component<HomeProps, any> {
                 </Col>
                 <Col span={6}>
                   <Card title={'配置文件总数'}>{total}</Card>
+                </Col>
+              </Row>
+              <Row gutter={4} style={{ marginTop: '4px' }}>
+                <Col span={24}>
+                  <Card title={'最近浏览应用'}>    <ViewHistory/></Card>
                 </Col>
               </Row>
               <Row gutter={4} style={{ marginTop: '4px' }}>

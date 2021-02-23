@@ -12,11 +12,11 @@ var (
 type (
 	Option struct {
 		DB     *gorm.DB
-		client *resty.Client
+		Client *resty.Client
 	}
 )
 
 func Init(opt Option) {
 	option = opt
-	option.client = resty.New()
+	option.Client = resty.New()
 }
