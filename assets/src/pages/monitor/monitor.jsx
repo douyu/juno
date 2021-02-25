@@ -156,8 +156,8 @@ export default class Monitor extends React.PureComponent {
 
     console.log('renderGrafana---aid', aid);
 
-    let dashboardPath = this.state.dashboardPath;
-    if (!dashboardPath) {
+    const {dashboardPath = ""} = this.state;
+    if (!dashboardPath || dashboardPath === "") {
       return (
         <div style={{marginTop: 10}}>
           <Empty description={'请选择监控类型'} style={{padding: '100px'}}/>
