@@ -27,6 +27,7 @@ type ProviderEtcdInfo struct {
 	Port     string `json:"port"`
 	Address  string `json:"address"`
 	RegKey   string `json:"regKey"`
+	Enable   bool   `json:"enable"`
 	Labels   struct {
 		Enable      string `json:"enable"`
 		Env         string `json:"env"`

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tidwall/gjson"
+
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
@@ -28,6 +30,8 @@ func ConfiguratorsUpdate(c echo.Context) (err error) {
 	if err = c.Bind(&reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+	isJupApp := isJupiterKey(reqModel.RegKey, reqModel.Env, reqModel.IdcCode)
+
 	info := model.ConfiguratorsEtcdInfo{
 		RegKey: reqModel.RegKey,
 		Labels: struct {
@@ -47,25 +51,49 @@ func ConfiguratorsUpdate(c echo.Context) (err error) {
 	ctx2, _ := context.WithTimeout(context.Background(), time.Second*3)
 	resp, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: reqModel.Env, Zone: reqModel.IdcCode}, ctx2, reqModel.RegKey, clientv3.WithPrefix())
 	if err != nil || len(resp.Kvs) <= 0 {
-		xlog.Info("provider.ConfiguratorsUpdate", xlog.Any("err", err), xlog.Any("req", reqModel), xlog.Any("info", info))
+		xlog.Error("provider.ConfiguratorsUpdate", xlog.Any("err", err), xlog.Any("req", reqModel), xlog.Any("info", info))
 		return
 	}
+	if isJupApp == true {
+		valMap := map[string]interface{}{}
+		err = json.Unmarshal(resp.Kvs[0].Value, &valMap)
+		if err != nil {
+			return
+		}
+		valMap["enable"] = false
+		if reqModel.Enable == "true" {
+			valMap["enable"] = true
+		}
+		valMap["labels"] = map[string]string{
+			"enable": reqModel.Enable,
+		}
 
-	valMap := map[string]interface{}{}
-	err = json.Unmarshal(resp.Kvs[0].Value, &valMap)
-	if err != nil {
-		return
-	}
-	valMap["enable"] = false
-	if reqModel.Enable == "true" {
-		valMap["enable"] = true
-	}
+		valStr, _ := json.Marshal(valMap)
+		ctx3, _ := context.WithTimeout(context.Background(), time.Second*3)
+		_, err = clientproxy.ClientProxy.RegisterEtcdPut(view.UniqZone{Env: reqModel.Env, Zone: reqModel.IdcCode}, ctx3, reqModel.RegKey, string(valStr))
+		if err != nil {
+			return
+		}
+	} else {
+		//minerva
+		oneAddr := model.ProviderEtcdInfo{}
+		err = json.Unmarshal(resp.Kvs[0].Value, &oneAddr)
+		if err != nil {
+			return
+		}
+		oneAddr.Enable = false
+		oneAddr.Labels.Enable = "false"
+		if reqModel.Enable == "true" {
+			oneAddr.Labels.Enable = "true"
+			oneAddr.Enable = true
+		}
 
-	valStr, _ := json.Marshal(valMap)
-	ctx3, _ := context.WithTimeout(context.Background(), time.Second*3)
-	_, err = clientproxy.ClientProxy.DefaultEtcdPut(view.UniqZone{Env: reqModel.Env, Zone: reqModel.IdcCode}, ctx3, reqModel.RegKey, string(valStr))
-	if err != nil {
-		return
+		valStr, _ := json.Marshal(oneAddr)
+		ctx3, _ := context.WithTimeout(context.Background(), time.Second*3)
+		_, err = clientproxy.ClientProxy.RegisterEtcdPut(view.UniqZone{Env: reqModel.Env, Zone: reqModel.IdcCode}, ctx3, reqModel.RegKey, string(valStr))
+		if err != nil {
+			return
+		}
 	}
 
 	bData, err := json.Marshal(info)
@@ -80,7 +108,7 @@ func ConfiguratorsUpdate(c echo.Context) (err error) {
 	splitIndex := strings.Index(regKey, ":")
 	if splitIndex < 0 || splitIndex+3 >= len(regKey) {
 		err = errors.New("reg key is wrong")
-		xlog.Info("ConfiguratorsUpdate", xlog.Any("step", "update provider"), xlog.Any("err", err.Error()), xlog.Any("reqModel", reqModel))
+		xlog.Error("ConfiguratorsUpdate", xlog.Any("step", "update provider"), xlog.Any("err", err.Error()), xlog.Any("reqModel", reqModel))
 		return
 	}
 	regPre := regKey[:splitIndex]
@@ -89,13 +117,13 @@ func ConfiguratorsUpdate(c echo.Context) (err error) {
 	flag := strings.HasPrefix(regKey, fmt.Sprintf(model.ConfiguratorsKeyName, reqModel.AppName))
 	if !flag {
 		err = errors.New("reg key is wrong2")
-		xlog.Info("ConfiguratorsUpdate", xlog.Any("step", "update provider"), xlog.Any("err", err.Error()), xlog.Any("reqModel", reqModel))
+		xlog.Error("ConfiguratorsUpdate", xlog.Any("step", "update provider"), xlog.Any("err", err.Error()), xlog.Any("reqModel", reqModel))
 		return
 	}
 
-	ret, err := clientproxy.ClientProxy.DefaultEtcdPut(view.UniqZone{Env: reqModel.Env, Zone: reqModel.IdcCode}, ctx, key, string(bData))
+	ret, err := clientproxy.ClientProxy.RegisterEtcdPut(view.UniqZone{Env: reqModel.Env, Zone: reqModel.IdcCode}, ctx, key, string(bData))
 	if err != nil {
-		xlog.Info("ConfiguratorsUpdate", xlog.Any("step", "update provider"), xlog.Any("err", err.Error()), xlog.Any("reqModel", reqModel))
+		xlog.Error("ConfiguratorsUpdate", xlog.Any("step", "update provider"), xlog.Any("err", err.Error()), xlog.Any("reqModel", reqModel))
 		return
 	}
 
@@ -126,18 +154,20 @@ func AggregationList(c echo.Context) error {
 	if req.AppName == "" || req.IdcCode == "" || req.Env == "" {
 		return output.JSON(c, output.MsgErr, "param is empty")
 	}
-
 	configList, err := GetGrpcConfig(req.Env, req.IdcCode, req.AppName)
 	if err != nil {
+		xlog.Error("provider.AggregationList", xlog.Any("step", "GetGrpcConfig"), xlog.Any("err", err.Error()), xlog.Any("req", req))
 		return output.JSON(c, output.MsgErr, "empty configList")
 	}
+	xlog.Info("provider.AggregationList", xlog.Any("step", "GetGrpcConfig"), xlog.Any("configList", configList), xlog.Any("req", req))
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*30)
 
 	ke := fmt.Sprintf(model.ProviderV2GrpcKeyName, req.AppName)
 
-	resp, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: req.Env, Zone: req.IdcCode}, ctx, ke, clientv3.WithPrefix())
+	resp, err := clientproxy.ClientProxy.RegisterEtcdGet(view.UniqZone{Env: req.Env, Zone: req.IdcCode}, ctx, ke, clientv3.WithPrefix())
 	if err != nil {
+		xlog.Info("provider.AggregationList", xlog.Any("step", "get providers"), xlog.Any("err", err.Error()), xlog.Any("req", req))
 		return output.JSON(c, output.MsgErr, "DefaultEtcdGet is empty")
 	}
 	kvs := resp.Kvs
@@ -153,17 +183,19 @@ func AggregationList(c echo.Context) error {
 		}
 		if key, err = model.NewRegisterKey(value.Key); err != nil {
 			// TODO
-			xlog.Info("provider.AggregationList", xlog.Any("tmpErr", err.Error()), xlog.Any("req", req))
+			xlog.Error("provider.AggregationList", xlog.Any("tmpErr", err.Error()), xlog.Any("req", req))
 			continue
 		}
 
+		xlog.Info("provider.AggregationList", xlog.Any("step", "NewRegisterKey"), xlog.Any("key", key), xlog.Any("req", req))
+
 		arrs, tmpErr = parseAddr(key.Address())
 		if tmpErr != nil {
-			xlog.Info("provider.AggregationList", xlog.Any("tmpErr", tmpErr.Error()), xlog.Any("req", req))
+			xlog.Error("provider.AggregationList", xlog.Any("tmpErr", tmpErr.Error()), xlog.Any("req", req))
 			continue
 		}
 		if len(arrs) < 2 {
-			xlog.Info("provider.AggregationList", xlog.Any("arrs", "arrs err"), xlog.Any("req", req))
+			xlog.Error("provider.AggregationList", xlog.Any("arrs", "arrs err"), xlog.Any("req", req))
 			continue
 		}
 
@@ -173,15 +205,25 @@ func AggregationList(c echo.Context) error {
 		oneAddr.Address = key.Address()
 		oneAddr.Type = "grpc"
 
+		isJupApp := isJupiterKey(oneAddr.RegKey, req.Env, req.IdcCode)
 		pk := key.(*model.ProviderInfo)
-		if err = pk.ParseValue(value.Value); err != nil {
+		if err = pk.ParseValue(value.Value, isJupApp); err != nil {
 			err = errors.New("ParseGovernValue,err:" + err.Error())
 			return output.JSON(c, output.MsgErr, err.Error(), "ParseValue err")
 		}
+
 		oneAddr.Labels.Enable = pk.Enable()
 		oneAddr.Labels.Weight = pk.Weight()
 		oneAddr.Labels.Group = pk.Group()
 		addrs = append(addrs, oneAddr)
+
+		xlog.Info("provider.AggregationList", xlog.Any("step", "key.(*model.ProviderInfo)"), xlog.Any("pk", pk),
+			xlog.Any("pk", pk.Meta),
+			xlog.Any("req", req),
+			xlog.Any("oneAddr.Labels.Enable", oneAddr.Labels.Enable),
+			xlog.Any("oneAddr", oneAddr),
+			xlog.Any("value.Value", string(value.Value)))
+
 	}
 
 	list := []model.AggregationRegister{}
@@ -201,6 +243,7 @@ func AggregationList(c echo.Context) error {
 		}
 		// 初始值由provider赋值
 		oneInfo.Aggregation.Labels = regItem.Labels
+		xlog.Info("provider.AggregationList", xlog.Any("step", "addrs"), xlog.Any("regItem.Labels", regItem.Labels), xlog.Any("req", req))
 
 		for _, configItem := range configList {
 			if regKey == configItem.Address {
@@ -233,8 +276,9 @@ func GetGrpcConfig(env, idCode, appName string) (addrs []model.ConfiguratorsEtcd
 
 	ke := fmt.Sprintf(model.ConfiguratorsGrpcKeyName, appName)
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*3)
-	resp, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: env, Zone: idCode}, ctx, ke, clientv3.WithPrefix())
+	resp, err := clientproxy.ClientProxy.RegisterEtcdGet(view.UniqZone{Env: env, Zone: idCode}, ctx, ke, clientv3.WithPrefix())
 	if err != nil {
+		xlog.Error("GetGrpcConfig", xlog.Any("step", "ConfiguratorsGrpcKeyName"), xlog.Any("err", err.Error()))
 		return
 	}
 
@@ -274,4 +318,25 @@ func GetGrpcConfig(env, idCode, appName string) (addrs []model.ConfiguratorsEtcd
 		addrs = append(addrs, oneAddr)
 	}
 	return addrs, nil
+}
+
+func isJupiterKey(key, env, idcCode string) (b bool) {
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*3)
+	resp, err := clientproxy.ClientProxy.RegisterEtcdGet(view.UniqZone{Env: env, Zone: idcCode}, ctx, key, clientv3.WithPrefix())
+	if err != nil {
+		xlog.Error("isJupiterKey", xlog.Any("step", "get providers isJupiterKey"), xlog.Any("err", err.Error()))
+		return
+	}
+	kvs := resp.Kvs
+
+	for _, value := range kvs {
+		val := string(value.Value)
+		jupiterVersion := gjson.Get(val, "metadata.jupiterVersion").String()
+		if jupiterVersion != "" {
+			//说明provider注册进去的key是jupiter
+			b = true
+			return
+		}
+	}
+	return
 }
