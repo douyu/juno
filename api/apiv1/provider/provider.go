@@ -204,14 +204,15 @@ func AggregationList(c echo.Context) error {
 		oneAddr.Port = arrs[1]
 		oneAddr.Address = key.Address()
 		oneAddr.Type = "grpc"
-
 		isJupApp := isJupiterKey(oneAddr.RegKey, req.Env, req.IdcCode)
 		pk := key.(*model.ProviderInfo)
 		if err = pk.ParseValue(value.Value, isJupApp); err != nil {
 			err = errors.New("ParseGovernValue,err:" + err.Error())
 			return output.JSON(c, output.MsgErr, err.Error(), "ParseValue err")
 		}
-
+		if pk.Enable() == "true" {
+			oneAddr.Enable = true
+		}
 		oneAddr.Labels.Enable = pk.Enable()
 		oneAddr.Labels.Weight = pk.Weight()
 		oneAddr.Labels.Group = pk.Group()
