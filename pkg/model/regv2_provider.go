@@ -1,6 +1,9 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"strconv"
+)
 
 type ProviderInfo struct {
 	RegisterKey
@@ -27,12 +30,49 @@ type registerServerMeta struct {
 	Services map[string]registerOneService `json:"services"`
 }
 
-func (k *ProviderInfo) ParseValue(bs []byte) (err error) {
+func (k *ProviderInfo) ParseValue(bs []byte, isJupApp bool) (err error) {
 	if err = json.Unmarshal(bs, &k.Meta); err != nil {
 		return
 	}
+
+	providerMetaData := ProviderMetaData{}
+	if err = json.Unmarshal(bs, &providerMetaData); err != nil {
+		return
+	}
+	if isJupApp == true {
+		k.Meta.Labels.Weight = strconv.Itoa(providerMetaData.Weight)
+		k.Meta.Labels.Enable = "false"
+		if providerMetaData.Enable == true {
+			k.Meta.Labels.Enable = "true"
+		}
+	}
+
 	k.Meta.originValue = bs
 	return nil
+}
+
+type ProviderMetaData struct {
+	Name       string                        `json:"name"`
+	AppId      string                        `json:"appId"`
+	Scheme     string                        `json:"schema"`
+	Address    string                        `json:"address"`
+	Weight     int                           `json:"weight"`
+	Enable     bool                          `json:"enable"`
+	Healthy    bool                          `json:"healthy"`
+	Region     string                        `json:"region"`
+	Zone       string                        `json:"zone"`
+	Kind       int                           `json:"kind"`
+	Deployment string                        `json:"deployment"`
+	Group      string                        `json:"group"`
+	Services   map[string]registerOneService `json:"services"`
+	Metadata   struct {
+		AppHost        string `json:"appHost"`
+		AppMode        string `json:"appMode"`
+		AppVersion     string `json:"appVersion"`
+		BuildTime      string `json:"buildTime"`
+		JupiterVersion string `json:"jupiterVersion"`
+		StartTime      string `json:"startTime"`
+	} `json:"metadata"`
 }
 
 // todo methods

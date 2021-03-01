@@ -102,7 +102,12 @@ permission:
       - path: /api/admin/confgov2/app/action
         name: 服务重启
         method: POST
-
+      - path: /api/admin/grpc/aggregation/list
+        name: grpc列表
+        method: GET
+      - path: /api/admin/grpc/aggregation/update
+        name: grpc禁用
+        method: POST
   - name: 功能看板
     path: /analysis
     icon: GlobalOutlined

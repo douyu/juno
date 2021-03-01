@@ -7,7 +7,7 @@ import {routerRedux} from "dva/router";
 
 @connect(({ monitorModel, loading}) => ({
   appIdcList: [],
-  idcCode: "zn",
+
 }))
 export default class MonitorIndex extends PureComponent {
   constructor(props) {

@@ -75,8 +75,6 @@ export default class Index extends React.Component {
   //获取节点状态
   getList = () => {
     const {appName, idcCode, env } = this.state;
-    console.log(appName, idcCode, env ,"asdsdsdsd")
-
     this.props.dispatch({
       type: "providerModel/fetchAggregationList",
       payload: { appName,env,idcCode}
@@ -103,26 +101,30 @@ export default class Index extends React.Component {
     const that = this;
     let {idcCode,editRegKey,editRegEnable,editWeight,editGroup, env} = this.state;
     const { appIdcList = [], listAggData } = this.props;
-    const grpcCols = [{
-      title:'节点',
-      render(t,r){
-        const { aggregation : { labels: {hostname} } } = r;
-        let url = '/app_platform/machine/'+hostname;
-        return <p><a href={url} target="_blank">{hostname}</a></p>
-      }
-    },{
+    const grpcCols = [
+    //   {
+    //   title:'节点',
+    //   render(t,r){
+    //     const { aggregation : { labels: {hostname} } } = r;
+    //     let url = '/app_platform/machine/'+hostname;
+    //     return <p><a href={url} target="_blank">{hostname}</a></p>
+    //   }
+    // },
+      {
       title:'注册键',
       render(t,r){
         const { aggregation : { regKey } } = r;
         return regKey
       }
-    },{
-      title:'可用区',
-      render(t,r){
-        const { aggregation : { labels: {region} } } = r;
-        return region
-      }
-    },{
+    },
+    //   {
+    //   title:'可用区',
+    //   render(t,r){
+    //     const { aggregation : { labels: {region} } } = r;
+    //     return region
+    //   }
+    // },
+      {
       title:'状态',
       render(t,r){
         const { aggregation : { regKey, labels:{enable} } } = r;
@@ -167,19 +169,21 @@ export default class Index extends React.Component {
     //     return group
     //   }
     // },
+    //   {
+    //   title:'程序版本',
+    //   render(t,r){
+    //     const { aggregation : { labels:{vcsInfo} } } = r;
+    //     return vcsInfo
+    //   }
+    // },
+    //   {
+    //   title:'启动时间',
+    //   render(t,r){
+    //     const { aggregation : { labels:{startTs} } } = r;
+    //     return moment(startTs*1000).format('YYYY/MM/DD HH:mm:ss')
+    //   }
+    // },
       {
-      title:'程序版本',
-      render(t,r){
-        const { aggregation : { labels:{vcsInfo} } } = r;
-        return vcsInfo
-      }
-    },{
-      title:'启动时间',
-      render(t,r){
-        const { aggregation : { labels:{startTs} } } = r;
-        return moment(startTs*1000).format('YYYY/MM/DD HH:mm:ss')
-      }
-    },{
       title:'操作',
       key:'op',
       dataIndex:'op',
