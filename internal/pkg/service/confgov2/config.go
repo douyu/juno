@@ -574,7 +574,7 @@ func ClusterPublishConfigInfo(clusterName string) (configurationRes view.Cluster
 	query := mysql.Order("id desc").Where("cluster_name=?", clusterName).First(&configurationClusterStatus)
 
 	if query.Error != nil {
-		configurationRes.Doc = cfg.Cfg.App.Doc
+		configurationRes.Doc = cfg.Cfg.K8s.Doc
 		configurationRes.ChangeLog = "未发布"
 		return
 	}
@@ -600,7 +600,7 @@ func ClusterPublishConfigInfo(clusterName string) (configurationRes view.Cluster
 		return
 	}
 
-	configurationRes.Doc = cfg.Cfg.App.Doc
+	configurationRes.Doc = cfg.Cfg.K8s.Doc
 	configurationRes.Version = configurationHistory.Version
 	configurationRes.CreatedAt = configurationPublish.CreatedAt
 	configurationRes.ChangeLog = configurationHistory.ChangeLog

@@ -65,7 +65,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 		return err
 	}
 
-	appNode, err := resource.Resource.GetAppNode(db.AppNode{
+	ip, err := p.getIp(db.AppNode{
 		AppName:  appName,
 		Env:      env,
 		ZoneCode: zoneCode,
@@ -74,10 +74,11 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 	if err != nil {
 		return err
 	}
-
+	if ip == "" {
+		return errors.New("无法查询到应用对应节点上的IP数据")
+	}
 	var (
 		governPort = app.GovernPort(appInfo.GovernPort, env, zoneCode, appName, hostName)
-		ip         = appNode.IP
 		fileList   = make([]db.PProfFileInfo, 0)
 	)
 	if governPort == "" || governPort == "0" {
@@ -291,4 +292,22 @@ func (p *pprof) ListByScene(env, zoneCode, appName, sceneId string) (fileList []
 	}
 	dbConn.Find(&fileList)
 	return
+}
+
+func (p *pprof) getIp(app db.AppNode) (ip string, err error) {
+	var (
+		appPod db.K8sPod
+	)
+	appNode, err := resource.Resource.GetAppNode(app)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		appPod, err = resource.Resource.GetAppPod(db.K8sPod{NodeName: app.HostName})
+		if err != nil {
+			return "", err
+		}
+		return appPod.PodIp, nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return appNode.IP, nil
 }

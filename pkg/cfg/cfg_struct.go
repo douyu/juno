@@ -55,7 +55,6 @@ type ServerSchema struct {
 }
 
 type App struct {
-	Doc            string
 	Mode           string
 	SecretKey      string
 	ProductionEnvs []string
@@ -70,6 +69,7 @@ type Server struct {
 type K8s struct {
 	Enable bool
 	Prefix string
+	Doc    string
 }
 
 type Cluster struct {

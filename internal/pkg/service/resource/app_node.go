@@ -10,12 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/douyu/juno/pkg/model/view"
-
-	"github.com/douyu/juno/pkg/util"
-
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
@@ -35,6 +33,11 @@ func (r *resource) CountAppNode(where db.AppNode) (cnt int, err error) {
 }
 
 func (r *resource) GetAppNode(where db.AppNode) (resp db.AppNode, err error) {
+	err = r.DB.Where(&where).Find(&resp).Error
+	return
+}
+
+func (r *resource) GetAppPod(where db.K8sPod) (resp db.K8sPod, err error) {
 	err = r.DB.Where(&where).Find(&resp).Error
 	return
 }
