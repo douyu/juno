@@ -604,7 +604,10 @@ func ClusterPublishConfigInfo(clusterName string) (configurationRes view.Cluster
 	configurationRes.Version = configurationHistory.Version
 	configurationRes.CreatedAt = configurationPublish.CreatedAt
 	configurationRes.ChangeLog = configurationHistory.ChangeLog
-
+	if configurationPublish.FilePath != "" {
+		fpList := strings.Split(configurationPublish.FilePath, ";")
+		configurationRes.ConfigFilePath = fpList[0]
+	}
 	query = mysql.Where("aid = ?", configuration.AID).First(&appInfo)
 	if query.Error != nil {
 		err = query.Error

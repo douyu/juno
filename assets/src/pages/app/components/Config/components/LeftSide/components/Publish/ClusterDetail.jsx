@@ -85,7 +85,20 @@ function ClusterDetail(props) {
           </div>
           <div className={styles.instanceInfoContent}>{k8sClusters2 && k8sClusters2.version? <Tag>{k8sClusters2?k8sClusters2.version:""}</Tag> : ""} {k8sClusters2?k8sClusters2.change_log:""}</div>
         </li>
-
+        <li key="5">
+          <div className={styles.instanceInfoName}>
+            <div className={styles.instanceInfoTitle}>参考路径</div>
+          </div>
+          <div className={styles.instanceInfoContent}>
+            {k8sClusters2 && k8sClusters2.config_file_path? <div key="0" className={styles.configPathItem}>
+              <span>{k8sClusters2.config_file_path}</span>
+              <CopyOutlined onClick={() => {
+                copyToClipBoard(k8sClusters2.config_file_path)
+                message.success("已复制到剪切板")
+              }} className={styles.configPathCopyBtn}/>
+            </div>: ""}
+          </div>
+        </li>
       </ul>
 
       <Modal

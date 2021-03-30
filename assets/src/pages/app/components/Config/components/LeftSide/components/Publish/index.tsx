@@ -61,7 +61,7 @@ function Publish(props: PublishProps) {
   const [switchPubK8S, switchPubK8SAct] = useBoolean(false)
 
   k8sClusters = k8sClusters.filter(item => {
-    let zone =  configFile?.zone 
+    let zone =  configFile?.zone
     let kZone = item?.zone_code
     return item.env.indexOf(env) > -1 && zone == kZone
   })
@@ -279,15 +279,6 @@ function Publish(props: PublishProps) {
           </ul>
         </ScrollArea>
       )}
-
-
-
-
-
-
-
-
-
 
       {configFile && !configInstanceListLoading && configInstanceList && (
         <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>

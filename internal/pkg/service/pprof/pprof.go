@@ -300,7 +300,7 @@ func (p *pprof) getIp(app db.AppNode) (ip string, err error) {
 	)
 	appNode, err := resource.Resource.GetAppNode(app)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		appPod, err = resource.Resource.GetAppPod(db.K8sPod{NodeName: app.HostName})
+		appPod, err = resource.Resource.GetAppPod(db.K8sPod{NodeName: app.HostName, AppName: app.AppName})
 		if err != nil {
 			return "", err
 		}

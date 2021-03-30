@@ -110,7 +110,7 @@ function ModalSave(props) {
       </Col>
       <Col flex={"auto"}>
         <div ref={editorRef} style={{
-          height: '700px'
+          height: '500px'
         }}/>
       </Col>
     </Row>
