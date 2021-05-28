@@ -2,7 +2,7 @@ import {ModalProps} from "antd/es/modal";
 import {Badge, Descriptions, message, Modal} from "antd";
 import React, {useEffect, useState} from "react";
 import {Task, TaskDetail, TaskStatus} from "@/models/cronjob/types";
-import ProSkeleton from "@ant-design/pro-skeleton/src/index";
+import ProSkeleton from "@ant-design/pro-skeleton/lib/index";
 import MonacoEditor from "react-monaco-editor/lib/editor";
 import {fetchTaskDetail} from "@/services/taskplatform";
 import {PresetStatusColorType} from "antd/lib/_util/colors";
