@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Card, message, Button, Divider, Modal, Transfer } from 'antd';
-import { reqDelete, reqList } from './service';
+import { reqList } from './service';
 import Table from '@/components/Table';
 import { history } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
