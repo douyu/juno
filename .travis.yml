@@ -20,7 +20,7 @@ script:
   - go test -v -race ./... -coverprofile=coverage.txt -covermode=atomic
   - cd assets
   - npm install
-  - npm run start
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - npm run start
