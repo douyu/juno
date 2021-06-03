@@ -9,12 +9,17 @@ go:
 env:
   - GO111MODULE=on
 
-before_install: go get golang.org/x/tools/cmd/goimports
+before_install:
+  - go get golang.org/x/tools/cmd/goimports
+  - nvm install 14.15.3
+  - nvm alias default 14.15.3
 
 script:
   - diff -u <(echo -n) <(gofmt -d -s .)
   - diff -u <(echo -n) <(goimports -d .)
   - go test -v -race ./... -coverprofile=coverage.txt -covermode=atomic
+  - cd assets
+  - npm install
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
