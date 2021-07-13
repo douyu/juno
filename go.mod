@@ -5,9 +5,9 @@ go 1.14
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
-	github.com/alibaba/sentinel-golang v0.4.0
-	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190802083043-4cd0c391755e
-	github.com/apache/rocketmq-client-go v0.0.0-20191211114916-85ee94b43cef
+	github.com/alibaba/sentinel-golang v0.6.0
+	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18
+	github.com/apache/rocketmq-client-go/v2 v2.0.0
 	github.com/arsmn/fiber-swagger/v2 v2.3.0
 	github.com/beeker1121/goque v2.1.0+incompatible
 	github.com/bojand/ghz v0.56.0
@@ -15,7 +15,7 @@ require (
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/coreos/etcd v3.3.22+incompatible
 	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc // indirect
-	github.com/douyu/jupiter v0.2.4
+	github.com/douyu/jupiter v0.2.9
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
@@ -26,7 +26,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.5.0
 	github.com/golang/protobuf v1.4.2
 	github.com/gomodule/redigo v2.0.0+incompatible
-	github.com/google/go-cmp v0.4.0
+	github.com/google/go-cmp v0.5.1
 	github.com/gorilla/sessions v1.2.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/jhump/protoreflect v1.7.0
@@ -43,11 +43,10 @@ require (
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/onsi/ginkgo v1.12.3
-	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/viper v1.6.3
@@ -60,8 +59,8 @@ require (
 	github.com/urfave/negroni v1.0.0
 	github.com/valyala/fasthttp v1.21.0 // indirect
 	go.uber.org/zap v1.15.0
-	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f
+	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392
+	golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
