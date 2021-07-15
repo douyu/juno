@@ -36,4 +36,4 @@ builds:
 
 release:
   extra_files:
-    - glob: assets/dist
+    - glob: assets/dist/**
