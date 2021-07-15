@@ -19,8 +19,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/user"
-
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/test/platform"
 	"github.com/douyu/juno/api/apiv1/worker"
@@ -33,6 +31,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/notify"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
+	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/pb"
@@ -41,6 +40,7 @@ import (
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/flag"
+	"github.com/douyu/jupiter/pkg/server/governor"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -79,14 +79,6 @@ func New() *Admin {
 		Usage:   "--clear",
 		EnvVar:  "Juno_Clear",
 		Default: false,
-		Action:  func(name string, fs *flag.FlagSet) {},
-	})
-
-	flag.Register(&flag.StringFlag{
-		Name:    "host",
-		Usage:   "--host",
-		EnvVar:  "Juno_Host",
-		Default: "",
 		Action:  func(name string, fs *flag.FlagSet) {},
 	})
 
@@ -215,10 +207,18 @@ func (eng *Admin) serveGovern() (err error) {
 	if err != nil {
 		xlog.Panic(err.Error())
 	}
+
+	server := governor.RawConfig("server.govern").Build()
+	err = eng.Serve(server)
+
+	if err != nil {
+		return err
+	}
+
 	//eng.SetGovernor(cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port))
 	err = client.Close()
 	if err != nil {
-		xlog.Panic(err.Error())
+		return err
 	}
 	return
 }
