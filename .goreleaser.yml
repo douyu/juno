@@ -1,0 +1,39 @@
+project_name: juno
+
+builds:
+- main: ./cmd/juno-admin
+  id: "juno-admin"
+  binary: juno-admin
+  goos:
+    - linux
+    - darwin
+    - windows
+  goarch: [amd64]
+- main: ./cmd/juno-proxy
+  id: "juno-proxy"
+  binary: juno-proxy
+  goos:
+    - linux
+    - darwin
+    - windows
+  goarch: [amd64]
+- main: ./cmd/juno-swagger
+  id: "juno-swagger"
+  binary: juno-swagger
+  goos:
+    - linux
+    - darwin
+    - windows
+  goarch: [amd64]
+- main: ./cmd/juno-worker
+  id: "juno-worker"
+  binary: juno-worker
+  goos:
+    - linux
+    - darwin
+    - windows
+  goarch: [amd64]
+
+archives:
+  - files:
+      - ./assets/dist/*
