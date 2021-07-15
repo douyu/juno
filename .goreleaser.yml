@@ -34,6 +34,6 @@ builds:
     - windows
   goarch: [amd64]
 
-release:
-  extra_files:
-    - glob: assets/dist/**
+archives:
+  - files:
+      - ./assets/dist/*
