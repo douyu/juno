@@ -52,5 +52,6 @@ logs
 
 # ignore front resources
 assets/dist/*
+dist/
 
 !assets/dist/README.md
