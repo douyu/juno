@@ -42,7 +42,6 @@ assets/pprof_static/*
 /docker/*
 /pprof/*
 /release/*
-package-lock.json
 default.json
 biz.json.*
 biz.json
