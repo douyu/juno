@@ -71,7 +71,7 @@ func Init() {
 		mqConfig.DialTimeout = config.DialTimeout
 
 		EventProducer = mqConfig.Build()
-		if err != nil {
+		if err := EventProducer.Start(); err != nil {
 			panic("init junoevnet producer failed. err=" + err.Error())
 		}
 	}
