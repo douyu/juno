@@ -9,6 +9,10 @@ builds:
     - darwin
     - windows
   goarch: [amd64]
+  ldflags:
+    - -X github.com/douyu/jupiter/pkg.buildAppVersion={{.Version}}
+    - -X github.com/douyu/jupiter/pkg.buildTime={{.Date}}
+    - -X github.com/douyu/jupiter/pkg.buildUser=goreleaser
 - main: ./cmd/juno-proxy
   id: "juno-proxy"
   binary: juno-proxy
@@ -17,6 +21,10 @@ builds:
     - darwin
     - windows
   goarch: [amd64]
+  ldflags:
+    - -X github.com/douyu/jupiter/pkg.buildAppVersion={{.Version}}
+    - -X github.com/douyu/jupiter/pkg.buildTime={{.Date}}
+    - -X github.com/douyu/jupiter/pkg.buildUser=goreleaser
 - main: ./cmd/juno-swagger
   id: "juno-swagger"
   binary: juno-swagger
