@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/douyu/juno/pkg/model/view"
+	"go.uber.org/zap"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/douyu/jupiter/pkg/xlog"
 )
 
 func (r *resource) GetZoneInfo(where db.Zone) (resp db.Zone, err error) {
@@ -54,6 +56,7 @@ func (r *resource) PutZone(tx *gorm.DB, info db.Zone) error {
 		Env:        info.Env,
 	}
 	if err := tx.Where(&nIDC).Assign(info).FirstOrCreate(&nIDC).Error; err != nil {
+		xlog.Error("PutZone error", zap.Error(err), zap.String("zoneCode", info.ZoneCode))
 		return err
 	}
 	return nil
