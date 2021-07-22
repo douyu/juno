@@ -561,7 +561,7 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 }
 
 // ClusterPublishConfigInfo ..
-func ClusterPublishConfigInfo(clusterName string) (configurationRes view.ClusterConfigInfo, err error) {
+func ClusterPublishConfigInfo(clusterName string, configId uint64) (configurationRes view.ClusterConfigInfo, err error) {
 	// process
 	var (
 		configurationPublish       db.ConfigurationPublish
@@ -571,7 +571,7 @@ func ClusterPublishConfigInfo(clusterName string) (configurationRes view.Cluster
 		appInfo                    db.AppInfo
 	)
 	// get configurationClusterStatus info
-	query := mysql.Order("id desc").Where("cluster_name=?", clusterName).First(&configurationClusterStatus)
+	query := mysql.Order("id desc").Where("cluster_name=? AND configuration_id = ?", clusterName, configId).First(&configurationClusterStatus)
 
 	if query.Error != nil {
 		configurationRes.Doc = cfg.Cfg.K8s.Doc
