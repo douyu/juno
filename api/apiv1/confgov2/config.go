@@ -47,6 +47,8 @@ func List(c echo.Context) (err error) {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
+	list = confgov2.HandleConfigPublishStatus(list)
+
 	return output.JSON(c, output.MsgOk, "", list)
 }
 

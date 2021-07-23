@@ -34,16 +34,17 @@ type (
 
 	// RespListConfigItem Does not contain configuration content to prevent configuration from being too long
 	RespListConfigItem struct {
-		ID          uint       `json:"id"`
-		AID         uint       `json:"aid"`
-		Name        string     `json:"name"`
-		Format      string     `json:"format"` // Yaml/Toml
-		Env         string     `json:"env"`    // 环境
-		Zone        string     `json:"zone"`   // 机房Zone
-		CreatedAt   time.Time  `json:"created_time"`
-		UpdatedAt   time.Time  `json:"update_time"`
-		DeletedAt   *time.Time `json:"deleted_at"`
-		PublishedAt *time.Time `json:"published"` // 未发布/发布时间
+		ID           uint       `json:"id"`
+		AID          uint       `json:"aid"`
+		Name         string     `json:"name"`
+		Format       string     `json:"format"` // Yaml/Toml
+		Env          string     `json:"env"`    // 环境
+		Zone         string     `json:"zone"`   // 机房Zone
+		CreatedAt    time.Time  `json:"created_time"`
+		UpdatedAt    time.Time  `json:"update_time"`
+		DeletedAt    *time.Time `json:"deleted_at"`
+		PublishedAt  *time.Time `json:"published"`     // 未发布/发布时间
+		ConfigStatus uint32     `json:"config_status"` // 配置发布状态，0：未知 1：已发布 2：未发布
 	}
 
 	// ReqDetailConfig ..

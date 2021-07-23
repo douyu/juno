@@ -46,6 +46,12 @@ const (
 	DiffSpecifyScene = 2 //指定版本与最新版本对比
 )
 
+const (
+	ConfigStatusUnknown        uint32 = 0 // 配置发布状态未知
+	ConfigStatusAlreadyPublish uint32 = 1 // 配置已经发布
+	ConfigStatusNotPublish     uint32 = 2 // 配置未发布
+)
+
 func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
 	var app db.AppInfo
 
