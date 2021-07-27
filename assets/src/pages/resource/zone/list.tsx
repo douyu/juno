@@ -7,6 +7,7 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
 import PageList from '@/components/PageList';
 import { ServiceTransferList, ServiceTransferPut } from '@/services/node';
+import { reqDelete } from '@/pages/resource/zone/service';
 
 export interface HomeProps {}
 
