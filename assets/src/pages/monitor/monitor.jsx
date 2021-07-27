@@ -90,7 +90,7 @@ export default class Monitor extends React.PureComponent {
 
     const { dashboardPath = "" } = this.state;
 
-    const currentVersion = (Array.isArray(version) && version.find(item => (versionKey && item.versionKey === versionKe))) || {}
+    const currentVersion = (Array.isArray(version) && version.find(item => (versionKey && item.versionKey === versionKey))) || {}
 
     console.log('renderGrafana---aid', aid);
 
