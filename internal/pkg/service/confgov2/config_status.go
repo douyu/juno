@@ -65,16 +65,16 @@ func NewConfigStatusService(configList view.RespListConfig) (r *ConfigStatusServ
 
 func HandleConfigPublishStatus(configList view.RespListConfig) view.RespListConfig {
 	rs := NewConfigStatusService(configList)
-	err := xgo.SerialWithError(
+	err := xgo.SerialUntilError(
 		xgo.ParallelWithError(
-			xgo.SerialWithError(
+			xgo.SerialUntilError(
 				rs.initConfigLatestVersionId, // 获取每个配置对应最近保存的版本id
 				rs.initConfigPublishId,       // 根据配置id和最近保存版本获取对应的发布id
 			),
 			rs.initNodeNameList,    // 获取配置对应的物理机节点信息
 			rs.initClusterNameList, // 获取配置对应的容器集群信息
 		),
-		xgo.SerialWithError( // 由于没有使用锁，下面两个检测需串行
+		xgo.SerialUntilError( // 由于没有使用锁，下面两个检测需串行
 			rs.checkNodePublish,    // 检测物理机所有节点的配置是否都已经发布
 			rs.checkClusterPublish, // 检测容器所有集群的配置是否都已经发布
 		),
@@ -137,12 +137,21 @@ func (r *ConfigStatusService) initNodeNameList() error {
 func (r *ConfigStatusService) initConfigLatestVersionId() error {
 	var (
 		historyList = make([]db.ConfigurationHistory, 0)
+		record      = db.ConfigurationHistory{}
+		ids         = make([]uint32, 0)
 		err         error
 	)
-	// 获取每个configId的最近一次的版本id
-	if err = mysql.Select("id,configuration_id").Where("configuration_id in (?)", r.configIdList).Order("id desc").Find(&historyList).Error; err != nil && err != gorm.ErrRecordNotFound {
-		r.logError("initConfigLatestVersionId", "db find last version error", err)
+
+	if err = mysql.Table(record.TableName()).Select("max(id) as id").Where("configuration_id in (?)", r.configIdList).Group("configuration_id").Pluck("id", &ids).Error; err != nil && err != gorm.ErrRecordNotFound {
+		r.logError("initConfigLatestVersionId", "db pluck id error", err)
 		return err
+	}
+
+	if len(ids) > 0 {
+		if err = mysql.Select("id,configuration_id").Where("id in (?)", ids).Find(&historyList).Error; err != nil && err != gorm.ErrRecordNotFound {
+			r.logError("initConfigLatestVersionId", "db find last version error", err)
+			return err
+		}
 	}
 
 	for _, v := range historyList {
@@ -179,10 +188,22 @@ func (r *ConfigStatusService) initConfigPublishId() error {
 		return nil
 	}
 
-	var configPublishList = make([]db.ConfigurationPublish, 0)
-	if err = mysql.Select("id,configuration_id,configuration_history_id").Where(sqlWhere, sqlParam...).Order("id desc").Find(&configPublishList).Error; err != nil && err != gorm.ErrRecordNotFound {
-		r.logError("initConfigPublishId", "db find config publish error", err)
+	var (
+		configPublishList = make([]db.ConfigurationPublish, 0)
+		record            = db.ConfigurationPublish{}
+		ids               = make([]uint32, 0)
+	)
+
+	if err = mysql.Table(record.TableName()).Select("max(id) as id").Where(sqlWhere, sqlParam...).Group("configuration_id,configuration_history_id").Pluck("id", &ids).Error; err != nil && err != gorm.ErrRecordNotFound {
+		r.logError("initConfigPublishId", "db pluck id error", err)
 		return err
+	}
+
+	if len(ids) > 0 {
+		if err = mysql.Select("id,configuration_id,configuration_history_id").Where("id in (?)", ids).Find(&configPublishList).Error; err != nil && err != gorm.ErrRecordNotFound {
+			r.logError("initConfigPublishId", "db find last version error", err)
+			return err
+		}
 	}
 
 	for _, v := range configPublishList {
