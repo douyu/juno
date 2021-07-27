@@ -17,7 +17,6 @@ package invoker
 import (
 	"time"
 
-	rocketmq2 "github.com/apache/rocketmq-client-go"
 	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/client/rocketmq"
@@ -35,7 +34,7 @@ var (
 	Resty *resty.Client
 
 	// event producer
-	EventProducer rocketmq2.Producer
+	EventProducer *rocketmq.Producer
 )
 
 // Init invoker
@@ -71,8 +70,8 @@ func Init() {
 		mqConfig.Addr = config.Addr
 		mqConfig.DialTimeout = config.DialTimeout
 
-		EventProducer, err = mqConfig.Build()
-		if err != nil {
+		EventProducer = mqConfig.Build()
+		if err := EventProducer.Start(); err != nil {
 			panic("init junoevnet producer failed. err=" + err.Error())
 		}
 	}

@@ -120,10 +120,10 @@ func TopologyRelationship(c echo.Context) error {
 }
 
 type ReqList struct {
-	PkgQs   string `query:"pkgQs"`
-	AppName string `query:"app_name" json:"app_name"`
-	Operate string `query:"operate"`
-	Ver     string `query:"ver"`
+	PkgQs   string `query:"pkgQs" form:"pkgQs"`
+	AppName string `query:"app_name" form:"app_name"`
+	Operate string `query:"operate" form:"operate"`
+	Ver     string `query:"ver" form:"ver"`
 }
 
 // 版本列表

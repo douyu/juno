@@ -42,7 +42,6 @@ assets/pprof_static/*
 /docker/*
 /pprof/*
 /release/*
-package-lock.json
 default.json
 biz.json.*
 biz.json
@@ -53,5 +52,6 @@ logs
 
 # ignore front resources
 assets/dist/*
+dist/
 
 !assets/dist/README.md

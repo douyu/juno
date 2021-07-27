@@ -8,9 +8,8 @@ import (
 
 	"github.com/douyu/juno/pkg/cfg"
 
-	"github.com/apache/rocketmq-client-go/primitive"
-
-	rocketmq2 "github.com/apache/rocketmq-client-go"
+	"github.com/apache/rocketmq-client-go/v2/primitive"
+	"github.com/douyu/jupiter/pkg/client/rocketmq"
 
 	"github.com/douyu/juno/pkg/model/view"
 
@@ -24,11 +23,11 @@ var (
 
 type appEvent struct {
 	eventChan     chan db.AppEvent
-	eventProducer rocketmq2.Producer
+	eventProducer *rocketmq.Producer
 	topic         string
 }
 
-func InitAppEvent(eventProducer rocketmq2.Producer, topic string) *appEvent {
+func InitAppEvent(eventProducer *rocketmq.Producer, topic string) *appEvent {
 	obj := &appEvent{
 		eventChan:     make(chan db.AppEvent, 10000),
 		eventProducer: eventProducer,
