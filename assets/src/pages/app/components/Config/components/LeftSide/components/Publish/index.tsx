@@ -203,7 +203,7 @@ function Publish(props: PublishProps) {
           <Empty description={'暂无实例'} />
         </div>
       )}
-      <ScrollArea className={styles.instanceListScroll} smoothScrolling={true}>
+      <ScrollArea className={styles.instanceListScroll} smoothScrolling={true} style={{ height: '700px' }}>
         {configFile && k8sClusters && k8sClusters.length != 0 && (
           <ul className={styles.instanceList}>
             <div className={styles.instanceListOpt}>
