@@ -1,18 +1,18 @@
-import React, {useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useFullscreen } from "ahooks"
 import LeftSide from "./components/LeftSide/index";
 import styles from './index.less';
 import Editor from "./components/Editor/index";
-import {connect} from 'dva';
-import ModalSave from "@/pages/app/components/Config/components/ModalSave";
-import ModalHistory from "@/pages/app/components/Config/components/ModalHistory";
-import EditorMaskLayer from "@/pages/app/components/Config/components/EditorMaskLayer";
-import ModalDiff from "@/pages/app/components/Config/components/ModalDiff";
-import {useFullscreen} from "ahooks"
+import { connect } from 'dva';
+import ModalSave from './components/ModalSave';
+import ModalHistory from './components/ModalHistory';
+import EditorMaskLayer from './components/EditorMaskLayer';
+import ModalDiff from './components/ModalDiff';
 
 function ConfigEdit(props) {
-  const {aid, env, zoneList, zoneCode, appName, serviceVersion, publishVersion} = props;
+  const { aid, env, zoneList, zoneCode, appName, serviceVersion, publishVersion } = props;
   const ref = useRef()
-  const [isFullscreen, {setFull, exitFull, toggleFull}] = useFullscreen(ref);
+  const [isFullscreen, { setFull, exitFull, toggleFull }] = useFullscreen(ref);
   useEffect(() => {
     if (!appName) return
     if (!env) return
@@ -75,16 +75,16 @@ function ConfigEdit(props) {
       />
 
       <div className={styles.main}>
-        <EditorMaskLayer/>
+        <EditorMaskLayer />
 
-        <Editor/>
+        <Editor />
       </div>
 
-      <ModalSave/>
+      <ModalSave />
 
-      <ModalHistory/>
+      <ModalHistory />
 
-      <ModalDiff/>
+      <ModalDiff />
     </div>
   );
 }

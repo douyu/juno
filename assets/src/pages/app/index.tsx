@@ -63,7 +63,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
       versionName: '',
       frameVersion: '',
       tab: this.props.location.query.tab == undefined ? 'detail' : this.props.location.query.tab,
-      userConfig: {},
+      userConfig: {}, // userConfig 只是用于刷新页面记录上一次操作用，只需要首次渲染时获取
     };
   }
 
@@ -372,7 +372,9 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
     const {k8sClusters} = this.props;
 
     let envList = appEnvZone?.map((item: any) => item.env) || [];
+
     let zoneList: any[] = [];
+
     if (env) {
       appEnvZone.forEach((item: any) => {
         if (item.env === env) {
@@ -431,17 +433,9 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
           </TabPane>
           <TabPane tab="监控" key="monitor">
             <Monitor
-              monitorVersion={monitorVersion}
               aid={aid}
               env={env}
               appName={appName}
-              appInfo={this.state.appInfo}
-              appNodeList={this.state.appNodeList}
-              appIdcList={''}
-              param={''}
-              appEnvZone={appEnvZone}
-              idcList={this.state.idcList}
-              zoneList={this.state.zoneList}
               zoneCode={this.state.zoneCode}
               versionKey={versionKey}
               location={this.props.location}
@@ -574,7 +568,6 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
               </Col>
             </Row>
           </div>
-
           <Row>{view}</Row>
         </div>
       </PageHeaderWrapper>
