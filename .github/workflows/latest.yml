@@ -48,4 +48,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: my-artifact
-          path: dist/*_linux_amd64.tar.gz
+          path: |
+            dist/*_linux_amd64.tar.gz
+            ./assets/dist/*
