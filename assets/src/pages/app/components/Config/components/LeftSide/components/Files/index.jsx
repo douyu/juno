@@ -1,10 +1,9 @@
 import React from 'react'
 import {connect} from 'dva'
 import styles from './index.less'
-import {DeleteOutlined, FileOutlined, HistoryOutlined, SaveOutlined, StopOutlined} from '@ant-design/icons'
+import {DeleteOutlined, FileOutlined, HistoryOutlined, StopOutlined} from '@ant-design/icons'
 import OptionButton from "@/pages/app/components/Config/components/OptionButton";
-import {Popconfirm, Spin} from 'antd'
-import {useKeyPress} from "ahooks";
+import {Popconfirm, Spin, Tag} from 'antd'
 import confirm from "antd/es/modal/confirm";
 
 function Files(props) {
@@ -56,7 +55,9 @@ function Files(props) {
           }
         }}
       >
-        <div>{cfg.name}.{cfg.format}</div>
+        <div>{cfg.config_status === 1 ?
+          <Tag  color="green">已发布</Tag> : cfg.config_status === 2 ?
+            <Tag  color="yellow">未发布</Tag> : ""}{cfg.name}.{cfg.format}</div>
         <div>
           {currentConfig && currentConfig.content !== currentContent && cfg.id === currentConfig.id &&
           <span className={styles.notSavedTip}>
