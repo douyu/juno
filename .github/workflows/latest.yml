@@ -46,7 +46,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Tar asset dist
-        run: tar -cvf asset.tar assets/dist
+        run: tar -czf asset.tar assets/dist
       - uses: actions/upload-artifact@v2
         with:
           name: my-artifact
