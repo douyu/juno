@@ -45,11 +45,7 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Tar asset dist
-        run: tar -czf asset.tar assets/dist
       - uses: actions/upload-artifact@v2
         with:
           name: my-artifact
-          path: |
-            dist/*_linux_amd64.tar.gz
-            asset.tar
+          path: dist/*_linux_amd64.tar.gz
