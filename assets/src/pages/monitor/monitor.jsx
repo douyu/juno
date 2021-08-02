@@ -114,7 +114,7 @@ export default class Monitor extends React.PureComponent {
 
     const datasource = `${env}.${zoneCode}.${currentVersion.name || ''}`;
 
-    const url = `${dashboardPath}?var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
+    const url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
 
     return (
       <div style={{ display: 'block', overflow: 'hidden', marginLeft: '10px' }}>
