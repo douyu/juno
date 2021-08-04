@@ -17,7 +17,7 @@ package main
 import (
 	"log"
 
-	"github.com/douyu/juno/internal/app/proxyengine"
+	"github.com/douyu/juno/app/proxyengine"
 )
 
 func main() {
