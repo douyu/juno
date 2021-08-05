@@ -14,17 +14,17 @@ var IK8s apiServer
 func Init() {
 
 	if !cfg.Cfg.K8s.Enable {
-		xlog.Warn("k8sInit", xlog.String("step", "init"), xlog.Any("cfg.Cfg.K8s", cfg.Cfg.K8s))
+		xlog.Warn("k8sWork", xlog.String("step", "init"), xlog.Any("cfg.Cfg.K8s", cfg.Cfg.K8s))
 		return
 	}
 
 	k8sSystemConfig, err := system.System.Setting.K8SClusterSetting()
 	if err != nil {
-		xlog.Error("k8sInit", xlog.String("step", "init"), xlog.Any("err", err))
+		xlog.Error("k8sWork", xlog.String("step", "init"), xlog.Any("err", err))
 		return
 	}
 	if len(k8sSystemConfig.List) == 0 {
-		xlog.Error("k8sInit",
+		xlog.Error("k8sWork",
 			xlog.String("step", "len"),
 			xlog.Any("k8sSystemConfig", k8sSystemConfig))
 		return
@@ -33,16 +33,18 @@ func Init() {
 	var kc map[string]view.K8sConfig
 	kc = make(map[string]view.K8sConfig, 0)
 	for _, v := range k8sSystemConfig.List {
+		if v.Domain == "" || v.Token == "" {
+			continue
+		}
 		clusterItem := view.K8sConfig{
 			Domain: v.Domain,
 			Token:  v.Token,
 		}
 		kc[v.ZoneCode] = clusterItem
 	}
-
 	IK8s = newK8sImpl(kc)
 
 	xgo.Go(func() {
-		IK8s.allClusterSync(cfg.Cfg.K8s.Prefix)
+		IK8s.allClusterSync(cfg.Cfg.K8s.Prefix, cfg.Cfg.K8s.ExcludeSuffix)
 	})
 }

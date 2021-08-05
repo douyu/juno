@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"net"
 	"net/url"
 	"time"
 
@@ -34,6 +35,21 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 		if err != nil {
 			panic("k8s client init error, domain:" + kcItem.Domain)
 		}
+		// 开始运行之前先dial一下地址，避免一直报错
+		conn, err := net.DialTimeout("tcp", apiServerURL.Host, time.Second*3)
+		if err != nil {
+			xlog.Error("k8sWork",
+				xlog.String("step", "Dial"),
+				xlog.String("zoneCode", zoneCode),
+				xlog.String("host", apiServerURL.Host),
+				xlog.String("err", err.Error()),
+			)
+			continue
+		}
+		if conn != nil {
+			conn.Close()
+		}
+
 		restConfig := &rest.Config{
 			Host:        apiServerURL.String(),
 			BearerToken: kcItem.Token,
@@ -55,10 +71,12 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 }
 
 // allClusterSync ..
-func (g *k8sImpl) allClusterSync(prefix string) {
+func (g *k8sImpl) allClusterSync(prefix string, excludeSuffix []string) {
 	for zc, config := range g.clientMap {
+		zoneCode := zc
+		zoneConfig := config
 		xgo.Go(func() {
-			newCluster(zc, prefix, config, g.db)
+			newCluster(zoneCode, prefix, excludeSuffix, zoneConfig, g.db)
 		})
 	}
 }
