@@ -24,21 +24,25 @@ import (
 )
 
 type syncPod struct {
-	zoneCode string
-	prefix   string
-	config   *rest.Config
-	db       *gorm.DB
-	stopCh   chan struct{}
+	zoneCode      string
+	prefix        string
+	excludeSuffix []string
+	config        *rest.Config
+	db            *gorm.DB
+	stopCh        chan struct{}
 }
 
-func newSyncPod(zoneCode, prefix string, config *rest.Config, db *gorm.DB) *syncPod {
+func newSyncPod(zoneCode, prefix string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *syncPod {
 	s := &syncPod{
-		zoneCode: zoneCode,
-		config:   config,
-		db:       db,
-		prefix:   prefix,
-		stopCh:   make(chan struct{}),
+		zoneCode:      zoneCode,
+		config:        config,
+		db:            db,
+		prefix:        prefix,
+		excludeSuffix: excludeSuffix,
+		stopCh:        make(chan struct{}),
 	}
+	xlog.Info("k8sWork", xlog.String("step", "startWatch"), xlog.String("zoneCode", zoneCode))
+
 	xgo.Go(func() {
 		s.watch()
 	})
@@ -54,7 +58,10 @@ func newSyncPod(zoneCode, prefix string, config *rest.Config, db *gorm.DB) *sync
 func (i *syncPod) watch() {
 	clientSet, err := kubernetes.NewForConfig(i.config)
 	if err != nil {
-		xlog.Error("watchItem", xlog.Any("err", err))
+		xlog.Error("k8sWork",
+			xlog.String("step", "watchItem"),
+			xlog.String("zoneCode", i.zoneCode),
+			xlog.Any("err", err))
 		return
 	}
 
@@ -68,7 +75,7 @@ func (i *syncPod) watch() {
 	go factory.Start(i.stopCh)
 
 	if !cache.WaitForCacheSync(i.stopCh, informer.HasSynced) {
-		runtime.HandleError(fmt.Errorf("sync timeout"))
+		runtime.HandleError(fmt.Errorf("k8sWork timeout"))
 		return
 	}
 
@@ -81,9 +88,9 @@ func (i *syncPod) watch() {
 	lister := ObjInformer.Lister()
 	_, err = lister.List(labels.Nothing())
 	if err != nil {
-		xlog.Error("sync",
+		xlog.Error("k8sWork",
+			xlog.String("step", "lister.List"),
 			xlog.String("typ", "pod"),
-			xlog.String("act", "zoneCode"),
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err.Error()))
 	}
@@ -94,36 +101,54 @@ func (i *syncPod) watch() {
 func (i *syncPod) close() {
 	i.stopCh <- struct{}{}
 }
-
-func (i *syncPod) add(obj interface{}) {
-	in := obj.(*v1.Pod)
+func (i *syncPod) commonCheck(in *v1.Pod) error {
 	var (
 		appName string
-		env     string
 		ok      bool
-		err     error
 	)
+	// 检查appName
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
-		err = errors.New("appName is empty")
-		xlog.Warn("cloudApp",
-			xlog.String("appName", appName),
+		return errors.New("appName is empty")
+	}
+	// 检查环境
+	if env, ok := in.Labels["runEnv"]; !ok || env == "" {
+		return errors.New("env is empty")
+	}
+	// 匹配前缀
+	if i.prefix != "" && !strings.HasPrefix(in.Name, i.prefix) {
+		return errors.New("prefix is not " + i.prefix)
+	}
+	// 检查后缀
+	for _, suffix := range i.excludeSuffix {
+		if strings.HasSuffix(appName, suffix) {
+			return errors.New("exclude Suffix " + suffix)
+		}
+	}
+	return nil
+}
+func (i *syncPod) add(obj interface{}) {
+	in := obj.(*v1.Pod)
+
+	err := i.commonCheck(in)
+	if err != nil {
+		xlog.Debug("k8sWork",
+			xlog.String("step", "add-check"),
+			xlog.String("zoneCode", i.zoneCode),
 			xlog.String("podName", in.Name),
-			xlog.String("reason", "appName is empty"))
+			xlog.String("reason", err.Error()))
 		return
 	}
-	if env, ok = in.Labels["runEnv"]; !ok || env == "" {
-		err = errors.New("env is empty")
-		xlog.Warn("cloudApp",
-			xlog.String("env", env),
-			xlog.String("podName", in.Name),
-			xlog.String("reason", "env is empty"))
-		return
-	}
+	xlog.Info("k8sWork",
+		xlog.String("step", "add-print"),
+		xlog.String("zoneCode", i.zoneCode),
+		xlog.String("podName", in.Name),
+		xlog.Any("lab", in.Labels))
+
 	err = i.mysqlCreateOrUpdate(i.zoneCode, obj.(*v1.Pod))
 	if err != nil {
-		xlog.Error("sync",
-			xlog.String("typ", "pod"),
-			xlog.String("act", "add"),
+		xlog.Error("k8sWork",
+			xlog.String("step", "add-mysqlCreateOrUpdate"),
+			xlog.String("podName", in.Name),
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err))
 		return
@@ -132,34 +157,21 @@ func (i *syncPod) add(obj interface{}) {
 
 func (i *syncPod) update(old interface{}, new interface{}) {
 	in := new.(*v1.Pod)
-	var (
-		appName string
-		env     string
-		ok      bool
-		err     error
-	)
-	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
-		err = errors.New("appName is empty")
-		xlog.Warn("cloudApp",
-			xlog.String("appName", appName),
-			xlog.String("podName", in.Name),
-			xlog.String("reason", "appName is empty"))
-		return
-	}
-	if env, ok = in.Labels["runEnv"]; !ok || env == "" {
-		err = errors.New("env is empty")
-		xlog.Warn("cloudApp",
-			xlog.String("env", env),
-			xlog.String("podName", in.Name),
-			xlog.String("reason", "env is empty"))
-		return
-	}
 
+	err := i.commonCheck(in)
+	if err != nil {
+		xlog.Debug("k8sWork",
+			xlog.String("step", "update-check"),
+			xlog.String("zoneCode", i.zoneCode),
+			xlog.String("podName", in.Name),
+			xlog.String("reason", err.Error()))
+		return
+	}
 	err = i.mysqlCreateOrUpdate(i.zoneCode, new.(*v1.Pod))
 	if err != nil {
-		xlog.Error("sync",
-			xlog.String("typ", "pod"),
-			xlog.String("act", "add"),
+		xlog.Error("k8sWork",
+			xlog.String("step", "update-mysqlCreateOrUpdate"),
+			xlog.String("podName", in.Name),
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err))
 		return
@@ -168,14 +180,27 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 }
 
 func (i *syncPod) delete(obj interface{}) {
-	pod := obj.(*v1.Pod)
-	id, _ := strconv.Atoi(pod.ObjectMeta.Labels["appId"])
-	name := pod.ObjectMeta.Name
-	err := i.mysqlDelete(int32(id), name)
+	in := obj.(*v1.Pod)
+	err := i.commonCheck(in)
 	if err != nil {
-		xlog.Error("sync",
-			xlog.String("typ", "pod"),
-			xlog.String("act", "delete"),
+		xlog.Debug("k8sWork",
+			xlog.String("step", "delete-check"),
+			xlog.String("zoneCode", i.zoneCode),
+			xlog.String("podName", in.Name),
+			xlog.String("reason", err.Error()))
+		return
+	}
+	id, _ := strconv.Atoi(in.ObjectMeta.Labels["appId"])
+	name := in.ObjectMeta.Name
+	xlog.Info("k8sWork",
+		xlog.String("step", "delete-print"),
+		xlog.String("zoneCode", i.zoneCode),
+		xlog.String("podName", name),
+		xlog.Int("id", id))
+	err = i.mysqlDelete(int32(id), name)
+	if err != nil {
+		xlog.Error("k8sWork",
+			xlog.String("step", "delete-mysql"),
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err),
 			xlog.Any("id", id),
@@ -225,10 +250,6 @@ func (i *syncPod) Log(zoneCode, namespace, podName string) (res []byte, err erro
 func (i *syncPod) mysqlCreateOrUpdate(zoneCode string, in *v1.Pod) (err error) {
 	var m db.K8sPod
 	m.Formatting(zoneCode, in)
-
-	if i.prefix != "" && !strings.HasPrefix(m.PodName, i.prefix) {
-		return errors.New(fmt.Sprintf("pod is %s, limit with prefix %s", m.PodName, i.prefix))
-	}
 
 	var row db.K8sPod
 	// 判断数据库中是否已存在
