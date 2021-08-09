@@ -2,6 +2,8 @@ package confgov2
 
 import (
 	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -21,8 +23,12 @@ func List(c echo.Context) (err error) {
 	param := view.ReqListConfig{}
 	cluster := c.QueryParam("cluster")
 	if cluster != "" {
+		configId, pErr := strconv.ParseUint(strings.TrimSpace(c.QueryParam("id")), 10, 64)
+		if pErr != nil {
+			return output.JSON(c, output.MsgErr, "参数无效:"+pErr.Error())
+		}
 		//集群配置信息
-		configuration, _ := confgov2.ClusterPublishConfigInfo(cluster)
+		configuration, _ := confgov2.ClusterPublishConfigInfo(cluster, configId)
 		return output.JSON(c, output.MsgOk, "success", configuration)
 	}
 
@@ -40,6 +46,8 @@ func List(c echo.Context) (err error) {
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+
+	list = confgov2.HandleConfigPublishStatus(list)
 
 	return output.JSON(c, output.MsgOk, "", list)
 }

@@ -20,7 +20,7 @@ function ClusterDetail(props) {
 
   useEffect(() => {
     if (k8sClusters2 == undefined){
-      getCluterInfo(currentInstance.name,appName,env,currentInstance).then(res=>{
+      getCluterInfo(currentInstance.name,appName,env,config.id,currentInstance).then(res=>{
         setK8sClusters2(res.data)
 
       })

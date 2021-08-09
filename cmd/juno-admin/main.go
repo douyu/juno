@@ -17,7 +17,7 @@ package main
 import (
 	"log"
 
-	"github.com/douyu/juno/internal/app/adminengine"
+	"github.com/douyu/juno/app/adminengine"
 )
 
 func main() {

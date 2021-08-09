@@ -330,3 +330,8 @@ func (r *resource) AppNodeTransferPut(tx *gorm.DB, add, del map[string]interface
 	}
 	return
 }
+
+func (r *resource) AppNodeList(aid int, env string, zoneCodeList []string) (resp []db.AppNode, err error) {
+	err = r.DB.Model(db.AppNode{}).Where("aid = ? AND env = ? AND zone_code in (?)", aid, env, zoneCodeList).Find(&resp).Error
+	return
+}

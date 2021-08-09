@@ -46,6 +46,12 @@ const (
 	DiffSpecifyScene = 2 //指定版本与最新版本对比
 )
 
+const (
+	ConfigStatusUnknown        uint32 = 0 // 配置发布状态未知
+	ConfigStatusAlreadyPublish uint32 = 1 // 配置已经发布
+	ConfigStatusNotPublish     uint32 = 2 // 配置未发布
+)
+
 func List(param view.ReqListConfig) (resp view.RespListConfig, err error) {
 	var app db.AppInfo
 
@@ -561,7 +567,7 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 }
 
 // ClusterPublishConfigInfo ..
-func ClusterPublishConfigInfo(clusterName string) (configurationRes view.ClusterConfigInfo, err error) {
+func ClusterPublishConfigInfo(clusterName string, configId uint64) (configurationRes view.ClusterConfigInfo, err error) {
 	// process
 	var (
 		configurationPublish       db.ConfigurationPublish
@@ -571,7 +577,7 @@ func ClusterPublishConfigInfo(clusterName string) (configurationRes view.Cluster
 		appInfo                    db.AppInfo
 	)
 	// get configurationClusterStatus info
-	query := mysql.Order("id desc").Where("cluster_name=?", clusterName).First(&configurationClusterStatus)
+	query := mysql.Order("id desc").Where("cluster_name=? AND configuration_id = ?", clusterName, configId).First(&configurationClusterStatus)
 
 	if query.Error != nil {
 		configurationRes.Doc = cfg.Cfg.K8s.Doc

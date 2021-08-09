@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/douyu/juno/internal/app/worker"
+	"github.com/douyu/juno/app/worker"
 )
 
 func main() {
