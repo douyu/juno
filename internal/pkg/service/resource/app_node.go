@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -15,6 +16,8 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/douyu/jupiter/pkg/xlog"
+	"go.uber.org/zap"
 )
 
 func (r *resource) GetAppNodeInfo(id int) (resp db.AppNode, err error) {
@@ -95,9 +98,9 @@ func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 	var info db.AppInfo
 	info, err = r.GetApp(identify)
 	if err != nil {
+		xlog.Error("PutAppNode get app error", zap.Error(err), zap.String("identify", identify.(string)))
 		return
 	}
-
 	md5Str := md5AppNodeList(list)
 	data := db.AppNodeMap{
 		Aid:     info.Aid,
@@ -107,21 +110,26 @@ func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 	r.DB.Where("app_name = ? AND md5 = ?", info.AppName, md5Str).First(&data)
 	// 数据未改变，不做创建和更新操作
 	if data.ID > 0 {
-		return
+		xlog.Warn("PutAppNode: AppNodeMap already exists", zap.String("app_name", info.AppName), zap.String("md5", md5Str))
+		// return
+		return errors.New("PutAppNode: AppNodeMap already exists")
 	}
-	//部署组被更新, 更新app_node表
+	//部署组被更新, 更新app_node_map表
 	tx := r.DB.Begin()
 	err = tx.Where("app_name = ?", info.AppName).Delete(&data).Error //删除现有记录
 	if err != nil {
+		xlog.Error("PutAppNode: delete old app_node_map error", zap.Error(err), zap.String("app_name", info.AppName))
 		tx.Rollback()
 		return
 	}
 	err = tx.Create(&data).Error
 	if err != nil {
+		xlog.Error("PutAppNode create new app_node_map error", zap.Error(err), zap.String("app_name", info.AppName))
 		tx.Rollback()
 		return
 	} //新增记录
 	// 填充appname和aid
+	xlog.Info("PutAppNode update app_node_map success", zap.String("app_name", info.AppName))
 	for key, value := range list {
 		value.AppName = info.AppName
 		value.Aid = info.Aid
@@ -134,6 +142,7 @@ func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 		return
 	}
 	tx.Commit()
+	xlog.Info("PutAppNode update app_node success", zap.String("app_name", info.AppName))
 	return
 }
 
@@ -148,6 +157,7 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 		AppName: appName,
 	})
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		xlog.Error("UpdateNodes GetPreAllAppNodeList error", zap.Error(err), zap.String("app_name: ", appName))
 		return
 	}
 	oldTargetMap := make(map[string]interface{}, 0)
@@ -156,7 +166,6 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 		// todo 实现比较丑陋。。。理论上应该直接更新。
 		oldTargetMap[item.HostName] = item.HostName
 	}
-
 	for _, item := range currentNodes {
 		newTargetMap[item.HostName] = item.HostName
 		// 设置机房信息
@@ -189,10 +198,14 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 			return
 		}
 	}
-
+	xlog.Info("PutAppNode update node success", zap.String("app_name", appName))
 	createMap := util.Diff(newTargetMap, oldTargetMap)
 	delMap := util.Diff(oldTargetMap, newTargetMap)
-
+	xlog.Info("createMap info: ", zap.Any("createMap", createMap))
+	xlog.Info("delMap info: ", zap.Any("delMap", createMap))
+	if len(createMap) == 0 && len(delMap) == 0 {
+		return errors.New("all nodes in app_node already exist")
+	}
 	err = r.AppNodeTransferPut(tx, createMap, delMap, db.AppInfo{
 		Aid:     aid,
 		AppName: appName,
@@ -207,13 +220,19 @@ func md5AppNodeList(list []db.AppNode) string {
 	//写入app_node表
 	deviceList := make([]int, 0)
 	deviceHostList := make([]string, 0)
+	deviceEnv := make([]string, 0)
+	deviceZoneCode := make([]string, 0)
 	for _, item := range list {
 		deviceList = append(deviceList, int(item.DeviceID))
 		deviceHostList = append(deviceHostList, item.HostName)
+		deviceEnv = append(deviceEnv, item.Env)
+		deviceZoneCode = append(deviceZoneCode, item.ZoneCode)
 	}
 	//从小到大排序，然后字符串相加
 	sort.Ints(deviceList)
 	sort.Strings(deviceHostList)
+	sort.Strings(deviceEnv)
+	sort.Strings(deviceZoneCode)
 
 	deviceIDStr := ""
 	for _, id := range deviceList {
@@ -223,7 +242,15 @@ func md5AppNodeList(list []db.AppNode) string {
 	for _, host := range deviceHostList {
 		deviceHostStr += host
 	}
-	md5Str := Md5(deviceIDStr + deviceHostStr)
+	deviceEnvStr := ""
+	for _, env := range deviceEnv {
+		deviceEnvStr += env
+	}
+	deviceZoneCodeStr := ""
+	for _, zonecode := range deviceZoneCode {
+		deviceZoneCodeStr += zonecode
+	}
+	md5Str := Md5(deviceIDStr + deviceHostStr + deviceEnvStr + deviceZoneCodeStr)
 	return md5Str
 }
 
@@ -266,8 +293,11 @@ func (r *resource) AppNodeTransferPut(tx *gorm.DB, add, del map[string]interface
 			CreateTime: time.Now().Unix(),
 			UpdateTime: time.Now().Unix(),
 		}
+		itemjson, _ := json.Marshal(item)
+		xlog.Info("AppNode item: ", zap.String("item", string(itemjson)))
 		err = tx.Model(db.AppNode{}).Save(item).Error
 		if err != nil {
+			xlog.Error("AppNodeTransferPut Save error: ", zap.Error(err), zap.String("AppName", app.AppName))
 			return
 		}
 		metadata, _ := json.Marshal(item)
@@ -278,6 +308,7 @@ func (r *resource) AppNodeTransferPut(tx *gorm.DB, add, del map[string]interface
 		item := &db.AppNode{}
 		err = tx.Model(db.AppNode{}).Where("aid = ? and host_name=?", app.Aid, hostName).Delete(item).Error
 		if err != nil {
+			xlog.Error("AppNodeTransferPut Delete error: ", zap.Error(err), zap.String("AppName", app.AppName))
 			return
 		}
 		metadata, _ := json.Marshal(item)

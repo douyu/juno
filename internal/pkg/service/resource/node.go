@@ -8,9 +8,11 @@ import (
 
 	"github.com/douyu/juno/internal/pkg/service/appevent"
 	"github.com/douyu/juno/pkg/model/view"
+	"go.uber.org/zap"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/douyu/jupiter/pkg/xlog"
 )
 
 // 根据ID或者HOSTNAME获取Node信息
@@ -61,16 +63,32 @@ func (r *resource) PutNode(tx *gorm.DB, info db.Node) (err error) {
 	err = tx.Where("host_name = ?", info.HostName).Find(&info).Error
 	// 返回系统错误
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		xlog.Error("PutNode db.Node error", zap.Error(err), zap.String("host_name", info.HostName))
 		return
 	}
 	// 已经存在该应用不在更新
 	if info.Id > 0 {
 		err = nil
+		xlog.Warn("PutNode Node表中已经存在该应用", zap.String("host_name", info.HostName))
 		return
 	}
 	info.CreateTime = time.Now().Unix()
 	info.UpdateTime = time.Now().Unix()
+
+	_, err = json.Marshal(info)
+	if err != nil {
+		xlog.Error("PutNode marshal error", zap.Error(err), zap.String("host_name", info.HostName))
+		return errors.New("PutNode marshal error")
+	}
+
 	err = tx.Create(&info).Error
+	if err != nil {
+		xlog.Error("PutNode Create error", zap.Error(err), zap.String("host_name", info.HostName))
+		// return
+		return errors.New("PutNode Create error")
+	}
+	xlog.Info("PutNode success", zap.String("host_name", info.HostName))
+
 	meta, _ := json.Marshal(info)
 	appevent.AppEvent.NodeCreateEvent(info.ZoneCode, info.Env, info.HostName, string(meta), nil)
 
