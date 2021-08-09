@@ -3,7 +3,6 @@ package resource
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -65,37 +64,30 @@ func (r *resource) PutNode(tx *gorm.DB, info db.Node) (err error) {
 	// 返回系统错误
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		xlog.Error("PutNode db.Node error", zap.Error(err), zap.String("host_name", info.HostName))
-		fmt.Println("PutNode db.Node error", err.Error(), "host_name", info.HostName)
 		return
 	}
-	fmt.Println("PutNode db.Node no err")
 	// 已经存在该应用不在更新
 	if info.Id > 0 {
 		err = nil
 		xlog.Warn("PutNode Node表中已经存在该应用", zap.String("host_name", info.HostName))
-		fmt.Println("PutNode db.Node Warn: Node表中已经存在该应用", "host_name: ", info.HostName)
 		return
 	}
 	info.CreateTime = time.Now().Unix()
 	info.UpdateTime = time.Now().Unix()
 
-	infojson, err := json.Marshal(info)
-	fmt.Println("PutNode info:", string(infojson))
+	_, err = json.Marshal(info)
 	if err != nil {
 		xlog.Error("PutNode marshal error", zap.Error(err), zap.String("host_name", info.HostName))
-		fmt.Println("PutNode marshal error", err.Error(), "host_name", info.HostName)
 		return errors.New("PutNode marshal error")
 	}
 
 	err = tx.Create(&info).Error
 	if err != nil {
 		xlog.Error("PutNode Create error", zap.Error(err), zap.String("host_name", info.HostName))
-		fmt.Println("PutNode Create error: ", err.Error(), "host_name: ", info.HostName)
 		// return
 		return errors.New("PutNode Create error")
 	}
 	xlog.Info("PutNode success", zap.String("host_name", info.HostName))
-	fmt.Println("PutNode part success")
 
 	meta, _ := json.Marshal(info)
 	appevent.AppEvent.NodeCreateEvent(info.ZoneCode, info.Env, info.HostName, string(meta), nil)

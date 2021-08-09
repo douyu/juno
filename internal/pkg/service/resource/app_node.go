@@ -99,11 +99,8 @@ func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 	info, err = r.GetApp(identify)
 	if err != nil {
 		xlog.Error("PutAppNode get app error", zap.Error(err), zap.String("identify", identify.(string)))
-		fmt.Println(err.Error())
 		return
 	}
-	jsoninfo, _ := json.Marshal(info)
-	fmt.Println("PutAppNode: AppInfo:", string(jsoninfo))
 	md5Str := md5AppNodeList(list)
 	data := db.AppNodeMap{
 		Aid:     info.Aid,
@@ -113,9 +110,7 @@ func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 	r.DB.Where("app_name = ? AND md5 = ?", info.AppName, md5Str).First(&data)
 	// 数据未改变，不做创建和更新操作
 	if data.ID > 0 {
-		jsondata, _ := json.Marshal(data)
-		xlog.Warn("PutAppNode: AppNodeMap already exists", zap.String("app_name: ", info.AppName), zap.String("md5: ", md5Str))
-		fmt.Println("PutAppNode: AppNodeMap已存在:", string(jsondata))
+		xlog.Warn("PutAppNode: AppNodeMap already exists", zap.String("app_name", info.AppName), zap.String("md5", md5Str))
 		// return
 		return errors.New("PutAppNode: AppNodeMap already exists")
 	}
@@ -135,7 +130,6 @@ func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 	} //新增记录
 	// 填充appname和aid
 	xlog.Info("PutAppNode update app_node_map success", zap.String("app_name", info.AppName))
-	fmt.Println("PutAppNode update app_node_map success", info.AppName)
 	for key, value := range list {
 		value.AppName = info.AppName
 		value.Aid = info.Aid
@@ -149,7 +143,6 @@ func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 	}
 	tx.Commit()
 	xlog.Info("PutAppNode update app_node success", zap.String("app_name", info.AppName))
-	fmt.Println("PutAppNode update app_node success", info.AppName)
 	return
 }
 
@@ -165,7 +158,6 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 	})
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		xlog.Error("UpdateNodes GetPreAllAppNodeList error", zap.Error(err), zap.String("app_name: ", appName))
-		fmt.Println("UpdateNodes GetPreAppNodeList error", err.Error(), "app_name: ", appName)
 		return
 	}
 	oldTargetMap := make(map[string]interface{}, 0)
@@ -207,13 +199,10 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 		}
 	}
 	xlog.Info("PutAppNode update node success", zap.String("app_name", appName))
-	fmt.Println("PutAppNode update node success", appName)
 	createMap := util.Diff(newTargetMap, oldTargetMap)
 	delMap := util.Diff(oldTargetMap, newTargetMap)
 	xlog.Info("createMap info: ", zap.Any("createMap", createMap))
 	xlog.Info("delMap info: ", zap.Any("delMap", createMap))
-	fmt.Println("createMap", createMap)
-	fmt.Println("delMap", delMap)
 	if len(createMap) == 0 && len(delMap) == 0 {
 		return errors.New("all nodes in app_node already exist")
 	}
@@ -306,11 +295,9 @@ func (r *resource) AppNodeTransferPut(tx *gorm.DB, add, del map[string]interface
 		}
 		itemjson, _ := json.Marshal(item)
 		xlog.Info("AppNode item: ", zap.String("item", string(itemjson)))
-		fmt.Println("AppNode item: ", string(itemjson))
 		err = tx.Model(db.AppNode{}).Save(item).Error
 		if err != nil {
 			xlog.Error("AppNodeTransferPut Save error: ", zap.Error(err), zap.String("AppName", app.AppName))
-			fmt.Println("AppNodeTransferPut Save error: ", err.Error(), "AppName: ", app.AppName)
 			return
 		}
 		metadata, _ := json.Marshal(item)
@@ -322,7 +309,6 @@ func (r *resource) AppNodeTransferPut(tx *gorm.DB, add, del map[string]interface
 		err = tx.Model(db.AppNode{}).Where("aid = ? and host_name=?", app.Aid, hostName).Delete(item).Error
 		if err != nil {
 			xlog.Error("AppNodeTransferPut Delete error: ", zap.Error(err), zap.String("AppName", app.AppName))
-			fmt.Println("AppNodeTransferPut Delete error: ", err.Error(), "AppName: ", app.AppName)
 			return
 		}
 		metadata, _ := json.Marshal(item)
