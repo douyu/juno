@@ -68,16 +68,26 @@ func (eng *Proxy) initConfig() (err error) {
 	jupiterConfig.Name = cfg.Cfg.Logger.System.Name
 	jupiterConfig.Debug = cfg.Cfg.Logger.System.Debug
 	jupiterConfig.Level = cfg.Cfg.Logger.System.Level
-	jupiterConfig.Dir = cfg.Cfg.Logger.System.Dir
 	jupiterConfig.Async = cfg.Cfg.Logger.System.Async
+
+	jupiterConfig.Dir = LogDir(cfg.Cfg.Logger.System.Dir)
+	jupiterConfig.Fields = []zap.Field{
+		xlog.FieldAid(ID()),
+		xlog.FieldName(Name()),
+	}
 	xlog.JupiterLogger = jupiterConfig.Build()
 	//
 	bizConfig := xlog.DefaultConfig()
 	bizConfig.Name = cfg.Cfg.Logger.Biz.Name
 	bizConfig.Debug = cfg.Cfg.Logger.Biz.Debug
 	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
-	bizConfig.Dir = cfg.Cfg.Logger.Biz.Dir
 	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
+
+	bizConfig.Dir = LogDir(cfg.Cfg.Logger.Biz.Dir)
+	bizConfig.Fields = []zap.Field{
+		xlog.FieldAid(ID()),
+		xlog.FieldName(Name()),
+	}
 	xlog.DefaultLogger = bizConfig.Build()
 	invoker.Init()
 	return
@@ -266,4 +276,32 @@ func (eng *Proxy) defers() (err error) {
 		xlog.Panic(err.Error())
 	}
 	return nil
+}
+
+func ID() string {
+	// 优先基于jupiter框架获取APP_ID
+	id := pkg.AppID()
+	if id == "" {
+		id = os.Getenv("APP_ID")
+	}
+	if id == "" {
+		id = "1234567890"
+	}
+	return id
+}
+
+func Name() string {
+	name := pkg.Name()
+	if name == "" {
+		name = filepath.Base(os.Args[0])
+	}
+	return name
+}
+
+func LogDir(cfgLog string) string {
+	if cfgLog != "" {
+		return cfgLog
+	} else {
+		return pkg.AppLogDir()
+	}
 }
