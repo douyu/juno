@@ -1,10 +1,29 @@
 import * as monaco from "monaco-editor";
 import prettier from "prettier/standalone";
+import { FormatterOptions, Taplo } from '@taplo/lib';
 import prettierYaml from "prettier/parser-yaml"
 import tomlParser from "./parsers/parser-toml/api"
 import iniPrettierPlugin from 'prettier-plugin-ini'
 import initLanguage from "./language";
 import {message} from "antd";
+//初始化 taplo toml format代码
+let taplo = {};
+const initTaplo = async () => {
+  try {
+    taplo.current = await Taplo.initialize();
+  } catch (e) {
+    console.error(e);
+  }
+};
+initTaplo();
+//格式配置
+const formatOpts = {
+  indentTables: true,
+  indentEntries: true,
+  alignComments:true,
+  compactEntries: true,
+  allowedBlankLines: 1,
+};
 
 let languageInitialized = false
 let conditionWhenSelect = null
@@ -219,6 +238,13 @@ function formatCode(editor, fileFormat, format = true) {
   }
 
   try {
+    if (taplo.current && fileFormat == 'toml') {
+      const formatted = taplo.current.format(model.getValue(), {
+        options: formatOpts,
+      });
+      format && model.setValue(formatted);
+      return;
+    }
     let formatted = prettier.format(model.getValue(), {
       parser: fileFormat,
       plugins: [
