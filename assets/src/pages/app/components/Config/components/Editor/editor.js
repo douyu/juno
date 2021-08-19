@@ -238,7 +238,7 @@ function formatCode(editor, fileFormat, format = true) {
   }
 
   try {
-    if (taplo.current && fileFormat == 'toml') {
+    if (format && taplo.current && fileFormat == 'toml') {
       const formatted = taplo.current.format(model.getValue(), {
         options: formatOpts,
       });
