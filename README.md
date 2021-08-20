@@ -17,6 +17,7 @@ JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，
 更多产品介绍参见 [Juno微服务治理系统介绍](http://jupiter.douyu.com/juno)
 
 演示环境（Demo）:
+
 - [在线演示](http://jupiterconsole.douyu.com/user/login?return_url=/)
 - 账号/密码:admin/admin
 
@@ -32,10 +33,11 @@ Thanks for all the people who contributed to Juno！
 
 ## Contributors
 
-<!-- readme: contributors -start -->
-<!-- readme: contributors -end -->
+<!-- readme:contributors -start -->
+<!-- readme:contributors -end -->
 
 ## License
+
 The project is licensed under the [Apache 2 license](https://github.com/ctripcorp/apollo/blob/master/LICENSE).
 
 ## Known Users
