@@ -47,6 +47,7 @@ Thanks for all the people who contributed to Juno！
   <tr>
     <td align="center"><a href="https://github.com/hnlq715"><img src="https://avatars.githubusercontent.com/u/1734615?v=4?s=100" width="100px;" alt=""/><br /><sub><b>大可</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=hnlq715" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/B15030328"><img src="https://avatars.githubusercontent.com/u/19522534?v=4?s=100" width="100px;" alt=""/><br /><sub><b>B15030328</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=B15030328" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Jarily"><img src="https://avatars.githubusercontent.com/u/17959582?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ruijie Liao</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=Jarily" title="Code">💻</a></td>
   </tr>
 </table>
 
