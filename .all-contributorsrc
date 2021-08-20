@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "hnlq715",
+      "name": "大可",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1734615?v=4",
+      "profile": "https://github.com/hnlq715",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "juno",
+  "projectOwner": "douyu",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
