@@ -30,6 +30,11 @@ Please make sure to read the [CONTRIBUTING](CONTRIBUTING.md) before making a pul
 
 Thanks for all the people who contributed to Juno！
 
+## Contributors
+
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
+
 ## License
 The project is licensed under the [Apache 2 license](https://github.com/ctripcorp/apollo/blob/master/LICENSE).
 
