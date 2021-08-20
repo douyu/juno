@@ -1,4 +1,7 @@
 ![logo](docs/logo.png)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-0-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # JUNO - A distributed application management system
 
@@ -17,6 +20,7 @@ JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，
 更多产品介绍参见 [Juno微服务治理系统介绍](http://jupiter.douyu.com/juno)
 
 演示环境（Demo）:
+
 - [在线演示](http://jupiterconsole.douyu.com/user/login?return_url=/)
 - 账号/密码:admin/admin
 
@@ -30,7 +34,20 @@ Please make sure to read the [CONTRIBUTING](CONTRIBUTING.md) before making a pul
 
 Thanks for all the people who contributed to Juno！
 
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 ## License
+
 The project is licensed under the [Apache 2 license](https://github.com/ctripcorp/apollo/blob/master/LICENSE).
 
 ## Known Users
