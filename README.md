@@ -33,8 +33,8 @@ Thanks for all the people who contributed to Juno！
 
 ## Contributors
 
-<!-- readme:contributors -start -->
-<!-- readme:contributors -end -->
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
 
 ## License
 
