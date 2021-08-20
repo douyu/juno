@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  pull_request:
 
 jobs:
   goreleaser:
@@ -13,17 +14,16 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Cache dependencies
-        uses: actions/cache@v2
+      - uses: actions/setup-node@v2
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('assets/package-lock.json') }}
-          restore-keys: npm-
-      - name: npm build dist
+          node-version: '14'
+          cache: 'yarn'
+          cache-dependency-path: assets/package-lock.json
+      - name: yarn build dist
         run: |
           cd assets
-          npm ci --ignore-scripts
-          npm run build
+          yarn
+          yarn build
       - name: Set up Go 1.16
         uses: actions/setup-go@v2
         with:
