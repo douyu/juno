@@ -22,7 +22,7 @@ JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，
 演示环境（Demo）:
 
 - [在线演示](http://jupiterconsole.douyu.com/user/login?return_url=/)
-- 账号/密码:admin/admin
+- 账号/密码:guest/guest
 
 ## Bugs and Feedback
 
