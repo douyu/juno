@@ -1,6 +1,6 @@
 ![logo](docs/logo.png)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-0-orange.svg?style=flat-square)](#contributors-)
@@ -49,6 +49,7 @@ Thanks for all the people who contributed to Juno！
     <td align="center"><a href="https://github.com/gorexlv"><img src="https://avatars.githubusercontent.com/u/331414?v=4?s=100" width="100px;" alt=""/><br /><sub><b>gorexlv</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=gorexlv" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/B15030328"><img src="https://avatars.githubusercontent.com/u/19522534?v=4?s=100" width="100px;" alt=""/><br /><sub><b>B15030328</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=B15030328" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/Jarily"><img src="https://avatars.githubusercontent.com/u/17959582?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ruijie Liao</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=Jarily" title="Code">💻</a></td>
+    <td align="center"><a href="https://elvisnam.me"><img src="https://avatars.githubusercontent.com/u/12369819?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ElvisLee</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=ElvisNam" title="Code">💻</a></td>
   </tr>
 </table>
 
