@@ -18,6 +18,7 @@ jobs:
         with:
           node-version: '14'
           cache: 'yarn'
+          cache-dependency-path: assets/package-lock.json
       - name: npm build dist
         run: |
           cd assets
