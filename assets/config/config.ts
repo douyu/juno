@@ -23,6 +23,11 @@ export default defineConfig({
   dynamicImport: {
     loading: '@/components/PageLoading/index',
   },
+  nodeModulesTransform: {
+    type: 'none',
+    exclude: [],
+  },
+  // webpack5 :{},
   targets: {
     ie: 11,
   },
