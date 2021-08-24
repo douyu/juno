@@ -125,8 +125,12 @@ func (i *syncPod) commonCheck(in *v1.Pod) error {
 		}
 	}
 	// 检查状态
-	if string(in.Status.Phase) != "Running" {
+	if !AllowPodStatus[string(in.Status.Phase)] {
 		return errors.New("pass status  " + string(in.Status.Phase))
+	}
+	// 检查容器ip
+	if strings.TrimSpace(in.Status.PodIP) == "" {
+		return errors.New("pass nil pod ip  ")
 	}
 	return nil
 }
