@@ -106,6 +106,11 @@ func (i *syncPod) commonCheck(in *v1.Pod) error {
 		appName string
 		ok      bool
 	)
+
+	// 检查PodPhase
+	if in.Status.Phase != v1.PodRunning {
+		return errors.New("pod is not running")
+	}
 	// 检查appName
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
 		return errors.New("appName is empty")
