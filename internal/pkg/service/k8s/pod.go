@@ -129,6 +129,14 @@ func (i *syncPod) commonCheck(in *v1.Pod) error {
 			return errors.New("exclude Suffix " + suffix)
 		}
 	}
+	// 检查状态
+	if !AllowPodStatus[string(in.Status.Phase)] {
+		return errors.New("pass status  " + string(in.Status.Phase))
+	}
+	// 检查容器ip
+	if strings.TrimSpace(in.Status.PodIP) == "" {
+		return errors.New("pass nil pod ip  ")
+	}
 	return nil
 }
 func (i *syncPod) add(obj interface{}) {
@@ -147,6 +155,7 @@ func (i *syncPod) add(obj interface{}) {
 		xlog.String("step", "add-print"),
 		xlog.String("zoneCode", i.zoneCode),
 		xlog.String("podName", in.Name),
+		xlog.String("status", string(in.Status.Phase)),
 		xlog.Any("lab", in.Labels))
 
 	err = i.mysqlCreateOrUpdate(i.zoneCode, obj.(*v1.Pod))
