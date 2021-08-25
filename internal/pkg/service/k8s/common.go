@@ -16,5 +16,4 @@ const (
 
 var AllowPodStatus = map[string]bool{
 	"Running":   true,
-	"Succeeded": true,
 }
