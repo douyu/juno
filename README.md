@@ -7,7 +7,7 @@
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/douyu/juno?tab=doc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/douyu/juno)](https://goreportcard.com/report/github.com/douyu/juno)
 ![license](https://img.shields.io/badge/license-Apache--2.0-green.svg)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-15-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 
@@ -49,6 +49,18 @@ Thanks for all the people who contributed to Juno！
     <td align="center"><a href="https://elvisnam.me"><img src="https://avatars.githubusercontent.com/u/12369819?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ElvisLee</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=ElvisNam" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/linthan"><img src="https://avatars.githubusercontent.com/u/13914829?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ethan</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=linthan" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/papa-hexuan"><img src="https://avatars.githubusercontent.com/u/60082213?v=4?s=100" width="100px;" alt=""/><br /><sub><b>papa-hexuan</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=papa-hexuan" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/yinzhicheng66"><img src="https://avatars.githubusercontent.com/u/37320260?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Denis Yin</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=yinzhicheng66" title="Code">💻</a></td>
+    <td align="center"><a href="https://kl7sn.github.io"><img src="https://avatars.githubusercontent.com/u/2037801?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MEX7</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=kl7sn" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.duanlv.ltd"><img src="https://avatars.githubusercontent.com/u/20787331?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Link Duan</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=link-duan" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/askuy"><img src="https://avatars.githubusercontent.com/u/14119383?v=4?s=100" width="100px;" alt=""/><br /><sub><b>askuy</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=askuy" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/linyuyizhipao"><img src="https://avatars.githubusercontent.com/u/35806624?v=4?s=100" width="100px;" alt=""/><br /><sub><b>linyuyizhipao</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=linyuyizhipao" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Howie59"><img src="https://avatars.githubusercontent.com/u/35659315?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Howie</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=Howie59" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/loyalpartner"><img src="https://avatars.githubusercontent.com/u/1442249?v=4?s=100" width="100px;" alt=""/><br /><sub><b>lee</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=loyalpartner" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/UnparalleledBeauty"><img src="https://avatars.githubusercontent.com/u/37238372?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Carlos</b></sub></a><br /><a href="https://github.com/douyu/juno/commits?author=UnparalleledBeauty" title="Code">💻</a></td>
   </tr>
 </table>
 
