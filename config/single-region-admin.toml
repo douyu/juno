@@ -50,7 +50,7 @@ host = "0.0.0.0"
 port = 50000
 # The public facing domain name used to access grafana from a browser
 domain = "localhost"
-rootUrl = "http://jupiterconsole.douyu.com/"
+rootUrl = "http://127.0.0.1:50000/"
 
 #################################### Jupiter Config #########################
 [jupiter]
@@ -122,8 +122,8 @@ apiKeyMaxSecondsToLive = -1
 [auth.github]
 enable = true
 allowSignUp = true
-clientId = "a6633e5544e60bd2574e"
-clientSecret = "7c6f51d97fc93d5d575ebd13115b20f397807549"
+clientId = "b88bb66e4d3114ed1669"
+clientSecret = "a42917ca55917f330eb913cc9504cd6a1aeecabc"
 scopes = ["user:email", "read:org"]
 authUrl = "https://github.com/login/oauth/authorize"
 tokenUrl = "https://github.com/login/oauth/access_token"
