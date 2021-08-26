@@ -8,7 +8,7 @@
     prefix="juno-agent"
 
 [agent]
-    port=60814
+    port=50010
     secret="12341234123412341234123412341234"
 
 [logger.system]
@@ -49,8 +49,8 @@
     # The http port to use
     port=50000
     # The public facing domain name used to access grafana from a browser
-    domain="localhost"
-    rootUrl="http://127.0.0.1:50000/"
+    domain="juno.melican.cn"
+    rootUrl="http://juno.melican.cn/"
 
 #################################### Jupiter Config #########################
 [jupiter]

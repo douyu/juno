@@ -6,4 +6,4 @@ with Connection(host="root@123.57.192.12") as c:
     c.run("mkdir -p /home/www/server/juno-admin")
     c.run("unzip -d /home/www/server/juno-admin /tmp/juno-admin.zip")
     c.run("rm -f /tmp/juno-admin.zip")
-    # c.run("sudo supervisorctl restart juno-admin")
+    c.run("sudo supervisorctl restart juno-admin")
