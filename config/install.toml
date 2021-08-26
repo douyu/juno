@@ -2,7 +2,7 @@
 enable = true
 connMaxLifetime = "300s"
 debug = true
-dsn = "root:root@tcp(127.0.0.1:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+dsn = "root:123456@tcp(10.118.21.72:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
 level = "panic"
 maxIdleConns = 50
 maxOpenConns = 100

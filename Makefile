@@ -22,7 +22,7 @@ database.mock:
 database.debug: database.clear database.install database.mock
 
 run.single-region-admin:
-	@go run cmd/juno-admin/main.go --config=config/single-region-admin.toml
+	@go run cmd/juno-admin/main.go --config=config/single-region-admin.toml --host 0.0.0.0
 
 run.multiple-region-admin:
 	@go run cmd/juno-admin/main.go --config=config/multiple-region-admin.toml
@@ -88,7 +88,7 @@ build_proxy:
 
 build_assets:
 	@echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>making build assets<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	@cd $(BASE_PATH)/assets && npm run build
+	@cd $(BASE_PATH)/assets && yarn run build
 	@echo -e "\n"
 
 build_data:
@@ -99,3 +99,7 @@ build_data:
 
 tar:
 	@cd $(BASE_PATH)/release && tar zcvf juno_$(APP_VERSION).tar.gz $(APP_VERSION)
+zippub:
+	zip -r juno-admin.zip bin config data assets/dist
+buildpub:
+	go build -o ./bin/juno-admin ./cmd/juno-admin

@@ -13,12 +13,12 @@ export default {
       pathRewrite: { '^/ant': '' },
     },
     '/api/admin': {
-      target: 'http://192.168.56.101:50000',
+      target: 'http://juno.pre.dz11.com',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'http://192.168.56.101:50000',
+      target: 'https://juno.pre.dz11.com',
       changeOrigin: true,
     },
     '/grafana': {

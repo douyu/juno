@@ -35,7 +35,7 @@
 [register]
     enable=true
     connectTimeout="1s"
-    endpoints=["etcd-naming.dz11.com:2379"]
+    endpoints=["172.17.161.143:2379"]
     secure=false
 
 [grafanaProxy]
@@ -77,7 +77,7 @@
     enable=true
     connMaxLifetime="300s"
     debug=true
-    dsn="root:tJuFTG3ext0awMST@tcp(123.56.246.64:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+    dsn="root:tJuFTG3ext0awMST@tcp(172.17.161.111:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
     level="panic"
     maxIdleConns=50
     maxOpenConns=100
@@ -87,10 +87,10 @@
     [clientProxy.httpRouter]
         governConfig="/debug/config"
     [clientProxy.singleProxy.registerEtcd]
-        endpoints=["etcd-naming.dz11.com:2379"]
+        endpoints=["172.17.161.143:2379"]
 
     [clientProxy.singleProxy.defaultEtcd]
-        endpoints=["etcd-naming.dz11.com:2379"]
+        endpoints=["172.17.161.143:2379"]
 
 [auth]
     # Login cookie name
