@@ -24,8 +24,9 @@ func initConfgoAdmin(configPath string) (err error) {
 			}
 		}
 	}()
-
-	if err = config.InitConfig(configPath); err != nil {
+	// Sentinel version need. v0.6.2-->v1.0.2
+	//	if err = config.InitConfig(configPath); err != nil {
+	if err = config.InitConfigWithYaml(configPath); err != nil {
 		return err
 	}
 

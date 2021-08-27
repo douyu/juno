@@ -8,7 +8,7 @@ import (
 )
 
 func (w *Worker) serveHttp() error {
-	s := xecho.StdConfig("http").Build()
+	s := xecho.StdConfig("http").MustBuild()
 
 	s.Validator = &FormValidator{
 		validator: validator.New(),
