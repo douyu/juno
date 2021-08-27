@@ -17,8 +17,6 @@ package proxyengine
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -31,7 +29,6 @@ import (
 	"github.com/douyu/jupiter"
 	"github.com/douyu/jupiter/pkg"
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
-	compound_registry "github.com/douyu/jupiter/pkg/registry/compound"
 	etcdv3_registry "github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/server/xgrpc"
@@ -66,31 +63,21 @@ func New() *Proxy {
 
 func (eng *Proxy) initConfig() (err error) {
 	cfg.InitCfg()
+
 	jupiterConfig := xlog.DefaultConfig()
 	jupiterConfig.Name = cfg.Cfg.Logger.System.Name
 	jupiterConfig.Debug = cfg.Cfg.Logger.System.Debug
 	jupiterConfig.Level = cfg.Cfg.Logger.System.Level
 	jupiterConfig.Async = cfg.Cfg.Logger.System.Async
-
-	jupiterConfig.Dir = LogDir(cfg.Cfg.Logger.System.Dir)
-	jupiterConfig.Fields = []zap.Field{
-		xlog.FieldAid(ID()),
-		xlog.FieldName(Name()),
-	}
 	xlog.JupiterLogger = jupiterConfig.Build()
-	//
+
 	bizConfig := xlog.DefaultConfig()
 	bizConfig.Name = cfg.Cfg.Logger.Biz.Name
 	bizConfig.Debug = cfg.Cfg.Logger.Biz.Debug
 	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
 	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
-
-	bizConfig.Dir = LogDir(cfg.Cfg.Logger.Biz.Dir)
-	bizConfig.Fields = []zap.Field{
-		xlog.FieldAid(ID()),
-		xlog.FieldName(Name()),
-	}
 	xlog.DefaultLogger = bizConfig.Build()
+
 	invoker.Init()
 	return
 }
@@ -108,9 +95,7 @@ func (eng *Proxy) initRegister() (err error) {
 	config.Password = cfg.Cfg.Register.Password
 
 	eng.SetRegistry(
-		compound_registry.New(
-			config.Build(),
-		),
+		config.MustBuild(),
 	)
 	return
 }
@@ -143,7 +128,7 @@ func (eng *Proxy) serveHTTP() (err error) {
 	serverConfig.Host = cfg.Cfg.ServerProxy.HTTPServer.Host
 	serverConfig.Port = cfg.Cfg.ServerProxy.HTTPServer.Port
 
-	server := serverConfig.Build()
+	server := serverConfig.MustBuild()
 	server.Debug = true
 	server.Validator = &FormValidator{validator: validator.New()}
 	apiV1(server)
@@ -160,7 +145,7 @@ func (eng *Proxy) serveGRPC() (err error) {
 	serverConfig.Host = cfg.Cfg.ServerProxy.GrpcServer.Host
 	serverConfig.Port = cfg.Cfg.ServerProxy.GrpcServer.Port
 
-	server := serverConfig.Build()
+	server := serverConfig.MustBuild()
 
 	pb.RegisterProxyServer(server.Server, new(ProxyGrpc))
 	err = eng.Serve(server)
@@ -179,7 +164,7 @@ func (eng *Proxy) serveGovern() (err error) {
 	config.Password = cfg.Cfg.Register.Password
 	config.BasicAuth = cfg.Cfg.Register.BasicAuth
 
-	client := config.Build()
+	client := config.MustBuild()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
@@ -265,7 +250,7 @@ func (eng *Proxy) defers() (err error) {
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
-	client := config.Build()
+	client := config.MustBuild()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 	// todo optimize, jupiter will after support metric
@@ -278,32 +263,4 @@ func (eng *Proxy) defers() (err error) {
 		xlog.Panic(err.Error())
 	}
 	return nil
-}
-
-func ID() string {
-	// 优先基于jupiter框架获取APP_ID
-	id := pkg.AppID()
-	if id == "" {
-		id = os.Getenv("APP_ID")
-	}
-	if id == "" {
-		id = "1234567890"
-	}
-	return id
-}
-
-func Name() string {
-	name := pkg.Name()
-	if name == "" {
-		name = filepath.Base(os.Args[0])
-	}
-	return name
-}
-
-func LogDir(cfgLog string) string {
-	if cfgLog != "" {
-		return cfgLog
-	} else {
-		return pkg.AppLogDir()
-	}
 }
