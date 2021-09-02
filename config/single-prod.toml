@@ -4,8 +4,8 @@
     productionEnvs=["production"]
 
 [configure]
-    dir="/home/www/.config/juno-agent"
-    prefix="juno-agent"
+    dirs=["/home/www/.config/juno-agent"]
+    prefixes=["juno-agent"]
 
 [agent]
     port=50010
@@ -175,7 +175,6 @@
     [testplatform.worker]
         localQueueDir="/tmp/localworkerqueue"
         heartbeatTimeout="6s"
-
 
 #################################### notice #########################
 [notice]

@@ -13,16 +13,17 @@ export default {
       pathRewrite: { '^/ant': '' },
     },
     '/api/admin': {
-      target: 'http://juno.pre.dz11.com',
+      target: 'http://juno.melican.cn',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'https://juno.pre.dz11.com',
+      target: 'https://juno.melican.cn',
       changeOrigin: true,
     },
     '/grafana': {
-      target: 'http://jupiterconsole.douyu.com',
+      target: 'http://grafana.melican.cn',
+      changeOrigin: true,
     },
   },
   test: {
