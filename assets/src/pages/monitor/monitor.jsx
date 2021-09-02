@@ -117,14 +117,21 @@ export default class Monitor extends React.PureComponent {
     const url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
 
     return (
-      <div style={{ display: 'block', overflow: 'hidden', marginLeft: '10px' }}>
+      <div style={{ display: 'block', overflow: 'hidden', marginLeft: '10px',
+      position:"relative",
+      display:"flex",flex:'auto'
+      }}>
         <iframe
           src={url}
           scrolling="no"
           width="104%"
-          height={2000}
+
+          // height={2000}
           frameBorder={0}
-          style={{ marginLeft: '-72px', overflow: 'hidden' }}
+          style={{ marginLeft: '-72px', overflow: 'hidden',
+          flex:'auto',
+          // ,position:'absolute',top:195,bottom:0,
+        }}
         />
       </div>
     );
@@ -158,12 +165,16 @@ export default class Monitor extends React.PureComponent {
       <div style={{ backgroundColor: '#f7f8fa' }}>
         <div
           style={{
-            marginLeft: 10,
-            marginTop: 10,
-            marginRight: 10,
-            marginBottom: 10,
-            paddingTop: 10,
-            paddingBottom: 10,
+            // marginLeft: 10,
+            // marginTop: 10,
+            // marginRight: 10,
+            // marginBottom: 10,
+            paddingTop: 5,
+            paddingBottom: 5,
+            flexDirection: 'column',
+            display: 'flex',
+            flex:'auto',
+            height: '100%',
           }}
         >
           <Row gutter={24} className="top">
