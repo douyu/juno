@@ -100,6 +100,6 @@ build_data:
 tar:
 	@cd $(BASE_PATH)/release && tar zcvf juno_$(APP_VERSION).tar.gz $(APP_VERSION)
 zippub:
-	zip -r juno-admin.zip bin config data assets/dist
+	zip -r juno-admin.zip bin config data assets/dist run.sh
 buildpub:
 	go build -o ./bin/juno-admin ./cmd/juno-admin

@@ -61,7 +61,7 @@
         [jupiter.cron.parse]
             withSeconds=false
             concurrentDelay=10
-            immediatelyRun=false
+            immediatelyRun=true
 
 [jupiter.server]
 

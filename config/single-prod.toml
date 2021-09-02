@@ -4,7 +4,7 @@
     productionEnvs=["production"]
 
 [configure]
-    dir="/tmp/www/server"
+    dir="/home/www/.config/juno-agent"
     prefix="juno-agent"
 
 [agent]
@@ -61,7 +61,7 @@
         [jupiter.cron.parse]
             withSeconds=false
             concurrentDelay=10
-            immediatelyRun=false
+            immediatelyRun=true
 
 [jupiter.server]
 
@@ -176,19 +176,19 @@
         localQueueDir="/tmp/localworkerqueue"
         heartbeatTimeout="6s"
 
+
 #################################### notice #########################
 [notice]
-
     [notice.email]
-        serverHost="smtp.163.com"
-        serverPort=465
-        fromEmail="xxx@163.com"
-        fromPasswd="xxx"
-        toers=["xxxxxxx@qq.com"]
-        cCers=["xxx@qq.com"]
+        serverHost="smtp.ym.163.com"
+        serverPort=25
+        fromEmail="reporter@melican.cn"
+        fromPasswd="fsk123456"
+        toers=["445366464@qq.com"]
+        cCers=["445366464@qq.com"]
 
     [notice.ding]
-        webHook="http://XXX.com"
+        webHook="https://oapi.dingtalk.com/robot/send?access_token=d00da03f2699c86ac2f2fd3fc783b6522158c6ab14519ffb0f8179ae1bcbedac"
         msgType="text"
 
 # 系统事件的 RocektMQ 配置
