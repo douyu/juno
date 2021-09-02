@@ -64,12 +64,12 @@ const defaultFooterDom = (
         href: 'https://github.com/douyu/juno',
         blankTarget: true,
       },
-      {
-        key: 'Ant Design',
-        title: 'Ant Design',
-        href: 'https://ant.design',
-        blankTarget: true,
-      },
+      // {
+      //   key: 'Ant Design',
+      //   title: 'Ant Design',
+      //   href: 'https://ant.design',
+      //   blankTarget: true,
+      // },
     ]}
   />
 );
