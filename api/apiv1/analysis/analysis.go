@@ -59,12 +59,12 @@ func TopologySelect(c echo.Context) error {
 	}
 
 	return output.JSON(c, output.MsgOk, "success", map[string]interface{}{
-		"regionSelect": regionSelect,
-		"zoneSelect":   zoneSelect,
-		"envSelect":    envSelect,
-		"type_select":  typeSelect,
-		"app_select":   appSelect,
-		"addr_select":  addrSelect,
+		"region_select": regionSelect,
+		"zone_select":   zoneSelect,
+		"env_select":    envSelect,
+		"type_select":   typeSelect,
+		"app_select":    appSelect,
+		"addr_select":   addrSelect,
 	})
 }
 

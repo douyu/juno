@@ -16,8 +16,6 @@ package adminengine
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -42,11 +40,10 @@ import (
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/flag"
-	"github.com/douyu/jupiter/pkg/server/governor"
+	"github.com/douyu/jupiter/pkg/governor"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"go.uber.org/zap"
 )
 
 // Admin ...
@@ -121,31 +118,21 @@ func (eng *Admin) parseFlag() error {
 
 func (eng *Admin) initConfig() (err error) {
 	cfg.InitCfg()
+
 	jupiterConfig := xlog.DefaultConfig()
 	jupiterConfig.Name = cfg.Cfg.Logger.System.Name
 	jupiterConfig.Debug = cfg.Cfg.Logger.System.Debug
 	jupiterConfig.Level = cfg.Cfg.Logger.System.Level
 	jupiterConfig.Async = cfg.Cfg.Logger.System.Async
-
-	jupiterConfig.Dir = LogDir(cfg.Cfg.Logger.System.Dir)
-	jupiterConfig.Fields = []zap.Field{
-		xlog.FieldAid(ID()),
-		xlog.FieldName(Name()),
-	}
 	xlog.JupiterLogger = jupiterConfig.Build()
-	//
+
 	bizConfig := xlog.DefaultConfig()
 	bizConfig.Name = cfg.Cfg.Logger.Biz.Name
 	bizConfig.Debug = cfg.Cfg.Logger.Biz.Debug
 	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
 	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
-
-	bizConfig.Dir = LogDir(cfg.Cfg.Logger.Biz.Dir)
-	bizConfig.Fields = []zap.Field{
-		xlog.FieldAid(ID()),
-		xlog.FieldName(Name()),
-	}
 	xlog.DefaultLogger = bizConfig.Build()
+
 	return
 }
 
@@ -181,7 +168,7 @@ func (eng *Admin) serveHTTP() (err error) {
 		serverConfig.Host = eng.hostFlag
 	}
 	serverConfig.Port = cfg.Cfg.Server.Http.Port
-	server := serverConfig.Build()
+	server := serverConfig.MustBuild()
 	server.Debug = true
 
 	server.Use(middleware.ProxyGatewayMW)
@@ -205,7 +192,7 @@ func (eng *Admin) serveGovern() (err error) {
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
 
-	client := config.Build()
+	client := config.MustBuild()
 
 	host := cfg.Cfg.Server.Govern.Host
 	if eng.hostFlag != "" {
@@ -263,7 +250,7 @@ func (eng *Admin) defers() (err error) {
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
-	client := config.Build()
+	client := config.MustBuild()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 	// todo optimize, jupiter will after support metric
@@ -315,32 +302,4 @@ func (eng *Admin) initUserVisitWorker() (err error) {
 	cron := xcron.StdConfig("parse").Build()
 	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(user.User.CronCleanUserVisitRecord))
 	return eng.Schedule(cron)
-}
-
-func ID() string {
-	// 优先基于jupiter框架获取APP_ID
-	id := pkg.AppID()
-	if id == "" {
-		id = os.Getenv("APP_ID")
-	}
-	if id == "" {
-		id = "1234567890"
-	}
-	return id
-}
-
-func Name() string {
-	name := pkg.Name()
-	if name == "" {
-		name = filepath.Base(os.Args[0])
-	}
-	return name
-}
-
-func LogDir(cfgLog string) string {
-	if cfgLog != "" {
-		return cfgLog
-	} else {
-		return pkg.AppLogDir()
-	}
 }

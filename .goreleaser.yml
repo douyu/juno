@@ -25,22 +25,32 @@ builds:
     - -X github.com/douyu/jupiter/pkg.buildAppVersion={{.Version}}
     - -X github.com/douyu/jupiter/pkg.buildTime={{.Date}}
     - -X github.com/douyu/jupiter/pkg.buildUser=goreleaser
-- main: ./cmd/juno-swagger
-  id: "juno-swagger"
-  binary: juno-swagger
-  goos:
-    - linux
-    - darwin
-    - windows
-  goarch: [amd64]
-- main: ./cmd/juno-worker
-  id: "juno-worker"
-  binary: juno-worker
-  goos:
-    - linux
-    - darwin
-    - windows
-  goarch: [amd64]
+# - main: ./cmd/juno-swagger
+#   id: "juno-swagger"
+#   binary: juno-swagger
+#   goos:
+#     - linux
+#     - darwin
+#     - windows
+#   goarch: [amd64]
+# - main: ./cmd/juno-worker
+#   id: "juno-worker"
+#   binary: juno-worker
+#   goos:
+#     - linux
+#     - darwin
+#     - windows
+#   goarch: [amd64]
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
 
 archives:
   - files:
