@@ -27,6 +27,7 @@ import {getFrameVersion} from '@/pages/monitor/services';
 import Event from '@/pages/app/components/Event';
 import Test from '@/pages/app/components/Test';
 import {Dispatch} from '@@/plugin-dva/connect';
+import styles from "./style.less";
 
 const {TabPane} = Tabs;
 
@@ -419,7 +420,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
           onChange={this.onChangeTab}
           style={{width: '100%', marginTop: '-10px'}}
           tabBarStyle={{paddingLeft: '10px', marginBottom: 0}}
-          destroyInactiveTabPane
+          destroyInactiveTabPane 
         >
           <TabPane tab="详情" key="detail">
             <Detail
@@ -534,8 +535,14 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
       );
     }
     return (
-      <PageHeaderWrapper>
-        <div style={{backgroundColor: '#fff', borderRadius: '8px', overflow: 'hidden'}}>
+      <>
+        <div style={{backgroundColor: '#fff', borderRadius: 
+        '8px', overflow: 'hidden',
+        position:"absolute",
+        "top":0,bottom:0,width:'100%',
+        display:"flex",
+        flexDirection:"column",
+        }}>
           <div style={{padding: 10}}>
             <Row>
               <AppHeader
@@ -568,9 +575,9 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
               </Col>
             </Row>
           </div>
-          <Row>{view}</Row>
+          <Row style={{flex:'auto'}} className={styles.viewContent}>{view}</Row>
         </div>
-      </PageHeaderWrapper>
+      </>
     );
   }
 }
