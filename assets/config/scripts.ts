@@ -3,9 +3,9 @@ const staticPrefix = env === 'development' ? '' : '/ant';
 
 export default [
   //prettier
-  // {
-  //   src: staticPrefix + '/js/prettier/v2.0.5/standalone.js',
-  // },
+  {
+    src: staticPrefix + '/js/prettier/v2.0.5/standalone.js',
+  },
   // {
   //   src: staticPrefix + '/js/prettier/v2.0.5/parser-babel.js',
   // },
@@ -30,6 +30,9 @@ export default [
   {
     src: staticPrefix + '/js/antd/v4.3.4/antd.min.js',
   },
+  {
+    src:staticPrefix+'/js/codemirror/v5.62.3/lib/codemirror.js'
+  }
   // {
   //   src:  'https://oresource.melican.cn/jquery/3.4.1/jquery.min.js',
   // },

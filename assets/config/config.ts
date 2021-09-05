@@ -1,26 +1,31 @@
 // https://umijs.org/config/
-import {defineConfig} from 'umi';
+import { defineConfig } from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
 import MonacoEditorWebpackPlugin from "monaco-editor-webpack-plugin";
-import scripts  from './scripts';
-const {REACT_APP_ENV} = process.env;
+import scripts from './scripts';
+import styles from './styles';
+const { REACT_APP_ENV } = process.env;
 export default defineConfig({
   hash: true,
   antd: {},
   dva: {
     hmr: true,
   },
+  styles:styles,
+  mfsu: {},
   externals: {
     // jquery: 'jQuery',
-    echarts:'echarts',
+    echarts: 'echarts',
     // lodash: '_',
+    "prettier/standalone": "prettier",
     react: 'React',
     'react-dom': 'ReactDOM',
-    "antd":"antd",
+    "antd": "antd",
+    // codemirror: 'CodeMirror',
   },
-  scripts:scripts,
+  scripts: scripts,
   favicon: '/ant/home.png',
   locale: {
     // default zh-CN
@@ -284,7 +289,7 @@ export default defineConfig({
   manifest: {
     basePath: '/ant/',
   },
-  chainWebpack(config, {env, webpack, createCSSRule}) {
+  chainWebpack(config, { env, webpack, createCSSRule }) {
     config.plugin("monaco-editor").use(MonacoEditorWebpackPlugin, [{
       languages: ["javascript", "typescript", "json", "shell"],
       features: ["coreCommands", "find", 'comment', "format", 'bracketMatching', 'wordOperations', 'suggest', 'multicursor', 'links']
