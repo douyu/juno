@@ -28,7 +28,33 @@ export default class Monitor extends React.PureComponent {
     this.props.dispatch({
       type: 'setting/loadSettings',
     });
-
+    // setTimeout(()=>{
+    //   // var body =  $(this.refs['grafana'].contentDocument).item(0); //获取body对象
+    //   // var Astyle =  $(this.refs['grafana'].contentDocument).document.createElement("style");//创建style标签对象
+    //   // Astyle.rel = "stylesheet";
+    //   // Astyle.type = "text/css";
+    //   // Astyle.id = "Astyle";//定义对象的一些属性
+    //   // Astyle.value=".sidemenu {display:none;}";//给标签对象赋HTML源代码
+    //   // body.appendChild(Astyle);//向body对象中插入style标签对象
+    //   // var cssLink = document.createElement("style");
+    //   // cssLink.rel = "stylesheet";
+    //   // cssLink.type = "text/css";
+    //   // cssLink.id = "Astyle";//定义对象的一些属性
+    //   // cssLink.value=".sidemenu {display:none;}";//给标签对象赋HTML源代码
+    //   // cssLink.href = "style.css";  
+    //   // cssLink.rel = "stylesheet";  
+    //   // cssLink.type = "text/css";  
+    //   // frames['grafana'].document.body.appendChild(cssLink); 
+    //   // $(this.refs['grafana'].contentDocument).find('head').prepend('<style>sidemenu{display:none;}</style>');
+    //   // $(this.refs['grafana'].contentDocument).find('sidemenu').css({'display':'none'});
+    //   $('#grafana-iframe').on('load', event => {
+    //     // $(this.refs['grafana'].contentDocument).find('head').prepend('<style>.sidemenu{display:none;}</style>');
+    //     console.log("========iframe1",this.refs['grafana']);
+    //     // $($('#grafana-iframe sidemenu').iframe.contentDocument).select('sidemenu').css({'display':'none'});
+    //     $(this.refs['grafana'].contentDocument).find('sidemenu').css({'display':'none'});
+      
+    //   });
+    // });
     // 判断url上无dashboardPath字段时，尝试从userConfig上获取（一般只有刷新页面时才会触发此逻辑）
     if (!dashboardPath && userConfig && userConfig.dashboardPath) {
       this.setState({
@@ -114,7 +140,7 @@ export default class Monitor extends React.PureComponent {
 
     const datasource = `${env}.${zoneCode}.${currentVersion.name || ''}`;
 
-    const url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
+    const url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now&kiosk=tv`;
 
     return (
       <div style={{ display: 'block', overflow: 'hidden', marginLeft: '10px',
@@ -122,13 +148,17 @@ export default class Monitor extends React.PureComponent {
       display:"flex",flex:'auto'
       }}>
         <iframe
+          ref="grafana"
+          name="grafana"
           src={url}
           scrolling="no"
-          width="104%"
-
+          width="100%"
+          id="grafana-iframe"
           // height={2000}
           frameBorder={0}
-          style={{ marginLeft: '-72px', overflow: 'hidden',
+          style={{ 
+            // marginLeft: '-72px',
+           overflow: 'hidden',
           flex:'auto',
           // ,position:'absolute',top:195,bottom:0,
         }}

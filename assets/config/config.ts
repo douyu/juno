@@ -4,7 +4,7 @@ import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
 import MonacoEditorWebpackPlugin from "monaco-editor-webpack-plugin";
-
+import scripts  from './scripts';
 const {REACT_APP_ENV} = process.env;
 export default defineConfig({
   hash: true,
@@ -12,6 +12,13 @@ export default defineConfig({
   dva: {
     hmr: true,
   },
+  externals: {
+    jquery: 'jQuery',
+    // lodash: '_',
+    // react: 'React',
+    // 'react-dom': 'ReactDOM',
+  },
+  scripts:scripts,
   favicon: '/ant/home.png',
   locale: {
     // default zh-CN
