@@ -318,7 +318,7 @@ export default defineConfig({
           cacheGroups: {
             vendor: {
               name: 'vendors',
-              test({  resource }) {
+              test({ resource } :any) {
                 return /[\\/]node_modules[\\/]/.test(resource);
               },
               priority: 10,
