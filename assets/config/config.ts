@@ -38,7 +38,7 @@ export default defineConfig({
   dynamicImport: {
     loading: '@/components/PageLoading/index',
   },
-  chunks: ['vendors', 'umi'],
+  // chunks: ['vendors', 'umi'],
   nodeModulesTransform: {
     type: 'none',
     exclude: [],
@@ -308,24 +308,6 @@ export default defineConfig({
         ],
       },
     ]);
-    config.merge({
-      optimization: {
-        splitChunks: {
-          chunks: 'all',
-          minSize: 30000,
-          minChunks: 3,
-          automaticNameDelimiter: '.',
-          cacheGroups: {
-            vendor: {
-              name: 'vendors',
-              test({ resource } :any) {
-                return /[\\/]node_modules[\\/]/.test(resource);
-              },
-              priority: 10,
-            },
-          },
-        },
-      }
-    });
-  },
+  }
+ 
 });

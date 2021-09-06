@@ -7,7 +7,7 @@
  */
 export default {
   dev: {
-    '/ant/js': {
+    '/ant': {
       target: 'http://localhost:9999',
       changeOrigin: true,
       pathRewrite: { '^/ant': '' },
