@@ -9,15 +9,17 @@ import ProLayout, {
   MenuDataItem,
   Settings,
 } from '@ant-design/pro-layout';
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 // @ts-ignore
-import {connect, Dispatch, history, Link, useIntl} from 'umi';
-import {GithubOutlined} from '@ant-design/icons';
-import {Button, Result} from 'antd';
+import { connect, Dispatch, history, Link, useIntl } from 'umi';
+import { GithubOutlined } from '@ant-design/icons';
+import { Button, Result } from 'antd';
+
+import { getAppSearch } from '../utils/searchapppath';
 import Authorized from '@/utils/Authorized';
 import RightContent from '@/components/GlobalHeader/RightContent';
-import {ConnectState} from '@/models/connect';
-import {getAuthorityFromRouter} from '@/utils/utils';
+import { ConnectState } from '@/models/connect';
+import { getAuthorityFromRouter } from '@/utils/utils';
 import LogoIcon from '../../favicon.png';
 
 const noMatch = (
@@ -60,7 +62,7 @@ const defaultFooterDom = (
     links={[
       {
         key: 'github',
-        title: <GithubOutlined/>,
+        title: <GithubOutlined />,
         href: 'https://github.com/douyu/juno',
         blankTarget: true,
       },
@@ -83,7 +85,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
     location = {
       pathname: '/',
     },
-    menuData
+    menuData,
   } = props;
   /**
    * constructor
@@ -96,8 +98,8 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
       });
 
       dispatch({
-        type: 'global/fetchMenu'
-      })
+        type: 'global/fetchMenu',
+      });
     }
   }, []);
   /**
@@ -116,15 +118,21 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   const authorized = getAuthorityFromRouter(props.route.routes, location.pathname || '/') || {
     authority: undefined,
   };
-  const {formatMessage} = useIntl();
+  const { formatMessage } = useIntl();
 
   return (
     <ProLayout
       // headerRender={false}
       menuHeaderRender={() => {
-        return <div style={{width: '100%', textAlign: 'center'}}>
-          <img style={{maxWidth: collapsed ? '30px' : '60px', height: 'auto'}} src={LogoIcon} alt={"juno"}/>
-        </div>
+        return (
+          <div style={{ width: '100%', textAlign: 'center' }}>
+            <img
+              style={{ maxWidth: collapsed ? '30px' : '60px', height: 'auto' }}
+              src={LogoIcon}
+              alt={'juno'}
+            />
+          </div>
+        );
       }}
       formatMessage={formatMessage}
       onCollapse={handleMenuCollapse}
@@ -133,12 +141,32 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
         if (menuItemProps.isUrl || !menuItemProps.path) {
           return defaultDom;
         }
-        return <Link to={menuItemProps.path}>{defaultDom}</Link>;
+        //app功能页面历史记录
+       if(menuItemProps.path==="/app"){
+         return <a onClick={()=>{
+           getAppSearch('',menuItemProps.path).then((val)=>{
+            history.push({
+              search: val ||'',
+              pathname: menuItemProps.path,
+             })
+           })
+         }}>  {defaultDom}</a>
+       }
+       return (
+          <Link
+            to={{
+              // search: searchData,
+              pathname: menuItemProps.path,
+            }}
+          >
+            {defaultDom}
+          </Link>
+        );
       }}
       breadcrumbRender={(routers = []) => [
         {
           path: '/',
-          breadcrumbName: formatMessage({id: 'menu.home'}),
+          breadcrumbName: formatMessage({ id: 'menu.home' }),
         },
         ...routers,
       ]}
@@ -152,7 +180,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
       }}
       footerRender={() => defaultFooterDom}
       menuDataRender={() => menuData}
-      rightContentRender={() => <RightContent/>}
+      rightContentRender={() => <RightContent />}
       {...props}
       {...settings}
     >
@@ -163,7 +191,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   );
 };
 
-export default connect(({global, _settings}: ConnectState) => ({
+export default connect(({ global, _settings }: ConnectState) => ({
   collapsed: global.collapsed,
   menuData: global.menu,
   settings: _settings,
