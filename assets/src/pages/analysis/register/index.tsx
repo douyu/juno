@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import request from 'umi-request';
 import ProTable from '@ant-design/pro-table';
-import 'antd/dist/antd.css'
 import {Select} from "antd";
 import {reqSelect} from "@/pages/analysis/register/service";
 import {loadSettings} from "@/pages/manage/services";
