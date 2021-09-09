@@ -58,10 +58,10 @@ export default {
     return res;
   },
   *configPublish({ payload, callback }, { call, put }) {
-    const { id, version, host_name, pub_k8s } = payload;
+    const { id, version, host_name, pub_k8s, all = 0 } = payload;
     yield put({ type: '_apply', payload: { configPublishLoading: true } });
 
-    const res = yield call(srvConfigPublish, id, version, host_name, pub_k8s);
+    const res = yield call(srvConfigPublish, id, version, host_name, pub_k8s, all);
     yield put({ type: '_apply', payload: { configPublishLoading: false } });
 
     if (res.code !== 0) {

@@ -13,12 +13,12 @@ export default {
       pathRewrite: { '^/ant': '' },
     },
     '/api/admin': {
-      target: 'http://juno.melican.cn',
+      target: 'http://127.0.0.1:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'https://juno.melican.cn',
+      target: 'https://127.0.0.1:50000',
       changeOrigin: true,
     },
     '/grafana': {
