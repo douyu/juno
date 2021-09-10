@@ -225,7 +225,10 @@ function Editor(props) {
               发布配置
               <ModalPublish
                 visible={publishModalVisible}
-                onCancel={() => setPublishModalVisible(false)}
+                onCancel={(e) =>{
+                  e.stopPropagation();
+                  setPublishModalVisible(false)
+                }}
                 configID={currentConfig && currentConfig.id}
                 onSubmit={(version) => {
                   if (currentConfig?.id) {
