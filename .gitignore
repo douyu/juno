@@ -54,4 +54,6 @@ logs
 assets/dist/*
 dist/
 
+*.tar.gz
+
 !assets/dist/README.md

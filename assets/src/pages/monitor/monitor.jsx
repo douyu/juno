@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { connect } from 'dva';
+// import { useFullscreen } from 'ahooks';
 import { Alert, Card, Col, message, Radio, Row, Empty } from 'antd';
 import { instanceOf } from 'prop-types';
 import { getFrameVersion } from './services';
-import { history } from "@@/core/history";
+import { history } from '@@/core/history';
 import { GetAppConfig, GetAppViewHistory, PostAppConfig } from '@/services/user';
+import GrafanaPannel from './pannel';
 
 const RadioGroup = Radio.Group;
 
@@ -28,7 +30,33 @@ export default class Monitor extends React.PureComponent {
     this.props.dispatch({
       type: 'setting/loadSettings',
     });
+    // setTimeout(()=>{
+    //   // var body =  $(this.refs['grafana'].contentDocument).item(0); //获取body对象
+    //   // var Astyle =  $(this.refs['grafana'].contentDocument).document.createElement("style");//创建style标签对象
+    //   // Astyle.rel = "stylesheet";
+    //   // Astyle.type = "text/css";
+    //   // Astyle.id = "Astyle";//定义对象的一些属性
+    //   // Astyle.value=".sidemenu {display:none;}";//给标签对象赋HTML源代码
+    //   // body.appendChild(Astyle);//向body对象中插入style标签对象
+    //   // var cssLink = document.createElement("style");
+    //   // cssLink.rel = "stylesheet";
+    //   // cssLink.type = "text/css";
+    //   // cssLink.id = "Astyle";//定义对象的一些属性
+    //   // cssLink.value=".sidemenu {display:none;}";//给标签对象赋HTML源代码
+    //   // cssLink.href = "style.css";
+    //   // cssLink.rel = "stylesheet";
+    //   // cssLink.type = "text/css";
+    //   // frames['grafana'].document.body.appendChild(cssLink);
+    //   // $(this.refs['grafana'].contentDocument).find('head').prepend('<style>sidemenu{display:none;}</style>');
+    //   // $(this.refs['grafana'].contentDocument).find('sidemenu').css({'display':'none'});
+    //   $('#grafana-iframe').on('load', event => {
+    //     // $(this.refs['grafana'].contentDocument).find('head').prepend('<style>.sidemenu{display:none;}</style>');
+    //     console.log("========iframe1",this.refs['grafana']);
+    //     // $($('#grafana-iframe sidemenu').iframe.contentDocument).select('sidemenu').css({'display':'none'});
+    //     $(this.refs['grafana'].contentDocument).find('sidemenu').css({'display':'none'});
 
+    //   });
+    // });
     // 判断url上无dashboardPath字段时，尝试从userConfig上获取（一般只有刷新页面时才会触发此逻辑）
     if (!dashboardPath && userConfig && userConfig.dashboardPath) {
       this.setState({
@@ -50,11 +78,14 @@ export default class Monitor extends React.PureComponent {
       return;
     }
 
-    this.setState({
-      dashboardPath,
-    }, () => {
-      this.saveUserConfig();
-    });
+    this.setState(
+      {
+        dashboardPath,
+      },
+      () => {
+        this.saveUserConfig();
+      },
+    );
 
     history.push({
       query: {
@@ -72,8 +103,8 @@ export default class Monitor extends React.PureComponent {
       aid,
       config: {
         versionKey,
-        dashboardPath
-      }
+        dashboardPath,
+      },
     };
 
     PostAppConfig(para).then((res) => {
@@ -82,60 +113,26 @@ export default class Monitor extends React.PureComponent {
         message.error(res.msg);
       }
     });
-  };
+  }
 
   renderGrafana() {
     const { aid, env, appName, zoneCode, versionKey } = this.props;
     const { version } = this.props.setting.settings;
 
-    const { dashboardPath = "" } = this.state;
-
-    const currentVersion = (Array.isArray(version) && version.find(item => (versionKey && item.versionKey === versionKey))) || {}
-
-    console.log('renderGrafana---aid', aid);
-
-    if (!dashboardPath) {
-      return (
-        <div style={{ marginTop: 10 }}>
-          <Empty description={'请选择监控类型'} style={{ padding: '100px' }} />
-        </div>
-      );
-    }
-
-    if (zoneCode === '' || zoneCode === 'all') {
-      return (
-        <div style={{ marginTop: 10 }}>
-          <Empty description={'请选择可用区'} style={{ padding: '100px' }} />
-        </div>
-      );
-    }
-
-    console.log('renderGrafana -> zoneCode', zoneCode);
-
-    const datasource = `${env}.${zoneCode}.${currentVersion.name || ''}`;
-
-    const url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
-
+    const { dashboardPath = '' } = this.state;
     return (
-      <div style={{ display: 'block', overflow: 'hidden', marginLeft: '10px',
-      position:"relative",
-      display:"flex",flex:'auto'
-      }}>
-        <iframe
-          src={url}
-          scrolling="no"
-          width="104%"
-
-          // height={2000}
-          frameBorder={0}
-          style={{ marginLeft: '-72px', overflow: 'hidden',
-          flex:'auto',
-          // ,position:'absolute',top:195,bottom:0,
-        }}
-        />
-      </div>
+      <GrafanaPannel
+        {...this.props}
+        aid={aid}
+        env={env}
+        appName={appName}
+        zoneCode={zoneCode}
+        versionKey={versionKey}
+        dashboardPath={dashboardPath}
+        version={version}
+      />
     );
-  };
+  }
 
   render() {
     const { env, versionKey, userConfig } = this.props;
@@ -144,7 +141,8 @@ export default class Monitor extends React.PureComponent {
 
     const { version } = this.props.setting.settings;
 
-    const { dashboards: dashboardList = [] } = (Array.isArray(version) && version.find(item => item.versionKey === versionKey)) || {};
+    const { dashboards: dashboardList = [] } =
+      (Array.isArray(version) && version.find((item) => item.versionKey === versionKey)) || {};
 
     console.log('监控 --- version', version);
     console.log('监控 --- versionKey', versionKey);
@@ -173,33 +171,29 @@ export default class Monitor extends React.PureComponent {
             paddingBottom: 5,
             flexDirection: 'column',
             display: 'flex',
-            flex:'auto',
+            flex: 'auto',
             height: '100%',
           }}
         >
           <Row gutter={24} className="top">
             <Col span={22} style={{ marginLeft: '10px', paddingBottom: '10px' }}>
-              {
-                Array.isArray(dashboardList) && dashboardList.length ? (
-                  <RadioGroup
-                    defaultValue={dashboardPath}
-                    value={dashboardPath}
-                    onChange={this.monitorTypeTChange}
-                    optionType="button"
-                    buttonStyle="solid"
-                  >
-                    {
-                      dashboardList.map(item => (
-                        <Radio.Button key={item.name} value={item.value}>
-                          {item.name}
-                        </Radio.Button>
-                      ))
-                    }
-                  </RadioGroup>
-                ) : (
-                  <span>请在设置界面设置监控面板地址</span>
-                )
-              }
+              {Array.isArray(dashboardList) && dashboardList.length ? (
+                <RadioGroup
+                  defaultValue={dashboardPath}
+                  value={dashboardPath}
+                  onChange={this.monitorTypeTChange}
+                  optionType="button"
+                  buttonStyle="solid"
+                >
+                  {dashboardList.map((item) => (
+                    <Radio.Button key={item.name} value={item.value}>
+                      {item.name}
+                    </Radio.Button>
+                  ))}
+                </RadioGroup>
+              ) : (
+                <span>请在设置界面设置监控面板地址</span>
+              )}
             </Col>
           </Row>
           {this.renderGrafana()}
