@@ -49,13 +49,13 @@ export default class Monitor extends React.PureComponent {
     //   // frames['grafana'].document.body.appendChild(cssLink);
     //   // $(this.refs['grafana'].contentDocument).find('head').prepend('<style>sidemenu{display:none;}</style>');
     //   // $(this.refs['grafana'].contentDocument).find('sidemenu').css({'display':'none'});
-    //   $('#grafana-iframe').on('load', event => {
-    //     // $(this.refs['grafana'].contentDocument).find('head').prepend('<style>.sidemenu{display:none;}</style>');
-    //     console.log("========iframe1",this.refs['grafana']);
-    //     // $($('#grafana-iframe sidemenu').iframe.contentDocument).select('sidemenu').css({'display':'none'});
-    //     $(this.refs['grafana'].contentDocument).find('sidemenu').css({'display':'none'});
+    //   // $('#grafana-iframe').on('load', event => {
+    //   //   // $(this.refs['grafana'].contentDocument).find('head').prepend('<style>.sidemenu{display:none;}</style>');
+    //   //   console.log("========iframe1",this.refs['grafana']);
+    //   //   // $($('#grafana-iframe sidemenu').iframe.contentDocument).select('sidemenu').css({'display':'none'});
+    //   //   $(this.refs['grafana'].contentDocument).find('sidemenu').css({'display':'none'});
 
-    //   });
+    //   // });
     // });
     // 判断url上无dashboardPath字段时，尝试从userConfig上获取（一般只有刷新页面时才会触发此逻辑）
     if (!dashboardPath && userConfig && userConfig.dashboardPath) {

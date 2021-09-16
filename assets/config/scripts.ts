@@ -32,8 +32,8 @@ export default [
   },
   {
     src:staticPrefix+'/js/codemirror/v5.62.3/lib/codemirror.js'
-  }
-  // {
-  //   src:  'https://oresource.melican.cn/jquery/3.4.1/jquery.min.js',
-  // },
+  },
+  {
+    src:  'https://oresource.melican.cn/jquery/3.4.1/jquery.min.js',
+  },
 ];
