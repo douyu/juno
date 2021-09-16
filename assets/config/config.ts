@@ -17,7 +17,7 @@ export default defineConfig({
   styles: styles,
   mfsu: {},
   externals: {
-    // jquery: 'jQuery',
+    jquery: 'jQuery',
     echarts: 'echarts',
     // lodash: '_',
     'prettier/standalone': 'prettier',

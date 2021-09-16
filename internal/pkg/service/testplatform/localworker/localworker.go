@@ -38,7 +38,8 @@ func (w *localWorker) Init(o Option) {
 
 	queue, err := goque.OpenQueue(o.WorkerQueueDir)
 	if err != nil {
-		xlog.Panicf("init local worker queue failed, %s, err=%s", o.WorkerQueueDir, err)
+		// xlog.Panicf("init local worker queue failed, %s, err=%s", o.WorkerQueueDir, err)
+		return
 	}
 	w.queue = queue
 

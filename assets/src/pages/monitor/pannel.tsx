@@ -1,5 +1,8 @@
-import React, { useRef } from 'react';
+
+import React, { useRef, useEffect, useState } from 'react';
 import { connect } from 'dva';
+import $ from 'jquery';
+
 import { useFullscreen } from 'ahooks';
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons/lib';
 import { Empty } from 'antd';
@@ -7,7 +10,12 @@ import { Empty } from 'antd';
 import styles from './index.less';
 
 function GrafanaPannel(props: any) {
-  const ref = useRef();
+
+
+  const ref = useRef<any>();
+  const granfanRef = useRef<any>();
+  let [iframeVisible, setIframeVisible] = useState(false);
+
   const [isFullscreen, { toggleFull }] = useFullscreen(ref);
   const { aid, env, appName, zoneCode, versionKey, dashboardPath, version } = props;
   // const { version } = props.settings;
@@ -17,6 +25,11 @@ function GrafanaPannel(props: any) {
     {};
 
   console.log('renderGrafana---aid', aid);
+  useEffect(() => {
+    return () => {
+      setIframeVisible(false);
+    };
+  }, [dashboardPath]);
 
   if (!dashboardPath) {
     return (
@@ -37,43 +50,47 @@ function GrafanaPannel(props: any) {
   console.log('renderGrafana -> zoneCode', zoneCode);
 
   const datasource = `${env}.${zoneCode}.${currentVersion.name || ''}`;
-
-  const url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now&kiosk=tv`;
+  const url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
 
   return (
     <div
       style={{
         overflow: 'hidden',
-        marginLeft: '10px',
         position: 'relative',
         display: 'flex',
         flex: 'auto',
+        marginLeft: iframeVisible ? 0 : -68,
         flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
       ref={ref}
     >
       <div
         onClick={() => {
+          //触发全屏的时候将sidemenu给隐藏
+          if (!isFullscreen) {
+            $(granfanRef.current.contentDocument).find('sidemenu').css({ display: 'none' });
+            setIframeVisible(true);
+          }
           toggleFull();
         }}
         className={styles.btnFullScreen}
       >
         {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
       </div>
-
       <iframe
         name="grafana"
         src={url}
+        ref={granfanRef}
         scrolling="no"
         width="100%"
         id="grafana-iframe"
-        // height={2000}
         frameBorder={0}
         style={{
-          // marginLeft: '-72px',
           overflow: 'hidden',
           flex: 'auto',
-          // ,position:'absolute',top:195,bottom:0,
+          marginRight: 0,
         }}
       />
     </div>

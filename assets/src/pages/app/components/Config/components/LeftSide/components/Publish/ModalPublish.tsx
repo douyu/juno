@@ -30,7 +30,8 @@ function ModalPublish(props: ModalPublishProps) {
 
   return <Modal
     title={"配置发布"} {...props}
-    onOk={() => {
+    onOk={(e) => {
+      e.stopPropagation();
       if (!selectedVersion) {
         message.error("请选择版本")
         return
