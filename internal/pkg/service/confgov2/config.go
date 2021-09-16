@@ -707,22 +707,23 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 	if len(totalInstanceList) == 0 && !param.PubK8S {
 		return fmt.Errorf("未选择发布实例或集群")
 	}
-
-	// check node list valid
-	for _, hostName := range instanceList {
-		exists := false
-		for _, item := range totalInstanceList {
-			if item == hostName {
-				exists = true
-				break
+	if param.All > 0 {
+		instanceList = totalInstanceList
+	} else {
+		// check node list valid
+		for _, hostName := range instanceList {
+			exists := false
+			for _, item := range totalInstanceList {
+				if item == hostName {
+					exists = true
+					break
+				}
+			}
+			if !exists {
+				return fmt.Errorf("机器 %s 不存在", hostName)
 			}
 		}
-
-		if !exists {
-			return fmt.Errorf("机器 %s 不存在", hostName)
-		}
 	}
-
 	// Obtain application management port
 	appInfo, err := resource.Resource.GetApp(aid)
 	if err != nil {

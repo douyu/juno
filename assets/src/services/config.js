@@ -1,9 +1,9 @@
 //获取配置 confu
 import request from '@/utils/request';
-import {stringify} from 'qs';
+import { stringify } from 'qs';
 
 export async function loadConfigs(appName, env) {
-  return request(`/api/admin/confgov2/config/list?${stringify({app_name: appName, env})}`);
+  return request(`/api/admin/confgov2/config/list?${stringify({ app_name: appName, env })}`);
 }
 
 export async function srvLoadConfigInstances(env, zoneCode, configurationID) {
@@ -16,10 +16,10 @@ export async function srvLoadConfigInstances(env, zoneCode, configurationID) {
   );
 }
 
-export async function srvConfigPublish(id, version, host_name, pub_k8s) {
+export async function srvConfigPublish(id, version, host_name, pub_k8s, all = 0) {
   return request(`/api/admin/confgov2/config/publish`, {
     method: 'post',
-    data: {id, version, host_name, pub_k8s},
+    data: { id, version, host_name, pub_k8s, all },
   });
 }
 
@@ -46,7 +46,7 @@ export async function saveConfig(id, message, content) {
 }
 
 export async function loadHistoryList(id, page = 0, size = 10) {
-  const query = stringify({id, page, size});
+  const query = stringify({ id, page, size });
   return request(`/api/admin/confgov2/config/history?${query}`, {
     method: 'GET',
   });
@@ -56,7 +56,7 @@ export async function loadConfigDiff(configID, historyID) {
   return request(`/api/admin/confgov2/config/diff?id=${configID}&history_id=${historyID}`);
 }
 
-export async function loadConfigVersionDiff(appName,env,serviceVersion,publishVersion) {
+export async function loadConfigVersionDiff(appName, env, serviceVersion, publishVersion) {
   return request(`/api/admin/confgov2/config/diff?appName=${appName}&env=${env}&serviceVersion=${serviceVersion}&publishVersion=${publishVersion}`);
 }
 
