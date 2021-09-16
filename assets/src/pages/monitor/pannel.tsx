@@ -21,10 +21,12 @@ function GrafanaPannel(props: any) {
 
   console.log('renderGrafana---aid', aid);
   useEffect(() => {
-    $('#grafana-iframe').on('load', () => {
-      $(granfanRef.current.contentDocument).find('sidemenu').css({ display: 'none' });
-      setIframeVisible(true);
-    });
+    setTimeout(()=>{
+      $('#grafana-iframe').on('load', () => {
+        // $(granfanRef.current.contentDocument).find('sidemenu').css({ display: 'none' });
+        // setIframeVisible(true);
+      });
+    })
     return () => {
       setIframeVisible(false);
     };
@@ -57,7 +59,7 @@ function GrafanaPannel(props: any) {
         position: 'relative',
         display: 'flex',
         flex: 'auto',
-        marginLeft: iframeVisible ? 0 : -60,
+        marginLeft: iframeVisible ? 0 : -68,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
