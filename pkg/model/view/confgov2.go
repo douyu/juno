@@ -89,6 +89,7 @@ type (
 		HostName []string `json:"host_name"`              // 发布的实例机器名称的列表，如果为空，则发布所有机器
 		Version  *string  `json:"version"`                // 版本号
 		PubK8S   bool     `json:"pub_k8s"`                // 是否发布集群
+		All      int      `json:"all"`                    //是否发布所有实例
 	}
 
 	// ReqHistoryConfig ..

@@ -11,40 +11,39 @@ import {
   srvConfigPublish,
   srvLoadConfigInstances,
 } from '@/services/config';
-import {message} from "antd";
-import {parseConfigResource} from '@/utils/config';
-import {batchCheckVersion} from '@/services/config_resource';
+import { message } from 'antd';
+import { parseConfigResource } from '@/utils/config';
+import { batchCheckVersion } from '@/services/config_resource';
 
 export default {
-  * loadConfigInfo({payload}, {call, put}) {
-    const {appName, env} = payload;
-    yield put({type: '_apply', payload: {configListLoading: true, configList: []}});
+  *loadConfigInfo({ payload }, { call, put }) {
+    const { appName, env } = payload;
+    yield put({ type: '_apply', payload: { configListLoading: true, configList: [] } });
 
     const res = yield call(loadConfigs, appName, env);
-    yield put({type: '_apply', payload: {configListLoading: false}});
+    yield put({ type: '_apply', payload: { configListLoading: false } });
 
-    let configList = []
+    let configList = [];
     if (res.status >= 300) {
-
     } else if (res.code !== 0) {
       message.error(res.msg);
     } else {
-      configList = res.data
+      configList = res.data;
     }
 
     yield put({
       type: '_apply',
       payload: {
-        configList: configList
+        configList: configList,
       },
     });
   },
-  * loadConfigInstances({payload}, {call, put}) {
-    const {aid, env, zoneCode, configurationID} = payload;
-    yield put({type: '_apply', payload: {configInstanceListLoading: true}});
+  *loadConfigInstances({ payload }, { call, put }) {
+    const { aid, env, zoneCode, configurationID } = payload;
+    yield put({ type: '_apply', payload: { configInstanceListLoading: true } });
 
     const res = yield call(srvLoadConfigInstances, env, zoneCode, configurationID);
-    yield put({type: '_apply', payload: {configInstanceListLoading: false}});
+    yield put({ type: '_apply', payload: { configInstanceListLoading: false } });
 
     if (res.code !== 0) {
       message.error(res.msg);
@@ -56,31 +55,33 @@ export default {
         configInstanceList: res.data || [],
       },
     });
-    return res
+    return res;
   },
-  * configPublish({payload}, {call, put}) {
-    const {id, version, host_name, pub_k8s} = payload;
-    yield put({type: '_apply', payload: {configPublishLoading: true}});
+  *configPublish({ payload, callback }, { call, put }) {
+    const { id, version, host_name, pub_k8s, all = 0 } = payload;
+    yield put({ type: '_apply', payload: { configPublishLoading: true } });
 
-    const res = yield call(srvConfigPublish, id, version, host_name, pub_k8s);
-    yield put({type: '_apply', payload: {configPublishLoading: false}});
+    const res = yield call(srvConfigPublish, id, version, host_name, pub_k8s, all);
+    yield put({ type: '_apply', payload: { configPublishLoading: false } });
 
     if (res.code !== 0) {
       message.error(res.msg);
-      return res
+      return res;
     }
-
+    if (callback) {
+      callback(res);
+    }
     message.success('配置发布成功');
-    return res
+    return res;
   },
-  * setZoneList({payload}, {call, put}) {
+  *setZoneList({ payload }, { call, put }) {
     yield put({
       type: '_setZoneList',
       payload: payload,
     });
   },
-  * setCurrentEnv({payload}, {call, put}) {
-    const {aid, env, appName, zoneCode, publishVersion, serviceVersion} = payload;
+  *setCurrentEnv({ payload }, { call, put }) {
+    const { aid, env, appName, zoneCode, publishVersion, serviceVersion } = payload;
     yield put({
       type: '_apply',
       payload: {
@@ -89,11 +90,11 @@ export default {
         appName,
         zoneCode,
         publishVersion,
-        serviceVersion
+        serviceVersion,
       },
     });
   },
-  * showCreateModal({payload}, {call, put}) {
+  *showCreateModal({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
@@ -101,10 +102,10 @@ export default {
       },
     });
   },
-  * create({payload}, {call, put}) {
+  *create({ payload }, { call, put }) {
     const res = yield call(createConfig, payload);
     if (res.ok === false) {
-      return res
+      return res;
     }
 
     if (res.code !== 0) {
@@ -116,8 +117,8 @@ export default {
 
     return res;
   },
-  * loadConfigDetail({payload}, {call, put}) {
-    const {id} = payload;
+  *loadConfigDetail({ payload }, { call, put }) {
+    const { id } = payload;
 
     yield put({
       type: '_apply',
@@ -149,16 +150,16 @@ export default {
       },
     });
   },
-  * clearCurrentConfig(_, {put}) {
+  *clearCurrentConfig(_, { put }) {
     yield put({
       type: '_apply',
       payload: {
         currentConfig: null,
         currentContent: '',
-      }
-    })
+      },
+    });
   },
-  * setEditor({payload}, {put}) {
+  *setEditor({ payload }, { put }) {
     yield put({
       type: '_apply',
       payload: {
@@ -166,7 +167,7 @@ export default {
       },
     });
   },
-  * setCurrentContent({payload}, {put}) {
+  *setCurrentContent({ payload }, { put }) {
     yield put({
       type: '_apply',
       payload: {
@@ -174,8 +175,8 @@ export default {
       },
     });
   },
-  * saveConfigFile({payload}, {call, put}) {
-    const {id, content} = payload;
+  *saveConfigFile({ payload }, { call, put }) {
+    const { id, content } = payload;
     const res = yield call(saveConfig, id, payload.message, content);
     if (res.ok === false) return res;
     if (res.code !== 0) {
@@ -192,7 +193,7 @@ export default {
 
     return res;
   },
-  * showSaveModal({payload}, {call, put}) {
+  *showSaveModal({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
@@ -200,7 +201,7 @@ export default {
       },
     });
   },
-  * showHistoryModal({payload}, {put}) {
+  *showHistoryModal({ payload }, { put }) {
     yield put({
       type: '_apply',
       payload: {
@@ -208,8 +209,8 @@ export default {
       },
     });
   },
-  * loadHistory({payload}, {call, put}) {
-    const {id, page, size} = payload;
+  *loadHistory({ payload, callback }, { call, put }) {
+    const { id, page, size } = payload;
     yield put({
       type: '_apply',
       payload: {
@@ -238,11 +239,14 @@ export default {
         historyListPagination: res.data.pagination,
       },
     });
-
+    if (callback) {
+      console.log('=======', res);
+      callback(res);
+    }
     return res;
   },
-  * showDiffEditor({payload}, {call, put}) {
-    const { /*配置版本对应的id*/ configID, historyID} = payload;
+  *showDiffEditor({ payload }, { call, put }) {
+    const { /*配置版本对应的id*/ configID, historyID } = payload;
     yield put({
       type: '_apply',
       payload: {
@@ -274,8 +278,8 @@ export default {
 
     return res;
   },
-  * showDiffVersionEditor({payload}, {call, put}) {
-    const { /*配置版本对应的id*/ appName, env, serviceVersion, publishVersion} = payload;
+  *showDiffVersionEditor({ payload }, { call, put }) {
+    const { /*配置版本对应的id*/ appName, env, serviceVersion, publishVersion } = payload;
     yield put({
       type: '_apply',
       payload: {
@@ -307,15 +311,15 @@ export default {
 
     return res;
   },
-  * closeModalDiff(_, {put}) {
+  *closeModalDiff(_, { put }) {
     yield put({
       type: '_apply',
       payload: {
-        visibleModalDiff: false
-      }
-    })
+        visibleModalDiff: false,
+      },
+    });
   },
-  * deleteConfig({payload}, {call, put}) {
+  *deleteConfig({ payload }, { call, put }) {
     const res = yield call(deleteConfig, payload);
     if (res.code === 0) {
       message.success('删除成功');
@@ -325,7 +329,7 @@ export default {
 
     return res;
   },
-  * showModalInsertResource({payload}, {call, put}) {
+  *showModalInsertResource({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
@@ -333,8 +337,8 @@ export default {
       },
     });
   },
-  * checkResource({payload}, {call, put}) {
-    const {content, zone, env} = payload;
+  *checkResource({ payload }, { call, put }) {
+    const { content, zone, env } = payload;
     let reqPayload = parseConfigResource(content).map((item) => {
       return {
         ...item,
@@ -365,8 +369,8 @@ export default {
     });
   },
 
-  * showEditorMaskLayer({payload}, {put}) {
-    const {child, visible} = payload;
+  *showEditorMaskLayer({ payload }, { put }) {
+    const { child, visible } = payload;
     yield put({
       type: '_apply',
       payload: {
@@ -376,7 +380,7 @@ export default {
     });
   },
 
-  * setCurrentInstance({payload}, {call, put}) {
+  *setCurrentInstance({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
@@ -385,22 +389,22 @@ export default {
     });
   },
 
-  * fetchInstanceConfig({payload}, {call, put}) {
-    const {id, hostName} = payload
+  *fetchInstanceConfig({ payload }, { call, put }) {
+    const { id, hostName } = payload;
 
     yield put({
       type: '_apply',
       payload: {
         instanceConfigContentLoading: true,
-        visibleModalRealtimeConfig: true
-      }
-    })
+        visibleModalRealtimeConfig: true,
+      },
+    });
 
-    const res = yield call(fetchInstanceConfig, id, hostName)
-    if (res.code === 14000) return
+    const res = yield call(fetchInstanceConfig, id, hostName);
+    if (res.code === 14000) return;
     if (res.code !== 0) {
-      message.error(res.msg)
-      return res
+      message.error(res.msg);
+      return res;
     }
 
     yield put({
@@ -408,27 +412,27 @@ export default {
       payload: {
         instanceConfigContentLoading: false,
         instanceConfigContent: res.data,
-      }
-    })
+      },
+    });
 
-    return res
+    return res;
   },
 
-  * showModalInstanceConfig({payload}, {call, put}) {
+  *showModalInstanceConfig({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
-        visibleModalRealtimeConfig: payload
-      }
-    })
+        visibleModalRealtimeConfig: payload,
+      },
+    });
   },
 
-  * setLeftSideActiveMenu({payload}, {call, put}) {
+  *setLeftSideActiveMenu({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
-        leftSideActiveMenu: payload
-      }
-    })
-  }
+        leftSideActiveMenu: payload,
+      },
+    });
+  },
 };
