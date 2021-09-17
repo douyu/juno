@@ -238,7 +238,7 @@ function Editor(props) {
                         id: currentConfig.id,
                         version,
                         host_name: [],
-                        pub_k8s: false,
+                        pub_k8s: true,
                         all: 1,
                       },
                       callback: () => {
