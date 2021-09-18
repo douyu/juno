@@ -1,0 +1,205 @@
+[app]
+    secretKey="ASDFASDFASDF"      # hashStatecode
+    mode="single"                 # single without proxy, multiple with proxy
+    productionEnvs=["production"]
+
+[configure]
+    dirs=["/home/www/.config/juno-agent"]
+    prefixes=["juno-agent"]
+
+[agent]
+    port=50010
+    secret="12341234123412341234123412341234"
+
+[logger.system]
+    debug=false         # 是否在命令行输出
+    enableConsole=false # 是否按命令行格式输出
+    level="debug"
+    async=false
+    name="system.json"  # 日志名称
+    dir="./logs"
+
+[logger.biz]
+    debug=false         # 是否在命令行输出
+    enableConsole=false # 是否按命令行格式输出
+    level="debug"
+    async=false
+    name="biz.json"     # 日志名称
+    dir="./logs"
+
+[session]
+    maxAge=172800
+    secret="ldfgoqnf935nvav34"
+    type=""
+
+[register]
+    enable=true
+    connectTimeout="1s"
+    endpoints=["172.17.161.143:2379"]
+    secure=false
+
+[grafanaProxy]
+    enable=true
+    name="grafana"
+
+#################################### Server ##############################
+[server.http]
+    # The ip address to bind to, empty will bind to all interfaces
+    host="0.0.0.0"
+    # The http port to use
+    port=50000
+    # The public facing domain name used to access grafana from a browser
+    domain="juno.melican.cn"
+    rootUrl="http://juno.melican.cn/"
+
+#################################### Jupiter Config #########################
+[jupiter]
+
+    #################################### Config Dependency Parse #########################
+    [jupiter.cron]
+
+        [jupiter.cron.parse]
+            withSeconds=false
+            concurrentDelay=10
+            immediatelyRun=true
+
+[jupiter.server]
+
+    [jupiter.server.governor]
+        # The ip address to bind to, empty will bind to all interfaces
+        host="0.0.0.0"
+        # The http port to use
+        port=50004
+        enable=true
+
+#################################### Database ##############################
+[database]
+    enable=true
+    connMaxLifetime="300s"
+    debug=true
+    dsn="root:tJuFTG3ext0awMST@tcp(172.17.161.111:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+    level="panic"
+    maxIdleConns=50
+    maxOpenConns=100
+
+#################################### Proxy ##############################
+[clientProxy]
+    [clientProxy.httpRouter]
+        governConfig="/debug/config"
+    [clientProxy.singleProxy.registerEtcd]
+        endpoints=["172.17.161.143:2379"]
+
+    [clientProxy.singleProxy.defaultEtcd]
+        endpoints=["172.17.161.143:2379"]
+
+[auth]
+    # Login cookie name
+    loginCookieName="juno_session"
+    # The lifetime (days) an authenticated user can be inactive before being required to login at next visit. Default is 7 days.
+    # 接口授权用户
+    loginMaximumInactiveLifetimeDays=7
+    # The maximum lifetime (days) an authenticated user can be logged in since login time before being required to login. Default is 30 days.
+    # 页面登录用户
+    loginMaximumLifetimeDays=30
+    # How often should auth tokens be rotated for authenticated users when being active. The default is each 10 minutes.
+    # 刷新时间
+    tokenRotationIntervalMinutes=10
+    # Set to true to disable (hide) the login form, useful if you use OAuth
+    disableLoginForm=false
+    # Set to true to disable the signout link in the side menu. useful if you use auth.proxy
+    disableSignoutMenu=false
+    # URL to redirect the user to after sign out
+    signoutRedirectUrl=""
+    # Set to true to attempt login with OAuth automatically, skipping the login screen.
+    # This setting is ignored if multiple OAuth providers are configured.
+    oauthAutoLogin=false
+    # OAuth state max age cookie duration. Defaults to 60 seconds.
+    oauthStateCookieMaxAge=60
+    # limit of api_key seconds to live before expiration
+    apiKeyMaxSecondsToLive=-1
+
+    #################################### Github Auth #########################
+    # [auth.github]
+    #     enable=true
+    #     allowSignUp=true
+    #     clientId="a6633e5544e60bd2574e"
+    #     clientSecret="7c6f51d97fc93d5d575ebd13115b20f397807549"
+    #     scopes=["user:email", "read:org"]
+    #     authUrl="https://github.com/login/oauth/authorize"
+    #     tokenUrl="https://github.com/login/oauth/access_token"
+    #     apiUrl="https://api.github.com/user"
+    #     allowedDomains=[]
+    #     teamIds=[]
+    #     allowedOrganizations=[]
+    [auth.gitlab]
+        enable=true
+        allowSignUp=true
+        clientId="549671c8cfe3c44069e5b6a4a3c2cdb95755e4f5a3d670380ccab260395e78e1"
+        clientSecret="e91d80f0277ed4ead76263e745c07146633cdad56f4602e2e8ccf931faff2f64"
+        scopes=["read_api", "read_repository", "read_user"]
+        authUrl="https://git.melican.cn/oauth/authorize"
+        tokenUrl="https://git.melican.cn/oauth/token"
+        apiUrl="https://git.melican.cn/api/v4"
+        allowedDomains=[]
+        teamIds=[]
+        allowedOrganizations=[]
+[casbin]
+    enable=false
+    debug=true
+    model="./config/model.conf"
+    autoLoad=true
+    autoLoadInternal=60
+    # 资源配置
+    resourceFile='./config/resource.yaml'
+
+[proxyAuth]
+    token="token" # 用于对 Juno Proxy 的请求进行授权
+
+[grpcTest]
+    enable=true
+    # PB文件目录，该目录下的所有PB文件会被遍历
+    protoDir='../proto'
+
+#################################### Go Dep Auth #########################
+[godep.gitlab]
+    host="https://gitlab.com"
+    token="RgZev8zy6dtP2y8EA4sB"
+    frameName="gitlab.com/douyu/jupiter"
+
+[codeplatform]
+    token="token" # 代码仓库访问凭证
+
+[testplatform]
+    enable=false # 是否启用测试平台
+
+    [testplatform.worker]
+        localQueueDir="/tmp/localworkerqueue"
+        heartbeatTimeout="6s"
+
+#################################### notice #########################
+[notice]
+    [notice.email]
+        serverHost="smtp.ym.163.com"
+        serverPort=25
+        fromEmail="reporter@melican.cn"
+        fromPasswd="fsk123456"
+        toers=["445366464@qq.com"]
+        cCers=["445366464@qq.com"]
+
+    [notice.ding]
+        webHook="https://oapi.dingtalk.com/robot/send?access_token=d00da03f2699c86ac2f2fd3fc783b6522158c6ab14519ffb0f8179ae1bcbedac"
+        msgType="text"
+
+# 系统事件的 RocektMQ 配置
+[junoevent.rocketmq]
+    enable=false            # 开关.如果为false，则系统事件不写MQ.
+    addr=["127.0.0.1:9876"] # mq地址
+    topic="juno_test_job"   # mq topic
+    group="juno_devops_go"  # mq producer group
+    retry=3                 # MQ写重试次数
+    dialTimeout="3s"        # MQ连接超时时间
+
+[k8s]
+    enable=true
+    prefix=""
+    doc=""
