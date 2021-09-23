@@ -13,16 +13,16 @@ export default {
       pathRewrite: { '^/ant': '' },
     },
     '/api/admin': {
-      target: 'http://127.0.0.1:50000',
+      target: 'https://juno.dz11.com',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
-    '/api/v1': {
-      target: 'https://127.0.0.1:50000',
+    '/api': {
+      target: 'https://juno.dz11.com',
       changeOrigin: true,
     },
     '/grafana': {
-      target: 'http://grafana.melican.cn',
+      target: 'https://juno.dz11.com',
       changeOrigin: true,
     },
   },
