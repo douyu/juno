@@ -76,7 +76,6 @@ function ModalSave(props) {
     onOk={() => {
       form.submit()
       unLock(currentConfig.id).then((r) => {
-        console.log("=====unLock", 1)
         loadConfig(currentConfig.id);
       });
     }}
