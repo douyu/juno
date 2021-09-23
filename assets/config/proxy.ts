@@ -7,23 +7,22 @@
  */
 export default {
   dev: {
-    '/ant': {
-      target: 'http://localhost:9999',
+    '/ant/js': {
+      target: 'http://localhost:8000',
       changeOrigin: true,
       pathRewrite: { '^/ant': '' },
     },
     '/api/admin': {
-      target: 'https://juno.dz11.com',
+      target: 'http://192.168.56.101:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
-    '/api': {
-      target: 'https://juno.dz11.com',
+    '/api/v1': {
+      target: 'http://192.168.56.101:50000',
       changeOrigin: true,
     },
     '/grafana': {
-      target: 'https://juno.dz11.com',
-      changeOrigin: true,
+      target: 'http://jupiterconsole.douyu.com',
     },
   },
   test: {
