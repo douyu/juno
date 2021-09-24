@@ -70,9 +70,9 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
 
   componentDidMount() {
     //处理首次进来 没有状态的情况
-    this.unlisten = history.listen((locationin:any, action) => {
+    this.unlisten = history.listen((locationin: any, action) => {
       //限定合法值去存储
-      if(locationin.query.appName){
+      if (locationin.query.appName) {
         setAppSearch(locationin.query.appName, locationin);
       }
     });
@@ -592,16 +592,14 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
               />
             </Row>
             <Row>
-              <Col span={12}>
-                <ZoneSelect
-                  zoneList={zoneList}
-                  appEnvZone={appEnvZone}
-                  env={env}
-                  defaultValue={''}
-                  onChange={this.changeZone}
-                  zoneCode={this.state.zoneCode}
-                />
-              </Col>
+              <ZoneSelect
+                zoneList={zoneList}
+                appEnvZone={appEnvZone}
+                env={env}
+                defaultValue={''}
+                onChange={this.changeZone}
+                zoneCode={this.state.zoneCode}
+              />
             </Row>
           </div>
           <Row style={{ flex: 'auto' }} className={styles.viewContent}>

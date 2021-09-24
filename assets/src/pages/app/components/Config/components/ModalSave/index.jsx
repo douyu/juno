@@ -1,11 +1,19 @@
-import React, {useEffect, useRef} from "react";
-import {connect} from "dva";
-import {Badge, Col, Form, Input, Modal, Row, Table} from "antd";
-import {createDiffEditor} from "../Editor/editor";
+import React, { useEffect, useRef } from "react";
+import { connect } from "dva";
+import { Badge, Col, Form, Input, Modal, Row, Table } from "antd";
+import { unLock } from '@/services/config';
+import { createDiffEditor } from "../Editor/editor";
 
 let editor = null
 
 function ModalSave(props) {
+  const loadConfig = (id) => {
+    props.dispatch({
+      type: 'config/loadConfigDetail',
+      payload: { id },
+    });
+  };
+
   const editorRef = useRef(null)
 
   const [form] = Form.useForm();
@@ -38,9 +46,9 @@ function ModalSave(props) {
   }, [visible, currentConfig])
 
   const resourceCheckColumns = [
-    {title: '资源名称', key: 'name', dataIndex: 'name'},
-    {title: '资源值', key: 'value', dataIndex: 'value'},
-    {title: '当前版本', key: 'version', dataIndex: 'version'},
+    { title: '资源名称', key: 'name', dataIndex: 'name' },
+    { title: '资源值', key: 'value', dataIndex: 'value' },
+    { title: '当前版本', key: 'version', dataIndex: 'version' },
     {
       title: '最新版本', key: 'latest_version', dataIndex: 'latest_version',
       render: (val, row) => {
@@ -49,13 +57,14 @@ function ModalSave(props) {
         }
         return <>
           {val === row.version ?
-            <Badge status={"success"}/>
-            : <Badge status={"warning"}/>}
+            <Badge status={"success"} />
+            : <Badge status={"warning"} />}
           {val}
         </>
       }
     },
   ]
+
 
   return <Modal
     visible={visible}
@@ -66,6 +75,9 @@ function ModalSave(props) {
     title={"保存配置文件"}
     onOk={() => {
       form.submit()
+      unLock(currentConfig.id).then((r) => {
+        loadConfig(currentConfig.id);
+      });
     }}
     onCancel={() => {
       showSaveModal(false)
@@ -92,10 +104,10 @@ function ModalSave(props) {
           <Form.Item
             label={"Message"} name={"message"}
             rules={[
-              {required: true, message: '请填写Message'}
+              { required: true, message: '请填写Message' }
             ]}
           >
-            <Input.TextArea placeholder={"简单描述一下本次修改发生的改变"}/>
+            <Input.TextArea placeholder={"简单描述一下本次修改发生的改变"} />
           </Form.Item>
 
           <Form.Item>
@@ -111,13 +123,13 @@ function ModalSave(props) {
       <Col flex={"auto"}>
         <div ref={editorRef} style={{
           height: '500px'
-        }}/>
+        }} />
       </Col>
     </Row>
   </Modal>
 }
 
-const mapStateToProps = ({config}) => {
+const mapStateToProps = ({ config }) => {
   return {
     currentContent: config.currentContent,
     currentConfig: config.currentConfig,
@@ -144,7 +156,8 @@ const mapDispatchToProps = dispatch => {
         zone: payload.zone,
         content: payload.content,
       }
-    })
+    }),
+    dispatch: dispatch,
   }
 }
 

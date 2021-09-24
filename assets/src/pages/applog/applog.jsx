@@ -16,6 +16,7 @@ import {
   Spin,
 } from 'antd';
 import { getLogUrl } from './services';
+import styles from "./index.less";
 
 const RadioGroup = Radio.Group;
 
@@ -118,15 +119,10 @@ export default class Applog extends React.PureComponent {
     }
 
     return (
-      <div style={{ backgroundColor: '#f7f8fa' }}>
+      <div  className={styles.applog} style={{ backgroundColor: '#f7f8fa' }}>
         <div
           style={{
-            marginLeft: 10,
-            marginTop: 10,
-            marginRight: 10,
-            marginBottom: 10,
-            paddingTop: 10,
-            paddingBottom: 10,
+           marginTop:5
           }}
         >
           <Card
