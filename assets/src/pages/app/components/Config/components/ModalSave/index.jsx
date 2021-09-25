@@ -75,9 +75,11 @@ function ModalSave(props) {
     title={"保存配置文件"}
     onOk={() => {
       form.submit()
-      unLock(currentConfig.id).then((r) => {
-        loadConfig(currentConfig.id);
-      });
+      setTimeout(()=>{
+        unLock(currentConfig.id).then((r) => {
+          loadConfig(currentConfig.id);
+        });
+      },100)
     }}
     onCancel={() => {
       showSaveModal(false)
