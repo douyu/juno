@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { connect } from 'dva';
 import {
   Alert,
@@ -15,6 +15,7 @@ import {
   Empty,
   Spin,
 } from 'antd';
+import Pannel from "./pannel";
 import { getLogUrl } from './services';
 import styles from "./index.less";
 
@@ -38,7 +39,7 @@ export default class Applog extends React.PureComponent {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   componentWillReceiveProps(nextProps, nextContext) {
     // 说明已经传了数据
@@ -71,12 +72,12 @@ export default class Applog extends React.PureComponent {
     this.setState({
       loading: true,
     });
-    const { aid,appName, query, env, typ } = this.state;
+    const { aid, appName, query, env, typ } = this.state;
     if (!typ) {
       message.error('必须选择查询日志类型');
       return;
     }
-    getLogUrl({ query, env, app_name: appName, typ,aid}).then((res) => {
+    getLogUrl({ query, env, app_name: appName, typ, aid }).then((res) => {
       const { code, msg, data } = res;
       if (code !== 0) {
         message.error(msg);
@@ -119,13 +120,16 @@ export default class Applog extends React.PureComponent {
     }
 
     return (
-      <div  className={styles.applog} style={{ backgroundColor: '#f7f8fa' }}>
+      <div className={styles.applog} style={{ backgroundColor: '#f7f8fa' }}>
         <div
           style={{
-           marginTop:5
+            marginTop: 5,
+            height: "100%"
           }}
         >
           <Card
+            style={{ height: "100%", display: "flex", flexDirection: "column" }}
+            bodyStyle={{ height: "100%", flex: 1, display: "flex", flexDirection: "column" }}
             title={
               <Row>
                 <Col {...colSpan}>
@@ -160,28 +164,13 @@ export default class Applog extends React.PureComponent {
               </Row>
             }
           >
-            <div>
-              <Row>
-                <Col span={24}>
-                <Spin spinning={loading}>
-
-                  {url && (
-                    <iframe
-                      src={url}
-                      width="100%"
-                      height={'780px'}
-                      frameBorder="0"
-                      onLoad={() => {
-                        this.setState({
-                          loading: false,
-                        });
-                      }}
-                    />
-                  )}
-                </Spin>
-                </Col>
-              </Row>
-            </div>
+            <Spin style={{ flex: 1 }} spinning={loading}>
+              {url && (
+                <Pannel
+                  url={url}
+                />
+              )}
+            </Spin>
           </Card>
         </div>
       </div>
