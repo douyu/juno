@@ -1,6 +1,7 @@
 package pprof
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -48,7 +49,7 @@ func InitPprof(gormDB *gorm.DB) *pprof {
 	return Pprof
 }
 
-func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
+func (p *pprof) RunPprof(ctx context.Context, req *view.ReqRunProfile) (err error) {
 	// 1 check go version
 	if _, err = exec.Command("go", "version").Output(); err != nil {
 		return fmt.Errorf("There was an error running 'go version' command: %s", err)
@@ -60,16 +61,16 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 	}
 
 	// 3 get app ip and govern port
-	appInfo, err := resource.Resource.GetApp(appName)
+	appInfo, err := resource.Resource.GetApp(req.AppName)
 	if err != nil {
 		return err
 	}
 
 	ip, err := p.getIp(db.AppNode{
-		AppName:  appName,
-		Env:      env,
-		ZoneCode: zoneCode,
-		HostName: hostName,
+		AppName:  req.AppName,
+		Env:      req.Env,
+		ZoneCode: req.ZoneCode,
+		HostName: req.HostName,
 	})
 	if err != nil {
 		return err
@@ -78,7 +79,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 		return errors.New("无法查询到应用对应节点上的IP数据")
 	}
 	var (
-		governPort = app.GovernPort(appInfo.GovernPort, env, zoneCode, appName, hostName)
+		governPort = app.GovernPort(appInfo.GovernPort, req.Env, req.ZoneCode, req.AppName, req.HostName)
 		fileList   = make([]db.PProfFileInfo, 0)
 	)
 	if governPort == "" || governPort == "0" {
@@ -87,7 +88,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 	// 4 range pprof type list, get the pprof info
 	for _, fileType := range p.PProfTypeList {
 		var resp []byte
-		resp, err = p.getPprof(view.UniqZone{Env: env, Zone: zoneCode}, ip, governPort, fileType)
+		resp, err = p.getPprof(view.UniqZone{Env: req.Env, Zone: req.ZoneCode}, ip, governPort, fileType, req.DurationSecond)
 		if err != nil {
 			xlog.Error("PostPprof err", zap.Error(err), zap.String("fileType", fileType))
 			continue
@@ -95,7 +96,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 		xlog.Debug("get remote pprof success", zap.String("fileType", fileType))
 
 		// 3. 请求结果存入临时文件
-		saveFileName := path.Join(cfg.Cfg.Pprof.TmpPath, fileType+"_"+hostName+".bin")
+		saveFileName := path.Join(cfg.Cfg.Pprof.TmpPath, fileType+"_"+req.HostName+".bin")
 
 		monthPath := time.Now().Format("2006_01_02")
 		storePath := path.Join(cfg.Cfg.Pprof.StorePath, monthPath)
@@ -104,7 +105,7 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 			xlog.Error("create store path error", zap.Error(err), zap.String("storePath", storePath))
 			continue
 		}
-		saveSvgName := path.Join(storePath, fmt.Sprintf("%s_%s_%s.svg", time.Now().Format("2006_01_02_15_04_05"), hostName, fileType))
+		saveSvgName := path.Join(storePath, fmt.Sprintf("%s_%s_%s.svg", time.Now().Format("2006_01_02_15_04_05"), req.HostName, fileType))
 		if err = ioutil.WriteFile(saveFileName, resp, os.ModePerm); err != nil {
 			xlog.Error("save tmp file error", zap.Error(err), zap.String("saveSvgName", saveSvgName))
 			continue
@@ -156,9 +157,9 @@ func (p *pprof) RunPprof(env, zoneCode, appName, hostName string) (err error) {
 	//生成场景ID
 	sceneId := util.ShortHash(strconv.FormatInt(time.Now().Unix(), 10), 1)
 	for _, item := range fileList {
-		err := p.savePProf2DB(env, zoneCode, appName, appInfo.Aid, hostName, sceneId, item.FileType, item.Url, "svg")
+		err := p.savePProf2DB(req.Env, req.ZoneCode, req.AppName, appInfo.Aid, req.HostName, sceneId, item.FileType, item.Url, "svg")
 		if err != nil {
-			xlog.Error("save pprof to db err", zap.Error(err), zap.String("appName", appName), zap.String("zoneCode", zoneCode), zap.String("hostName", hostName), zap.Any("item", item))
+			xlog.Error("save pprof to db err", zap.Error(err), zap.String("appName", req.AppName), zap.String("zoneCode", req.ZoneCode), zap.String("hostName", req.HostName), zap.Any("item", item))
 			return err
 		}
 	}
@@ -205,25 +206,25 @@ func getFlameGraph(fileName, tagFileName string) error {
 }
 
 //GetPprof ..
-func (p *pprof) getPprof(uniqZone view.UniqZone, ip, port, pprofType string) (resp []byte, err error) {
+func (p *pprof) getPprof(uniqZone view.UniqZone, ip, port, pprofType string, durationSec int) (resp []byte, err error) {
 	url := "/debug/pprof"
 	_, err = clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
 		Address: fmt.Sprintf("%s:%s", ip, port),
 		URL:     url,
-		Timeout: 15,
+		Timeout: durationSec,
 	})
 	if err != nil {
 		return
 	}
 	// 耗时比较久
 	if pprofType == "profile" {
-		pprofType = fmt.Sprintf("%s?seconds=%d", pprofType, clientproxy.ClientDefaultTimeout)
+		pprofType = fmt.Sprintf("%s?seconds=%d", pprofType, durationSec)
 	}
 	url = url + "/" + pprofType
 	resp2, err := clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
 		Address: fmt.Sprintf("%s:%s", ip, port),
 		URL:     url,
-		Timeout: 15,
+		Timeout: durationSec,
 	})
 	if err != nil {
 		return
