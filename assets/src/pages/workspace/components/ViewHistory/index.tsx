@@ -5,6 +5,8 @@ import styles from './index.less';
 import {
   GetAppViewHistory
 } from '@/services/user';
+import {getAppSearchByAppName} from "@/utils/searchapppath";
+import {history} from "@@/core/umiExports";
 
 
 const ItemColors = [
@@ -40,7 +42,24 @@ export default class ViewHistory extends React.Component {
     if (myAppViewHistory.length === 0) return <></>;
     return <div className={styles.viewHistory}>
       {myAppViewHistory.map((item, index) => {
-        return <Link to={`/app?aid=${item.aid}&appName=${item.appName}&&tab=detailL`} target="_blank">
+        // 解决历史应用点击进来无历史信息的问题
+        return <a onClick={()=>{
+          getAppSearchByAppName(item.appName,'/app').then((val)=>{
+            if (val ==null) {
+              // eslint-disable-next-line no-param-reassign
+              val = `aid=${item.aid}&appName=${item.appName}&&tab=detailL`
+            }
+
+            //若是通过路由跳转历史app
+            // history.push({
+            //   search: val ||'',
+            //   pathname: '/app',
+            // })
+
+            //历史app点击后新启一个浏览器tab
+            window.open("/app"+"?"+val);
+          })
+        }}>
           <Popover content={item.appName}>
             <div
               style={{backgroundColor: this.pickColor(item.appName)}}
@@ -49,8 +68,10 @@ export default class ViewHistory extends React.Component {
               {item.appName}
             </div>
           </Popover>
-        </Link>
+
+        </a>
       })}
+
     </div>;
   }
 
