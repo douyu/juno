@@ -259,6 +259,11 @@ export default class Base extends React.Component<HomeProps, any> {
           <Row gutter={4} style={{ marginTop: '4px' }}>
             <Col span={12}>
               <Row gutter={4} style={{ marginTop: '4px' }}>
+                <Col span={24}>
+                  <Card title={'最近浏览应用'}>    <ViewHistory/></Card>
+                </Col>
+              </Row>
+              <Row gutter={4} style={{ marginTop: '4px' }}>
                 <Col span={12}>
                   <Card title={'资源预警'}>{0}</Card>
                 </Col>
@@ -280,11 +285,7 @@ export default class Base extends React.Component<HomeProps, any> {
                   <Card title={'配置文件总数'}>{total}</Card>
                 </Col>
               </Row>
-              <Row gutter={4} style={{ marginTop: '4px' }}>
-                <Col span={24}>
-                  <Card title={'最近浏览应用'}>    <ViewHistory/></Card>
-                </Col>
-              </Row>
+
               <Row gutter={4} style={{ marginTop: '4px' }}>
                 <Col span={24}>
                   <Card title={'环境对应可用区'}>
@@ -332,6 +333,13 @@ export default class Base extends React.Component<HomeProps, any> {
             <Col span={12}>
               <Row gutter={4} style={{ marginTop: '4px' }}>
                 <Col span={24}>
+                  <Card title={'事件流'}>
+                    <EventList data={data} onChange={this.onChangeEventPage} />
+                  </Card>
+                </Col>
+              </Row>
+              <Row gutter={4} style={{ marginTop: '4px' }}>
+                <Col span={24}>
                   <Card title={'节点基本情况统计'}>
                     <Spin spinning={!node_stat}>
                       <ReactEcharts
@@ -344,13 +352,7 @@ export default class Base extends React.Component<HomeProps, any> {
                   </Card>
                 </Col>
               </Row>
-              <Row gutter={4} style={{ marginTop: '4px' }}>
-                <Col span={24}>
-                  <Card title={'事件流'}>
-                    <EventList data={data} onChange={this.onChangeEventPage} />
-                  </Card>
-                </Col>
-              </Row>
+
             </Col>
           </Row>
         </div>
