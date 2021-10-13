@@ -1,17 +1,18 @@
 import React from 'react'
-import {connect} from 'dva'
+import { connect } from 'dva'
 import styles from './index.less'
-import {DeleteOutlined, FileOutlined, HistoryOutlined, StopOutlined} from '@ant-design/icons'
+import { DeleteOutlined, FileOutlined, HistoryOutlined, StopOutlined } from '@ant-design/icons'
 import OptionButton from "@/pages/app/components/Config/components/OptionButton";
-import {Popconfirm, Spin, Tag} from 'antd'
+import { Popconfirm, Spin, Tag } from 'antd'
 import confirm from "antd/es/modal/confirm";
+import ScrollArea from 'react-scrollbar';
 
 function Files(props) {
   const {
     currentConfig, configList, configListLoading, currentContent,
     deleteConfig, aid, env, loadConfigList, appName, k8sClusters
   } = props
-  let {zoneList} = props
+  let { zoneList } = props
   const fileChanged = currentConfig && currentConfig.content !== currentContent
 
   k8sClusters.forEach(cluster => {
@@ -29,7 +30,7 @@ function Files(props) {
       return <div
         className={styles.noConfigTip}
       >
-        <StopOutlined/>
+        <StopOutlined />
         该Zone暂无配置
       </div>
     }
@@ -55,15 +56,17 @@ function Files(props) {
           }
         }}
       >
-        <div>{cfg.config_status === 1 ?
-          <Tag  color="green">已发布</Tag> : cfg.config_status === 2 ?
-            <Tag  color="yellow">未发布</Tag> : ""}{cfg.name}.{cfg.format}</div>
+       <div className={styles.configListTextItem}>
+       <div>{cfg.config_status === 1 ?
+          <Tag color="green">已发布</Tag> : cfg.config_status === 2 ?
+            <Tag color="yellow">未发布</Tag> : ""}{cfg.name}.{cfg.format}</div>
         <div>
           {currentConfig && currentConfig.content !== currentContent && cfg.id === currentConfig.id &&
-          <span className={styles.notSavedTip}>
-            未保存
-          </span>}
+            <span className={styles.notSavedTip}>
+              未保存
+            </span>}
         </div>
+       </div>
         <div>
           <div onClick={ev => ev.stopPropagation()}>
             <Popconfirm
@@ -76,7 +79,7 @@ function Files(props) {
             >
               <OptionButton
                 type={"text"}>
-                <DeleteOutlined/>
+                <DeleteOutlined />
               </OptionButton>
             </Popconfirm>
           </div>
@@ -85,24 +88,25 @@ function Files(props) {
     })
   }
 
-  return <div>
+  return <div style={{ display: "flex", flexDirection: "column" }}>
     <div className={styles.options}>
       <OptionButton
         onClick={() => props.showCreateModal(true)}
         title={"新增配置"}>
-        <FileOutlined/>
+        <FileOutlined />
       </OptionButton>
       {currentConfig && <OptionButton
         title={"历史变更"}
         onClick={() => props.showHistoryModal(true)}
       >
-        <HistoryOutlined/>
+        <HistoryOutlined />
       </OptionButton>}
     </div>
-
+     
     <ul className={styles.zoneList}>
-      {configListLoading && <div style={{textAlign: 'center', paddingTop: '30px'}}>
-        <Spin/>
+      <ScrollArea style={{height: '100%'}}>
+      {configListLoading && <div style={{ textAlign: 'center', paddingTop: '30px' }}>
+        <Spin />
         <div>加载中</div>
       </div>}
 
@@ -120,14 +124,16 @@ function Files(props) {
       {!configListLoading && (!zoneList || !zoneList.length) && <div
         className={styles.noConfigTip}
       >
-        <StopOutlined/>
+        <StopOutlined />
         当前应用环境无机房
       </div>}
+      </ScrollArea>
+    
     </ul>
   </div>
 }
 
-const mapState = ({config, setting}) => {
+const mapState = ({ config, setting }) => {
   return {
     zoneList: config.zoneList,
     configList: config.configList,
@@ -143,12 +149,12 @@ const mapState = ({config, setting}) => {
 
 const mapDispatch = (dispatch) => {
   return {
-    showCreateModal: visible => dispatch({type: 'config/showCreateModal', payload: visible}),
-    showSaveModal: visible => dispatch({type: 'config/showSaveModal', payload: visible}),
-    showHistoryModal: visible => dispatch({type: 'config/showHistoryModal', payload: visible}),
+    showCreateModal: visible => dispatch({ type: 'config/showCreateModal', payload: visible }),
+    showSaveModal: visible => dispatch({ type: 'config/showSaveModal', payload: visible }),
+    showHistoryModal: visible => dispatch({ type: 'config/showHistoryModal', payload: visible }),
     loadConfigDetail: id => dispatch({
       type: 'config/loadConfigDetail',
-      payload: {id}
+      payload: { id }
     }),
     deleteConfig: id => dispatch({
       type: 'config/deleteConfig',

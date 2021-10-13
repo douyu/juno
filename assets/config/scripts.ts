@@ -32,10 +32,8 @@ export default [
   },
   {
     src:staticPrefix+'/js/codemirror/v5.62.3/lib/codemirror.js'
-
   },
   {
     src: staticPrefix+ '/js/jquery/v3.4.1/jquery.min.js',
   },
-
 ];

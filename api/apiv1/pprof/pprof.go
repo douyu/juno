@@ -1,6 +1,7 @@
 package pprofHandle
 
 import (
+	"context"
 	"os/exec"
 	"sort"
 	"strings"
@@ -90,24 +91,14 @@ func CheckDep(c echo.Context) error {
 
 // Run ..
 func Run(c echo.Context) error {
-	reqModel := view.ReqRunProfile{}
-	if err := c.Bind(&reqModel); err != nil {
+	reqModel := new(view.ReqRunProfile)
+	if err := c.Bind(reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
-
-	if reqModel.AppName == "" || reqModel.HostName == "" || reqModel.Env == "" {
-		return output.JSON(c, output.MsgErr, "请选择具体的实例")
+	if isValid, msg := reqModel.IsValid(); !isValid {
+		return output.JSON(c, output.MsgErr, msg)
 	}
-
-	if reqModel.ZoneCode == "" {
-		return output.JSON(c, output.MsgErr, "必须选择可用区")
-	}
-
-	if reqModel.ZoneCode == "all" {
-		return output.JSON(c, output.MsgErr, "请选择具体的可用区")
-	}
-
-	if err := pprof.Pprof.RunPprof(reqModel.Env, reqModel.ZoneCode, reqModel.AppName, reqModel.HostName); err != nil {
+	if err := pprof.Pprof.RunPprof(context.Background(), reqModel); err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
