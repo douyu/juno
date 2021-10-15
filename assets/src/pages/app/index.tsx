@@ -26,7 +26,7 @@ import Event from '@/pages/app/components/Event';
 import Test from '@/pages/app/components/Test';
 import { Dispatch } from '@@/plugin-dva/connect';
 import styles from './style.less';
-import { setAppSearch } from '@/utils/searchapppath';
+import { setAppSearch,setAppSearchByAppName } from '@/utils/searchapppath';
 
 const { TabPane } = Tabs;
 
@@ -74,6 +74,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
       //限定合法值去存储
       if (locationin.query.appName) {
         setAppSearch(locationin.query.appName, locationin);
+        setAppSearchByAppName(locationin.query.appName, locationin)
       }
     });
     ServiceAppList().then((res) => {
