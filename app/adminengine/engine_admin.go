@@ -16,7 +16,7 @@ package adminengine
 
 import (
 	"context"
-	"github.com/papa-hexuan/juno/internal/pkg/service/k8s"
+
 	"strconv"
 	"time"
 
@@ -30,6 +30,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/internal/pkg/service/k8s"
 	"github.com/douyu/juno/internal/pkg/service/notify"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/user"
