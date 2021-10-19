@@ -5,21 +5,23 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-type sync interface {
+type k8sSync interface {
 	watch()
 	clean()
 	add(obj interface{})
 	update(old interface{}, new interface{})
 	delete(obj interface{})
+	sync(namespace string, aid uint32) error //同步该集群数据到数据库 aid=0时 同步全量的
+	getDomain() string                       //返回拉取配置的domain信息
 	close()
 }
 
 type cluster struct {
 	zoneCode    string
-	syncPod     sync
-	syncEvent   sync
-	syncService sync
-	syncIngress sync
+	syncPod     k8sSync
+	syncEvent   k8sSync
+	syncService k8sSync
+	syncIngress k8sSync
 }
 
 // newCluster Cluster data synchronization initialization

@@ -13,7 +13,3 @@ const (
 	podItem              = "/api/v1/namespaces/%s/pods/%s"
 	podLog               = "/api/v1/namespaces/%s/pods/%s/log"
 )
-
-var AllowPodStatus = map[string]bool{
-	"Running":   true,
-}

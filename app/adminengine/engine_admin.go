@@ -16,6 +16,7 @@ package adminengine
 
 import (
 	"context"
+	"github.com/papa-hexuan/juno/internal/pkg/service/k8s"
 	"strconv"
 	"time"
 
@@ -97,6 +98,7 @@ func New() *Admin {
 		eng.initParseWorker,
 		eng.initVersionWorker,
 		eng.initUserVisitWorker,
+		eng.initK8sListWorker,
 	)
 
 	if err != nil {
@@ -301,5 +303,15 @@ func (eng *Admin) initVersionWorker() (err error) {
 func (eng *Admin) initUserVisitWorker() (err error) {
 	cron := xcron.StdConfig("parse").Build()
 	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(user.User.CronCleanUserVisitRecord))
+	return eng.Schedule(cron)
+}
+
+// 每隔12小时同步k8s列表
+func (eng *Admin) initK8sListWorker() (err error) {
+	if cfg.Cfg.App.Mode == "local" {
+		return
+	}
+	cron := xcron.DefaultConfig().Build()
+	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(k8s.SyncAll))
 	return eng.Schedule(cron)
 }
