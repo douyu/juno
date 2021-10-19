@@ -42,7 +42,7 @@ func (t *K8sPod) TableName() string {
 
 // Formatting ..
 func (t *K8sPod) Formatting(zc, domain string, in *v1.Pod) {
-	aid, _ := strconv.Atoi(in.ObjectMeta.Labels["dyAppId"])
+	aid, _ := strconv.ParseUint(in.ObjectMeta.Labels["dyAppId"], 10, 32)
 	t.Aid = int32(aid)
 	t.Env = strings.TrimSpace(in.ObjectMeta.Labels["runEnv"])
 	t.ZoneCode = strings.TrimSpace(zc)
