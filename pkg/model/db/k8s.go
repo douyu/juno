@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/douyu/juno/pkg/util"
@@ -31,6 +32,7 @@ type K8sPod struct {
 	Aid      int32  `json:"aid" gorm:"column:aid;index:idx_aid"`               //appId
 	AppName  string `json:"app_name" gorm:"column:app_name;index:idx_appname"` //appName
 	ZoneCode string `json:"zone_code" gorm:"column:zone_code"`                 //idc_code
+	Domain   string `json:"domain" gorm:"column:domain"`                       //zoneCode+Domain唯一标识一个集群
 }
 
 // TableName ..
@@ -39,30 +41,31 @@ func (t *K8sPod) TableName() string {
 }
 
 // Formatting ..
-func (t *K8sPod) Formatting(zc string, in *v1.Pod) {
-	aid, _ := strconv.Atoi(in.ObjectMeta.Labels["appId"])
+func (t *K8sPod) Formatting(zc, domain string, in *v1.Pod) {
+	aid, _ := strconv.Atoi(in.ObjectMeta.Labels["dyAppId"])
 	t.Aid = int32(aid)
-	t.Env = in.ObjectMeta.Labels["runEnv"]
-	t.ZoneCode = zc
-	t.PodName = in.ObjectMeta.Name
+	t.Env = strings.TrimSpace(in.ObjectMeta.Labels["runEnv"])
+	t.ZoneCode = strings.TrimSpace(zc)
+	t.Domain = strings.TrimSpace(domain)
+	t.PodName = strings.TrimSpace(in.ObjectMeta.Name)
 	t.UpdateTime = in.ObjectMeta.CreationTimestamp.Time
-	t.AppName = in.ObjectMeta.Labels["appName"]
-	t.Namespace = in.ObjectMeta.Namespace
+	t.AppName = strings.TrimSpace(in.ObjectMeta.Labels["appName"])
+	t.Namespace = strings.TrimSpace(in.ObjectMeta.Namespace)
 
 	if len(in.Spec.Containers) > 0 {
-		t.Image = in.Spec.Containers[0].Image
+		t.Image = strings.TrimSpace(in.Spec.Containers[0].Image)
 	}
 
-	t.NodeName = in.Spec.NodeName
-	t.HostIp = in.Status.HostIP
-	t.PodIp = in.Status.PodIP
-	t.Status = string(in.Status.Phase)
+	t.NodeName = strings.TrimSpace(in.Spec.NodeName)
+	t.HostIp = strings.TrimSpace(in.Status.HostIP)
+	t.PodIp = strings.TrimSpace(in.Status.PodIP)
+	t.Status = strings.TrimSpace(string(in.Status.Phase))
 	if in.Status.StartTime != nil {
 		t.StartTime = in.Status.StartTime.Time
 	}
 	t.UpdateTime = time.Now()
-	t.InstanceGroupID = in.ObjectMeta.Labels["appDeploymentId"]
-	t.InstanceGroupName = in.ObjectMeta.Labels["name"]
+	t.InstanceGroupID = strings.TrimSpace(in.ObjectMeta.Labels["appDeploymentId"])
+	t.InstanceGroupName = strings.TrimSpace(in.ObjectMeta.Labels["name"])
 	t.IsDel = 0
 
 	md5BodyByte, _ := json.Marshal(in)
