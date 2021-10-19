@@ -259,13 +259,13 @@ func (i *syncPod) delete(obj interface{}) {
 			xlog.String("reason", err.Error()))
 		return
 	}
-	id, _ := strconv.Atoi(in.ObjectMeta.Labels["dyAppId"])
+	id, _ := strconv.ParseUint(in.ObjectMeta.Labels["dyAppId"], 10, 32)
 	name := in.ObjectMeta.Name
 	xlog.Info("k8sWork",
 		xlog.String("step", "delete-print"),
 		xlog.String("domain", i.domain),
 		xlog.String("podName", name),
-		xlog.Int("id", id))
+		xlog.String("id", in.ObjectMeta.Labels["dyAppId"]))
 	err = i.mysqlDelete(uint32(id), i.domain, name)
 	if err != nil {
 		xlog.Error("k8sWork",
@@ -329,7 +329,7 @@ func (s *syncPod) structMap(data []v1.Pod) map[uint32][]v1.Pod {
 		if s.commonCheck(&item) != nil {
 			continue
 		}
-		appid, _ := strconv.Atoi(item.Labels["dyAppId"])
+		appid, _ := strconv.ParseUint(item.Labels["dyAppId"], 10, 32)
 		if appid == 0 {
 			continue
 		}
