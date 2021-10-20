@@ -16,7 +16,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -68,6 +67,7 @@ func (a *keyLock) UnLock(aid uint32, domain string) {
 
 type syncPod struct {
 	wlock         *keyLock
+	labelAid      string
 	zoneCode      string
 	domain        string
 	prefix        string
@@ -77,7 +77,7 @@ type syncPod struct {
 	stopCh        chan struct{}
 }
 
-func newSyncPod(zoneCode, prefix string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *syncPod {
+func newSyncPod(zoneCode, prefix, labelAid string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *syncPod {
 	// 解析zonecode
 	tmp := strings.Split(zoneCode, "|")
 	if len(tmp) < 1 {
@@ -85,6 +85,7 @@ func newSyncPod(zoneCode, prefix string, excludeSuffix []string, config *rest.Co
 	}
 	s := &syncPod{
 		wlock:         &keyLock{lmap: sync.Map{}},
+		labelAid:      labelAid,
 		zoneCode:      strings.TrimSpace(strings.Split(zoneCode, "|")[0]),
 		domain:        strings.TrimSpace(strings.Split(zoneCode, "|")[1]),
 		config:        config,
@@ -177,7 +178,7 @@ func (i *syncPod) commonCheck(in *v1.Pod) error {
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
 		return errors.New("appName is empty")
 	}
-	if appid, ok = in.Labels[cfg.Cfg.K8s.LabelAid]; !ok || appid == "" {
+	if appid, ok = in.Labels[i.labelAid]; !ok || appid == "" {
 		return errors.New("appid is empty")
 	}
 	// 检查环境
@@ -260,13 +261,13 @@ func (i *syncPod) delete(obj interface{}) {
 			xlog.String("reason", err.Error()))
 		return
 	}
-	id, _ := strconv.ParseUint(in.ObjectMeta.Labels[cfg.Cfg.K8s.LabelAid], 10, 32)
+	id, _ := strconv.ParseUint(in.ObjectMeta.Labels[i.labelAid], 10, 32)
 	name := in.ObjectMeta.Name
 	xlog.Info("k8sWork",
 		xlog.String("step", "delete-print"),
 		xlog.String("domain", i.domain),
 		xlog.String("podName", name),
-		xlog.String("id", in.ObjectMeta.Labels[cfg.Cfg.K8s.LabelAid]))
+		xlog.String("id", in.ObjectMeta.Labels[i.labelAid]))
 	err = i.mysqlDelete(uint32(id), i.domain, name)
 	if err != nil {
 		xlog.Error("k8sWork",
@@ -324,13 +325,13 @@ func (i *syncPod) sync(namespace string, aid uint32) error {
 	return nil
 }
 
-func (s *syncPod) structMap(data []v1.Pod) map[uint32][]v1.Pod {
+func (i *syncPod) structMap(data []v1.Pod) map[uint32][]v1.Pod {
 	structMap := map[uint32][]v1.Pod{}
 	for _, item := range data {
-		if s.commonCheck(&item) != nil {
+		if i.commonCheck(&item) != nil {
 			continue
 		}
-		appid, _ := strconv.ParseUint(item.Labels[cfg.Cfg.K8s.LabelAid], 10, 32)
+		appid, _ := strconv.ParseUint(item.Labels[i.labelAid], 10, 32)
 		if appid == 0 {
 			continue
 		}
@@ -363,7 +364,7 @@ func (i *syncPod) List(namespace string, aid uint32) (res []v1.Pod, err error) {
 	first := true
 	var data *v1.PodList
 	if aid > 0 {
-		labelSelector = fmt.Sprintf(cfg.Cfg.K8s.LabelAid+"=%d", aid)
+		labelSelector = fmt.Sprintf(i.labelAid+"=%d", aid)
 	}
 	for Continue != "" || first {
 		data, err = clientSet.CoreV1().Pods(namespace).List(metav1.ListOptions{

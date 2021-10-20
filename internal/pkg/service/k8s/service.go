@@ -2,7 +2,7 @@ package k8s
 
 // apiServer Encapsulates k8s related calls and operations
 type apiServer interface {
-	allClusterStart(prefix string, excludeSuffix []string)
+	allClusterStart(prefix string, excludeSuffix []string, labelAid string)
 	allClusterSync(namespace string, aid uint32) error
 	get(zoneCode string, url string, v map[string]string, resp interface{}) (err error)
 	post(zoneCode string, url string, v interface{}, resp interface{}) (err error)

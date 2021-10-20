@@ -48,6 +48,6 @@ func Init() {
 	}
 	IK8s = newK8sImpl(kc)
 
-	IK8s.allClusterStart(cfg.Cfg.K8s.Prefix, cfg.Cfg.K8s.ExcludeSuffix)
+	IK8s.allClusterStart(cfg.Cfg.K8s.Prefix, cfg.Cfg.K8s.ExcludeSuffix, cfg.Cfg.K8s.LabelAid)
 
 }
