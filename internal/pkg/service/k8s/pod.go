@@ -16,6 +16,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 
+	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -176,7 +177,7 @@ func (i *syncPod) commonCheck(in *v1.Pod) error {
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
 		return errors.New("appName is empty")
 	}
-	if appid, ok = in.Labels["dyAppId"]; !ok || appid == "" {
+	if appid, ok = in.Labels[cfg.Cfg.K8s.LabelAid]; !ok || appid == "" {
 		return errors.New("appid is empty")
 	}
 	// 检查环境
@@ -259,13 +260,13 @@ func (i *syncPod) delete(obj interface{}) {
 			xlog.String("reason", err.Error()))
 		return
 	}
-	id, _ := strconv.ParseUint(in.ObjectMeta.Labels["dyAppId"], 10, 32)
+	id, _ := strconv.ParseUint(in.ObjectMeta.Labels[cfg.Cfg.K8s.LabelAid], 10, 32)
 	name := in.ObjectMeta.Name
 	xlog.Info("k8sWork",
 		xlog.String("step", "delete-print"),
 		xlog.String("domain", i.domain),
 		xlog.String("podName", name),
-		xlog.String("id", in.ObjectMeta.Labels["dyAppId"]))
+		xlog.String("id", in.ObjectMeta.Labels[cfg.Cfg.K8s.LabelAid]))
 	err = i.mysqlDelete(uint32(id), i.domain, name)
 	if err != nil {
 		xlog.Error("k8sWork",
@@ -329,7 +330,7 @@ func (s *syncPod) structMap(data []v1.Pod) map[uint32][]v1.Pod {
 		if s.commonCheck(&item) != nil {
 			continue
 		}
-		appid, _ := strconv.ParseUint(item.Labels["dyAppId"], 10, 32)
+		appid, _ := strconv.ParseUint(item.Labels[cfg.Cfg.K8s.LabelAid], 10, 32)
 		if appid == 0 {
 			continue
 		}
@@ -362,7 +363,7 @@ func (i *syncPod) List(namespace string, aid uint32) (res []v1.Pod, err error) {
 	first := true
 	var data *v1.PodList
 	if aid > 0 {
-		labelSelector = fmt.Sprintf("dyAppId=%d", aid)
+		labelSelector = fmt.Sprintf(cfg.Cfg.K8s.LabelAid+"=%d", aid)
 	}
 	for Continue != "" || first {
 		data, err = clientSet.CoreV1().Pods(namespace).List(metav1.ListOptions{
