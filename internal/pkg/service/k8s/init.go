@@ -26,7 +26,7 @@ func Init() {
 	}
 	if len(k8sSystemConfig.List) == 0 {
 		xlog.Error("k8sWork",
-			xlog.String("step", "len"),
+			xlog.String("step", "length"),
 			xlog.Any("k8sSystemConfig", k8sSystemConfig))
 		return
 	}
