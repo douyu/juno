@@ -54,7 +54,7 @@ func (r *resource) GetAppNodeList(where db.AppNode, currentPage, pageSize int) (
 	nodeSql := `select * from
 (select a.aid,a.aid id,a.app_name,a.host_name,a.ip,a.zone_name,a.region_name,a.env,a.update_time,a.zone_code  from app_node a
 UNION
-select k.aid,k.aid id,k.app_name,k.node_name host_name,k.pod_ip ip,z.zone_name,z.region_name,k.env,UNIX_TIMESTAMP(k.update_time) update_time,k.zone_code from k8s_pod k left join zone z on z.zone_code =k.zone_code
+select k.aid,k.aid id,k.app_name,k.pod_name host_name,k.pod_ip ip,z.zone_name,z.region_name,k.env,UNIX_TIMESTAMP(k.update_time) update_time,k.zone_code from k8s_pod k left join zone z on z.zone_code =k.zone_code
 ) t where 1=1 %s order by t.update_time desc`
 
 	whereSql := "&&"

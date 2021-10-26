@@ -218,6 +218,7 @@ func apiAdmin(server *xecho.Server) {
 
 		resourceGroup.GET("/app_node/info", resource.AppNodeInfo)
 		resourceGroup.GET("/app_node/list", resource.AppNodeList)
+		resourceGroup.GET("/app_node/listSync", resource.AppNodeListSync)
 		resourceGroup.POST("/app_node/put", resource.AppNodePut)
 		resourceGroup.GET("/app_node/transfer/list", resource.AppNodeTransferList)
 		resourceGroup.POST("/app_node/transfer/put", resource.AppNodeTransferPut)
