@@ -20,6 +20,7 @@ import {
   Tooltip,
   Layout,
   List,
+  Form,
 } from 'antd';
 import PprofIframe from './components/PprofIframe';
 import moment from 'moment';
@@ -27,6 +28,8 @@ import ZoneSelect from '@/components/ZoneSelect';
 import { checkDep } from './services';
 import { installDep } from '@/pages/manage/services';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+const FormItem = Form.Item;
+const { Option } = Select;
 
 const pprofBtn = {
   profile: { name: 'CPU分析（profile）', type: 'profile' },
@@ -44,6 +47,7 @@ const { TextArea } = Input;
 @connect(({ pprofModel, setting, loading }) => ({
   setting,
   pprofList: pprofModel.pprofList,
+  pprofModelRunning: loading.effects['pprofModel/run'],
   //appNodeList: appModel.appNodeList
 }))
 export default class PPofList extends React.PureComponent {
@@ -51,7 +55,6 @@ export default class PPofList extends React.PureComponent {
     super(props);
     this.state = {
       btnList: [],
-      loading: false,
       app: {},
       pageShowType: 'item',
       pprofActiveBtn: '查看分析',
@@ -68,8 +71,11 @@ export default class PPofList extends React.PureComponent {
       zoneCode: props.zoneCode,
       env: props.env,
       depRes: {},
+      pprofModalVisible: false,
     };
+    this.pprofFormRef = React.createRef();
     this.aid = 0;
+
   }
 
   componentDidMount() {
@@ -150,13 +156,7 @@ export default class PPofList extends React.PureComponent {
     this.setState(obj);
   };
 
-  enterLoading = () => {
-    this.setState({ loading: true });
-  };
 
-  stopLoading = () => {
-    this.setState({ loading: false });
-  };
 
   // 切换实例
   changeNode = (hostName) => {
@@ -187,13 +187,9 @@ export default class PPofList extends React.PureComponent {
   };
 
   // 获取go应用pprof
-  runPprof = () => {
+  runPprof = (params) => {
     const { dispatch } = this.props;
     const { appName, zoneCode, hostName, env } = this.state;
-
-    // 耗时比较久,所以这里要loading
-    this.enterLoading();
-
     dispatch({
       type: 'pprofModel/run',
       payload: {
@@ -201,9 +197,9 @@ export default class PPofList extends React.PureComponent {
         app_name: appName,
         host_name: hostName,
         env,
+        ...params,
       },
       callback: (resp) => {
-        this.stopLoading();
         this.getList();
 
         if (resp.status >= 300) {
@@ -214,7 +210,6 @@ export default class PPofList extends React.PureComponent {
           message.error(resp.msg);
           return;
         }
-
         message.success('成功！因文件服务延时，请稍等片刻查看相关分析文件！', 8);
       },
     });
@@ -222,7 +217,7 @@ export default class PPofList extends React.PureComponent {
 
   handleCheckLog = (e) => {
     console.log('click', e);
-    const {} = this.state;
+    const { } = this.state;
     installDep({ installType: e * 1 }).then((rs) => {
       const { code, msg, data } = rs;
       if (code === 0) {
@@ -296,10 +291,11 @@ export default class PPofList extends React.PureComponent {
       defalutZone,
       appEnvZone,
       onChangeZone,
+      pprofModelRunning,
     } = this.props;
     // const { aid, env, appNodeList, appEnvZone, onChangeZone, defalutZone} = props;
     const { pprofActiveBtn, zoneCode, appName, env } = this.state;
-    const { loading, depRes } = this.state;
+    const { loading, depRes, pprofModalVisible } = this.state;
     const { golang, flameGraph, graphviz } = depRes;
     console.log('env,zoneCode ', env, zoneCode);
     if (!env || !zoneCode) {
@@ -336,17 +332,36 @@ export default class PPofList extends React.PureComponent {
             </Select>
           </Col>
           <Col span={4}>
-            <Popconfirm
-              placement="rightBottom"
-              title={'CPU分析需等待30s，确认操作？'}
-              onConfirm={this.runPprof}
-              okText="Yes"
-              cancelText="No"
+            <Button type="primary" onClick={() => {
+              this.setState({ pprofModalVisible: true });
+            }} className={'pprof-btn'} loading={pprofModelRunning}>
+              更新分析图表
+            </Button>
+            <Modal
+              title={"CPU分析，确认操作？"}
+              visible={pprofModalVisible}
+              onOk={() => {
+                this.pprofFormRef.current?.validateFields()
+                  .then(fieldsValue => {
+                    this.runPprof(fieldsValue)
+                    this.setState({ pprofModalVisible: false });
+                  })
+                  .catch(errorInfo => {
+                    console.log("===pprofFormRef", errorInfo);
+                  });
+              }}
+              onCancel={() => { this.setState({ pprofModalVisible: false }); }}
             >
-              <Button type="primary" className={'pprof-btn'} loading={loading}>
-                更新分析图表
-              </Button>
-            </Popconfirm>
+              <Form ref={this.pprofFormRef} preserve={false} >
+                <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="请选择采样时间" name="duration_second" initialValue={30}>
+                  <Select>
+                    <Option key={"30"} value={30}>30秒</Option>
+                    <Option key={"120"} value={120}>2分钟</Option>
+                    <Option key={"300"} value={300}>5分钟</Option>
+                  </Select>
+                </FormItem>
+              </Form>
+            </Modal>
           </Col>
           <Col span={8}>
             {golang === 1 && (

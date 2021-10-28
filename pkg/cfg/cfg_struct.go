@@ -67,6 +67,7 @@ type Server struct {
 }
 
 type K8s struct {
+	LabelAid      string
 	Enable        bool
 	Prefix        string
 	ExcludeSuffix []string

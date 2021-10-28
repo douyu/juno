@@ -4,8 +4,9 @@ import v1 "k8s.io/api/core/v1"
 
 // K8sConfig k8s config
 type K8sConfig struct {
-	Domain string
-	Token  string
+	ZoneCode string
+	Domain   string
+	Token    string
 }
 
 // PodList ..

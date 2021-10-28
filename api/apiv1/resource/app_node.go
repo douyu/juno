@@ -1,8 +1,11 @@
 package resource
 
 import (
+	"strconv"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
+	"github.com/douyu/juno/internal/pkg/service/k8s"
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/util"
@@ -26,7 +29,17 @@ func AppNodeInfo(c echo.Context) error {
 	}
 	return output.JSON(c, output.MsgOk, "success", info)
 }
-
+func AppNodeListSync(c echo.Context) error {
+	aid, _ := strconv.ParseUint(c.QueryParam("aid"), 10, 32)
+	if aid == 0 {
+		return output.JSON(c, output.MsgErr, "aid is null")
+	}
+	err := k8s.Sync(uint32(aid))
+	if err != nil {
+		return output.JSON(c, output.MsgErr, err.Error())
+	}
+	return output.JSON(c, output.MsgOk, "success")
+}
 func AppNodeList(c echo.Context) error {
 	var (
 		err error

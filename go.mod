@@ -89,5 +89,4 @@ require (
 	k8s.io/client-go v8.0.0+incompatible
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
-
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
