@@ -60,17 +60,19 @@ func newAppLogD() {
 //LogStore get log store
 func (a *appLogDefault) LogStore(env, query, typ, appName, aid string) (string, error) {
 	project, logStore := a.getLogStoreName(env, typ, appName)
-	query = a.genQuery(typ, aid, query, appName)
+	query = a.genQuery(env, typ, aid, query, appName)
 	return assist.AliyunLog(project, logStore, query)
 }
 
 // genQuery ...
-func (a *appLogDefault) genQuery(typ, aid, query, appName string) string {
+func (a *appLogDefault) genQuery(env, typ, aid, query, appName string) string {
 	switch typ {
 	case LogTypConsole:
 		return fmt.Sprintf("* and SYSLOG_IDENTIFIER:%s", appName)
 	case LogTypJupiter, LogTypBiz:
-		return fmt.Sprintf("* and aid:%s", aid)
+		if env != "prod" {
+			return fmt.Sprintf("* and aid:%s", aid)
+		}
 	}
 	return query
 }
