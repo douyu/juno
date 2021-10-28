@@ -3,6 +3,8 @@ package k8s
 import (
 	"strings"
 
+	"github.com/douyu/jupiter/pkg/util/xgo"
+
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/view"
@@ -47,7 +49,8 @@ func Init() {
 		kc[v.ZoneCode+"|"+v.Domain] = clusterItem
 	}
 	IK8s = newK8sImpl(kc)
-
-	IK8s.allClusterStart(cfg.Cfg.K8s.Prefix, cfg.Cfg.K8s.ExcludeSuffix, cfg.Cfg.K8s.LabelAid)
+	xgo.Go(func() {
+		IK8s.allClusterStart(cfg.Cfg.K8s.Prefix, cfg.Cfg.K8s.ExcludeSuffix, cfg.Cfg.K8s.LabelAid)
+	})
 
 }
