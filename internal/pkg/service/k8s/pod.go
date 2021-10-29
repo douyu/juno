@@ -163,17 +163,19 @@ func (i *syncPod) watch() {
 func (i *syncPod) close() {
 	i.stopCh <- struct{}{}
 }
-func (i *syncPod) commonCheck(in *v1.Pod) error {
+func (i *syncPod) commonCheck(in *v1.Pod, isnew bool) error {
 	var (
 		appName string
 		appid   string
 		ok      bool
 	)
-
-	// 检查PodPhase
-	if in.Status.Phase != v1.PodRunning {
-		return errors.New("pod is not running")
+	if isnew {
+		// 检查PodPhase
+		if in.Status.Phase != v1.PodRunning {
+			return errors.New("pod is not running")
+		}
 	}
+
 	// 检查appName
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
 		return errors.New("appName is empty")
@@ -200,7 +202,7 @@ func (i *syncPod) commonCheck(in *v1.Pod) error {
 func (i *syncPod) add(obj interface{}) {
 	in := obj.(*v1.Pod)
 
-	err := i.commonCheck(in)
+	err := i.commonCheck(in, true)
 	if err != nil {
 		xlog.Debug("k8sWork",
 			xlog.String("step", "add-check"),
@@ -229,7 +231,7 @@ func (i *syncPod) add(obj interface{}) {
 func (i *syncPod) update(old interface{}, new interface{}) {
 	in := new.(*v1.Pod)
 
-	err := i.commonCheck(in)
+	err := i.commonCheck(in, true)
 	if err != nil {
 		xlog.Debug("k8sWork",
 			xlog.String("step", "update-check"),
@@ -252,7 +254,8 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 
 func (i *syncPod) delete(obj interface{}) {
 	in := obj.(*v1.Pod)
-	err := i.commonCheck(in)
+
+	err := i.commonCheck(in, false)
 	if err != nil {
 		xlog.Debug("k8sWork",
 			xlog.String("step", "delete-check"),
@@ -268,6 +271,7 @@ func (i *syncPod) delete(obj interface{}) {
 		xlog.String("domain", i.domain),
 		xlog.String("podName", name),
 		xlog.String("id", in.ObjectMeta.Labels[i.labelAid]))
+
 	err = i.mysqlDelete(uint32(id), i.domain, name)
 	if err != nil {
 		xlog.Error("k8sWork",
@@ -328,7 +332,7 @@ func (i *syncPod) sync(namespace string, aid uint32) error {
 func (i *syncPod) structMap(data []v1.Pod) map[uint32][]v1.Pod {
 	structMap := map[uint32][]v1.Pod{}
 	for _, item := range data {
-		if i.commonCheck(&item) != nil {
+		if i.commonCheck(&item, true) != nil {
 			continue
 		}
 		appid, _ := strconv.ParseUint(item.Labels[i.labelAid], 10, 32)

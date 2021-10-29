@@ -282,6 +282,10 @@ func (eng *Admin) initWorker() (err error) {
 }
 
 func (eng *Admin) initParseWorker() (err error) {
+	if cfg.Cfg.App.Mode == "local" {
+		return
+	}
+
 	// 获取配置解析依赖时间
 	interval := confgo.ConfuSrv.GetConfigParseWorkerTime()
 	// 默认值 7200s
@@ -295,6 +299,9 @@ func (eng *Admin) initParseWorker() (err error) {
 }
 
 func (eng *Admin) initVersionWorker() (err error) {
+	if cfg.Cfg.App.Mode == "local" {
+		return
+	}
 	cron := xcron.StdConfig("parse").Build()
 	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(appDep.AppDep.SyncAppVersion))
 	return eng.Schedule(cron)
@@ -302,6 +309,9 @@ func (eng *Admin) initVersionWorker() (err error) {
 
 // 每隔一天清理三个月前的 用户浏览记录数据
 func (eng *Admin) initUserVisitWorker() (err error) {
+	if cfg.Cfg.App.Mode == "local" {
+		return
+	}
 	cron := xcron.StdConfig("parse").Build()
 	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(user.User.CronCleanUserVisitRecord))
 	return eng.Schedule(cron)
