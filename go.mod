@@ -57,7 +57,7 @@ require (
 	github.com/spf13/viper v1.6.3
 	github.com/swaggo/swag v1.7.0
 	github.com/syndtr/goleveldb v1.0.0
-	github.com/tidwall/gjson v1.6.5
+	github.com/tidwall/gjson v1.11.0
 	github.com/uber-archive/go-torch v0.0.0-20181107071353-86f327cc820e
 	github.com/uber/go-torch v0.0.0-20181107071353-86f327cc820e // indirect
 	github.com/unknwon/com v1.0.1
