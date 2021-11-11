@@ -218,15 +218,16 @@ func (p *pprof) getPprof(uniqZone view.UniqZone, ip, port, pprofType string, dur
 	}
 	// 耗时比较久
 	if pprofType == "profile" {
-		pprofType = fmt.Sprintf("%s?seconds=%d", pprofType, durationSec)
+		pprofType = fmt.Sprintf("%s?seconds=%d", pprofType, 5)
 	}
 	url = url + "/" + pprofType
 	resp2, err := clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{
 		Address: fmt.Sprintf("%s:%s", ip, port),
 		URL:     url,
-		Timeout: durationSec,
+		Timeout: durationSec + 10,
 	})
 	if err != nil {
+		xlog.Error("flame graph clientproxy.ClientProxy.HttpGet", zap.Error(err), zap.Any("ip", ip))
 		return
 	}
 	resp = resp2.Body()
