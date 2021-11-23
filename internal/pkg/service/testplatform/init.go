@@ -2,7 +2,6 @@ package testplatform
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/service/k8s"
@@ -63,6 +62,5 @@ func onSettingChange(content string) {
 }
 
 func onK8sSettingChange(content string) {
-	fmt.Println("haaaaaaaaaaaaaaaaaaaaaaa===>")
 	k8s.Reload()
 }
