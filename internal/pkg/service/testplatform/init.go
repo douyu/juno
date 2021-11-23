@@ -2,7 +2,10 @@ package testplatform
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
+
+	"github.com/douyu/juno/internal/pkg/service/k8s"
 
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/testplatform/localworker"
@@ -31,7 +34,8 @@ var (
 func Init(o Option) {
 	option = o
 
-	system.System.Setting.Subscribe(view.TestPlatformSettingName, onSettingChange)
+	system.System.Setting.Subscribe(view.TestPlatformSettingName, onSettingChange, true)
+	system.System.Setting.Subscribe(view.K8SClusterSettingName, onK8sSettingChange, false)
 
 	workerpool.Instance().Init(workerpool.Option{
 		DB:               o.DB,
@@ -56,4 +60,9 @@ func onSettingChange(content string) {
 	}
 
 	option.Enable = data.Enable
+}
+
+func onK8sSettingChange(content string) {
+	fmt.Println("haaaaaaaaaaaaaaaaaaaaaaa===>")
+	k8s.Reload()
 }

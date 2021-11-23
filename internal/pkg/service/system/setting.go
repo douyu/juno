@@ -2,6 +2,7 @@ package system
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 
@@ -201,11 +202,12 @@ func (s *setting) pubEvent(name string, value string) {
 	defer s.subscribersMtx.RUnlock()
 
 	for _, callback := range s.subscribers[name] {
+		fmt.Println("22222222222222222222==>")
 		go callback(value)
 	}
 }
 
-func (s *setting) Subscribe(name string, callback SubscribeCallback) {
+func (s *setting) Subscribe(name string, callback SubscribeCallback, callOnce bool) {
 	if !view.CheckSettingNameValid(name) {
 		return
 	}
@@ -220,7 +222,7 @@ func (s *setting) Subscribe(name string, callback SubscribeCallback) {
 	s.subscribers[name] = append(s.subscribers[name], callback)
 
 	// 订阅时发布
-	{
+	if callOnce {
 		content, err := s.get(name)
 		if err != nil {
 			return
