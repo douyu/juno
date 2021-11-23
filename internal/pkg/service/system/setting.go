@@ -2,7 +2,6 @@ package system
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
@@ -202,7 +201,6 @@ func (s *setting) pubEvent(name string, value string) {
 	defer s.subscribersMtx.RUnlock()
 
 	for _, callback := range s.subscribers[name] {
-		fmt.Println("22222222222222222222==>")
 		go callback(value)
 	}
 }
