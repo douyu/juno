@@ -55,7 +55,7 @@ func AppNodeList(c echo.Context) error {
 			return output.JSON(c, output.MsgErr, "error", err.Error())
 		}
 		reqModel.AppName = res.AppName
-		reqModel.Aid = 0 // 和大禹平台的aid有一部分不一致，查询时不用aid来进行判断
+		reqModel.Aid = 0 // 查询时不用aid来进行判断
 	}
 	list, pagination, err := resource.Resource.GetAppNodeList(db.AppNode{
 		AppName:  reqModel.AppName,
