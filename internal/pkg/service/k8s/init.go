@@ -50,7 +50,7 @@ func Init() {
 	}
 	IK8s = newK8sImpl(kc)
 	xgo.Go(func() {
-		IK8s.allClusterStart(cfg.Cfg.K8s.Prefix, cfg.Cfg.K8s.ExcludeSuffix, cfg.Cfg.K8s.LabelAid)
+		IK8s.allClusterStart(cfg.Cfg.K8s.Prefix, cfg.Cfg.K8s.ExcludeSuffix)
 	})
 
 }

@@ -38,7 +38,7 @@ func Init() {
 			for _, item := range settings {
 				proxyItems[item.Domain] = item
 			}
-		})
+		}, true)
 	}
 }
 

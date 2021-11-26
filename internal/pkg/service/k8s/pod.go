@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -32,11 +31,11 @@ type keyLock struct {
 	lmap sync.Map
 }
 
-func formatLockKey(aid uint32, env string) string {
-	return fmt.Sprintf("%d-%s", aid, env)
+func formatLockKey(appName string, env string) string {
+	return fmt.Sprintf("%d-%s", appName, env)
 }
-func (a *keyLock) Lock(aid uint32, domain string) {
-	key := formatLockKey(aid, domain)
+func (a *keyLock) Lock(appName string, domain string) {
+	key := formatLockKey(appName, domain)
 	l, ok := a.lmap.Load(key)
 	if ok {
 		lock, ok := l.(*sync.RWMutex)
@@ -50,9 +49,9 @@ func (a *keyLock) Lock(aid uint32, domain string) {
 		a.lmap.Store(key, &l)
 	}
 }
-func (a *keyLock) UnLock(aid uint32, domain string) {
+func (a *keyLock) UnLock(appName string, domain string) {
 
-	key := formatLockKey(aid, domain)
+	key := formatLockKey(appName, domain)
 	l, ok := a.lmap.Load(key)
 	if ok {
 		lock, ok := l.(*sync.RWMutex)
@@ -67,7 +66,6 @@ func (a *keyLock) UnLock(aid uint32, domain string) {
 
 type syncPod struct {
 	wlock         *keyLock
-	labelAid      string
 	zoneCode      string
 	domain        string
 	prefix        string
@@ -77,7 +75,7 @@ type syncPod struct {
 	stopCh        chan struct{}
 }
 
-func newSyncPod(zoneCode, prefix, labelAid string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *syncPod {
+func newSyncPod(zoneCode, prefix string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *syncPod {
 	// 解析zonecode
 	tmp := strings.Split(zoneCode, "|")
 	if len(tmp) < 1 {
@@ -85,7 +83,6 @@ func newSyncPod(zoneCode, prefix, labelAid string, excludeSuffix []string, confi
 	}
 	s := &syncPod{
 		wlock:         &keyLock{lmap: sync.Map{}},
-		labelAid:      labelAid,
 		zoneCode:      strings.TrimSpace(strings.Split(zoneCode, "|")[0]),
 		domain:        strings.TrimSpace(strings.Split(zoneCode, "|")[1]),
 		config:        config,
@@ -97,21 +94,26 @@ func newSyncPod(zoneCode, prefix, labelAid string, excludeSuffix []string, confi
 	xlog.Info("k8sWork", xlog.String("step", "startWatch"), xlog.String("zoneCode", zoneCode))
 
 	// 同步全量拉取一次
-	err := s.sync("wsd", 0)
+	err := s.sync("wsd", "")
 	if err != nil {
 		xlog.Error("k8sWork",
 			xlog.String("step", "start-sync"),
 			xlog.String("err", err.Error()),
 			xlog.String("zoneCode", zoneCode))
-		return s
+		return nil
 	}
 	xgo.Go(func() {
 		s.watch()
 	})
 	xgo.Go(func() {
+		cleanCh := time.Tick(cleanInterval)
 		for {
-			s.clean()
-			time.Sleep(cleanInterval)
+			select {
+			case <-s.stopCh:
+				return
+			case <-cleanCh:
+				s.clean()
+			}
 		}
 	})
 	return s
@@ -119,6 +121,7 @@ func newSyncPod(zoneCode, prefix, labelAid string, excludeSuffix []string, confi
 func (i *syncPod) getDomain() string {
 	return i.domain
 }
+
 func (i *syncPod) watch() {
 	clientSet, err := kubernetes.NewForConfig(i.config)
 	if err != nil {
@@ -156,17 +159,14 @@ func (i *syncPod) watch() {
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.Any("err", err.Error()))
 	}
-	<-i.stopCh
 }
 
-// TODO 这个部分的close功能存在问题，watch并未停止
 func (i *syncPod) close() {
-	i.stopCh <- struct{}{}
+	close(i.stopCh)
 }
 func (i *syncPod) commonCheck(in *v1.Pod, isnew bool) error {
 	var (
 		appName string
-		appid   string
 		ok      bool
 	)
 	if isnew {
@@ -180,9 +180,7 @@ func (i *syncPod) commonCheck(in *v1.Pod, isnew bool) error {
 	if appName, ok = in.Labels["appName"]; !ok || appName == "" {
 		return errors.New("appName is empty")
 	}
-	if appid, ok = in.Labels[i.labelAid]; !ok || appid == "" {
-		return errors.New("appid is empty")
-	}
+
 	// 检查环境
 	if env, ok := in.Labels["runEnv"]; !ok || env == "" {
 		return errors.New("env is empty")
@@ -264,21 +262,21 @@ func (i *syncPod) delete(obj interface{}) {
 			xlog.String("reason", err.Error()))
 		return
 	}
-	id, _ := strconv.ParseUint(in.ObjectMeta.Labels[i.labelAid], 10, 32)
 	name := in.ObjectMeta.Name
+	appName := in.ObjectMeta.Labels["appName"]
 	xlog.Info("k8sWork",
 		xlog.String("step", "delete-print"),
 		xlog.String("domain", i.domain),
 		xlog.String("podName", name),
-		xlog.String("id", in.ObjectMeta.Labels[i.labelAid]))
+		xlog.String("appName", appName))
 
-	err = i.mysqlDelete(uint32(id), i.domain, name)
+	err = i.mysqlDelete(appName, i.domain, name)
 	if err != nil {
 		xlog.Error("k8sWork",
 			xlog.String("step", "delete-mysql"),
 			xlog.String("domain", i.domain),
 			xlog.Any("err", err),
-			xlog.Any("id", id),
+			xlog.Any("appName", appName),
 			xlog.String("name", name))
 		return
 	}
@@ -299,28 +297,28 @@ func (i *syncPod) clean() {
 	return
 }
 
-func (i *syncPod) sync(namespace string, aid uint32) error {
+func (i *syncPod) sync(namespace string, appName string) error {
 	// 同步全量拉取一次
-	list, err := i.List(namespace, aid)
+	list, err := i.List(namespace, appName)
 	xlog.Info("k8sWork",
 		xlog.String("step", "syncPod.sync"),
 		xlog.String("namespace", namespace),
 		xlog.Int("len", len(list)),
-		xlog.Int("aid", int(aid)),
+		xlog.String("appName", appName),
 		xlog.String("zoneCode", i.zoneCode),
 	)
 	if err != nil {
 		return err
 	}
-	for aid, config := range i.structMap(list) {
-		err := i.mysqlBatchUpdate(aid, i.domain, config)
+	for appName, config := range i.structMap(list) {
+		err := i.mysqlBatchUpdate(appName, i.domain, config)
 		if err != nil {
 			xlog.Error("k8sWork",
 				xlog.String("step", "sync-mysql"),
 				xlog.String("namespace", "namespace"),
 				xlog.String("err", err.Error()),
 				xlog.Int("len", len(list)),
-				xlog.Int("aid", int(aid)),
+				xlog.String("appName", appName),
 				xlog.String("domain", i.domain),
 			)
 		}
@@ -329,28 +327,25 @@ func (i *syncPod) sync(namespace string, aid uint32) error {
 	return nil
 }
 
-func (i *syncPod) structMap(data []v1.Pod) map[uint32][]v1.Pod {
-	structMap := map[uint32][]v1.Pod{}
+func (i *syncPod) structMap(data []v1.Pod) map[string][]v1.Pod {
+	structMap := map[string][]v1.Pod{}
 	for _, item := range data {
 		if i.commonCheck(&item, true) != nil {
 			continue
 		}
-		appid, _ := strconv.ParseUint(item.Labels[i.labelAid], 10, 32)
-		if appid == 0 {
-			continue
+
+		appName := item.Labels["appName"]
+		if _, ok := structMap[appName]; !ok {
+			structMap[appName] = []v1.Pod{}
 		}
 
-		if _, ok := structMap[uint32(appid)]; !ok {
-			structMap[uint32(appid)] = []v1.Pod{}
-		}
-
-		structMap[uint32(appid)] = append(structMap[uint32(appid)], item)
+		structMap[appName] = append(structMap[appName], item)
 	}
 	return structMap
 }
 
 // List 获取全量pod列表
-func (i *syncPod) List(namespace string, aid uint32) (res []v1.Pod, err error) {
+func (i *syncPod) List(namespace string, appName string) (res []v1.Pod, err error) {
 	res = make([]v1.Pod, 0)
 
 	clientSet, err := kubernetes.NewForConfig(i.config)
@@ -358,7 +353,7 @@ func (i *syncPod) List(namespace string, aid uint32) (res []v1.Pod, err error) {
 		xlog.Error("k8sWork",
 			xlog.String("step", "list-NewForConfig"),
 			xlog.String("domain", i.domain),
-			xlog.Int64("aid", int64(aid)),
+			xlog.String("appName", appName),
 			xlog.Any("err", err))
 		return
 	}
@@ -367,8 +362,8 @@ func (i *syncPod) List(namespace string, aid uint32) (res []v1.Pod, err error) {
 	labelSelector := ""
 	first := true
 	var data *v1.PodList
-	if aid > 0 {
-		labelSelector = fmt.Sprintf(i.labelAid+"=%d", aid)
+	if appName != "" {
+		labelSelector = "appName=" + appName
 	}
 	for Continue != "" || first {
 		data, err = clientSet.CoreV1().Pods(namespace).List(metav1.ListOptions{
@@ -379,7 +374,7 @@ func (i *syncPod) List(namespace string, aid uint32) (res []v1.Pod, err error) {
 		if err != nil {
 			xlog.Error("k8sWork",
 				xlog.String("step", "list-List"),
-				xlog.Int64("aid", int64(aid)),
+				xlog.String("appName", appName),
 				xlog.String("domain", i.domain),
 				xlog.Any("err", err))
 			return
@@ -404,15 +399,15 @@ func (i *syncPod) Log(zoneCode, namespace, podName string) (res []byte, err erro
 	}
 	return
 }
-func (i *syncPod) mysqlBatchUpdate(aid uint32, domain string, items []v1.Pod) (err error) {
+func (i *syncPod) mysqlBatchUpdate(appName string, domain string, items []v1.Pod) (err error) {
 
-	i.wlock.Lock(aid, domain)
+	i.wlock.Lock(appName, domain)
 	defer func() {
-		i.wlock.UnLock(aid, domain)
+		i.wlock.UnLock(appName, domain)
 	}()
 	tx := i.db.Begin()
 	//删除该集群下所有的aid、env的配置
-	err = tx.Table("k8s_pod").Where("domain=? && aid=? ", i.domain, aid).Delete(&db.K8sPod{}).Error
+	err = tx.Table("k8s_pod").Where("domain=? && app_name=? ", i.domain, appName).Delete(&db.K8sPod{}).Error
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -443,13 +438,13 @@ func (i *syncPod) mysqlCreateOrUpdate(zoneCode, domain string, in *v1.Pod) (err 
 
 	var m db.K8sPod
 	m.Formatting(zoneCode, domain, in)
-	i.wlock.Lock(uint32(m.Aid), domain)
+	i.wlock.Lock(m.AppName, domain)
 	defer func() {
-		i.wlock.UnLock(uint32(m.Aid), domain)
+		i.wlock.UnLock(m.AppName, domain)
 	}()
 	var row db.K8sPod
 	// 判断数据库中是否已存在
-	err = i.db.Select("md5").Where("aid=? and pod_name=? and is_del=?", m.Aid, m.PodName, 0).Find(&row).Error
+	err = i.db.Select("md5").Where("pod_name=? and is_del=?", m.PodName, 0).Find(&row).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		xlog.Error("mysqlCreate", xlog.String("err", err.Error()))
 		return
@@ -464,7 +459,7 @@ func (i *syncPod) mysqlCreateOrUpdate(zoneCode, domain string, in *v1.Pod) (err 
 			// 如果md5没有变化
 			return
 		}
-		err = i.db.Table("k8s_pod").Where("aid=? and pod_name=? and is_del=?", m.Aid, m.PodName, 0).Update(map[string]interface{}{
+		err = i.db.Table("k8s_pod").Where("pod_name=? and is_del=?", m.PodName, 0).Update(map[string]interface{}{
 			"env":                 m.Env,
 			"zone_code":           m.ZoneCode,
 			"domain":              m.Domain,
@@ -499,11 +494,11 @@ func (i *syncPod) mysqlCreateOrUpdate(zoneCode, domain string, in *v1.Pod) (err 
 	return
 }
 
-func (i *syncPod) mysqlDelete(podAid uint32, domain, podName string) (err error) {
-	i.wlock.Lock(podAid, domain)
-	defer i.wlock.UnLock(podAid, domain)
+func (i *syncPod) mysqlDelete(appName, domain, podName string) (err error) {
+	i.wlock.Lock(appName, domain)
+	defer i.wlock.UnLock(appName, domain)
 	// 数据库中存在对应记录进行delete操作
-	err = i.db.Table("k8s_pod").Where("aid=? and pod_name=?", podAid, podName).Update(map[string]interface{}{
+	err = i.db.Table("k8s_pod").Where("pod_name=?", podName).Update(map[string]interface{}{
 		"is_del": 1,
 	}).Error
 	if err != nil {
@@ -524,11 +519,11 @@ func (i *syncPod) mysqlList(zoneCode string) (list []db.K8sPod, err error) {
 }
 
 // mysqlList 获取数据库列表
-func mysqlNamespaceList(namespace string, aid uint32) (domainList []string, err error) {
+func mysqlNamespaceList(namespace string, appName string) (domainList []string, err error) {
 	list := []db.K8sPod{}
 	sql := invoker.JunoMysql.Select("domain").Where("namespace=? and is_del=? ", namespace, 0)
-	if aid > 0 {
-		sql = sql.Where("aid=?", aid)
+	if appName != "" {
+		sql = sql.Where("app_name=?", appName)
 	}
 	err = sql.Group("domain").Find(&list).Error
 	if err != nil {
@@ -544,12 +539,12 @@ func mysqlNamespaceList(namespace string, aid uint32) (domainList []string, err 
 }
 
 // mysqlList 获取数据库列表
-func cleanByDomain(namespace string, aid uint32, domain string) (domainList []string, err error) {
+func cleanByDomain(namespace string, appName string, domain string) (domainList []string, err error) {
 	list := []db.K8sPod{}
 	// 删除没有监听的domain下的配置，不监听的domain不会有数据更新 这里不加锁了
 	sql := invoker.JunoMysql.Where("namespace=? and is_del=? and domain=?", namespace, 0, domain)
-	if aid > 0 {
-		sql = sql.Where("aid=?", aid)
+	if appName != "" {
+		sql = sql.Where("app_name=?", appName)
 	}
 	err = sql.Delete(&db.K8sPod{}).Error
 	if err != nil {
