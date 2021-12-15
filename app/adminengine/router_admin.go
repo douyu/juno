@@ -50,6 +50,7 @@ import (
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	vmiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 func apiAdmin(server *xecho.Server) {
@@ -76,6 +77,10 @@ func apiAdmin(server *xecho.Server) {
 			Enforcer: casbin.Casbin.SyncedEnforcer,
 		})
 	}
+
+	server.Use(vmiddleware.GzipWithConfig(vmiddleware.GzipConfig{
+		Level: 5,
+	}))
 
 	// static file
 	flag, err := util.IsFileExists("assets/dist")
