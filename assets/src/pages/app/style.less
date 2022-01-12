@@ -107,23 +107,22 @@
     }
   }
 }
-.viewContent{
+.viewContent {
   :global {
-    .ant-tabs-content{
+    .ant-tabs-content {
       height: 100%;
     }
-    .ant-tabs-tabpane{
-      // height: 100%;
+    .ant-tabs-tabpane {
+      overflow-y: auto;
+      overflow-x: hidden;
       position: relative;
-    } 
-    .ant-tabs-tabpane > div{
-      // height: 100%;
+    }
+    .ant-tabs-tabpane > div {
       position: absolute;
-      bottom: 0;
       top: 0;
-      left: 0;
       right: 0;
-      // position: relative;
+      bottom: 0;
+      left: 0;
     }
   }
 }
