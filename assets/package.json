@@ -106,6 +106,7 @@
     "@umijs/preset-react": "^1.8.22",
     "@umijs/preset-ui": "^2.1.11",
     "carlo": "^0.9.46",
+    "compression-webpack-plugin": "^9.1.2",
     "cross-env": "^7.0.0",
     "cross-port-killer": "^1.1.1",
     "detect-installer": "^1.0.1",

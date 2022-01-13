@@ -4,6 +4,7 @@ import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
 import MonacoEditorWebpackPlugin from 'monaco-editor-webpack-plugin';
+import CompressionPlugin from 'compression-webpack-plugin';
 import scripts from './scripts';
 import styles from './styles';
 const { REACT_APP_ENV } = process.env;
@@ -13,6 +14,17 @@ export default defineConfig({
   antd: {},
   dva: {
     hmr: true,
+  },
+  analyze: {
+    analyzerMode: 'server',
+    analyzerHost: '0.0.0.0',
+    analyzerPort: 8888,
+    openAnalyzer: true,
+    // generate stats file while ANALYZE_DUMP exist
+    generateStatsFile: false,
+    statsFilename: 'stats.json',
+    logLevel: 'info',
+    defaultSizes: 'parsed', // stat  // gzip
   },
   styles: styles,
   mfsu: {},
@@ -308,6 +320,15 @@ export default defineConfig({
         ],
       },
     ]);
-  }
- 
+    if (process.env.NODE_ENV === 'production') {
+      //gzip压缩
+      config.plugin('compression-webpack-plugin').use(CompressionPlugin, [
+        {
+          test: /\.js$|\.html$|\.css$/, //匹配文件名
+          threshold: 10240, //对超过10k的数据压缩
+          deleteOriginalAssets: false, //不删除源文件
+        },
+      ]);
+    }
+  },
 });
