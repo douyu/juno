@@ -52,9 +52,9 @@ func (r *resource) GetAllAppEnvZone(where db.AppNode) (resp []db.AppNode, err er
 
 func (r *resource) GetAppNodeList(where db.AppNode, currentPage, pageSize int) (resp []db.AppNode, page *view.Pagination, err error) {
 	nodeSql := `select * from
-(select a.aid,a.aid id,a.app_name,a.host_name,a.ip,a.zone_name,a.region_name,a.env,a.update_time,a.zone_code ,0 is_del from app_node a
+(select a.app_name,a.host_name,a.ip,a.zone_name,a.region_name,a.env,a.update_time,a.zone_code ,0 is_del from app_node a
 UNION
-(select k.aid,k.aid id,k.app_name,k.pod_name host_name,k.pod_ip ip,z.zone_name,z.region_name,k.env,UNIX_TIMESTAMP(k.update_time) update_time,k.zone_code,k.is_del from k8s_pod k left join zone z on z.zone_code =k.zone_code )
+(select k.app_name,k.pod_name host_name,k.pod_ip ip,z.zone_name,z.region_name,k.env,UNIX_TIMESTAMP(k.update_time) update_time,k.zone_code,k.is_del from k8s_pod k left join zone z on z.zone_code =k.zone_code )
 )  t where is_del=0 %s order by t.update_time desc`
 
 	whereSql := "&&"
@@ -63,10 +63,10 @@ UNION
 		whereSql += " t.app_name = ? &&"
 		whereArr = append(whereArr, where.AppName)
 	}
-	if where.Aid != 0 {
-		whereSql += " t.aid = ? &&"
-		whereArr = append(whereArr, where.Aid)
-	}
+	//if where.Aid != 0 {
+	//	whereSql += " t.aid = ? &&"
+	//	whereArr = append(whereArr, where.Aid)
+	//}
 	if where.HostName != "" {
 		whereSql += " t.home_name = ? &&"
 		whereArr = append(whereArr, where.HostName)
