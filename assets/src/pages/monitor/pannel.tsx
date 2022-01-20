@@ -51,10 +51,10 @@ function GrafanaPannel(props: any) {
   //if use pattern like this.  'var-appname=#APP_NAME&var-env=#ENV&var-datasource=#DATASOURCE&var-aid=#AID&from=now-30m&to=now';
   if (/#DATASOURCE/g.test(dashboardPath)) {
     url = dashboardPath;
-    url = url.replace('#APP_NAME', appName, -1);
-    url = url.replace('#ENV', env, -1);
-    url = url.replace('#DATASOURCE', datasource, -1);
-    url = url.replace('#AID', aid, -1);
+    url = url.replaceAll('#APP_NAME', appName);
+    url = url.replaceAll('#ENV', env);
+    url = url.replaceAll('#DATASOURCE', datasource);
+    url = url.replaceAll('#AID', aid);
   } else {
     // compatiable with the original way to get grafana path
     url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
