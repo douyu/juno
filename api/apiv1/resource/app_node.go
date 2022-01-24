@@ -1,6 +1,8 @@
 package resource
 
 import (
+	"strings"
+
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/k8s"
@@ -131,6 +133,10 @@ func AppEnvZoneList(c echo.Context) error {
 	envZoneMap := make(map[string][]zone)
 
 	for _, appNode := range preNodes {
+		// filter invalid data
+		if strings.TrimSpace(appNode.ZoneName) == "" {
+			continue
+		}
 		if _, ok := record[appNode.Env+"_"+appNode.ZoneCode]; !ok {
 			envZoneMap[appNode.Env] = append(envZoneMap[appNode.Env], zone{
 				ZoneCode: appNode.ZoneCode,

@@ -43,6 +43,7 @@ import (
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/service/casbin"
 	"github.com/douyu/juno/internal/pkg/service/grafana"
+	"github.com/douyu/juno/internal/pkg/service/proxyintegrat"
 	userSrv "github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
@@ -107,6 +108,16 @@ func apiAdmin(server *xecho.Server) {
 		groupGrafana.Match(AllMethods, "", grafana.Proxy)
 		groupGrafana.Match(AllMethods, "/", grafana.Proxy)
 		groupGrafana.Match(AllMethods, "/*", grafana.Proxy)
+	}
+
+	//common  proxy
+	proxy := server.Group("/proxy")
+	{
+		AllMethods := []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete,
+			http.MethodHead, http.MethodTrace, http.MethodPut, http.MethodConnect, http.MethodOptions}
+		proxy.Match(AllMethods, "", proxyintegrat.Proxy)
+		proxy.Match(AllMethods, "/", proxyintegrat.Proxy)
+		proxy.Match(AllMethods, "/*", proxyintegrat.Proxy)
 	}
 
 	g := server.Group("/api/admin")

@@ -435,6 +435,9 @@ permission:
           - path: /api/admin/system/setting/update
             name: 修改系统设置
             method: POST
+      - path: /admin/proxy
+        name: 代理设置
+        api:  
       - path: /admin/accessTokens
         name: Access Tokens
         api:

@@ -33,9 +33,9 @@ export default defineConfig({
     echarts: 'echarts',
     // lodash: '_',
     'prettier/standalone': 'prettier',
-    react: 'React',
-    'react-dom': 'ReactDOM',
-    antd: 'antd',
+    // react: 'React',
+    // 'react-dom': 'ReactDOM',
+    // antd: 'antd',
     codemirror: 'CodeMirror',
   },
   scripts: scripts,
@@ -108,6 +108,11 @@ export default defineConfig({
                   path: '/analysis/grafana',
                   name: 'Grafana',
                   component: './analysis/grafana/index',
+                },
+                {
+                  path: '/analysis/proxy',
+                  name: 'Grafana',
+                  component: './proxy/index',
                 },
                 {
                   name: '依赖拓扑',
@@ -264,6 +269,11 @@ export default defineConfig({
                   name: '系统设置',
                   path: '/admin/config',
                   component: './manage/manage',
+                },
+                {
+                  name: '代理设置',
+                  path: '/admin/proxy',
+                  component: './analysis/pyroscope/index',
                 },
                 {
                   name: 'Access Tokens',

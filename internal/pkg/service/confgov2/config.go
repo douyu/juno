@@ -271,11 +271,11 @@ func Update(c echo.Context, param view.ReqUpdateConfig) (err error) {
 	}
 
 	// 计算本次版本号
-	version := util.Md5Str(newContent)
-	if util.Md5Str(oldContent) == version {
+	if util.Md5Str(oldContent) == util.Md5Str(newContent) {
 		return fmt.Errorf("保存失败，本次无更新")
 	}
-
+	//计算version
+	version := util.Md5Str(newContent + fmt.Sprintf("%d", time.Now().Unix()))
 	history := db.ConfigurationHistory{
 		ConfigurationID: configuration.ID,
 		ChangeLog:       param.Message,

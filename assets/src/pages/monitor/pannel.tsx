@@ -77,7 +77,7 @@ function GrafanaPannel(props: any) {
         onClick={() => {
           //触发全屏的时候将sidemenu给隐藏
           if (!isFullscreen) {
-            $(granfanRef.current.contentDocument).find('sidemenu').css({ display: 'none' });
+            $(granfanRef.current.contentDocument).find('.sidemenu').css({ display: 'none' });
             setIframeVisible(true);
           }
           toggleFull();

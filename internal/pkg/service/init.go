@@ -3,10 +3,6 @@ package service
 import (
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/k8s"
-
-	"github.com/douyu/juno/internal/pkg/service/loggerplatform"
-
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appDep"
@@ -19,6 +15,8 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpctest"
 	"github.com/douyu/juno/internal/pkg/service/httptest"
+	"github.com/douyu/juno/internal/pkg/service/k8s"
+	"github.com/douyu/juno/internal/pkg/service/loggerplatform"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/permission"
