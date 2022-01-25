@@ -21,6 +21,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/permission"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
+	"github.com/douyu/juno/internal/pkg/service/proxyintegrat"
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/taskplatform"
@@ -49,7 +50,7 @@ func Init() (err error) {
 	user.Init(invoker.JunoMysql)
 
 	analysis.InitAnalysis(invoker.JunoMysql)
-
+	proxyintegrat.Init(invoker.JunoMysql)
 	system.InitSystem(invoker.JunoMysql)
 	pprof.InitPprof(invoker.JunoMysql)
 

@@ -273,7 +273,7 @@ export default defineConfig({
                 {
                   name: '代理设置',
                   path: '/admin/proxy',
-                  component: './analysis/pyroscope/index',
+                  component: './analysis/proxy/index',
                 },
                 {
                   name: 'Access Tokens',

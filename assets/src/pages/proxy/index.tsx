@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Row, Tabs, Select } from 'antd';
+import { connect } from 'dva';
+import { Row, Tabs, Select } from 'antd';
 import WelcomeView from './Welcome';
 import ProxyView from './proxyView';
 import styles from './index.less';
+
 const TabPane = Tabs.TabPane;
 const { Option, OptGroup } = Select;
 const defaultPanes = [
@@ -13,24 +15,6 @@ const defaultPanes = [
     config: {
       mode: 1,
       title: 'JUNO',
-    },
-  },
-];
-const selectList = [
-  {
-    title: '线下 pyroscope',
-    panelType: 'pyroscope',
-    key: 'pyroscope',
-    config: {
-      proxyURL: '/proxy/pyroscope/',
-    },
-  },
-  {
-    title: '服务治理grafana',
-    panelType: 'grafana',
-    key: 'grafana',
-    config: {
-        proxyURL: '/grafana/',
     },
   },
 ];
@@ -68,7 +52,9 @@ const renderSelect = (config, idx) => {
   }
 };
 
-const Proxy = () => {
+const Proxy = (props) => {
+  const { proxyintegrat, dispatch } = props;
+  let selectList = proxyintegrat.selectList || [];
   let [panels, updatePanels] = useState([]);
   const [activeKey, updateActiveKey] = useState('welcome');
   let displayPanels = panels.length > 0 ? panels : defaultPanes;
@@ -88,6 +74,13 @@ const Proxy = () => {
     updatePanels(tmppanels);
     updateActiveKey(activeKey);
   };
+  //获取UI菜单
+  useEffect(() => {
+    dispatch({
+      type: 'proxyintegrat/uilist',
+      payload: {},
+    });
+  }, []);
   return (
     <div
       style={{
@@ -165,4 +158,7 @@ const Proxy = () => {
     </div>
   );
 };
-export default Proxy;
+export default connect(({ proxyintegrat, loading }) => ({
+  proxyintegrat,
+  loading: loading.models.proxyintegrat,
+}))(Proxy);
