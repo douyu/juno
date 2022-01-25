@@ -6,7 +6,7 @@ import (
 
 func TestKeyLock(t *testing.T) {
 	k := &keyLock{}
-	k.Lock(1, "11")
-	k.UnLock(1, "11")
+	k.Lock("1", "11")
+	k.UnLock("1", "11")
 
 }

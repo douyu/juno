@@ -8,7 +8,7 @@ import (
 	"github.com/douyu/juno/pkg/model/view/vproxyintegrat"
 )
 
-//ProxyMenuList 获取菜单页面
+//ProxyMenuList 列表
 func ProxyMenuList(ctx context.Context, params *vproxyintegrat.ProxyMenuListParams) (list []vproxyintegrat.ProxyMenu, total int, err error) {
 	list = make([]vproxyintegrat.ProxyMenu, 0, 20)
 	tmpList := make([]vproxyintegrat.ProxyMenu, 0)
@@ -42,7 +42,7 @@ func ProxyMenuList(ctx context.Context, params *vproxyintegrat.ProxyMenuListPara
 	return
 }
 
-//ProxyMenuCreateOrUpdate 获取菜单页面
+//ProxyMenuCreateOrUpdate 创建
 func ProxyMenuCreateOrUpdate(ctx context.Context, params *vproxyintegrat.ProxyMenuCreateOrUpdateParams) (err error) {
 	now := time.Now()
 	count := 0
@@ -77,7 +77,7 @@ func ProxyMenuCreateOrUpdate(ctx context.Context, params *vproxyintegrat.ProxyMe
 	return
 }
 
-//ProxyMenuDelete 删除菜单
+//ProxyMenuDelete 删除
 func ProxyMenuDelete(ctx context.Context, params *vproxyintegrat.ProxyMenuDeleteParams) (err error) {
 	now := time.Now()
 	err = mysql.Table(ProxyMenuTable).Where("id = ?", params.ID).Updates(map[string]interface{}{

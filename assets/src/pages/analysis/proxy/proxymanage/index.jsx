@@ -27,14 +27,14 @@ function Page(props) {
       dataIndex: 'title',
     },
     {
-      title: '类型',
-      key: 'panel_type',
-      dataIndex: 'panel_type',
+      title: '子路径',
+      key: 'sub_path',
+      dataIndex: 'sub_path',
     },
     {
-      title: '标识key',
-      key: 'key',
-      dataIndex: 'key',
+      title: '是否重写',
+      key: 'is_rewrite',
+      dataIndex: 'is_rewrite',
     },
     {
       title: '更新时间',
@@ -47,7 +47,7 @@ function Page(props) {
   ]
 
   const handleTableChange = (pagination, filters, sorter) => {
-    loadList({ current: pagination.current - 1, pageSize: pagination.pageSize, query })
+    loadList(pagination.current - 1, pagination.pageSize, query, filters.env, filters.zone_code)
     props.dispatch(routerRedux.push({
       query: {
         ...props.location.query,
@@ -119,26 +119,26 @@ function Page(props) {
   </>;
 }
 
-const mapStateToProps = ({ proxymenu, loading }) => {
+const mapStateToProps = ({ proxymanage, loading }) => {
   return {
-    list: proxymenu.list,
-    listLoading: loading.models.proxymenu,
-    pagination: proxymenu.pagination,
+    list: proxymanage.list,
+    listLoading: loading.models.proxymanage,
+    pagination: proxymanage.pagination,
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
     loadList: (params) => dispatch({
-      type: 'proxymenu/loadList',
+      type: 'proxymanage/loadList',
       payload: { ...params }
     }),
     showModalCreate: (visible) => dispatch({
-      type: 'proxymenu/showModalCreate',
+      type: 'proxymanage/showModalCreate',
       payload: visible
     }),
     showModalEdit: (payload) => dispatch({
-      type: 'proxymenu/showModalEdit',
+      type: 'proxymanage/showModalEdit',
       payload,
     }),
     dispatch: dispatch

@@ -1,5 +1,5 @@
 import { message } from "antd";
-import { itemList } from "../services/proxymenu";
+import { itemList } from "../services/proxymanage";
 
 const defaultStates = {
     list: [],
@@ -16,16 +16,16 @@ const defaultStates = {
     modalConfigEditVisible: false,
     currentEditResource: {
         id: 0,
-        proxy_url: '',
+        sub_path: '',
+        proxy_addr: '',
         title: '',
-        panel_type: '',
-        key: '',
+        is_rewrite: 1,
     },
 
 }
 
 export default {
-    namespace: 'proxymenu',
+    namespace: 'proxymanage',
     state: defaultStates,
     effects: {
         *loadList({ payload }, { call, put }) {

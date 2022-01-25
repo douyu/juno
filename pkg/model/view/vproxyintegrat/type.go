@@ -12,6 +12,17 @@ type ProxyMenu struct {
 	Title      string `gorm:"column:title;NOT NULL" json:"title"`                       // 功能页面
 }
 
+type ProxyManage struct {
+	Id         int    `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`           // 主键
+	Title      string `gorm:"column:title;NOT NULL" json:"title"`                       // 名称
+	SubPath    string `gorm:"column:sub_path;NOT NULL" json:"sub_path"`                 // 代理路径
+	IsRewrite  int    `gorm:"column:is_rewrite;default:0;NOT NULL" json:"is_rewrite"`   // 是否重写路径
+	ProxyAddr  string `gorm:"column:proxy_addr;NOT NULL" json:"proxy_addr"`             // 代理地址
+	CreateTime int64  `gorm:"column:create_time;default:0;NOT NULL" json:"create_time"` // 创建时间
+	UpdateTime int64  `gorm:"column:update_time;default:0;NOT NULL" json:"update_time"` // 更新时间
+	DeleteTime int64  `gorm:"column:delete_time;default:0;NOT NULL" json:"delete_time"` // 删除时间
+	Uid        int    `gorm:"column:uid;default:0;NOT NULL" json:"uid"`                 // 操作人uid
+}
 type ProxyMenuFunc struct {
 	Title     string              `json:"title"`
 	PanelType string              `json:"panelType"`
@@ -40,4 +51,9 @@ func (req *ProxyUIParams) Valid() (isValid bool, msg string) {
 // TableName ..
 func (ProxyMenu) TableName() string {
 	return "proxy_menu"
+}
+
+// TableName ..
+func (ProxyManage) TableName() string {
+	return "proxy_manage"
 }

@@ -1,41 +1,35 @@
 import React, { Dispatch, useEffect, useState } from 'react';
 import { connect } from 'dva';
-import { Form, Input, message, Modal, Select } from 'antd';
-import { createItem } from '../../../services/proxymenu';
+import { Form, Input, message, Modal, Select, Switch } from 'antd';
+import { createItem } from '../../../services/proxymanage';
 
 export interface ModalCreateResourceInterface {
   onOk?: () => void;
 
   // state
-  zoneEnv: {};
   visible: boolean;
-  tags: [];
 
   // dispatch functions
   showModalCreate: (visible: Boolean) => void;
-  loadZoneEnvTree: () => void;
-  loadTags: () => void;
 }
-
-export const PanelTypes = [
-  { title: 'Grafana', val: 'grafana' },
-  { title: 'Pyroscope', val: 'pyroscope' },
-];
 
 function ModalCreateResource(props: ModalCreateResourceInterface) {
   const { visible } = props;
   const [form] = Form.useForm();
+  const [env, setEnv] = useState<string>();
+
   useEffect(() => {
     if (!visible) {
       return;
     }
+    form.resetFields();
   }, [visible]);
 
   return (
     <Modal
       width={800}
       visible={props.visible}
-      title={'创建菜单项'}
+      title={'创建'}
       onOk={() => {
         form.submit();
       }}
@@ -45,14 +39,17 @@ function ModalCreateResource(props: ModalCreateResourceInterface) {
         form={form}
         labelCol={{ span: 3 }}
         onFinish={(fields) => {
-          createItem(fields).then((r) => {
+          createItem({
+            ...fields,
+            is_rewrite: fields.is_rewrite ? 1 : 0,
+          }).then((r) => {
             if (r.code !== 0) {
               message.error('创建失败:' + r.msg);
               return;
             }
             if (props.onOk) props.onOk();
+            form.resetFields();
             message.success('创建成功');
-            form.resetFields()
             props.showModalCreate(false);
             return;
           });
@@ -66,42 +63,36 @@ function ModalCreateResource(props: ModalCreateResourceInterface) {
           <Input />
         </Form.Item>
         <Form.Item
-          label={'代理路径'}
-          name={'proxy_url'}
-          rules={[{ required: true, message: '请输入代理路径' }]}
+          label={'代理子路径'}
+          name={'sub_path'}
+          rules={[{ required: true, message: '请输入代理子路径' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label={'菜单标识key'}
-          name={'key'}
-          rules={[{ required: true, message: '请输入菜单标识key' }]}
+          label={'代理地址'}
+          name={'proxy_addr'}
+          rules={[{ required: true, message: '请输入代理地址' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label={'菜单类型'}
-          name={'panel_type'}
-          rules={[{ required: true, message: '请选择菜单类型' }]}
-          initialValue={'grafana'}
+          label={'是否重写'}
+          name={'is_rewrite'}
+          valuePropName="checked"
+          rules={[{ required: true, message: '选择是否重写' }]}
+          initialValue={true}
         >
-          <Select>
-            {PanelTypes &&
-              PanelTypes.map((t) => (
-                <Select.Option key={t.val} value={t.val}>
-                  {t.title}
-                </Select.Option>
-              ))}
-          </Select>
+          <Switch checkedChildren="开启" unCheckedChildren="关闭" />
         </Form.Item>
       </Form>
     </Modal>
   );
 }
 
-const mapStateToProps = ({ proxymenu }: any) => {
+const mapStateToProps = ({ proxymanage }: any) => {
   return {
-    visible: proxymenu.modalConfigVisible,
+    visible: proxymanage.modalConfigVisible,
   };
 };
 
@@ -109,7 +100,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return {
     showModalCreate: (visible: Boolean) =>
       dispatch({
-        type: 'proxymenu/showModalCreate',
+        type: 'proxymanage/showModalCreate',
         payload: visible,
       }),
   };

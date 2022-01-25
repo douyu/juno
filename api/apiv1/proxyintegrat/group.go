@@ -8,4 +8,8 @@ func Group(g *echo.Group) {
 	g.GET("/proxyMenuList", ProxyMenuList)
 	g.POST("/proxyMenuCreateOrUpdate", ProxyMenuCreateOrUpdate)
 	g.POST("/proxyMenuDelete", ProxyMenuDelete)
+
+	g.GET("/proxyManageList", ProxyManageList)
+	g.POST("/proxyManageCreateOrUpdate", ProxyManageCreateOrUpdate)
+	g.POST("/proxyManageDelete", ProxyManageDelete)
 }
