@@ -217,6 +217,7 @@ func (i *syncPod) add(obj interface{}) {
 			xlog.String("reason", err.Error()))
 		return
 	}
+
 	xlog.Info("k8sWork",
 		xlog.String("step", "add-print"),
 		xlog.String("zoneCode", i.zoneCode),
