@@ -257,7 +257,7 @@ func defaultConfig() cfg {
 		K8s: K8s{
 			Enable:   false,
 			LabelAid: "aid",
-			Prefix:   "",
+			Prefix:   []string{},
 		},
 		UserVisit: UserVisit{
 			CleanDay: 90,

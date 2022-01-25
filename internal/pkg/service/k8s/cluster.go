@@ -25,7 +25,7 @@ type cluster struct {
 }
 
 // newCluster Cluster data synchronization initialization
-func newCluster(zoneCode, prefix string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *cluster {
+func newCluster(zoneCode string, prefix []string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *cluster {
 	syncPod := newSyncPod(zoneCode, prefix, excludeSuffix, config, db)
 	if syncPod != nil {
 		return &cluster{

@@ -72,7 +72,7 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 }
 
 // allClusterSync ..
-func (g *k8sImpl) allClusterStart(prefix string, excludeSuffix []string) {
+func (g *k8sImpl) allClusterStart(prefix []string, excludeSuffix []string) {
 	for zc, config := range g.clientMap {
 		cluster := newCluster(zc, prefix, excludeSuffix, config, g.db)
 		if cluster != nil {
