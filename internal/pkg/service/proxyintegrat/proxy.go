@@ -11,6 +11,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const commonProxyPrefix = "/proxy"
+
 func Proxy(c echo.Context) (err error) {
 	ProxyGnetRequest(c)
 	return
@@ -28,10 +30,14 @@ var comProxyTransport = &http.Transport{
 
 //ReverseProxyGnetReq 代理
 func ReverseProxyGnetReq(proxyPath, app string) *httputil.ReverseProxy {
-	urlRaw := "http://10.1.56.78:4040"
-	url, _ := url.Parse(urlRaw)
-	proxyPath = strings.TrimPrefix(proxyPath, "/"+app)
-
+	urlRaw, ok := proxyConfigMap[app]
+	if !ok {
+		return nil
+	}
+	url, _ := url.Parse(urlRaw.ProxyAddr)
+	if urlRaw.IsRewrite > 0 {
+		proxyPath = strings.TrimPrefix(proxyPath, commonProxyPrefix+"/"+app)
+	}
 	director := func(req *http.Request) {
 		req.URL.Scheme = url.Scheme
 		req.URL.Host = url.Host
@@ -50,8 +56,13 @@ func ReverseProxyGnetReq(proxyPath, app string) *httputil.ReverseProxy {
 
 //ProxyGnetRequest 代理
 func ProxyGnetRequest(c echo.Context) {
-	app := "proxy/pyroscope"
+	app := ""
 	proxyPath := c.Request().URL.Path
+	pathSplit := strings.Split(proxyPath, ",")
+	if len(pathSplit) >= 2 {
+		//获取subpath
+		app = pathSplit[1]
+	}
 	proxy := ReverseProxyGnetReq(proxyPath, app)
 	if proxy == nil {
 		return
