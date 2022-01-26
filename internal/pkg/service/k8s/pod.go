@@ -68,14 +68,14 @@ type syncPod struct {
 	wlock         *keyLock
 	zoneCode      string
 	domain        string
-	prefix        string
+	prefix        []string
 	excludeSuffix []string
 	config        *rest.Config
 	db            *gorm.DB
 	stopCh        chan struct{}
 }
 
-func newSyncPod(zoneCode, prefix string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *syncPod {
+func newSyncPod(zoneCode string, prefix []string, excludeSuffix []string, config *rest.Config, db *gorm.DB) *syncPod {
 	// 解析zonecode
 	tmp := strings.Split(zoneCode, "|")
 	if len(tmp) < 1 {
@@ -185,9 +185,17 @@ func (i *syncPod) commonCheck(in *v1.Pod, isnew bool) error {
 	if env, ok := in.Labels["runEnv"]; !ok || env == "" {
 		return errors.New("env is empty")
 	}
+
 	// 匹配前缀
-	if i.prefix != "" && !strings.HasPrefix(in.Name, i.prefix) {
-		return errors.New("prefix is not " + i.prefix)
+	flag := false
+	for _, pre := range i.prefix {
+		if strings.HasPrefix(appName, pre) {
+			flag = true
+			break
+		}
+	}
+	if !flag {
+		return errors.New("prefix not match")
 	}
 	// 检查后缀
 	for _, suffix := range i.excludeSuffix {
@@ -209,6 +217,7 @@ func (i *syncPod) add(obj interface{}) {
 			xlog.String("reason", err.Error()))
 		return
 	}
+
 	xlog.Info("k8sWork",
 		xlog.String("step", "add-print"),
 		xlog.String("zoneCode", i.zoneCode),
