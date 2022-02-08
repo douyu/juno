@@ -58,7 +58,7 @@ func ReverseProxyGnetReq(proxyPath, app string) *httputil.ReverseProxy {
 func ProxyGnetRequest(c echo.Context) {
 	app := ""
 	proxyPath := c.Request().URL.Path
-	pathSplit := strings.Split(proxyPath, ",")
+	pathSplit := strings.Split(strings.TrimPrefix(proxyPath, "/"), "/")
 	if len(pathSplit) >= 2 {
 		//获取subpath
 		app = pathSplit[1]

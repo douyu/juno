@@ -16,7 +16,6 @@ package adminengine
 
 import (
 	"context"
-
 	"strconv"
 	"time"
 
@@ -33,6 +32,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/k8s"
 	"github.com/douyu/juno/internal/pkg/service/notify"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
+	"github.com/douyu/juno/internal/pkg/service/proxyintegrat"
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
@@ -97,6 +97,7 @@ func New() *Admin {
 		eng.serveGovern,
 		eng.defers,
 		eng.initParseWorker,
+		eng.refreshProxyManage,
 		eng.initVersionWorker,
 		eng.initUserVisitWorker,
 		eng.initK8sListWorker,
@@ -277,6 +278,16 @@ func (eng *Admin) initWorker() (err error) {
 		if err != nil {
 			return err
 		}
+	}
+	return
+}
+
+func (eng *Admin) refreshProxyManage() (err error) {
+	refreshManage := xcron.DefaultConfig().Build()
+	refreshManage.Schedule(xcron.Every(time.Minute), xcron.FuncJob(proxyintegrat.RefreshProxyConfig))
+	err = eng.Schedule(refreshManage)
+	if err != nil {
+		return err
 	}
 	return
 }
