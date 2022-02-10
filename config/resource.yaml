@@ -131,6 +131,9 @@ permission:
         path: /analysis/grafana
       - name: 代理功能
         path: /analysis/proxy  
+        api:
+          - path: /api/admin/proxyintegrat/uilist
+            method: GET
       - name: 依赖拓扑
         path: /analysis/topology
         api:
