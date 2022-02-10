@@ -134,6 +134,7 @@ permission:
         api:
           - path: /api/admin/proxyintegrat/uilist
             method: GET
+            name: 功能菜单
       - name: 依赖拓扑
         path: /analysis/topology
         api:
