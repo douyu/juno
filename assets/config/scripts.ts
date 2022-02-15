@@ -20,16 +20,16 @@ export default [
     src: staticPrefix + '/js/echarts/v4.7.0/echarts.min.js',
   },
   //react
-  {
-    src: staticPrefix + '/js/react/v16.3.1/react.production.min.js',
-  },
-  {
-    src: staticPrefix + '/js/react/v16.3.1/react-dom.production.min.js',
-  },
+  // {
+  //   src: staticPrefix + '/js/react/v16.3.1/react.production.min.js',
+  // },
+  // {
+  //   src: staticPrefix + '/js/react/v16.3.1/react-dom.production.min.js',
+  // },
   //antd
-  {
-    src: staticPrefix + '/js/antd/v4.3.4/antd.min.js',
-  },
+  // {
+  //   src: staticPrefix + '/js/antd/v4.3.4/antd.min.js',
+  // },
   {
     src:staticPrefix+'/js/codemirror/v5.62.3/lib/codemirror.js'
   },

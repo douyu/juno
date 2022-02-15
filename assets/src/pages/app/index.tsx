@@ -409,7 +409,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
     }
 
     k8sClusters.map((item) => {
-      item.env.map((envItem: string) => {
+      ((item.env && item.env) || []).map((envItem: string) => {
         envList.indexOf(envItem) < 0 && envList.push(envItem);
         if (
           env === envItem &&

@@ -129,6 +129,12 @@ permission:
             method: GET
       - name: Grafana
         path: /analysis/grafana
+      - name: 代理功能
+        path: /analysis/proxy  
+        api:
+          - path: /api/admin/proxyintegrat/uilist
+            method: GET
+            name: 功能菜单
       - name: 依赖拓扑
         path: /analysis/topology
         api:
@@ -141,6 +147,7 @@ permission:
           - path: /api/admin/analysis/topology/relationship
             method: GET
             name: 应用拓扑关系
+            
       - name: 版本管理
         path: /analysis/deppkg
         api:
@@ -434,6 +441,15 @@ permission:
             method: GET
           - path: /api/admin/system/setting/update
             name: 修改系统设置
+            method: POST
+      - path: /admin/proxy
+        name: 代理设置
+        api:  
+          - path: /api/admin/proxyintegrat/proxyManageCreateOrUpdate
+            name: 代理管理设置
+            method: POST
+          - path: /api/admin/proxyintegrat/proxyMenuCreateOrUpdate
+            name: 代理菜单设置
             method: POST
       - path: /admin/accessTokens
         name: Access Tokens
