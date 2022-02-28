@@ -58,6 +58,7 @@ export default class Applog extends React.PureComponent {
       {
         appName: nextProps.appName,
         env: nextProps.env,
+        aid: nextProps.aid,
       },
       () => {
         const { typ } = this.state;
