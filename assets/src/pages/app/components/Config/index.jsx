@@ -66,7 +66,7 @@ function ConfigEdit(props) {
   }, [aid, appName, env, zoneCode, publishVersion, serviceVersion])
 
   return (
-    <div className={styles.container} ref={ref}>
+    <div className={styles.container} style={{ overflow: "hidden" }} ref={ref}>
       <LeftSide
         onFullScreen={full => {
           full ? setFull() : exitFull()
