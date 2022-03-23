@@ -651,7 +651,93 @@ func ClusterPublishConfigInfo(clusterName string, configId uint64) (configuratio
 		}
 
 	}
+	return
+}
 
+// ClusterPublishConfigInfoByID ..
+func ClusterPublishConfigInfoByID(configId uint64) (configurationRes view.ClusterConfigInfo, err error) {
+	// process
+	var (
+		configurationPublish       db.ConfigurationPublish
+		configurationHistory       db.ConfigurationHistory
+		configurationClusterStatus db.ConfigurationClusterStatus
+		configuration              db.Configuration
+		appInfo                    db.AppInfo
+	)
+	// get configurationClusterStatus info
+	query := mysql.Order("id desc").Where(" configuration_id = ?", configId).First(&configurationClusterStatus)
+
+	if query.Error != nil {
+		configurationRes.Doc = cfg.Cfg.K8s.Doc
+		configurationRes.ChangeLog = "未发布"
+		return
+	}
+
+	// get configurationPublish info
+	query = mysql.Where("id = ?", configurationClusterStatus.ConfigurationPublishID).First(&configurationPublish)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+
+	// get configurationHistory info
+	query = mysql.Where("id = ?", configurationPublish.ConfigurationHistoryID).First(&configurationHistory)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+
+	// get configuration info
+	query = mysql.Where("id = ?", configurationClusterStatus.ConfigurationID).First(&configuration)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+
+	configurationRes.Doc = cfg.Cfg.K8s.Doc
+	configurationRes.Version = configurationHistory.Version
+	configurationRes.CreatedAt = configurationPublish.CreatedAt
+	configurationRes.ChangeLog = configurationHistory.ChangeLog
+	if configurationPublish.FilePath != "" {
+		fpList := strings.Split(configurationPublish.FilePath, ";")
+		configurationRes.ConfigFilePath = fpList[0]
+	}
+	query = mysql.Where("aid = ?", configuration.AID).First(&appInfo)
+	if query.Error != nil {
+		err = query.Error
+		return
+	}
+	configuration.PublishedAt = &configurationClusterStatus.CreatedAt
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	for _, prefix := range cfg.Cfg.Configure.Prefixes {
+		// for k8s
+		path := fmt.Sprintf("%s.%s", configuration.Name, configuration.Format)
+		clusterKey := fmt.Sprintf("/%s/cluster/%s/%s/static/%s", prefix, appInfo.AppName, configuration.Env, path)
+		resp, err := clientproxy.ClientProxy.DefaultEtcdGet(view.UniqZone{Env: configuration.Env, Zone: configuration.Zone}, ctx, clusterKey, clientv3.WithPrefix())
+		if err != nil {
+			return configurationRes, err
+		}
+		if len(resp.Kvs) == 0 {
+			err = errorconst.ParamConfigCallbackKvIsZero.Error()
+			xlog.Warn("configurationSynced", zap.String("step", "resp.Kvs"), zap.String("appName", configuration.App.Name), zap.String("env", configuration.Env), zap.String("zoneCode", configuration.Zone), zap.String("clusterKey", clusterKey), zap.Any("resp", resp))
+			return configurationRes, err
+		}
+
+		configurationRes.SyncStatus = "未生效"
+		// publish status, synced status
+		for _, item := range resp.Kvs {
+			data := view.ConfigurationPublishData{}
+			if err := json.Unmarshal(item.Value, &data); err != nil {
+				continue
+			}
+			if data.Metadata.Version == configurationHistory.Version {
+				configurationRes.SyncStatus = "已生效"
+				return configurationRes, nil
+			}
+		}
+
+	}
 	return
 }
 
@@ -978,7 +1064,7 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 	}
 
 	for _, item := range list {
-		configItem := view.RespHistoryConfigItem{
+		configItem := &view.RespHistoryConfigItem{
 			ID:              item.ID,
 			UID:             item.UID,
 			AccessTokenID:   item.AccessTokenID,

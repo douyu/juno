@@ -80,7 +80,7 @@ function ModalHistory(props) {
                 showHistoryModal(false)
               }}
             >
-              {row.version.substr(0, 7)}
+              {`${row.version.substr(0, 7)} `}{<span style={{ color: "red" }}>{`${row.current_version ? " --> 当前发布" : ""}`}</span>}
             </Button>
           }
         }

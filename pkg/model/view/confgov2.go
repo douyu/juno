@@ -101,8 +101,8 @@ type (
 
 	// RespHistoryConfig ..
 	RespHistoryConfig struct {
-		Pagination Pagination              `json:"pagination"`
-		List       []RespHistoryConfigItem `json:"list"`
+		Pagination Pagination               `json:"pagination"`
+		List       []*RespHistoryConfigItem `json:"list"`
 	}
 
 	// RespHistoryConfigItem ..
@@ -116,6 +116,7 @@ type (
 		ConfigurationID uint      `json:"configuration_id"`
 		Version         string    `json:"version"` // 发布到Juno Proxy的版本号
 		CreatedAt       time.Time `json:"created_at"`
+		CurrentVersion  int       `json:"current_version"` //是不是当前版本
 	}
 
 	// ReqDiffConfig ..
