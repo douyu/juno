@@ -15,7 +15,9 @@ function Files(props) {
   let { zoneList } = props
   const fileChanged = currentConfig && currentConfig.content !== currentContent
   useEffect(() => {
-    loadConfigList(props.appName, props.env)
+    if (props.appName && props.env) {
+      loadConfigList(props.appName, props.env)
+    }
   }, [])
 
   k8sClusters.forEach(cluster => {
