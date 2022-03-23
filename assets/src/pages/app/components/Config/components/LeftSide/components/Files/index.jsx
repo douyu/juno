@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'dva'
 import styles from './index.less'
 import { DeleteOutlined, FileOutlined, HistoryOutlined, StopOutlined } from '@ant-design/icons'
@@ -14,6 +14,9 @@ function Files(props) {
   } = props
   let { zoneList } = props
   const fileChanged = currentConfig && currentConfig.content !== currentContent
+  useEffect(() => {
+    loadConfigList(props.appName, props.env)
+  }, [])
 
   k8sClusters.forEach(cluster => {
     if (cluster.env.indexOf(env) > -1 && zoneList.findIndex(zone => zone.zone_code === cluster.zone_code) < 0) {
@@ -56,17 +59,17 @@ function Files(props) {
           }
         }}
       >
-       <div className={styles.configListTextItem}>
-       <div>{cfg.config_status === 1 ?
-          <Tag color="green">已发布</Tag> : cfg.config_status === 2 ?
-            <Tag color="yellow">未发布</Tag> : ""}{cfg.name}.{cfg.format}</div>
-        <div>
-          {currentConfig && currentConfig.content !== currentContent && cfg.id === currentConfig.id &&
-            <span className={styles.notSavedTip}>
-              未保存
-            </span>}
+        <div className={styles.configListTextItem}>
+          <div>{cfg.config_status === 1 ?
+            <Tag color="green">已发布</Tag> : cfg.config_status === 2 ?
+              <Tag color="yellow">未发布</Tag> : ""}{cfg.name}.{cfg.format}</div>
+          <div>
+            {currentConfig && currentConfig.content !== currentContent && cfg.id === currentConfig.id &&
+              <span className={styles.notSavedTip}>
+                未保存
+              </span>}
+          </div>
         </div>
-       </div>
         <div>
           <div onClick={ev => ev.stopPropagation()}>
             <Popconfirm
@@ -102,33 +105,33 @@ function Files(props) {
         <HistoryOutlined />
       </OptionButton>}
     </div>
-     
+
     <ul className={styles.zoneList}>
-      <ScrollArea style={{height: '100%'}}>
-      {configListLoading && <div style={{ textAlign: 'center', paddingTop: '30px' }}>
-        <Spin />
-        <div>加载中</div>
-      </div>}
+      <ScrollArea style={{ height: '100%' }}>
+        {configListLoading && <div style={{ textAlign: 'center', paddingTop: '30px' }}>
+          <Spin />
+          <div>加载中</div>
+        </div>}
 
-      {!configListLoading && zoneList && zoneList.map((zone, index) => {
-        return <li
-          key={index}
+        {!configListLoading && zoneList && zoneList.map((zone, index) => {
+          return <li
+            key={index}
+          >
+            <div className={styles.zoneTitle}>{zone.zone_name}</div>
+            <ul className={styles.configList}>
+              {renderConfigListByZone(zone.zone_code)}
+            </ul>
+          </li>
+        })}
+
+        {!configListLoading && (!zoneList || !zoneList.length) && <div
+          className={styles.noConfigTip}
         >
-          <div className={styles.zoneTitle}>{zone.zone_name}</div>
-          <ul className={styles.configList}>
-            {renderConfigListByZone(zone.zone_code)}
-          </ul>
-        </li>
-      })}
-
-      {!configListLoading && (!zoneList || !zoneList.length) && <div
-        className={styles.noConfigTip}
-      >
-        <StopOutlined />
-        当前应用环境无机房
-      </div>}
+          <StopOutlined />
+          当前应用环境无机房
+        </div>}
       </ScrollArea>
-    
+
     </ul>
   </div>
 }

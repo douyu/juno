@@ -1,34 +1,34 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import styles from './index.less';
-import {Menu} from "./components/Menu";
-import {CloudServerOutlined, FileOutlined} from '@ant-design/icons'
+import { Menu } from "./components/Menu";
+import { CloudServerOutlined, FileOutlined } from '@ant-design/icons'
 import Files from "./components/Files";
-import {connect} from 'dva'
+import { connect } from 'dva'
 import ModalCreate from "@/pages/app/components/Config/components/ModalCreate";
 import Publish from "@/pages/app/components/Config/components/LeftSide/components/Publish";
 
 const MenuItems = [
   {
-    icon: <FileOutlined/>,
+    icon: <FileOutlined />,
     key: 'config-edit',
     label: '配置编辑'
   },
   {
-    icon: <CloudServerOutlined/>,
+    icon: <CloudServerOutlined />,
     key: 'publish',
     label: '版本发布'
   },
 ]
 
 function LeftSide(props) {
-  const {visibleModalCreate, activeMenuKey, setActiveMenuKey} = props
+  const { visibleModalCreate, activeMenuKey, setActiveMenuKey } = props
 
   let renderMain = () => {
     switch (activeMenuKey) {
       case "config-edit":
-        return <Files/>
+        return <Files />
       case 'publish':
-        return <Publish/>
+        return <Publish />
     }
   }
 
@@ -53,7 +53,7 @@ function LeftSide(props) {
   );
 }
 
-const mapStateToProps = ({config}) => {
+const mapStateToProps = ({ config }) => {
   return {
     configList: config.configList,
     visibleModalCreate: config.visibleModalCreate,
@@ -63,8 +63,8 @@ const mapStateToProps = ({config}) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    showCreateModal: visible => dispatch({type: 'config/showCreateModal', payload: visible}),
-    setActiveMenuKey: key => dispatch({type: 'config/setLeftSideActiveMenu', payload: key})
+    showCreateModal: visible => dispatch({ type: 'config/showCreateModal', payload: visible }),
+    setActiveMenuKey: key => dispatch({ type: 'config/setLeftSideActiveMenu', payload: key })
   }
 }
 
