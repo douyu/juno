@@ -204,7 +204,7 @@ export default class Configserver extends React.Component {
       onOk() {
         that.doAction(action, zone_code, hostname);
       },
-      onCancel() {},
+      onCancel() { },
       okText: '确定',
       cancelText: '取消',
     });
@@ -478,7 +478,7 @@ export default class Configserver extends React.Component {
           });
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   addItem = (v) => {

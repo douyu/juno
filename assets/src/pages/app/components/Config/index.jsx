@@ -77,10 +77,16 @@ function ConfigEdit(props) {
       <div className={styles.main}>
         <EditorMaskLayer />
 
-        <Editor />
+        <Editor
+          env={env}
+          appName={appName}
+        />
       </div>
 
-      <ModalSave />
+      <ModalSave
+        env={env}
+        appName={appName}
+      />
 
       <ModalHistory />
 

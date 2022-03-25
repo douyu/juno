@@ -180,6 +180,7 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.POST("/config/lock", core.Handle(confgov2.Lock), configWriteByIDMW)                                      // 获取配置编辑锁
 		configV2G.POST("/config/unlock", core.Handle(confgov2.Unlock), configWriteByIDMW)                                  // 解锁配置
 		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                                                    // 配置文件列表
+		configV2G.POST("/config/batchClusterPublishConfigInfo", confgov2.BatchClusterPublishConfigInfo, configReadQueryMW) //批量获取配置信息
 		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)                                                 // 配置文件内容
 		configV2G.POST("/config/create", confgov2.Create, configWriteBodyMW)                                               // 配置新建
 		configV2G.POST("/config/update", confgov2.Update, configWriteByIDMW)                                               // 配置更新

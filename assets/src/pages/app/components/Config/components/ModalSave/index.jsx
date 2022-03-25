@@ -18,6 +18,8 @@ function ModalSave(props) {
 
   const [form] = Form.useForm();
   const {
+    appName,
+    env,
     currentConfig, currentContent, visible, showSaveModal, saveConfig,
     resourceCheckResult, resourceCheckLoading
   } = props
@@ -99,6 +101,13 @@ function ModalSave(props) {
               if (r && r.code === 0) {
                 // success
                 showSaveModal(false)
+                props.dispatch({
+                  type: 'config/loadConfigInfo',
+                  payload: {
+                    appName,
+                    env,
+                  },
+                });
               }
             })
           }}
