@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { connect } from "dva";
-import { Button, Modal, Table } from "antd";
+import React, { useEffect } from 'react';
+import { connect } from 'dva';
+import { Button, Modal, Table } from 'antd';
 
 const historyTableColumns = [
   {
@@ -8,8 +8,8 @@ const historyTableColumns = [
     // dataIndex: 'user_name',
     title: '操作用户',
     render(row) {
-      return row.user_name || row.access_token_name || '---'
-    }
+      return row.user_name || row.access_token_name || '---';
+    },
   },
   {
     key: 'change_log',
@@ -20,75 +20,94 @@ const historyTableColumns = [
   {
     key: 'created_at',
     dataIndex: 'created_at',
-    title: '提交时间'
+    title: '提交时间',
   },
-]
-var serviceV = ""
+];
+var serviceV = '';
 
 function ModalHistory(props) {
   const {
-    visible, currentConfig, historyList, historyListLoading,
-    historyListPagination, loadHistory, showHistoryModal, showDiffEditor, showDiffVersionEditor, serviceVersion, publishVersion, env, aid, appName
-  } = props
+    visible,
+    currentConfig,
+    historyList,
+    historyListLoading,
+    historyListPagination,
+    loadHistory,
+    showHistoryModal,
+    showDiffEditor,
+    showDiffVersionEditor,
+    serviceVersion,
+    publishVersion,
+    env,
+    aid,
+    appName,
+  } = props;
   useEffect(() => {
-    if (serviceV == "" || serviceV == undefined) {
-      if (serviceVersion != "" && serviceVersion != undefined) {
-        showDiffVersionEditor(appName, env, serviceVersion, publishVersion)
+    if (serviceV == '' || serviceV == undefined) {
+      if (serviceVersion != '' && serviceVersion != undefined) {
+        showDiffVersionEditor(appName, env, serviceVersion, publishVersion);
       }
     }
-    serviceV = serviceVersion
-    if (!visible) return
+    serviceV = serviceVersion;
+    if (!visible) return;
     loadHistory({
       id: currentConfig.id,
       page: 0,
-      size: 10
-    })
-  }, [visible, publishVersion, serviceVersion, env, appName])
+      size: 10,
+    });
+  }, [visible, publishVersion, serviceVersion, env, appName]);
 
-  return <Modal
-    visible={visible}
-    title={"历史版本"}
-    onCancel={() => showHistoryModal(false)}
-    footer={null}
-    width={800}
-    bodyStyle={{ "overflowX": "auto" }}
-  >
-    <Table
-      dataSource={historyList}
-      loading={historyListLoading}
-      pagination={{
-        ...historyListPagination,
-        current: historyListPagination.current + 1,
-        onChange: (page, size) => {
-          loadHistory({
-            id: currentConfig.id,
-            page: page - 1,
-            size: size
-          })
-        }
-      }}
-      columns={[
-        ...historyTableColumns,
-        {
-          key: 'version',
-          title: 'Version',
-          render: row => {
-            return <Button
-              type={"link"}
-              onClick={() => {
-                showDiffEditor(row.configuration_id, row.id)
-                showHistoryModal(false)
-              }}
-            >
-              {`${row.version.substr(0, 7)} `}{<span style={{ color: "red" }}>{`${row.current_version ? " --> 当前发布" : ""}`}</span>}
-            </Button>
-          }
-        }
-      ]}
+  return (
+    <Modal
+      visible={visible}
+      title={'历史版本'}
+      onCancel={() => showHistoryModal(false)}
+      footer={null}
+      width={800}
+      bodyStyle={{ overflowX: 'auto' }}
     >
-
-    </Table>
-  </Modal>
+      <Table
+        dataSource={historyList}
+        loading={historyListLoading}
+        pagination={{
+          ...historyListPagination,
+          current: historyListPagination.current + 1,
+          onChange: (page, size) => {
+            loadHistory({
+              id: currentConfig.id,
+              page: page - 1,
+              size: size,
+            });
+          },
+        }}
+        columns={[
+          ...historyTableColumns,
+          {
+            key: 'version',
+            title: 'Version',
+            render: (row) => {
+              return (
+                <Button
+                  type={'link'}
+                  onClick={() => {
+                    showDiffEditor(row.configuration_id, row.id);
+                    showHistoryModal(false);
+                  }}
+                >
+                  {`${row.version.substr(0, 7)} `}
+                  {
+                    <span style={{ color: 'red' }}>{`${
+                      row.current_version ? ' --> 当前发布' : ''
+                    }`}</span>
+                  }
+                </Button>
+              );
+            },
+          },
+        ]}
+      ></Table>
+    </Modal>
+  );
 }
 
 const mapStateToProps = ({ config }) => {
@@ -103,27 +122,29 @@ const mapStateToProps = ({ config }) => {
     historyListPagination: config.historyListPagination,
     historyListLoading: config.historyListLoading,
     currentConfig: config.currentConfig,
-  }
-}
+  };
+};
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    showHistoryModal: visible => dispatch({
-      type: 'config/showHistoryModal',
-      payload: visible
-    }),
-    loadHistory: payload => dispatch({
-      type: 'config/loadHistory',
-      payload: payload
-    }),
+    showHistoryModal: (visible) =>
+      dispatch({
+        type: 'config/showHistoryModal',
+        payload: visible,
+      }),
+    loadHistory: (payload) =>
+      dispatch({
+        type: 'config/loadHistory',
+        payload: payload,
+      }),
     showDiffEditor: (configID, historyID) => {
       dispatch({
         type: 'config/showDiffEditor',
         payload: {
           configID,
           historyID,
-        }
-      })
+        },
+      });
     },
     showDiffVersionEditor: (appName, env, serviceVersion, publishVersion) => {
       dispatch({
@@ -133,13 +154,10 @@ const mapDispatchToProps = dispatch => {
           env,
           serviceVersion,
           publishVersion,
-        }
-      })
-    }
-  }
-}
+        },
+      });
+    },
+  };
+};
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ModalHistory)
+export default connect(mapStateToProps, mapDispatchToProps)(ModalHistory);

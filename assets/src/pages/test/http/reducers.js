@@ -1,27 +1,26 @@
 export default {
-  _setCurrentRequest(state, {payload}) {
+  _setCurrentRequest(state, { payload }) {
     return {
       ...state,
       currentRequest: payload,
-      currentRequestID: payload.id
-    }
+      currentRequestID: payload.id,
+    };
   },
-  _updateCurrentRequest(state, {payload}) {
+  _updateCurrentRequest(state, { payload }) {
     let currentRequest = {
       ...state.currentRequest,
-      ...payload
+      ...payload,
     };
     return {
       ...state,
       currentRequest,
-    }
+    };
   },
-  _setResponse(state, {payload}) {
+  _setResponse(state, { payload }) {
     let response = payload.response;
-    if (response && response.headers && response.headers["Content-Type"]) {
-
-      let contentType = response.headers && response.headers["Content-Type"];
-      if (contentType && contentType[0].startsWith("application/json")) {
+    if (response && response.headers && response.headers['Content-Type']) {
+      let contentType = response.headers && response.headers['Content-Type'];
+      if (contentType && contentType[0].startsWith('application/json')) {
         let data = response.body;
         try {
           data = JSON.parse(data);
@@ -38,22 +37,22 @@ export default {
       response: payload.response,
       responseStatus: payload.status,
       responseError: payload.error,
-      sendStatus: 'done'
+      sendStatus: 'done',
     };
   },
-  _setFolderTree(state, {payload}) {
+  _setFolderTree(state, { payload }) {
     return {
       ...state,
-      folderTree: payload
+      folderTree: payload,
     };
   },
-  _setHistory(state, {payload}) {
-    const {pagination, list} = payload
-    let history = list || []
+  _setHistory(state, { payload }) {
+    const { pagination, list } = payload;
+    let history = list || [];
     if (pagination.current > 0) {
-      history = [...(state.history || []), ...history]
+      history = [...(state.history || []), ...history];
     } else {
-      history = list
+      history = list;
     }
 
     return {
@@ -61,18 +60,18 @@ export default {
       history: history,
       historyPagination: pagination,
       historyLoading: false,
-    }
+    };
   },
-  _setSendStatus(state, {payload}) {
+  _setSendStatus(state, { payload }) {
     return {
       ...state,
-      sendStatus: payload
-    }
+      sendStatus: payload,
+    };
   },
-  _apply(state, {payload}) {
+  _apply(state, { payload }) {
     return {
       ...state,
-      ...payload
-    }
-  }
-}
+      ...payload,
+    };
+  },
+};

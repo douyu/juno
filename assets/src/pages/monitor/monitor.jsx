@@ -7,7 +7,7 @@ import { getFrameVersion } from './services';
 import { history } from '@@/core/history';
 import { GetAppConfig, GetAppViewHistory, PostAppConfig } from '@/services/user';
 import GrafanaPannel from './pannel';
-import styles from "./index.less";
+import styles from './index.less';
 
 const RadioGroup = Radio.Group;
 
@@ -150,7 +150,11 @@ export default class Monitor extends React.PureComponent {
           }}
         >
           <Row gutter={24} className="top">
-            <Col span={24} className={styles.monitorTab} style={{ marginLeft: '10px', paddingBottom: '10px', }}>
+            <Col
+              span={24}
+              className={styles.monitorTab}
+              style={{ marginLeft: '10px', paddingBottom: '10px' }}
+            >
               {Array.isArray(dashboardList) && dashboardList.length ? (
                 <RadioGroup
                   defaultValue={dashboardPath}

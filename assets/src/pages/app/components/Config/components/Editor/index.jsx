@@ -17,9 +17,16 @@ let configLockIntervalId = null;
 let lockConfigId = null;
 
 function Editor(props) {
-  const { appName,
-    env, currentConfig, mode, configFileLoading, currentContent, currentUser, historyList } =
-    props;
+  const {
+    appName,
+    env,
+    currentConfig,
+    mode,
+    configFileLoading,
+    currentContent,
+    currentUser,
+    historyList,
+  } = props;
   const currentEditUser = currentConfig?.current_edit_user;
   const [insertModalCB, setInsertModalCB] = useState(null);
   const [publishModalVisible, setPublishModalVisible] = useState(false);
@@ -228,7 +235,7 @@ function Editor(props) {
                 visible={publishModalVisible}
                 onCancel={(e) => {
                   e.stopPropagation();
-                  setPublishModalVisible(false)
+                  setPublishModalVisible(false);
                 }}
                 configID={currentConfig && currentConfig.id}
                 onSubmit={(version) => {

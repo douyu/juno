@@ -35,7 +35,7 @@ export default class Base extends React.Component<HomeProps, any> {
       keywords_type: 'null',
       keywords: null,
     },
-   // rule: [{ key: 'keywords_type', rule: ['rely', 'keywords'] }],
+    // rule: [{ key: 'keywords_type', rule: ['rely', 'keywords'] }],
     refresh: (e: any) => {
       this.initList();
     },

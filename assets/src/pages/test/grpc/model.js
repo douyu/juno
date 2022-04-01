@@ -3,15 +3,18 @@ import {
   deleteUserCase,
   historyItem,
   loadAppServiceTree,
-  loadGrpcMethod, loadGrpcProtoList, loadPublicCase, loadPublicList,
+  loadGrpcMethod,
+  loadGrpcProtoList,
+  loadPublicCase,
+  loadPublicList,
   loadUseCaseById,
   loadUseCases,
   sendRequest,
-  updateUserCase
-} from "@/services/grpctest";
-import {formatProtoDesc} from "@/utils/proto";
-import {grpcAddrList} from "@/services/app";
-import {message} from 'antd';
+  updateUserCase,
+} from '@/services/grpctest';
+import { formatProtoDesc } from '@/utils/proto';
+import { grpcAddrList } from '@/services/app';
+import { message } from 'antd';
 
 const StorageKeySettings = 'grpc_debug.settings';
 
@@ -22,31 +25,31 @@ export default {
     use_cases: [],
     node_addr_list: {
       port: 0,
-      hosts: []
+      hosts: [],
     },
     selected_service: [],
     use_case_loading: false,
     request_loading: false,
     editor: {
       form: {
-        case_name: "",
-        input: "",
+        case_name: '',
+        input: '',
         autoTestId: 0,
         metadata: [],
-        script: null
+        script: null,
       },
-      response: "",
+      response: '',
       info: {
-        app_name: "",
-        service_name: "",
-        method_name: ""
-      }
+        app_name: '',
+        service_name: '',
+        method_name: '',
+      },
     },
     selected_user_case: '',
     right_menu_visible: false,
     right_menu_position: {
       x: 0,
-      y: 0
+      y: 0,
     },
     right_menu: [],
     response: null,
@@ -55,45 +58,45 @@ export default {
     public_cases: [],
     setting_dialog_visible: false,
     settings: {
-      localhost: "127.0.0.1"
+      localhost: '127.0.0.1',
     },
     service_bind_dialog_visible: false,
     proto_list: [],
     app_list: [],
   },
   effects: {
-    * changeTab({payload}, {call, put}) {
+    *changeTab({ payload }, { call, put }) {
       yield put({
         type: 'apply',
         payload: {
-          active_tab: payload
-        }
-      })
+          active_tab: payload,
+        },
+      });
     },
-    * loadAppServiceTree(_, {call, put}) {
+    *loadAppServiceTree(_, { call, put }) {
       let res = yield call(loadAppServiceTree);
       if (res.code === 0) {
-        let payload = {app_service_tree: res.data || []};
+        let payload = { app_service_tree: res.data || [] };
         yield put({
           type: 'apply',
-          payload: payload
-        })
+          payload: payload,
+        });
       } else {
-        message.error("加载应用服务列表失败:" + res.msg);
+        message.error('加载应用服务列表失败:' + res.msg);
       }
 
       return res;
     },
-    * loadUserCases({payload}, {call, put}) {
+    *loadUserCases({ payload }, { call, put }) {
       yield put({
         type: 'apply',
         payload: {
           selected_service: [payload.appName, payload.serviceID],
           node_addr_list: {
             port: 0,
-            hosts: []
-          } // clean addr list
-        }
+            hosts: [],
+          }, // clean addr list
+        },
       });
 
       let res = yield call(loadUseCases, payload.serviceID);
@@ -101,36 +104,36 @@ export default {
         yield put({
           type: 'apply',
           payload: {
-            use_cases: res.data
-          }
+            use_cases: res.data,
+          },
         });
       } else {
-        message.error("加载测试用例失败:" + res.msg);
+        message.error('加载测试用例失败:' + res.msg);
       }
 
-      res = yield call(grpcAddrList, {app_name: payload.appName});
+      res = yield call(grpcAddrList, { app_name: payload.appName });
       yield put({
         type: 'apply',
         payload: {
           node_addr_list: res.data,
-        }
-      })
+        },
+      });
     },
-    * loadUseCase({payload}, {call, put}) {
+    *loadUseCase({ payload }, { call, put }) {
       yield put({
         type: 'apply',
         payload: {
-          use_case_loading: true
-        }
-      })
+          use_case_loading: true,
+        },
+      });
 
       let res = yield call(loadUseCaseById, payload.id);
       yield put({
         type: 'apply',
         payload: {
-          use_case_loading: false
-        }
-      })
+          use_case_loading: false,
+        },
+      });
       if (res.code === 0) {
         let data = res.data;
         yield put({
@@ -143,22 +146,22 @@ export default {
                 input: data.input,
                 method_id: data.method_id,
                 metadata: data.metadata,
-                script: data.script
+                script: data.script,
               },
               info: {
                 app_name: data.app_name,
                 service_name: data.service_name,
-                method_name: data.method_name
-              }
-            }
-          }
+                method_name: data.method_name,
+              },
+            },
+          },
         });
       } else {
-        message.error("加载用例失败" + res.msg);
+        message.error('加载用例失败' + res.msg);
       }
       return res;
     },
-    * newUseCase({payload}, {call, put}) {
+    *newUseCase({ payload }, { call, put }) {
       let res = yield call(loadGrpcMethod, payload.id);
       if (res.code === 0) {
         yield put({
@@ -166,105 +169,105 @@ export default {
           payload: {
             editor: {
               form: {
-                case_name: res.data.name + "-" + (new Date()).getTime(),
+                case_name: res.data.name + '-' + new Date().getTime(),
                 input: JSON.stringify(formatProtoDesc(res.data.input_type), null, 4),
                 method_id: parseInt(payload.id),
-                metadata: []
+                metadata: [],
               },
               info: {
                 app_name: res.data.app_name,
                 service_name: res.data.service.name,
                 method_name: res.data.name,
-              }
+              },
             },
-            response: null
-          }
+            response: null,
+          },
         });
       } else {
-        message.error("加载Grpc Method信息失败:" + res.msg);
+        message.error('加载Grpc Method信息失败:' + res.msg);
       }
       return res;
     },
-    * changeSelectedUserCase({payload}, {call, put}) {
+    *changeSelectedUserCase({ payload }, { call, put }) {
       yield put({
         type: 'apply',
         payload: {
-          selected_user_case: payload
-        }
-      })
+          selected_user_case: payload,
+        },
+      });
     },
-    * createUserCase({payload}, {call, put}) {
+    *createUserCase({ payload }, { call, put }) {
       let res = yield call(createUserCase, payload);
       if (res.code === 0) {
         yield put({
           type: 'apply',
           payload: {
             selected_user_case: 'case:' + res.data.id,
-          }
+          },
         });
         yield put({
           type: '_setCurrentCaseId',
-          payload: res.data.id
+          payload: res.data.id,
         });
-        message.success("保存成功")
+        message.success('保存成功');
       } else {
-        message.error("保存失败:" + res.msg)
+        message.error('保存失败:' + res.msg);
       }
-      return res
+      return res;
     },
-    * updateCaseInput({payload}, {call, put}) {
+    *updateCaseInput({ payload }, { call, put }) {
       yield put({
         type: '_updateCaseInput',
-        payload: payload
-      })
+        payload: payload,
+      });
     },
-    * updateCaseScript({payload}, {call, put}) {
+    *updateCaseScript({ payload }, { call, put }) {
       yield put({
         type: '_updateCaseScript',
-        payload: payload
-      })
+        payload: payload,
+      });
     },
-    * updateUserCase({payload}, {call, put}) {
+    *updateUserCase({ payload }, { call, put }) {
       let res = yield call(updateUserCase, payload);
       if (res.code === 0) {
-        message.success("保存成功");
+        message.success('保存成功');
       } else {
-        message.error("更新用例失败:" + res.msg);
+        message.error('更新用例失败:' + res.msg);
       }
     },
-    * showRightMenu({payload}, {call, put}) {
+    *showRightMenu({ payload }, { call, put }) {
       yield put({
         type: 'apply',
         payload: {
           right_menu_visible: payload.visible,
           right_menu_position: payload.position,
-          right_menu: payload.menu
-        }
-      })
+          right_menu: payload.menu,
+        },
+      });
     },
-    * deleteUserCase({payload}, {call, put}) {
+    *deleteUserCase({ payload }, { call, put }) {
       let res = yield call(deleteUserCase, payload.id);
       if (res.code === 0) {
-        message.success("删除成功")
+        message.success('删除成功');
       } else {
         message.error(res.msg);
       }
       return res;
     },
-    * sendRequest({payload}, {call, put}) {
+    *sendRequest({ payload }, { call, put }) {
       yield put({
         type: 'apply',
         payload: {
-          request_loading: true
-        }
-      })
+          request_loading: true,
+        },
+      });
       let res = yield call(sendRequest, payload);
       yield put({
         type: 'apply',
         payload: {
-          request_loading: false
-        }
-      })
+          request_loading: false,
+        },
+      });
       if (res.code === 0) {
         let data = res.data;
         let output = data.output;
@@ -272,7 +275,7 @@ export default {
           output = JSON.parse(output);
           output = JSON.stringify(output, null, 4);
         } catch (e) {
-          console.error("invalid response data:");
+          console.error('invalid response data:');
           console.error(e);
         }
         data.output = output;
@@ -280,19 +283,19 @@ export default {
           type: 'apply',
           payload: {
             response: data,
-          }
-        })
+          },
+        });
       } else {
         message.error(res.msg);
       }
     },
-    * loadHistoryItem({payload}, {call, put}) {
+    *loadHistoryItem({ payload }, { call, put }) {
       let res = yield call(historyItem, payload);
       yield put({
         type: 'apply',
         payload: {
-          selected_history_id: payload
-        }
+          selected_history_id: payload,
+        },
       });
       if (res.code === 0) {
         let input = res.data.input;
@@ -308,49 +311,48 @@ export default {
           console.error(e);
         }
         yield put({
-            type: 'apply',
-            payload: {
-              editor: {
-                form: {
-                  case_name: res.data.method_name + "-" + (new Date()).getTime(),
-                  input: input,
-                  method_id: res.data.method_id,
-                  metadata: res.data.metadata
-                },
-                info: {
-                  app_name: res.data.app_name,
-                  service_name: res.data.service_name,
-                  method_name: res.data.method_name,
-                }
+          type: 'apply',
+          payload: {
+            editor: {
+              form: {
+                case_name: res.data.method_name + '-' + new Date().getTime(),
+                input: input,
+                method_id: res.data.method_id,
+                metadata: res.data.metadata,
               },
-              response: {
-                status: res.data.status,
-                error: res.data.error,
-                time_cost: res.data.time_cost,
-                output: output
+              info: {
+                app_name: res.data.app_name,
+                service_name: res.data.service_name,
+                method_name: res.data.method_name,
               },
             },
-          }
-        )
+            response: {
+              status: res.data.status,
+              error: res.data.error,
+              time_cost: res.data.time_cost,
+              output: output,
+            },
+          },
+        });
       } else {
-        message.error("记载历史记录失败:" + res.msg)
+        message.error('记载历史记录失败:' + res.msg);
       }
-      return res
+      return res;
     },
-    * loadPublicCases({payload}, {call, put}) {
+    *loadPublicCases({ payload }, { call, put }) {
       let res = yield call(loadPublicList, payload.appName, payload.serviceName);
       if (res.code === 0) {
         yield put({
           type: 'apply',
           payload: {
-            public_cases: res.data
-          }
-        })
+            public_cases: res.data,
+          },
+        });
       } else {
         message.error(res.msg);
       }
     },
-    * loadPublicCase({payload}, {call, put}) {
+    *loadPublicCase({ payload }, { call, put }) {
       let res = yield call(loadPublicCase, payload);
       if (res.code === 0) {
         let input = res.data.input;
@@ -360,30 +362,29 @@ export default {
           console.error(e);
         }
         yield put({
-            type: 'apply',
-            payload: {
-              editor: {
-                form: {
-                  case_name: res.data.methodName + "-" + (new Date()).getTime(),
-                  input: input,
-                  autoTestId: res.data.autoTestId,
-                  metadata: res.data.metadata
-                },
-                info: {
-                  app_name: res.data.appName,
-                  service_name: res.data.serviceName,
-                  method_name: res.data.methodName,
-                }
+          type: 'apply',
+          payload: {
+            editor: {
+              form: {
+                case_name: res.data.methodName + '-' + new Date().getTime(),
+                input: input,
+                autoTestId: res.data.autoTestId,
+                metadata: res.data.metadata,
               },
-              response: null
+              info: {
+                app_name: res.data.appName,
+                service_name: res.data.serviceName,
+                method_name: res.data.methodName,
+              },
             },
-          }
-        )
+            response: null,
+          },
+        });
       } else {
         message.error(res.msg);
       }
     },
-    * loadSettings({payload}, {call, put}) {
+    *loadSettings({ payload }, { call, put }) {
       let settings = null;
       let settingStr = localStorage.getItem(StorageKeySettings);
       try {
@@ -391,98 +392,98 @@ export default {
         yield put({
           type: 'apply',
           payload: {
-            settings: settings
-          }
-        })
+            settings: settings,
+          },
+        });
       } catch (e) {
         localStorage.removeItem(StorageKeySettings);
       }
     },
-    * saveSettings({payload}, {put}) {
+    *saveSettings({ payload }, { put }) {
       yield put({
         type: '_saveSettings',
-        payload
+        payload,
       });
     },
-    * showSettings({payload}, {put}) {
+    *showSettings({ payload }, { put }) {
       yield put({
         type: 'apply',
         payload: {
-          setting_dialog_visible: payload
-        }
-      })
+          setting_dialog_visible: payload,
+        },
+      });
     },
-    * updateMetadata({payload}, {put}) {
+    *updateMetadata({ payload }, { put }) {
       yield put({
         type: '_updateMetadata',
-        payload
+        payload,
       });
     },
-    * showServiceBindDialog({payload}, {put}) {
+    *showServiceBindDialog({ payload }, { put }) {
       yield put({
         type: 'apply',
         payload: {
-          service_bind_dialog_visible: payload
-        }
-      })
+          service_bind_dialog_visible: payload,
+        },
+      });
     },
-    * loadProtoList({payload}, {call, put}) {
+    *loadProtoList({ payload }, { call, put }) {
       let res = yield call(loadGrpcProtoList);
       if (res.code === 0) {
         yield put({
           type: 'apply',
           payload: {
-            proto_list: res.data
-          }
-        })
+            proto_list: res.data,
+          },
+        });
       } else {
         message.error(res.msg);
       }
     },
   },
   reducers: {
-    apply(state, {payload}) {
-      return {...state, ...payload}
+    apply(state, { payload }) {
+      return { ...state, ...payload };
     },
-    _updateCaseInput(state, {payload}) {
+    _updateCaseInput(state, { payload }) {
       let editor = state.editor;
       editor.form.input = payload;
       return {
         ...state,
-        editor
-      }
+        editor,
+      };
     },
-    _updateCaseScript(state, {payload}) {
+    _updateCaseScript(state, { payload }) {
       let editor = state.editor;
       editor.form.script = payload;
       return {
         ...state,
-        editor
-      }
+        editor,
+      };
     },
-    _setCurrentCaseId(state, {payload}) {
+    _setCurrentCaseId(state, { payload }) {
       let editor = state.editor;
       editor.form.id = payload;
       return {
         ...state,
-        editor
-      }
+        editor,
+      };
     },
-    _saveSettings(state, {payload}) {
+    _saveSettings(state, { payload }) {
       localStorage.setItem('grpc_debug.settings', JSON.stringify(payload));
       return {
         ...state,
         settings: payload,
         setting_dialog_visible: false,
-      }
+      };
     },
-    _updateMetadata(state, {payload}) {
+    _updateMetadata(state, { payload }) {
       let editor = state.editor;
       editor.form.metadata = payload;
       return {
         ...state,
-        editor
-      }
-    }
-  }
+        editor,
+      };
+    },
+  },
 };

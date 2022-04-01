@@ -1,7 +1,7 @@
 export interface ResponseData<T> {
-  code: ResponseCode
-  msg: string
-  data: T
+  code: ResponseCode;
+  msg: string;
+  data: T;
 }
 
 export enum ResponseCode {

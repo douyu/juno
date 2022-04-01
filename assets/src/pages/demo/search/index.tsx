@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
-import { message,  Card} from 'antd';
-import {PageHeaderWrapper} from "@ant-design/pro-layout";
+import { message, Card } from 'antd';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import PageList from '@/components/PageList';
-import { reqSelect } from "./service"
+import { reqSelect } from './service';
 const urlList = '/analysis/topology';
-
 
 export default class ServiceTopology extends Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
-      region_select : [],
-      zone_select : [],
-      env_select : [],
-      type_select : [],
-      app_select : [],
+      region_select: [],
+      zone_select: [],
+      env_select: [],
+      type_select: [],
+      app_select: [],
     };
   }
 
@@ -23,18 +22,14 @@ export default class ServiceTopology extends Component {
     router: urlList,
     param: {
       region_code: null,
-      show_type:"chart",
-
+      show_type: 'chart',
     },
-    refresh: (e: any) => {
-    },
+    refresh: (e: any) => {},
   });
 
-
   componentWillMount() {
-    this.initList()
+    this.initList();
   }
-
 
   initList = (): void => {
     reqSelect().then((res) => {
@@ -47,15 +42,15 @@ export default class ServiceTopology extends Component {
         zone_select: res.data.zone_select,
         env_select: res.data.env_select,
         type_select: res.data.type_select,
-        app_select:res.data.app_select,
+        app_select: res.data.app_select,
       });
       return true;
     });
   };
 
   render() {
-    const { zone_select,env_select,type_select,app_select } = this.state;
-    let { zone_code,env,type,show_type,app_name } = this.search.getParam();
+    const { zone_select, env_select, type_select, app_select } = this.state;
+    let { zone_code, env, type, show_type, app_name } = this.search.getParam();
 
     return (
       <PageHeaderWrapper>
@@ -66,62 +61,62 @@ export default class ServiceTopology extends Component {
             onReset={this.search.reset}
             items={[
               {
-                label: "可用区",
+                label: '可用区',
                 select: {
-                  field: "zone_code",
+                  field: 'zone_code',
                   style: { width: 300 },
-                  placeholder: "全部状态",
+                  placeholder: '全部状态',
                   data: zone_select,
-                  initialValue: zone_code
-                }
+                  initialValue: zone_code,
+                },
               },
               {
-                label: "环境",
+                label: '环境',
                 select: {
-                  field: "env",
+                  field: 'env',
                   style: { width: 100 },
-                  placeholder: "全部状态",
+                  placeholder: '全部状态',
                   data: env_select,
-                  initialValue: env
-                }
+                  initialValue: env,
+                },
               },
               {
-                label: "应用",
+                label: '应用',
                 select: {
-                  field: "app_name",
+                  field: 'app_name',
                   style: { width: 300 },
-                  placeholder: "全部状态",
+                  placeholder: '全部状态',
                   data: app_select,
-                  initialValue: app_name
-                }
+                  initialValue: app_name,
+                },
               },
               {
-                label: "依赖类型",
+                label: '依赖类型',
                 select: {
-                  field: "type",
+                  field: 'type',
                   style: { width: 100 },
-                  placeholder: "全部状态",
+                  placeholder: '全部状态',
                   data: type_select,
-                  initialValue: type
-                }
+                  initialValue: type,
+                },
               },
               {
-                label: "展示类型",
+                label: '展示类型',
                 select: {
-                  field: "show_type",
+                  field: 'show_type',
                   style: { width: 100 },
-                  placeholder: "全部状态",
+                  placeholder: '全部状态',
                   data: [
-                    { name: "图表", value: "chart" },
-                    { name: "列表", value: "list" },
+                    { name: '图表', value: 'chart' },
+                    { name: '列表', value: 'list' },
                   ],
-                  initialValue: show_type
-                }
+                  initialValue: show_type,
+                },
               },
             ]}
           />
         </Card>
       </PageHeaderWrapper>
-      );
+    );
   }
 }

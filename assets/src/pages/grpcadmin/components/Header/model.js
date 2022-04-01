@@ -1,12 +1,12 @@
 import { message } from 'antd';
-import { getAppListSrv, getEnv} from './service'
-import { fetchProviderList, fetchAggregationList } from "@/services/provider";
+import { getAppListSrv, getEnv } from './service';
+import { fetchProviderList, fetchAggregationList } from '@/services/provider';
 
 const formatData = (res, value, key) => {
   if (key) {
-    return res.code === 0 ? res[key] : value
+    return res.code === 0 ? res[key] : value;
   }
-  return res.code === 0 ? res.data : value
+  return res.code === 0 ? res.data : value;
 };
 
 export default {
@@ -17,26 +17,26 @@ export default {
     idcList: [],
   },
   effects: {
-    *getAppList({payload}, {call, put}) {
+    *getAppList({ payload }, { call, put }) {
       const response = yield call(getAppListSrv, payload);
-      const {code, data, msg} = response;
+      const { code, data, msg } = response;
       if (code !== 0) {
         return;
       }
       yield put({
-        type: "_list",
-        payload: data
+        type: '_list',
+        payload: data,
       });
     },
-    *getEnv({payload}, {call, put}) {
+    *getEnv({ payload }, { call, put }) {
       const response = yield call(getEnv, payload);
-      const {code, data, msg} = response;
+      const { code, data, msg } = response;
       if (code !== 0) {
         return;
       }
       yield put({
-        type: "_env",
-        payload: data
+        type: '_env',
+        payload: data,
       });
     },
     *fetchAggregationList({ payload }, { call, put }) {
@@ -46,14 +46,14 @@ export default {
         // message.error("错误信息:"+msg);
         //数据清空
         yield put({
-          type: "_fetchAggregationList",
+          type: '_fetchAggregationList',
           payload: [],
         });
         // return;
-      }else {
+      } else {
         yield put({
-          type: "_fetchAggregationList",
-          payload: data
+          type: '_fetchAggregationList',
+          payload: data,
         });
       }
     },
@@ -72,5 +72,5 @@ export default {
         idcList: payload.idcList,
       };
     },
-  }
-}
+  },
+};

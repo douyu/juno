@@ -1,6 +1,5 @@
-import { stringify } from 'qs'
-import request from '@/utils/request'
-
+import { stringify } from 'qs';
+import request from '@/utils/request';
 
 // ## 服务治理更新
 // curl -X "POST" "http://127.0.0.1:50004/api/admin/grpc/configurators/update" \
@@ -13,10 +12,18 @@ import request from '@/utils/request'
 //   "weight": 200,
 //   "group": "default"
 // }'
-export async function configuratorsUpdate({idcCode,appName,regKey,enable,weight,group,env}) {
-  weight = weight.toString()
-  return request(`/api/admin/grpc/configurators/update`,{
-    method:'POST',
-    data: {idcCode,appName,regKey,enable,weight,group,env}
-  })
+export async function configuratorsUpdate({
+  idcCode,
+  appName,
+  regKey,
+  enable,
+  weight,
+  group,
+  env,
+}) {
+  weight = weight.toString();
+  return request(`/api/admin/grpc/configurators/update`, {
+    method: 'POST',
+    data: { idcCode, appName, regKey, enable, weight, group, env },
+  });
 }

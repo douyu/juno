@@ -1,12 +1,12 @@
-import { Modal, Select, Table } from "antd";
-import { fileKeyDiff } from "../service";
+import { Modal, Select, Table } from 'antd';
+import { fileKeyDiff } from '../service';
 
 export default class Normal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       keys: [],
-      rafeCid: 0
+      rafeCid: 0,
     };
   }
 
@@ -22,31 +22,28 @@ export default class Normal extends React.Component {
     let initId = 0;
     //查看live环境是否存在config-live.toml
     for (let item of configList) {
-      if (item.env == "live" && item.file_name == "config-live.toml") {
+      if (item.env == 'live' && item.file_name == 'config-live.toml') {
         initId = item.id;
         break;
       }
     }
     if (initId == 0) {
-      initId =
-        originCid != configList[0].id || 0
-          ? configList[0].id || 0
-          : configList[1].id || 0;
+      initId = originCid != configList[0].id || 0 ? configList[0].id || 0 : configList[1].id || 0;
     }
     this.updateKeys(originCid, initId);
   }
 
-  handleChange = id => {
+  handleChange = (id) => {
     this.setState({
-      rafeCid: id
+      rafeCid: id,
     });
     const { originCid = 0 } = this.props;
     this.updateKeys(originCid, id);
   };
 
-  handleCancel = _ => {
+  handleCancel = (_) => {
     this.setState({
-      keys: []
+      keys: [],
     });
     this.props.cancel();
   };
@@ -54,11 +51,11 @@ export default class Normal extends React.Component {
   updateKeys = (oid, rid) => {
     fileKeyDiff({
       origin_cid: oid,
-      rafe_cid: rid
-    }).then(res => {
+      rafe_cid: rid,
+    }).then((res) => {
       this.setState({
         keys: res.data,
-        rafeCid: rid
+        rafeCid: rid,
       });
     });
   };
@@ -70,23 +67,23 @@ export default class Normal extends React.Component {
     const configList = appInfo.configs || [];
     const columns = [
       {
-        key: "key",
-        dataIndex: "key",
-        title: "键名"
+        key: 'key',
+        dataIndex: 'key',
+        title: '键名',
       },
       {
-        key: "status",
-        dataIndex: "status",
-        title: "差异",
+        key: 'status',
+        dataIndex: 'status',
+        title: '差异',
         render(text, record) {
-          if (text === "new") {
+          if (text === 'new') {
             return (
               <span
                 style={{
-                  backgroundColor: "green",
-                  borderRadius: "5px",
-                  padding: "5px",
-                  color: "white"
+                  backgroundColor: 'green',
+                  borderRadius: '5px',
+                  padding: '5px',
+                  color: 'white',
                 }}
               >
                 新增
@@ -96,18 +93,18 @@ export default class Normal extends React.Component {
             return (
               <span
                 style={{
-                  backgroundColor: "red",
-                  borderRadius: "5px",
-                  padding: "5px",
-                  color: "white"
+                  backgroundColor: 'red',
+                  borderRadius: '5px',
+                  padding: '5px',
+                  color: 'white',
                 }}
               >
                 缺失
               </span>
             );
           }
-        }
-      }
+        },
+      },
     ];
     return (
       <Modal
@@ -119,37 +116,35 @@ export default class Normal extends React.Component {
         visible={show}
       >
         <Select
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
           onChange={this.handleChange}
           value={this.state.rafeCid}
-          notFoundContent={"文件列表为空"}
+          notFoundContent={'文件列表为空'}
         >
           {configList.map(
-            item =>
+            (item) =>
               item.id != this.props.originCid && (
                 <Select.Option key={item.id} value={item.id}>
                   {item.file_name}
                 </Select.Option>
-              )
+              ),
           )}
         </Select>
         <div>
           {keys.length != 0 ? (
             <Table
-              style={{ width: "100%" }}
+              style={{ width: '100%' }}
               dataSource={keys}
               columns={columns}
               pagination={{
                 pageSize: 20,
                 hideOnSinglePage: true,
-                size: "small"
+                size: 'small',
               }}
-              size={"small"}
+              size={'small'}
             />
           ) : (
-            <p style={{ marginTop: "8px", marginLeft: "4px" }}>
-              未选择文件或文件完全相同
-            </p>
+            <p style={{ marginTop: '8px', marginLeft: '4px' }}>未选择文件或文件完全相同</p>
           )}
         </div>
       </Modal>

@@ -1,5 +1,5 @@
-import {Effects} from "./types";
+import { Effects } from './types';
 
-const effects: Effects = {}
+const effects: Effects = {};
 
-export default effects
+export default effects;

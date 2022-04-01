@@ -32,10 +32,7 @@ interface DashboardAnalysisState {
   rangePickerValue: RangePickerValue;
 }
 
-class DashboardAnalysis extends Component<
-  DashboardAnalysisProps,
-  DashboardAnalysisState
-> {
+class DashboardAnalysis extends Component<DashboardAnalysisProps, DashboardAnalysisState> {
   state: DashboardAnalysisState = {
     salesType: 'all',
     currentTabKey: '',

@@ -1,24 +1,24 @@
-import {ValueEnumObj} from "@ant-design/pro-table/es/Table";
+import { ValueEnumObj } from '@ant-design/pro-table/es/Table';
 
 export const StatusValueEnums: ValueEnumObj = {
-  'waiting': {
+  waiting: {
     status: 'Default',
     text: '未运行',
   },
-  'processing': {
-    status: "Processing",
-    text: '运行中'
+  processing: {
+    status: 'Processing',
+    text: '运行中',
   },
-  'success': {
-    status: "Success",
-    text: '成功'
+  success: {
+    status: 'Success',
+    text: '成功',
   },
-  'failed': {
-    status: "Error",
-    text: '失败'
+  failed: {
+    status: 'Error',
+    text: '失败',
   },
-  'timeout': {
-    status: "Warning",
-    text: '超时'
-  }
-}
+  timeout: {
+    status: 'Warning',
+    text: '超时',
+  },
+};

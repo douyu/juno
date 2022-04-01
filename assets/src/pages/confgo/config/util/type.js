@@ -7,16 +7,16 @@ export function checkType(val, type) {
   }
   let valType = typeof originValue;
   if (Array.isArray(originValue)) {
-    valType = "array";
+    valType = 'array';
   }
   const typeMap = {
-    string: ["string"],
-    number: ["int", "float", "int64", "float64", "int32", "float32"],
-    boolean: ["bool"],
-    array: ["slice"]
+    string: ['string'],
+    number: ['int', 'float', 'int64', 'float64', 'int32', 'float32'],
+    boolean: ['bool'],
+    array: ['slice'],
   };
   const tomlType = typeMap[valType];
-  if (tomlType.some(v => v === type)) {
+  if (tomlType.some((v) => v === type)) {
     //pass
     return true;
   } else {
@@ -30,42 +30,42 @@ export function getOpSapn(key, text) {
     new: (
       <span
         style={{
-          backgroundColor: "#52c41a",
-          marginLeft: "8px",
-          color: "#fff",
-          borderRadius: "5px",
-          padding: "4px"
+          backgroundColor: '#52c41a',
+          marginLeft: '8px',
+          color: '#fff',
+          borderRadius: '5px',
+          padding: '4px',
         }}
       >
-        {text || "新"}
+        {text || '新'}
       </span>
     ),
     update: (
       <span
         style={{
-          backgroundColor: "#6495ED",
-          marginLeft: "8px",
-          color: "#fff",
-          borderRadius: "5px",
-          padding: "4px"
+          backgroundColor: '#6495ED',
+          marginLeft: '8px',
+          color: '#fff',
+          borderRadius: '5px',
+          padding: '4px',
         }}
       >
-        {text || "更"}
+        {text || '更'}
       </span>
     ),
     del: (
       <span
         style={{
-          backgroundColor: "#F31D28",
-          marginLeft: "8px",
-          color: "#fff",
-          borderRadius: "5px",
-          padding: "4px"
+          backgroundColor: '#F31D28',
+          marginLeft: '8px',
+          color: '#fff',
+          borderRadius: '5px',
+          padding: '4px',
         }}
       >
-        {text || "删"}
+        {text || '删'}
       </span>
-    )
+    ),
   };
   return map[key];
 }

@@ -6,7 +6,4 @@ function locEnd(cstNode) {
   // TODO: TBD
 }
 
-export {
-  locStart,
-  locEnd
-};
+export { locStart, locEnd };

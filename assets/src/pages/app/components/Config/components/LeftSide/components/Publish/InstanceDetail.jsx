@@ -1,22 +1,22 @@
-import React, {useState} from 'react';
-import {connect} from 'dva';
+import React, { useState } from 'react';
+import { connect } from 'dva';
 import styles from './InstanceDetail.less';
-import {CopyOutlined, DatabaseOutlined, EyeOutlined, ReloadOutlined} from '@ant-design/icons';
-import {Button, message, Modal, Space, Spin, Tag} from 'antd';
-import {ServiceAppAction} from '@/services/confgo';
+import { CopyOutlined, DatabaseOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Button, message, Modal, Space, Spin, Tag } from 'antd';
+import { ServiceAppAction } from '@/services/confgo';
 import ModalRealtimeConfig from './ModalRealtimeConfig';
-import copyToClipBoard from 'copy-to-clipboard'
+import copyToClipBoard from 'copy-to-clipboard';
 
-const {confirm} = Modal;
+const { confirm } = Modal;
 
 function InstanceDetail(props) {
-  const {currentInstance, dispatch, config, appName, env} = props;
+  const { currentInstance, dispatch, config, appName, env } = props;
   const [visibleRestartModal, setVisibleRestartModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
 
   if (!currentInstance) {
-    return <div/>;
+    return <div />;
   }
 
   const {
@@ -48,15 +48,22 @@ function InstanceDetail(props) {
     },
     {
       title: '文件路径',
-      content: config_file_path ? config_file_path.split(';').map((item, idx) => {
-        return <div key={idx} className={styles.configPathItem}>
-          <span>{item}</span>
-          <CopyOutlined onClick={() => {
-            copyToClipBoard(item)
-            message.success("已复制到剪切板")
-          }} className={styles.configPathCopyBtn}/>
-        </div>
-      }) : '---',
+      content: config_file_path
+        ? config_file_path.split(';').map((item, idx) => {
+            return (
+              <div key={idx} className={styles.configPathItem}>
+                <span>{item}</span>
+                <CopyOutlined
+                  onClick={() => {
+                    copyToClipBoard(item);
+                    message.success('已复制到剪切板');
+                  }}
+                  className={styles.configPathCopyBtn}
+                />
+              </div>
+            );
+          })
+        : '---',
     },
     {
       title: '配置版本',
@@ -105,8 +112,7 @@ function InstanceDetail(props) {
 
         doAction(action, zoneCode, hostname, usedTyp);
       },
-      onCancel() {
-      },
+      onCancel() {},
       okText: '确定',
       cancelText: '取消',
     });
@@ -153,20 +159,20 @@ function InstanceDetail(props) {
   return (
     <div className={styles.instanceDetail}>
       <div className={styles.topHeader}>
-        <div style={{fontSize: '48px', textAlign: 'center', padding: '10px'}}>
-          <DatabaseOutlined/>
+        <div style={{ fontSize: '48px', textAlign: 'center', padding: '10px' }}>
+          <DatabaseOutlined />
         </div>
-        <div style={{padding: '10px'}}>
-          <div style={{fontSize: '24px', fontWeight: 'bold'}}>{currentInstance.host_name}</div>
+        <div style={{ padding: '10px' }}>
+          <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{currentInstance.host_name}</div>
           <div>
             {currentInstance.region_name} {currentInstance.zone_name} {currentInstance.ip}
           </div>
-          <div style={{marginTop: '10px'}}>
+          <div style={{ marginTop: '10px' }}>
             <Space>
               <Button
                 size={'small'}
                 type={'primary'}
-                icon={<ReloadOutlined/>}
+                icon={<ReloadOutlined />}
                 onClick={() => {
                   showConfirm(
                     'restart',
@@ -181,7 +187,7 @@ function InstanceDetail(props) {
 
               <Button
                 size={'small'}
-                icon={<EyeOutlined/>}
+                icon={<EyeOutlined />}
                 onClick={() => {
                   dispatch({
                     type: 'config/fetchInstanceConfig',
@@ -218,18 +224,18 @@ function InstanceDetail(props) {
         onCancel={() => setVisibleRestartModal(false)}
       >
         <div>
-          <Spin spinning={loading}/>
+          <Spin spinning={loading} />
         </div>
-        <div style={{backgroundColor: 'black', borderRadius: '5px'}}>
-          <p style={{color: 'green'}}>{content}</p>
+        <div style={{ backgroundColor: 'black', borderRadius: '5px' }}>
+          <p style={{ color: 'green' }}>{content}</p>
         </div>
       </Modal>
-      <ModalRealtimeConfig/>
+      <ModalRealtimeConfig />
     </div>
   );
 }
 
-const mapStateToProps = ({config}) => {
+const mapStateToProps = ({ config }) => {
   return {
     currentInstance: config.currentInstance,
     appName: config.appName,

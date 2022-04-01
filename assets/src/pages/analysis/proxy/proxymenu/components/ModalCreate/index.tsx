@@ -52,7 +52,7 @@ function ModalCreateResource(props: ModalCreateResourceInterface) {
             }
             if (props.onOk) props.onOk();
             message.success('创建成功');
-            form.resetFields()
+            form.resetFields();
             props.showModalCreate(false);
             return;
           });

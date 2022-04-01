@@ -3,6 +3,6 @@
  * @param field
  * @returns {*}
  */
-export const initialValue  = (field)=>{
-    return field ? {initialValue:field} : {}
-}
+export const initialValue = (field) => {
+  return field ? { initialValue: field } : {};
+};

@@ -1,13 +1,13 @@
-import {stringify} from 'qs';
-import request from "@/utils/request";
-import {ResponseData} from "@/models/types";
+import { stringify } from 'qs';
+import request from '@/utils/request';
+import { ResponseData } from '@/models/types';
 
 export interface EnvZone {
-  env: string
+  env: string;
   zone_list: {
-    zone_code: string
-    zone_name: string
-  }[]
+    zone_code: string;
+    zone_name: string;
+  }[];
 }
 
 export async function ServiceAppInfo(aid: number, appName: string) {
@@ -15,7 +15,9 @@ export async function ServiceAppInfo(aid: number, appName: string) {
 }
 
 export async function ServiceAppEnvZone(appName: string) {
-  return request<ResponseData<EnvZone[]>>(`/api/admin/resource/app_env_zone/list?app_name=` + appName);
+  return request<ResponseData<EnvZone[]>>(
+    `/api/admin/resource/app_env_zone/list?app_name=` + appName,
+  );
 }
 
 export async function ServiceAppList(page = 1, pageSize = 10000) {
@@ -39,13 +41,15 @@ export async function ServiceAppNodeList(param: any) {
 }
 
 export async function AppListWithEnv(page = 1, pageSize = 10, searchText = '') {
-  return request(`/api/admin/resource/app/listWithEnv?${stringify({
-    page,
-    pageSize,
-    searchText
-  })}`)
+  return request(
+    `/api/admin/resource/app/listWithEnv?${stringify({
+      page,
+      pageSize,
+      searchText,
+    })}`,
+  );
 }
 
 export async function grpcAddrList(payload: { app_name: string }) {
-  return request(`/api/admin/resource/app/grpcAddrList?${stringify(payload)}`)
+  return request(`/api/admin/resource/app/grpcAddrList?${stringify(payload)}`);
 }

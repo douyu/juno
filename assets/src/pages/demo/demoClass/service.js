@@ -1,5 +1,5 @@
-import request from "@/utils/request";
-import { stringify } from "qs";
+import request from '@/utils/request';
+import { stringify } from 'qs';
 
 // 获取应用过滤信息
 export async function getHomeInfo() {
@@ -9,7 +9,7 @@ export async function getHomeInfo() {
 // 获取实例事件列表
 export async function eventList(eventType) {
   let payload = {
-      "eventType":eventType,
+    eventType: eventType,
   };
   return request(`/api/event/list?${stringify(payload)}`);
 }
@@ -17,7 +17,7 @@ export async function eventList(eventType) {
 // 获取实例事件列表
 export async function eventPodUrl(podName) {
   let payload = {
-      "podName":podName,
+    podName: podName,
   };
   return request(`/api/event/pod?${stringify(payload)}`);
 }
