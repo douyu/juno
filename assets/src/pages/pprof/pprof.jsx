@@ -75,7 +75,6 @@ export default class PPofList extends React.PureComponent {
     };
     this.pprofFormRef = React.createRef();
     this.aid = 0;
-
   }
 
   componentDidMount() {
@@ -156,8 +155,6 @@ export default class PPofList extends React.PureComponent {
     this.setState(obj);
   };
 
-
-
   // 切换实例
   changeNode = (hostName) => {
     this.setState({
@@ -217,7 +214,7 @@ export default class PPofList extends React.PureComponent {
 
   handleCheckLog = (e) => {
     console.log('click', e);
-    const { } = this.state;
+    const {} = this.state;
     installDep({ installType: e * 1 }).then((rs) => {
       const { code, msg, data } = rs;
       if (code === 0) {
@@ -332,32 +329,52 @@ export default class PPofList extends React.PureComponent {
             </Select>
           </Col>
           <Col span={4}>
-            <Button type="primary" onClick={() => {
-              this.setState({ pprofModalVisible: true });
-            }} className={'pprof-btn'} loading={pprofModelRunning}>
+            <Button
+              type="primary"
+              onClick={() => {
+                this.setState({ pprofModalVisible: true });
+              }}
+              className={'pprof-btn'}
+              loading={pprofModelRunning}
+            >
               更新分析图表
             </Button>
             <Modal
-              title={"CPU分析，确认操作？"}
+              title={'CPU分析，确认操作？'}
               visible={pprofModalVisible}
               onOk={() => {
-                this.pprofFormRef.current?.validateFields()
-                  .then(fieldsValue => {
-                    this.runPprof(fieldsValue)
+                this.pprofFormRef.current
+                  ?.validateFields()
+                  .then((fieldsValue) => {
+                    this.runPprof(fieldsValue);
                     this.setState({ pprofModalVisible: false });
                   })
-                  .catch(errorInfo => {
-                    console.log("===pprofFormRef", errorInfo);
+                  .catch((errorInfo) => {
+                    console.log('===pprofFormRef', errorInfo);
                   });
               }}
-              onCancel={() => { this.setState({ pprofModalVisible: false }); }}
+              onCancel={() => {
+                this.setState({ pprofModalVisible: false });
+              }}
             >
-              <Form ref={this.pprofFormRef} preserve={false} >
-                <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="请选择采样时间" name="duration_second" initialValue={30}>
+              <Form ref={this.pprofFormRef} preserve={false}>
+                <FormItem
+                  labelCol={{ span: 5 }}
+                  wrapperCol={{ span: 15 }}
+                  label="请选择采样时间"
+                  name="duration_second"
+                  initialValue={30}
+                >
                   <Select>
-                    <Option key={"30"} value={30}>30秒</Option>
-                    <Option key={"120"} value={120}>2分钟</Option>
-                    <Option key={"300"} value={300}>5分钟</Option>
+                    <Option key={'30'} value={30}>
+                      30秒
+                    </Option>
+                    <Option key={'120'} value={120}>
+                      2分钟
+                    </Option>
+                    <Option key={'300'} value={300}>
+                      5分钟
+                    </Option>
                   </Select>
                 </FormItem>
               </Form>

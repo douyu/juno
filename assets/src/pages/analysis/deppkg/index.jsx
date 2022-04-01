@@ -27,7 +27,7 @@ export default class ServiceDeppkg extends Component {
       app_select: [],
       addr_select: [],
       listData: [],
-      records:[],
+      records: [],
       view: '',
     };
     this.topology = null;
@@ -89,7 +89,7 @@ export default class ServiceDeppkg extends Component {
         message.error(res.msg);
         return false;
       }
-      console.log("-------> res.data",res.data);
+      console.log('-------> res.data', res.data);
       this.setState({
         records: res.data,
       });
@@ -99,55 +99,53 @@ export default class ServiceDeppkg extends Component {
   };
 
   render() {
-    const {
-      zone_select,
-      env_select,
-      type_select,
-      app_select,
-      addr_select,
-      records,
-    } = this.state;
+    const { zone_select, env_select, type_select, app_select, addr_select, records } = this.state;
 
-
-    const operateOpt=[{"name":"等于","value":"="},{"name":"小于","value":"<"},{"name":"大于","value":">"},{"name":"小于等于","value":"<="},{"name":"大于等于","value":">="}];
+    const operateOpt = [
+      { name: '等于', value: '=' },
+      { name: '小于', value: '<' },
+      { name: '大于', value: '>' },
+      { name: '小于等于', value: '<=' },
+      { name: '大于等于', value: '>=' },
+    ];
 
     let { operate, app_name } = this.search.getParam();
     const columns = [
-        {
-          title: '应用名',
-          dataIndex: 'appName',
-          key: 'appName',
-          width: 200,
+      {
+        title: '应用名',
+        dataIndex: 'appName',
+        key: 'appName',
+        width: 200,
+      },
+      {
+        title: '包名',
+        dataIndex: 'depName',
+        key: 'depName',
+        width: 200,
+      },
+      {
+        title: '版本',
+        dataIndex: 'depVersion',
+        key: 'depVersion',
+        width: 100,
+      },
+      {
+        title: '分支',
+        dataIndex: 'depBranch',
+        key: 'depBranch',
+        width: 60,
+      },
+      {
+        title: '更新时间',
+        dataIndex: 'update_time',
+        key: 'update_time',
+        width: 100,
+        render: (text, record) => {
+          // console.log("record=",record);
+          return moment(record.update_time * 1000).format('YYYY年MM月DD日HH:mm');
         },
-        {
-          title: '包名',
-          dataIndex: 'depName',
-          key: 'depName',
-          width: 200,
-        },
-        {
-          title: '版本',
-          dataIndex: 'depVersion',
-          key: 'depVersion',
-          width: 100,
-        },
-        {
-          title: '分支',
-          dataIndex: 'depBranch',
-          key: 'depBranch',
-          width: 60,
-        },
-        {
-          title: '更新时间',
-          dataIndex: 'update_time',
-          key: 'update_time',
-          width: 100,
-          render: (text, record) => {
-            // console.log("record=",record);
-            return moment(record.update_time * 1000)
-              .format('YYYY年MM月DD日HH:mm');
-          },
-        }];
+      },
+    ];
     return (
       <PageHeaderWrapper>
         <Card>
@@ -160,15 +158,15 @@ export default class ServiceDeppkg extends Component {
               marginBottom: 10,
             }}
             items={[
-             {
-                    label: '应用',
-                    select: {
-                      field: 'app_name',
-                      style: { width: 300 },
-                      placeholder: '全部状态',
-                      data: app_select,
-                      initialValue: app_name,
-                    },
+              {
+                label: '应用',
+                select: {
+                  field: 'app_name',
+                  style: { width: 300 },
+                  placeholder: '全部状态',
+                  data: app_select,
+                  initialValue: app_name,
+                },
               },
               {
                 label: '包',
@@ -198,7 +196,7 @@ export default class ServiceDeppkg extends Component {
               },
             ]}
           />
-   
+
           <div style={{ marginTop: '10px' }}>
             <Table
               data={records}

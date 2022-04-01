@@ -1,4 +1,4 @@
-@import "../../var";
+@import '../../var';
 
 @editorW: 100%;
 @editorTipH: 40px;
@@ -16,7 +16,9 @@
     padding: 10px 0 10px 30px;
   }
 
-  .diffEditor, .loadingMask, .fileUnSelectedMask {
+  .diffEditor,
+  .loadingMask,
+  .fileUnSelectedMask {
     width: @editorW;
     flex: 1;
     height: 0;
@@ -34,7 +36,8 @@
     top: 0;
   }
 
-  .loadingMask, .fileUnSelectedMask {
+  .loadingMask,
+  .fileUnSelectedMask {
     background-color: @editorBG;
     color: @secondColor;
     position: absolute;

@@ -142,17 +142,24 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           return defaultDom;
         }
         //app功能页面历史记录
-       if(menuItemProps.path==="/app"){
-         return <a onClick={()=>{
-           getAppSearch('',menuItemProps.path).then((val)=>{
-            history.push({
-              search: val ||'',
-              pathname: menuItemProps.path,
-             })
-           })
-         }}>  {defaultDom}</a>
-       }
-       return (
+        if (menuItemProps.path === '/app') {
+          return (
+            <a
+              onClick={() => {
+                getAppSearch('', menuItemProps.path).then((val) => {
+                  history.push({
+                    search: val || '',
+                    pathname: menuItemProps.path,
+                  });
+                });
+              }}
+            >
+              {' '}
+              {defaultDom}
+            </a>
+          );
+        }
+        return (
           <Link
             to={{
               // search: searchData,

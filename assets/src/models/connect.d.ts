@@ -1,19 +1,19 @@
-import {MenuDataItem, Settings as ProSettings} from '@ant-design/pro-layout';
-import {GlobalModelState} from './global';
-import {UserModelState} from './user';
-import {StateType} from './login';
-import {UserGroupModelState} from "@/models/user_group";
-import {AppModelState} from "@/models/app";
-import {AccessTokenState} from "@/models/access_token";
-import {AppEventState} from "@/models/app_event";
-import {State} from "@/models/testplatform/types";
+import { MenuDataItem, Settings as ProSettings } from '@ant-design/pro-layout';
+import { GlobalModelState } from './global';
+import { UserModelState } from './user';
+import { StateType } from './login';
+import { UserGroupModelState } from '@/models/user_group';
+import { AppModelState } from '@/models/app';
+import { AccessTokenState } from '@/models/access_token';
+import { AppEventState } from '@/models/app_event';
+import { State } from '@/models/testplatform/types';
 
-export {GlobalModelState, UserModelState};
+export { GlobalModelState, UserModelState };
 
 export interface Pagination {
-  current: number
-  pageSize: number
-  total: number
+  current: number;
+  pageSize: number;
+  total: number;
 }
 
 export interface Loading {
@@ -35,18 +35,18 @@ export interface ConnectState {
   user: UserModelState;
   login: StateType;
   userGroup: UserGroupModelState;
-  app: AppModelState
-  accessToken: AccessTokenState,
-  appEvent: AppEventState,
-  testPlatform: State,
+  app: AppModelState;
+  accessToken: AccessTokenState;
+  appEvent: AppEventState;
+  testPlatform: State;
   setting: {
     settings: {
       k8s_cluster: {
-        list: any[]
-      }
-    }
-  },
-  config: any
+        list: any[];
+      };
+    };
+  };
+  config: any;
 }
 
 export interface Route extends MenuDataItem {

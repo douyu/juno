@@ -7,7 +7,7 @@ import { CommonProps } from '@/pages/confgo/config/common';
 const styles = require('./index.less');
 
 export interface CreateModalInterface extends CommonProps, ModalProps {
-  onSubmit: (values:any) => void;
+  onSubmit: (values: any) => void;
 }
 
 export default function CreateModalNode(props: CreateModalInterface) {

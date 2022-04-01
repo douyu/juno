@@ -1,5 +1,5 @@
 import { stringify } from 'qs';
-import request from "@/utils/request";
+import request from '@/utils/request';
 
 export async function ServiceEventList(param: any) {
   return request(`/api/admin/event/list?${stringify(param)}`);

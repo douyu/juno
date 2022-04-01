@@ -1,21 +1,21 @@
-import React, {useState} from 'react';
-import {Button, Col, message, Modal, Row, Table, Transfer} from 'antd';
-import {ServiceAppNodeTransferList, ServiceAppNodeTransferPut,} from '@/services/app';
+import React, { useState } from 'react';
+import { Button, Col, message, Modal, Row, Table, Transfer } from 'antd';
+import { ServiceAppNodeTransferList, ServiceAppNodeTransferPut } from '@/services/app';
 import moment from 'moment';
 import styles from './style.less';
 
 export interface DetailProps {
-  aid: number
-  env: string
-  appNodeList: any[]
-  onEditAppNode: () => void
+  aid: number;
+  env: string;
+  appNodeList: any[];
+  onEditAppNode: () => void;
 }
 
 /**
  * 此方法会跳转到 redirect 参数所在的位置
  */
 const Detail = (props: DetailProps) => {
-  const {aid, appNodeList} = props;
+  const { aid, appNodeList } = props;
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [targetKeys, setTargetKeys] = useState([]);
   const [nodeArr, setNodeArr] = useState<any[]>([]);
@@ -27,7 +27,7 @@ const Detail = (props: DetailProps) => {
   }
 
   let initTransfer = () => {
-    ServiceAppNodeTransferList({aid}).then((res: any) => {
+    ServiceAppNodeTransferList({ aid }).then((res: any) => {
       if (res.code !== 0) {
         message.error(res.msg);
         return false;
@@ -71,9 +71,8 @@ const Detail = (props: DetailProps) => {
         message.success(res.msg);
       }
 
-      props.onEditAppNode()
+      props.onEditAppNode();
     });
-
   };
 
   let handleCancel = () => {
@@ -131,10 +130,10 @@ const Detail = (props: DetailProps) => {
   };
 
   return (
-    <div style={{marginTop: '5px'}}>
+    <div style={{ marginTop: '5px' }}>
       <Row>
         <Col span={23}>
-          <div style={{float: 'right'}}>
+          <div style={{ float: 'right' }}>
             <Button
               type="primary"
               className={styles.lay}

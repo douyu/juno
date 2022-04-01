@@ -1,5 +1,5 @@
-import request from "@/utils/request";
-import { stringify } from "qs";
+import request from '@/utils/request';
+import { stringify } from 'qs';
 
 // 获取应用过滤信息
 export async function getAppListSrv() {

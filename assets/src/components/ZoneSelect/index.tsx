@@ -9,11 +9,7 @@ const ZoneSelect = (props: any) => {
   const { onChange, zoneCode, zoneList } = props;
   return (
     <div className={styles.zoneSelect}>
-      <Radio.Group
-        value={zoneCode}
-        buttonStyle="solid"
-        onChange={onChange}
-      >
+      <Radio.Group value={zoneCode} buttonStyle="solid" onChange={onChange}>
         <Radio.Button value="all" key={'all'}>
           全部
         </Radio.Button>

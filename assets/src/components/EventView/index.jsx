@@ -7,7 +7,7 @@ import RegisterEventView from './register';
 import TianoEventView from './tiano';
 import styles from './style.css';
 import CMDBEventView from '@/components/EventView/cmdb';
-import moment from "moment";
+import moment from 'moment';
 
 /**
  * 该组件负责处理事件信息的显示方式
@@ -22,28 +22,28 @@ export default class EventView extends Component {
       return null;
     }
 
-    return <div className={styles.listItem}>
-      <div>
-        <Avatar size={"small"}>
-          {user_name?.substr(0, 1)}
-        </Avatar>
-        <span className={styles.username}>
-          {operator_type === 'openapi' && <Tag>Open API</Tag>}
-          {user_name}
-        </span>
-        <span className={styles.createTime}>- {moment(create_time * 1000).fromNow()}</span>
+    return (
+      <div className={styles.listItem}>
+        <div>
+          <Avatar size={'small'}>{user_name?.substr(0, 1)}</Avatar>
+          <span className={styles.username}>
+            {operator_type === 'openapi' && <Tag>Open API</Tag>}
+            {user_name}
+          </span>
+          <span className={styles.createTime}>- {moment(create_time * 1000).fromNow()}</span>
 
-        <span className={styles.envInfo}>
-          {zone_code && <Tag color={"green"}>{zone_code}</Tag>}
-          {env && <Tag color={"red"}>{env}</Tag>}
-        </span>
+          <span className={styles.envInfo}>
+            {zone_code && <Tag color={'green'}>{zone_code}</Tag>}
+            {env && <Tag color={'red'}>{env}</Tag>}
+          </span>
 
-        <div className={styles.absoluteTime}>
-          {moment(create_time * 1000).format('YYYY-MM-DD HH:mm:ss')}
+          <div className={styles.absoluteTime}>
+            {moment(create_time * 1000).format('YYYY-MM-DD HH:mm:ss')}
+          </div>
         </div>
+        {this.renderEvent()}
       </div>
-      {this.renderEvent()}
-    </div>;
+    );
   }
 
   renderEvent() {

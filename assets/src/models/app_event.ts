@@ -1,29 +1,29 @@
-import {Pagination} from "@/models/connect";
-import {Effect, Reducer} from "umi";
-import {ServiceEventList} from "@/services/event";
-import {message} from "antd";
+import { Pagination } from '@/models/connect';
+import { Effect, Reducer } from 'umi';
+import { ServiceEventList } from '@/services/event';
+import { message } from 'antd';
 
 interface AppEventItem {
-  id: number,
-  app_name: string,
-  aid: number,
-  zone_code: string,
-  env: string,
-  host_name: string,
-  user_name: string,
-  uid: number,
-  operation: string,
-  create_time: number,
-  source: string,
-  metadata: string,
-  operation_name: string,
-  source_name: string
+  id: number;
+  app_name: string;
+  aid: number;
+  zone_code: string;
+  env: string;
+  host_name: string;
+  user_name: string;
+  uid: number;
+  operation: string;
+  create_time: number;
+  source: string;
+  metadata: string;
+  operation_name: string;
+  source_name: string;
 }
 
 export interface AppEventState {
-  list: AppEventItem[]
-  pagination: Pagination
-  listLoading: boolean
+  list: AppEventItem[];
+  pagination: Pagination;
+  listLoading: boolean;
 }
 
 const DefaultAppEventState: AppEventState = {
@@ -31,68 +31,74 @@ const DefaultAppEventState: AppEventState = {
   pagination: {
     current: 0,
     pageSize: 10,
-    total: 0
+    total: 0,
   },
-  listLoading: false
-}
+  listLoading: false,
+};
 
 export interface AppEventModelType {
-  namespace: 'appEvent',
-  state: AppEventState,
+  namespace: 'appEvent';
+  state: AppEventState;
   effects: {
-    fetch: Effect,
-    clear: Effect,
-  },
+    fetch: Effect;
+    clear: Effect;
+  };
   reducers: {
-    saveList: Reducer<AppEventState>,
-    saveLoading: Reducer<AppEventState>,
-  },
+    saveList: Reducer<AppEventState>;
+    saveLoading: Reducer<AppEventState>;
+  };
 }
 
 const AppEventModel: AppEventModelType = {
-  namespace: "appEvent",
+  namespace: 'appEvent',
   state: DefaultAppEventState,
   effects: {
-    * fetch({payload}, {call, put}) {
-      yield put({type: 'saveLoading', payload: true})
-      yield put({type: 'saveList', payload: {list: [], pagination: DefaultAppEventState.pagination}})
+    *fetch({ payload }, { call, put }) {
+      yield put({ type: 'saveLoading', payload: true });
+      yield put({
+        type: 'saveList',
+        payload: { list: [], pagination: DefaultAppEventState.pagination },
+      });
 
       const res = yield call(ServiceEventList, payload);
 
-      yield put({type: 'saveLoading', payload: false})
+      yield put({ type: 'saveLoading', payload: false });
 
       if (res.code === 14000) {
-        return res
+        return res;
       }
 
       if (res.code !== 0) {
-        message.error("加载事件流失败: " + res.msg)
-        return res
+        message.error('加载事件流失败: ' + res.msg);
+        return res;
       }
 
-      yield put({type: 'saveList', payload: res.data})
+      yield put({ type: 'saveList', payload: res.data });
 
-      return res
+      return res;
     },
-    * clear({payload}, {put}) {
-      yield put({type: 'saveList', payload: {list: [], pagination: DefaultAppEventState.pagination}})
-    }
+    *clear({ payload }, { put }) {
+      yield put({
+        type: 'saveList',
+        payload: { list: [], pagination: DefaultAppEventState.pagination },
+      });
+    },
   },
   reducers: {
-    saveList: (state = DefaultAppEventState, {payload}): AppEventState => {
+    saveList: (state = DefaultAppEventState, { payload }): AppEventState => {
       return {
         ...state,
         list: payload.list,
-        pagination: payload.pagination
-      }
+        pagination: payload.pagination,
+      };
     },
-    saveLoading: (state = DefaultAppEventState, {payload}): AppEventState => {
+    saveLoading: (state = DefaultAppEventState, { payload }): AppEventState => {
       return {
         ...state,
-        listLoading: payload
-      }
-    }
-  }
-}
+        listLoading: payload,
+      };
+    },
+  },
+};
 
-export default AppEventModel
+export default AppEventModel;

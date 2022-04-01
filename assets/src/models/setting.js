@@ -2,8 +2,8 @@
  * 系统设置model
  */
 
-import {loadSettings, updateSetting} from "@/pages/manage/services";
-import {message} from "antd";
+import { loadSettings, updateSetting } from '@/pages/manage/services';
+import { message } from 'antd';
 
 const defaultStates = {
   configDepSetting: {
@@ -19,87 +19,87 @@ const defaultStates = {
     config_dep: false, // 配置依赖
   },
 
-  savingSetting: false
-}
+  savingSetting: false,
+};
 
 export default {
   namespace: 'setting',
   state: defaultStates,
   effects: {
     // 设置编辑状态
-    * setEdit(action, context) {
-      const {payload} = action
+    *setEdit(action, context) {
+      const { payload } = action;
 
       yield context.put({
         type: '_setEdit',
         payload: {
           name: payload.name,
-          value: payload.value
-        }
-      })
+          value: payload.value,
+        },
+      });
     },
     // 保存设置
-    * saveSetting({payload}, {call, put}) {
-      const res = yield call(updateSetting, payload.name, payload.content)
+    *saveSetting({ payload }, { call, put }) {
+      const res = yield call(updateSetting, payload.name, payload.content);
       if (res.code !== 0) {
-        message.error("保存设置失败:" + res.msg)
-        return res
+        message.error('保存设置失败:' + res.msg);
+        return res;
       }
-      message.success("保存成功")
+      message.success('保存成功');
 
       yield put({
         type: '_setEdit',
         payload: {
           name: payload.name,
-          value: false
-        }
-      })
+          value: false,
+        },
+      });
 
-      return res
+      return res;
     },
-    * loadSettings({payload}, {call, put}) {
-      const res = yield call(loadSettings)
+    *loadSettings({ payload }, { call, put }) {
+      const res = yield call(loadSettings);
       if (res.code !== 0) {
-        message.error("加载设置失败:" + res.msg)
-        return
+        message.error('加载设置失败:' + res.msg);
+        return;
       }
 
-      let settings = res.data
-      Object.keys(settings).map(name => {
-        settings[name] = unMarshalSetting(name, settings[name])
-      })
+      let settings = res.data;
+      Object.keys(settings).map((name) => {
+        settings[name] = unMarshalSetting(name, settings[name]);
+      });
 
       yield put({
         type: '_setSettings',
-        payload: settings
-      })
+        payload: settings,
+      });
 
-      return res
-    }
+      return res;
+    },
   },
   reducers: {
-    _setEdit(state, {payload}) {
-      let onEdit = state.onEdit
-      onEdit[payload.name] = payload.value
-      state.onEdit = onEdit
+    _setEdit(state, { payload }) {
+      let onEdit = state.onEdit;
+      onEdit[payload.name] = payload.value;
+      state.onEdit = onEdit;
 
-      return state
+      return state;
     },
-    _setSettings(state, {payload}) {
+    _setSettings(state, { payload }) {
       return {
         ...state,
         settings: payload,
-      }
+      };
     },
-  }
-}
+  },
+};
 
 // 从临时配置
 function loadTempSetting(settings) {
   return {
     grafana: settings.grafana,
-    config_dep: settings.config_dep
-  }
+    config_dep: settings.config_dep,
+  };
 }
 
 function unMarshalSetting(name, value) {
@@ -117,6 +117,6 @@ function unMarshalSetting(name, value) {
         return JSON.parse(value);
       } catch (e) {}
 
-      return value
+      return value;
   }
 }

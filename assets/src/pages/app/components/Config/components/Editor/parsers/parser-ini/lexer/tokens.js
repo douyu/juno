@@ -1,15 +1,15 @@
-import {createToken as createTokenOrg, Lexer} from "chevrotain";
+import { createToken as createTokenOrg, Lexer } from 'chevrotain';
 
 // A little mini DSL for easier lexer definition.
 const fragments = {};
 const f = fragments;
 
 function FRAGMENT(name, def) {
-  fragments[name] = typeof def === "string" ? def : def.source;
+  fragments[name] = typeof def === 'string' ? def : def.source;
 }
 
 function makePattern(strings, ...args) {
-  let combined = "";
+  let combined = '';
   for (let i = 0; i < strings.length; i++) {
     combined += strings[i];
     if (i < args.length) {
@@ -18,8 +18,7 @@ function makePattern(strings, ...args) {
       if (args[i].PATTERN) {
         pattern = args[i].PATTERN;
       }
-      const patternSource =
-        typeof pattern === "string" ? pattern : pattern.source;
+      const patternSource = typeof pattern === 'string' ? pattern : pattern.source;
       // By wrapping in a RegExp (none) capturing group
       // We enabled the safe usage of qualifiers and assertions.
       combined += `(?:${patternSource})`;
@@ -38,63 +37,60 @@ function createToken(options) {
   return newTokenType;
 }
 
-const Newline = createToken({name: "Newline", pattern: /\n|\r\n/});
+const Newline = createToken({ name: 'Newline', pattern: /\n|\r\n/ });
 const Whitespace = createToken({
-  name: "Whitespace",
+  name: 'Whitespace',
   pattern: /[ \t]+/,
-  group: Lexer.SKIPPED
+  group: Lexer.SKIPPED,
 });
 createToken({
-  name: "Comment",
-  pattern: /#(?:[^\n\r]|\r(?!\n))*/
+  name: 'Comment',
+  pattern: /#(?:[^\n\r]|\r(?!\n))*/,
 });
-createToken({name: "KeyValSep", pattern: "="});
-createToken({name: "Dot", pattern: "."});
-const IString = createToken({name: "IString", pattern: Lexer.NA});
+createToken({ name: 'KeyValSep', pattern: '=' });
+createToken({ name: 'Dot', pattern: '.' });
+const IString = createToken({ name: 'IString', pattern: Lexer.NA });
 // TODO: comment on unicode complements and \uFFFF range
+FRAGMENT('basic_unescaped', /[\u0020-\u0021]|[\u0023-\u005B]|[\u005D-\u007E]|[\u0080-\uFFFF]/);
+FRAGMENT('escaped', /\\(?:[btnfr"\\]|u[0-9a-fA-F]{4}(?:[0-9a-fA-F]{4})?)/);
+FRAGMENT('basic_char', makePattern`${f.basic_unescaped}|${f.escaped}`);
 FRAGMENT(
-  "basic_unescaped",
-  /[\u0020-\u0021]|[\u0023-\u005B]|[\u005D-\u007E]|[\u0080-\uFFFF]/
-);
-FRAGMENT("escaped", /\\(?:[btnfr"\\]|u[0-9a-fA-F]{4}(?:[0-9a-fA-F]{4})?)/);
-FRAGMENT("basic_char", makePattern`${f.basic_unescaped}|${f.escaped}`);
-FRAGMENT(
-  "ML_BASIC_UNESCAPED",
+  'ML_BASIC_UNESCAPED',
   // TODO: comment on unicode complements and \uFFFF range
   // SPEC Deviation: included backslash (5C)
   //      See: https://github.com/toml-lang/toml/pull/590
-  /[\u0020-\u005B]|[\u005D-\u007E]|[\u0080-\uFFFF]/
+  /[\u0020-\u005B]|[\u005D-\u007E]|[\u0080-\uFFFF]/,
 );
-FRAGMENT("ML_BASIC_CHAR", makePattern`${f.ML_BASIC_UNESCAPED}|${f.escaped}`);
+FRAGMENT('ML_BASIC_CHAR', makePattern`${f.ML_BASIC_UNESCAPED}|${f.escaped}`);
 FRAGMENT(
-  "ML_BASIC_BODY",
-  makePattern`(?:${f.ML_BASIC_CHAR}|${Newline}|\\\\${Whitespace}?${Newline})*`
+  'ML_BASIC_BODY',
+  makePattern`(?:${f.ML_BASIC_CHAR}|${Newline}|\\\\${Whitespace}?${Newline})*`,
 );
 createToken({
   name: 'ResourceName',
-  pattern: /[a-zA-Z0-9_\-]+@\d+/
-})
+  pattern: /[a-zA-Z0-9_\-]+@\d+/,
+});
 createToken({
   name: 'LVarCurly',
   pattern: /{{/,
-})
+});
 createToken({
   name: 'RVarCurly',
   pattern: /}}/,
-})
-createToken({
-  name: "LSquare",
-  pattern: "["
 });
 createToken({
-  name: "RSquare",
-  pattern: "]"
+  name: 'LSquare',
+  pattern: '[',
 });
-const IKey = createToken({name: "IKey", pattern: /[^\[\]=]+/});
+createToken({
+  name: 'RSquare',
+  pattern: ']',
+});
+const IKey = createToken({ name: 'IKey', pattern: /[^\[\]=]+/ });
 createToken({
   name: 'Value',
-  pattern: /[^\n\r]+/
-})
+  pattern: /[^\n\r]+/,
+});
 // FRAGMENT("date_fullyear", /\d{4}/);
 // FRAGMENT("date_month", /\d{2}/);
 // FRAGMENT("date_mday", /\d{2}/);
@@ -206,7 +202,4 @@ createToken({
 //   tokType.LONGER_ALT = UnquotedKey;
 // });
 
-export {
-  tokensArray,
-  tokensDictionary
-};
+export { tokensArray, tokensDictionary };

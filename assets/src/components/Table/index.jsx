@@ -1,4 +1,4 @@
-import {  Table } from 'antd';
+import { Table } from 'antd';
 import React, { Component } from 'react';
 import styles from './index.less';
 
@@ -14,7 +14,6 @@ class StandardTable extends Component {
       onChange(pagination, filters, sorter, ...rest);
     }
   };
-
 
   render() {
     const { data, rowKey, ...rest } = this.props;

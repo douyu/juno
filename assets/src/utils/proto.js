@@ -19,45 +19,45 @@ export class Proto {
   static TYPE_SINT64 = 18;
 
   static TypeNameMap = {
-    1: "TYPE_DOUBLE",
-    2: "TYPE_FLOAT",
-    3: "TYPE_INT64",
-    4: "TYPE_UINT64",
-    5: "TYPE_INT32",
-    6: "TYPE_FIXED64",
-    7: "TYPE_FIXED32",
-    8: "TYPE_BOOL",
-    9: "TYPE_STRING",
-    10: "TYPE_GROUP",
-    11: "TYPE_MESSAGE",
-    12: "TYPE_BYTES",
-    13: "TYPE_UINT32",
-    14: "TYPE_ENUM",
-    15: "TYPE_SFIXED32",
-    16: "TYPE_SFIXED64",
-    17: "TYPE_SINT32",
-    18: "TYPE_SINT64",
+    1: 'TYPE_DOUBLE',
+    2: 'TYPE_FLOAT',
+    3: 'TYPE_INT64',
+    4: 'TYPE_UINT64',
+    5: 'TYPE_INT32',
+    6: 'TYPE_FIXED64',
+    7: 'TYPE_FIXED32',
+    8: 'TYPE_BOOL',
+    9: 'TYPE_STRING',
+    10: 'TYPE_GROUP',
+    11: 'TYPE_MESSAGE',
+    12: 'TYPE_BYTES',
+    13: 'TYPE_UINT32',
+    14: 'TYPE_ENUM',
+    15: 'TYPE_SFIXED32',
+    16: 'TYPE_SFIXED64',
+    17: 'TYPE_SINT32',
+    18: 'TYPE_SINT64',
   };
 
   static ExampleValueMap = {
-    1: "TYPE_DOUBLE",
-    2: "TYPE_FLOAT",
-    3: "TYPE_INT64",
-    4: "TYPE_UINT64",
-    5: "TYPE_INT32",
-    6: "TYPE_FIXED64",
-    7: "TYPE_FIXED32",
-    8: "TYPE_BOOL",
-    9: "TYPE_STRING",
-    10: "TYPE_GROUP",
-    11: "TYPE_MESSAGE",
-    12: "TYPE_BYTES",
-    13: "TYPE_UINT32",
-    14: "TYPE_ENUM",
-    15: "TYPE_SFIXED32",
-    16: "TYPE_SFIXED64",
-    17: "TYPE_SINT32",
-    18: "TYPE_SINT64",
+    1: 'TYPE_DOUBLE',
+    2: 'TYPE_FLOAT',
+    3: 'TYPE_INT64',
+    4: 'TYPE_UINT64',
+    5: 'TYPE_INT32',
+    6: 'TYPE_FIXED64',
+    7: 'TYPE_FIXED32',
+    8: 'TYPE_BOOL',
+    9: 'TYPE_STRING',
+    10: 'TYPE_GROUP',
+    11: 'TYPE_MESSAGE',
+    12: 'TYPE_BYTES',
+    13: 'TYPE_UINT32',
+    14: 'TYPE_ENUM',
+    15: 'TYPE_SFIXED32',
+    16: 'TYPE_SFIXED64',
+    17: 'TYPE_SINT32',
+    18: 'TYPE_SINT64',
   };
 }
 
@@ -67,13 +67,13 @@ export class Proto {
  */
 export function formatProtoDesc(desc) {
   let formatter = (proto) => {
-    if (!proto && typeof proto !== "object") return null;
+    if (!proto && typeof proto !== 'object') return null;
 
     let ret = {};
     let keys = Object.keys(proto);
-    keys.map(key => {
+    keys.map((key) => {
       let item = proto[key];
-      let jsonName = item.json_name
+      let jsonName = item.json_name;
       ret[jsonName] = Proto.TypeNameMap[item.type];
       if (item.comment) ret[jsonName] += ' ' + item.comment;
       if (item.is_repeated) {
