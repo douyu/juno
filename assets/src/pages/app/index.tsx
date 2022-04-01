@@ -27,9 +27,24 @@ import Test from '@/pages/app/components/Test';
 import { Dispatch } from '@@/plugin-dva/connect';
 import styles from './style.less';
 import { setAppSearch, setAppSearchByAppName } from '@/utils/searchapppath';
+import { renderplugin } from './plugin_render';
 
 const { TabPane } = Tabs;
 
+const pluginlist = [
+  {
+    key: 'etcd',
+    name: 'Etcd',
+  },
+  {
+    key: 'event',
+    name: '事件',
+  },
+  {
+    key: 'grpc',
+    name: 'grpc',
+  },
+];
 interface AppProps {
   location: { query: any };
   setting: any;
@@ -513,42 +528,20 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
               zoneList={this.state.zoneList}
             />
           </TabPane>
-          <TabPane tab="Etcd" key="etcd">
-            <Etcd
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appNodeList={this.state.appNodeList}
-              appIdcList={''}
-              zoneCode={this.state.zoneCode}
-              param={''}
-              appEnvZone={appEnvZone}
-              idcList={this.state.idcList}
-              zoneList={this.state.zoneList}
-            />
-          </TabPane>
-
-          <TabPane tab={'事件'} key={'event'}>
-            <Event active={tab === 'event'} appName={appName} env={env} />
-          </TabPane>
-          <TabPane tab={'grpc'} key={'grpc'}>
-            <Grpcadmin
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appNodeList={this.state.appNodeList}
-              appIdcList={''}
-              zoneCode={this.state.zoneCode}
-              param={''}
-              appEnvZone={appEnvZone}
-              idcList={this.state.idcList}
-              zoneList={this.state.zoneList}
-              idcCode={this.state.zoneCode}
-            />
-          </TabPane>
-
+          {renderplugin(pluginlist, {
+            aid,
+            env,
+            appName,
+            appInfo: this.state.appInfo,
+            appNodeList: this.state.appNodeList,
+            appIdcList: '',
+            zoneCode: this.state.zoneCode,
+            param: '',
+            appEnvZone: appEnvZone,
+            idcList: this.state.idcList,
+            zoneList: this.state.zoneList,
+            idcCode: this.state.zoneCode,
+          })}
           {this.props.setting.settings.test_platform?.enable && (
             <TabPane tab={'Test'} key={'test'}>
               <Test appName={appName} env={env} zoneCode={this.state.zoneCode} />
