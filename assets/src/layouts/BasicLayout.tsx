@@ -66,12 +66,6 @@ const defaultFooterDom = (
         href: 'https://github.com/douyu/juno',
         blankTarget: true,
       },
-      // {
-      //   key: 'Ant Design',
-      //   title: 'Ant Design',
-      //   href: 'https://ant.design',
-      //   blankTarget: true,
-      // },
     ]}
   />
 );
@@ -185,7 +179,12 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           <span>{route.breadcrumbName}</span>
         );
       }}
-      footerRender={() => defaultFooterDom}
+      footerRender={() => {
+        if (history.location.pathname === '/app') {
+          return <div style={{ marginBottom: 10 }}></div>;
+        }
+        return defaultFooterDom;
+      }}
       menuDataRender={() => menuData}
       rightContentRender={() => <RightContent />}
       {...props}
