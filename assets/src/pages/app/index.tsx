@@ -31,17 +31,20 @@ import { renderplugin } from './plugin_render';
 
 const { TabPane } = Tabs;
 
-const pluginlist = [
+const commonPluginlist = [
   {
     key: 'etcd',
+    type: 'etcd',
     name: 'Etcd',
   },
   {
     key: 'event',
+    type: 'event',
     name: '事件',
   },
   {
     key: 'grpc',
+    type: 'grpc',
     name: 'grpc',
   },
 ];
@@ -52,9 +55,10 @@ interface AppProps {
   k8sClusters: any[];
 }
 
-@connect(({ setting }: any) => ({
+@connect(({ setting, plugin }: any) => ({
   setting,
   k8sClusters: setting.settings.k8s_cluster?.list || [],
+  pluginList: plugin.pluginList,
 }))
 export default class App extends React.Component<ConfgoBase & AppProps, any> {
   unlisten: any;
@@ -84,6 +88,10 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
   }
 
   componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'plugin/pluginListFunc',
+    });
     //处理首次进来 没有状态的情况
     this.unlisten = history.listen((locationin: any, action) => {
       //限定合法值去存储
@@ -409,8 +417,8 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
     let { appEnvZone } = this.state;
     let { disable } = this.state;
     const { version } = this.props.setting.settings;
-    const { k8sClusters } = this.props;
-
+    const { k8sClusters, pluginList } = this.props;
+    let pluginlist = [...commonPluginlist, ...pluginList];
     let envList = appEnvZone?.map((item: any) => item.env) || [];
 
     let zoneList: any[] = [];
