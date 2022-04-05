@@ -9,29 +9,30 @@ const { TabPane } = Tabs;
 
 export function renderplugin(list: PluginMeta[], props: PluginProps) {
   return list.map((item: PluginMeta) => {
+    let active={item.activeTab === item.key} 
     switch (item.type) {
       case 'grpc':
         return (
           <TabPane tab={item.name} key={item.key}>
-            <GrpcPlugin {...props} meta={item.meta} />
+            <GrpcPlugin {...props} meta={item.meta} active={active} />
           </TabPane>
         );
       case 'event':
         return (
           <TabPane tab={item.name} key={item.key}>
-            <EventPlugin {...props} meta={item.meta} />
+            <EventPlugin {...props} meta={item.meta} active={active} />
           </TabPane>
         );
       case 'etcd':
         return (
           <TabPane tab={item.name} key={item.key}>
-            <EtcdPlugin {...props} meta={item.meta} />
+            <EtcdPlugin {...props} meta={item.meta} active={active} />
           </TabPane>
         );
       case 'webembed':
         return (
           <TabPane tab={item.name} key={item.key}>
-            <WebEmbedPlugin {...props} meta={item.meta} />
+            <WebEmbedPlugin {...props} meta={item.meta} active={active} />
           </TabPane>
         );
       default:
