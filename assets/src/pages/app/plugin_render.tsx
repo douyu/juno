@@ -9,7 +9,7 @@ const { TabPane } = Tabs;
 
 export function renderplugin(list: PluginMeta[], props: PluginProps) {
   return list.map((item: PluginMeta) => {
-    let active={item.activeTab === item.key} 
+    let active = props.activeTab === item.key;
     switch (item.type) {
       case 'grpc':
         return (
