@@ -1,5 +1,5 @@
-import {Reducers} from "./types";
+import { Reducers } from './types';
 
-const reducers: Reducers = {}
+const reducers: Reducers = {};
 
-export default reducers
+export default reducers;

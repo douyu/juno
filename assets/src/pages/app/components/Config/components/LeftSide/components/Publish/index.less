@@ -1,5 +1,5 @@
-@import "../../../../var";
-@import "~antd/lib/style/themes/default";
+@import '../../../../var';
+@import '~antd/lib/style/themes/default';
 
 @optionBlockH: 95px;
 
@@ -23,7 +23,8 @@
     .ant-select-item {
       color: @secondColor;
 
-      &.ant-select-item-option-selected, &.ant-select-item-option-active {
+      &.ant-select-item-option-selected,
+      &.ant-select-item-option-active {
         background-color: #4e4e4e;
       }
     }
@@ -32,7 +33,6 @@
       color: #fff;
     }
   }
-
 }
 
 .publish {
@@ -167,7 +167,7 @@
           border-radius: 5px;
           flex: 1;
 
-          &:nth-child(n+2) {
+          &:nth-child(n + 2) {
             margin-left: 10px;
           }
 
@@ -179,13 +179,10 @@
             background-color: @error-color;
           }
         }
-
       }
-
     }
   }
 }
-
 
 .emptyTip {
   text-align: center;

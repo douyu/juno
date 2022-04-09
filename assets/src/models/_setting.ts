@@ -1,5 +1,5 @@
 import defaultSettings, { DefaultSettings } from '../../config/defaultSettings';
-import {Reducer} from "@@/plugin-dva/connect";
+import { Reducer } from '@@/plugin-dva/connect';
 
 export interface SettingModelType {
   namespace: '_settings';

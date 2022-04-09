@@ -66,12 +66,6 @@ const defaultFooterDom = (
         href: 'https://github.com/douyu/juno',
         blankTarget: true,
       },
-      // {
-      //   key: 'Ant Design',
-      //   title: 'Ant Design',
-      //   href: 'https://ant.design',
-      //   blankTarget: true,
-      // },
     ]}
   />
 );
@@ -142,17 +136,24 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           return defaultDom;
         }
         //app功能页面历史记录
-       if(menuItemProps.path==="/app"){
-         return <a onClick={()=>{
-           getAppSearch('',menuItemProps.path).then((val)=>{
-            history.push({
-              search: val ||'',
-              pathname: menuItemProps.path,
-             })
-           })
-         }}>  {defaultDom}</a>
-       }
-       return (
+        if (menuItemProps.path === '/app') {
+          return (
+            <a
+              onClick={() => {
+                getAppSearch('', menuItemProps.path).then((val) => {
+                  history.push({
+                    search: val || '',
+                    pathname: menuItemProps.path,
+                  });
+                });
+              }}
+            >
+              {' '}
+              {defaultDom}
+            </a>
+          );
+        }
+        return (
           <Link
             to={{
               // search: searchData,
@@ -178,7 +179,12 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           <span>{route.breadcrumbName}</span>
         );
       }}
-      footerRender={() => defaultFooterDom}
+      footerRender={() => {
+        if (history.location.pathname === '/app') {
+          return <div style={{ marginBottom: 10 }}></div>;
+        }
+        return defaultFooterDom;
+      }}
       menuDataRender={() => menuData}
       rightContentRender={() => <RightContent />}
       {...props}

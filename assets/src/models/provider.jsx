@@ -1,8 +1,8 @@
-import { fetchProviderList, fetchAggregationList } from "@/services/provider";
-import {message} from "antd";
+import { fetchProviderList, fetchAggregationList } from '@/services/provider';
+import { message } from 'antd';
 
 const Model = {
-  namespace: "providerModel",
+  namespace: 'providerModel',
   state: {
     listAggData: [],
   },
@@ -15,14 +15,14 @@ const Model = {
         // message.error("错误信息:"+msg);
         //数据清空
         yield put({
-          type: "_fetchAggregationList",
+          type: '_fetchAggregationList',
           payload: [],
         });
         // return;
-      }else {
+      } else {
         yield put({
-          type: "_fetchAggregationList",
-          payload: data
+          type: '_fetchAggregationList',
+          payload: data,
         });
       }
     },
@@ -33,8 +33,8 @@ const Model = {
         ...state,
         listAggData: action.payload,
       };
-    }
-  }
+    },
+  },
 };
 
 export default Model;

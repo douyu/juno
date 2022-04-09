@@ -1,5 +1,5 @@
-import request from "@/utils/request";
-import {stringify} from "qs";
+import request from '@/utils/request';
+import { stringify } from 'qs';
 
 export async function query() {
   return request<API.CurrentUser[]>('/api/users');
@@ -45,7 +45,6 @@ export async function GetAppConfig(aid: number) {
   return request(`/api/admin/public/user/appConfig?aid=` + aid);
 }
 
-
 export async function PostAppVisit(params: any) {
   params['aid'] = parseInt(params['aid']);
   return request('/api/admin/public/user/tabVisit', {
@@ -53,7 +52,6 @@ export async function PostAppVisit(params: any) {
     data: params,
   });
 }
-
 
 export async function GetAppVisit(param: any) {
   return request(`/api/admin/public/user/tabVisit?${stringify(param)}`);

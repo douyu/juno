@@ -23,11 +23,10 @@ class PageList {
   router;
   param = {};
   rule = [];
-  refresh = () => {
-  };
+  refresh = () => {};
   defaultParam = {};
   submit = (values) => {
-    console.log("### submit 1", values);
+    console.log('### submit 1', values);
     this.param = values;
     this.setPage(1);
     this.push();
@@ -64,11 +63,15 @@ class PageList {
 
   filter = () => {
     const query = new Query();
-    return query.setParams({
-      ...this.param,
-      currentPage: this.currentPage,
-      pageSize: this.pageSize,
-    }).delEmptyParams().delParams(this.rule).getParams();
+    return query
+      .setParams({
+        ...this.param,
+        currentPage: this.currentPage,
+        pageSize: this.pageSize,
+      })
+      .delEmptyParams()
+      .delParams(this.rule)
+      .getParams();
   };
 
   constructor(options) {

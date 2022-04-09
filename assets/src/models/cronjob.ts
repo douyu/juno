@@ -1,12 +1,12 @@
-import {DefaultState, Type} from "@/models/cronjob/types";
-import effects from "@/models/cronjob/effects";
-import reducers from "@/models/cronjob/reducers";
+import { DefaultState, Type } from '@/models/cronjob/types';
+import effects from '@/models/cronjob/effects';
+import reducers from '@/models/cronjob/reducers';
 
 const CronJobModel: Type = {
-  namespace: "cronjob",
+  namespace: 'cronjob',
   effects: effects,
   reducers: reducers,
-  state: DefaultState
-}
+  state: DefaultState,
+};
 
-export default CronJobModel
+export default CronJobModel;

@@ -15,14 +15,14 @@
       margin-bottom: 10px;
       padding: 10px;
       background-color: #ffffff;
-      box-shadow: 0 4px 8px 0 rgba(36, 46, 66, .06);
+      box-shadow: 0 4px 8px 0 rgba(36, 46, 66, 0.06);
       border-radius: 8px;
       height: 120px;
       cursor: pointer;
       display: flex;
 
       &:hover {
-        box-shadow: 0 6px 16px 0 rgba(33, 43, 54, .2);
+        box-shadow: 0 6px 16px 0 rgba(33, 43, 54, 0.2);
       }
 
       .pipelineIcon {
@@ -40,7 +40,8 @@
         line-height: @pipelineH;
       }
 
-      .pipelineStatus, .runCount {
+      .pipelineStatus,
+      .runCount {
         flex: 0.1 0 100px;
         text-align: center;
 
@@ -59,4 +60,3 @@
     }
   }
 }
-

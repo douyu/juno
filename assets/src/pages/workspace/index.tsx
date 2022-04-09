@@ -5,7 +5,7 @@ import {
   ServiceNodeStatistics,
   ServiceCmcStatistics,
 } from '@/services/event';
-import {message, Card, Row, Col, Spin} from 'antd';
+import { message, Card, Row, Col, Spin } from 'antd';
 import EventList from './components/EventList';
 import ViewHistory from './components/ViewHistory';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
@@ -251,7 +251,7 @@ export default class Base extends React.Component<HomeProps, any> {
     const { data, stat, node_stat, cmc_stat } = this.state;
     const { app_cnt, node_cnt, zone_cnt } = stat;
     const { node_status = [], day_cnt = [], env_zone = [] } = node_stat || {};
-    const { total = 0, env_cnt = []} = cmc_stat;
+    const { total = 0, env_cnt = [] } = cmc_stat;
 
     return (
       <PageHeaderWrapper>
@@ -260,7 +260,10 @@ export default class Base extends React.Component<HomeProps, any> {
             <Col span={12}>
               <Row gutter={4} style={{ marginTop: '4px' }}>
                 <Col span={24}>
-                  <Card title={'最近浏览应用'}>    <ViewHistory/></Card>
+                  <Card title={'最近浏览应用'}>
+                    {' '}
+                    <ViewHistory />
+                  </Card>
                 </Col>
               </Row>
               <Row gutter={4} style={{ marginTop: '4px' }}>
@@ -352,7 +355,6 @@ export default class Base extends React.Component<HomeProps, any> {
                   </Card>
                 </Col>
               </Row>
-
             </Col>
           </Row>
         </div>

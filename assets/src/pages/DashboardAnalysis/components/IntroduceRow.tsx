@@ -25,12 +25,18 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: Vis
       <ChartCard
         bordered={false}
         title={
-          <FormattedMessage id="dashboardanalysis.analysis.total-sales" defaultMessage="Total Sales" />
+          <FormattedMessage
+            id="dashboardanalysis.analysis.total-sales"
+            defaultMessage="Total Sales"
+          />
         }
         action={
           <Tooltip
             title={
-              <FormattedMessage id="dashboardanalysis.analysis.introduce" defaultMessage="Introduce" />
+              <FormattedMessage
+                id="dashboardanalysis.analysis.introduce"
+                defaultMessage="Introduce"
+              />
             }
           >
             <InfoCircleOutlined />
@@ -41,7 +47,10 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: Vis
         footer={
           <Field
             label={
-              <FormattedMessage id="dashboardanalysis.analysis.day-sales" defaultMessage="Daily Sales" />
+              <FormattedMessage
+                id="dashboardanalysis.analysis.day-sales"
+                defaultMessage="Daily Sales"
+              />
             }
             value={`￥${numeral(12423).format('0,0')}`}
           />
@@ -67,7 +76,10 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: Vis
         action={
           <Tooltip
             title={
-              <FormattedMessage id="dashboardanalysis.analysis.introduce" defaultMessage="Introduce" />
+              <FormattedMessage
+                id="dashboardanalysis.analysis.introduce"
+                defaultMessage="Introduce"
+              />
             }
           >
             <InfoCircleOutlined />
@@ -77,7 +89,10 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: Vis
         footer={
           <Field
             label={
-              <FormattedMessage id="dashboardanalysis.analysis.day-visits" defaultMessage="Daily Visits" />
+              <FormattedMessage
+                id="dashboardanalysis.analysis.day-visits"
+                defaultMessage="Daily Visits"
+              />
             }
             value={numeral(1234).format('0,0')}
           />
@@ -91,11 +106,16 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: Vis
       <ChartCard
         bordered={false}
         loading={loading}
-        title={<FormattedMessage id="dashboardanalysis.analysis.payments" defaultMessage="Payments" />}
+        title={
+          <FormattedMessage id="dashboardanalysis.analysis.payments" defaultMessage="Payments" />
+        }
         action={
           <Tooltip
             title={
-              <FormattedMessage id="dashboardanalysis.analysis.introduce" defaultMessage="Introduce" />
+              <FormattedMessage
+                id="dashboardanalysis.analysis.introduce"
+                defaultMessage="Introduce"
+              />
             }
           >
             <InfoCircleOutlined />
@@ -131,7 +151,10 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: Vis
         action={
           <Tooltip
             title={
-              <FormattedMessage id="dashboardanalysis.analysis.introduce" defaultMessage="Introduce" />
+              <FormattedMessage
+                id="dashboardanalysis.analysis.introduce"
+                defaultMessage="Introduce"
+              />
             }
           >
             <InfoCircleOutlined />
@@ -141,11 +164,17 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: Vis
         footer={
           <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
             <Trend flag="up" style={{ marginRight: 16 }}>
-              <FormattedMessage id="dashboardanalysis.analysis.week" defaultMessage="Weekly Changes" />
+              <FormattedMessage
+                id="dashboardanalysis.analysis.week"
+                defaultMessage="Weekly Changes"
+              />
               <span className={styles.trendText}>12%</span>
             </Trend>
             <Trend flag="down">
-              <FormattedMessage id="dashboardanalysis.analysis.day" defaultMessage="Weekly Changes" />
+              <FormattedMessage
+                id="dashboardanalysis.analysis.day"
+                defaultMessage="Weekly Changes"
+              />
               <span className={styles.trendText}>11%</span>
             </Trend>
           </div>

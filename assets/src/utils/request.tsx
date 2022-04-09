@@ -2,9 +2,9 @@
  * request 网络请求工具
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
-import {extend} from 'umi-request';
-import {notification} from 'antd';
-import React from "react";
+import { extend } from 'umi-request';
+import { notification } from 'antd';
+import React from 'react';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -24,36 +24,34 @@ const codeMessage = {
   504: '网关超时。',
 };
 
-const handle403Error = (error: { response: Response, data: any }): Response => {
-  const {response} = error
-  const {data = {path: '', name}, msg} = error.data
+const handle403Error = (error: { response: Response; data: any }): Response => {
+  const { response } = error;
+  const { data = { path: '', name }, msg } = error.data;
 
   notification.error({
     key: 'auth_failed_notify',
     message: msg,
-    description: <div>
-      <p>
-        Object: {data.obj}
-      </p>
-      <p>
-        Action: {data.act}
-      </p>
-    </div>
-  })
+    description: (
+      <div>
+        <p>Object: {data.obj}</p>
+        <p>Action: {data.act}</p>
+      </div>
+    ),
+  });
 
-  return response
-}
+  return response;
+};
 /**
  * 异常处理程序
  */
-const errorHandler = (error: { response: Response, data: any }): Response => {
-  const {response} = error;
+const errorHandler = (error: { response: Response; data: any }): Response => {
+  const { response } = error;
   if (response && response.status) {
     const errorText = codeMessage[response.status] || response.statusText;
-    const {status, url} = response;
+    const { status, url } = response;
 
     if (status === 403) {
-      return handle403Error(error)
+      return handle403Error(error);
     }
 
     notification.error({
@@ -78,15 +76,16 @@ const request = extend({
 });
 
 request.interceptors.response.use((response, options) => {
-  response.clone().json().then(
-    res => {
+  response
+    .clone()
+    .json()
+    .then((res) => {
       if (res.code === 302) {
-        document.cookie = `juno_redirect=${window.location.href}; path=/; domain=${window.location.hostname};`
-        location.href = res.msg
+        document.cookie = `juno_redirect=${window.location.href}; path=/; domain=${window.location.hostname};`;
+        location.href = res.msg;
       }
-    }
-  )
-  return response
+    });
+  return response;
 });
 
 export default request;

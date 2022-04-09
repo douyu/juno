@@ -5,7 +5,7 @@ import { history } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
 import PageList from '@/components/PageList';
-import { reqList,reqDelete } from './service';
+import { reqList, reqDelete } from './service';
 import { ServiceAppNodeTransferList, ServiceAppNodeTransferPut } from '@/services/app';
 
 const urlList = '/resource/app/list';

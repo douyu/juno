@@ -1,15 +1,14 @@
-import {Language} from "./language";
-import {languages, Thenable} from "monaco-editor";
+import { Language } from './language';
+import { languages, Thenable } from 'monaco-editor';
 
 export const INI: Language = {
-
   id() {
-    return "dy/ini"
+    return 'dy/ini';
   },
   configuration() {
     return {
       comments: {
-        lineComment: '#'
+        lineComment: '#',
       },
       brackets: [
         ['{', '}'],
@@ -17,20 +16,20 @@ export const INI: Language = {
         ['(', ')'],
       ],
       autoClosingPairs: [
-        {open: '{', close: '}'},
-        {open: '[', close: ']'},
-        {open: '(', close: ')'},
-        {open: '"', close: '"'},
-        {open: '\'', close: '\''},
+        { open: '{', close: '}' },
+        { open: '[', close: ']' },
+        { open: '(', close: ')' },
+        { open: '"', close: '"' },
+        { open: "'", close: "'" },
       ],
       surroundingPairs: [
-        {open: '{', close: '}'},
-        {open: '[', close: ']'},
-        {open: '(', close: ')'},
-        {open: '"', close: '"'},
-        {open: '\'', close: '\''},
+        { open: '{', close: '}' },
+        { open: '[', close: ']' },
+        { open: '(', close: ')' },
+        { open: '"', close: '"' },
+        { open: "'", close: "'" },
       ],
-    } as languages.LanguageConfiguration
+    } as languages.LanguageConfiguration;
   },
   tokensProvider() {
     return {
@@ -54,16 +53,16 @@ export const INI: Language = {
           [/(^\w+)(\s*)(\=)/, ['key', '', 'delimiter']],
 
           // whitespace
-          {include: '@whitespace'},
+          { include: '@whitespace' },
 
           // numbers
           [/\d+/, 'number'],
 
           // strings: recover on non-terminated strings
-          [/"([^"\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
-          [/'([^'\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
+          [/"([^"\\]|\\.)*$/, 'string.invalid'], // non-teminated string
+          [/'([^'\\]|\\.)*$/, 'string.invalid'], // non-teminated string
           [/"/, 'string', '@string."'],
-          [/'/, 'string', '@string.\''],
+          [/'/, 'string', "@string.'"],
         ],
 
         whitespace: [
@@ -72,23 +71,26 @@ export const INI: Language = {
         ],
 
         string: [
-          [/\{\{/, {token: 'delimiter.bracket', next: '@variableCounting'}],
+          [/\{\{/, { token: 'delimiter.bracket', next: '@variableCounting' }],
           [/[^\\"'\{]+/, 'string'],
           [/@escapes/, 'string.escape'],
           [/\\./, 'string.escape.invalid'],
-          [/["']/, {
-            cases: {
-              '$#==$S2': {token: 'string', next: '@pop'},
-              '@default': 'string'
-            }
-          }]
+          [
+            /["']/,
+            {
+              cases: {
+                '$#==$S2': { token: 'string', next: '@pop' },
+                '@default': 'string',
+              },
+            },
+          ],
         ],
 
         variableCounting: [
           [/[^\}]+/, 'variable'],
           [/\}\}/, 'delimiter.bracket', '@pop'],
-        ]
+        ],
       },
-    } as languages.IMonarchLanguage | Thenable<languages.IMonarchLanguage>
-  }
-}
+    } as languages.IMonarchLanguage | Thenable<languages.IMonarchLanguage>;
+  },
+};

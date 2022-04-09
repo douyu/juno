@@ -1,5 +1,5 @@
-import effects from './effects'
-import reducers from "./reducers";
+import effects from './effects';
+import reducers from './reducers';
 
 export default {
   namespace: 'HttpDebug',
@@ -22,7 +22,7 @@ export default {
     historyPagination: {
       current: 0,
       pageSize: 0,
-      total: 0
+      total: 0,
     },
 
     // 当前应用端口
@@ -51,12 +51,11 @@ export default {
     collectionsPagination: {
       current: 0,
       pageSize: 0,
-      total: 0
+      total: 0,
     },
 
     visibleModalScriptEditor: false,
-
   },
   effects: effects,
-  reducers: reducers
+  reducers: reducers,
 };

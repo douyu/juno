@@ -1,24 +1,24 @@
 export default {
-  _setZoneList(state, {payload}) {
+  _setZoneList(state, { payload }) {
     return {
       ...state,
-      zoneList: payload || []
-    }
+      zoneList: payload || [],
+    };
   },
-  _apply(state, {payload}) {
+  _apply(state, { payload }) {
     return {
       ...state,
-      ...payload
-    }
+      ...payload,
+    };
   },
-  _setCurrentConfigContent(state, {payload}) {
+  _setCurrentConfigContent(state, { payload }) {
     let currentConfig = {
       ...state.currentConfig,
-      content: payload
-    }
+      content: payload,
+    };
     return {
       ...state,
-      currentConfig
-    }
-  }
-}
+      currentConfig,
+    };
+  },
+};

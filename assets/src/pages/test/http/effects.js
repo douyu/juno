@@ -1,48 +1,52 @@
 import {
-  createCollection, fetchCollections,
+  createCollection,
+  fetchCollections,
   getFolderTree,
   fetchTestCase,
   loadHistory,
   sendRequest,
-  saveTestCase, createTestCase, fetchHttpAddrList, loadHistoryDetail
-} from "@/services/httptest";
-import {message} from "antd";
+  saveTestCase,
+  createTestCase,
+  fetchHttpAddrList,
+  loadHistoryDetail,
+} from '@/services/httptest';
+import { message } from 'antd';
 
 export default {
-  * loadTestCase({payload}, {call, put}) {
+  *loadTestCase({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
-        currentRequestLoading: true
-      }
-    })
+        currentRequestLoading: true,
+      },
+    });
     const res = yield call(fetchTestCase, payload.id);
 
     yield put({
       type: '_apply',
       payload: {
-        currentRequestLoading: false
-      }
-    })
+        currentRequestLoading: false,
+      },
+    });
 
     if (res.code === 0) {
       yield put({
         type: '_setCurrentRequest',
-        payload: res.data
-      })
+        payload: res.data,
+      });
     }
     return res;
   },
-  * updateCurrentRequest({payload}, {put}) {
+  *updateCurrentRequest({ payload }, { put }) {
     yield put({
       type: '_updateCurrentRequest',
-      payload: payload
-    })
+      payload: payload,
+    });
   },
-  * sendRequest({payload}, {call, put}) {
+  *sendRequest({ payload }, { call, put }) {
     yield put({
       type: '_setSendStatus',
-      payload: 'sending'
+      payload: 'sending',
     });
 
     const res = yield call(sendRequest, payload);
@@ -52,67 +56,67 @@ export default {
         type: '_setResponse',
         payload: {
           response: null,
-          status: "fail",
-          error: res.msg
-        }
+          status: 'fail',
+          error: res.msg,
+        },
       });
     } else {
       yield put({
         type: '_setResponse',
         payload: {
           response: res.data,
-          status: "success",
-          error: ''
-        }
+          status: 'success',
+          error: '',
+        },
       });
     }
   },
-  * saveTestCase({payload}, {call, put}) {
+  *saveTestCase({ payload }, { call, put }) {
     if (typeof payload.body !== 'string') {
       try {
-        payload.body = JSON.stringify(payload.body)
+        payload.body = JSON.stringify(payload.body);
       } catch (e) {
-        payload.body = ''
+        payload.body = '';
       }
     }
 
     const res = yield call(saveTestCase, payload);
 
     if (res.code === 0) {
-      message.success("保存成功")
+      message.success('保存成功');
     } else {
-      message.error(res.msg)
+      message.error(res.msg);
     }
 
-    return res
+    return res;
   },
-  * loadHistory({payload}, {call, put}) {
+  *loadHistory({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
-        historyLoading: true
-      }
-    })
+        historyLoading: true,
+      },
+    });
 
     const res = yield call(loadHistory, payload);
     if (res.code === 0) {
       yield put({
         type: '_setHistory',
-        payload: res.data
-      })
+        payload: res.data,
+      });
     }
   },
-  * loadHistoryDetail({payload}, {call, put}) {
+  *loadHistoryDetail({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
-        currentRequestLoading: true
-      }
-    })
+        currentRequestLoading: true,
+      },
+    });
 
-    const res = yield call(loadHistoryDetail, payload)
+    const res = yield call(loadHistoryDetail, payload);
     if (res.code !== 0) {
-      message.error(res.msg)
+      message.error(res.msg);
       return res;
     }
 
@@ -122,22 +126,22 @@ export default {
         currentRequestLoading: false,
         currentRequest: {
           ...res.data,
-          id: undefined
-        }
-      }
-    })
+          id: undefined,
+        },
+      },
+    });
 
-    return res
+    return res;
   },
-  * createCollection({payload}, {call, put}) {
-    const {name, appName} = payload;
+  *createCollection({ payload }, { call, put }) {
+    const { name, appName } = payload;
 
     yield put({
       type: '_apply',
       payload: {
-        confirmNewCollectionLoading: true
-      }
-    })
+        confirmNewCollectionLoading: true,
+      },
+    });
 
     const res = yield call(createCollection, appName, name);
 
@@ -145,89 +149,89 @@ export default {
       type: '_apply',
       payload: {
         confirmNewCollectionLoading: false,
-        visibleModalNewCollection: res.code !== 0
-      }
-    })
+        visibleModalNewCollection: res.code !== 0,
+      },
+    });
 
     if (res.code !== 0) {
-      message.error(res.msg)
+      message.error(res.msg);
     }
 
-    return res
+    return res;
   },
 
-  * createTestCase({payload}, {call, put}) {
+  *createTestCase({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
         confirmNewTestCaseLoading: true,
-        currentRequestLoading: true
-      }
-    })
+        currentRequestLoading: true,
+      },
+    });
 
-    const res = yield call(createTestCase, payload)
+    const res = yield call(createTestCase, payload);
     if (res.code !== 0) {
-      message.error(res.msg)
+      message.error(res.msg);
     } else {
-      message.success("创建成功")
+      message.success('创建成功');
     }
 
     let updatePayload = {
       confirmNewTestCaseLoading: false,
       visibleModalNewTestCase: res.code !== 0,
       currentRequestLoading: false,
-    }
+    };
 
     if (res.code === 0) {
-      updatePayload.currentRequest = res.data
+      updatePayload.currentRequest = res.data;
     }
 
     yield put({
       type: '_apply',
-      payload: updatePayload
-    })
+      payload: updatePayload,
+    });
 
-    return res
+    return res;
   },
 
-  * showModalNewCollection({payload}, {call, put}) {
+  *showModalNewCollection({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
-        visibleModalNewCollection: payload
-      }
-    })
+        visibleModalNewCollection: payload,
+      },
+    });
   },
 
-  * showModalNewTestCase({payload}, {call, put}) {
+  *showModalNewTestCase({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
         visibleModalNewTestCase: payload.visible,
-        selectedCollection: payload.collectionID
-      }
-    })
+        selectedCollection: payload.collectionID,
+      },
+    });
   },
 
-  * setCurrentApp({payload}, {call, put}) {
+  *setCurrentApp({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
-        currentAppName: payload
-      }
-    })
+        currentAppName: payload,
+      },
+    });
   },
 
-  * fetchCollections({payload}, {call, put}) {
-    const {appName, page = 0, pageSize = 1000} = payload
+  *fetchCollections({ payload }, { call, put }) {
+    const { appName, page = 0, pageSize = 1000 } = payload;
     yield put({
       type: '_apply',
       payload: {
-        collectionsLoading: true
-      }
-    })
+        collectionsLoading: true,
+      },
+    });
 
-    const res = yield call(fetchCollections, appName, page, pageSize)
+    const res = yield call(fetchCollections, appName, page, pageSize);
 
     if (res.code !== 0) {
       message.error(res.msg);
@@ -239,17 +243,17 @@ export default {
       payload: {
         collectionsLoading: false,
         collections: res.data.list,
-        collectionsPagination: res.data.pagination
-      }
-    })
+        collectionsPagination: res.data.pagination,
+      },
+    });
 
-    return res
+    return res;
   },
 
-  * fetchAppHttpAddrList({payload}, {call, put}) {
+  *fetchAppHttpAddrList({ payload }, { call, put }) {
     const res = yield call(fetchHttpAddrList, payload);
     if (res.code !== 0) {
-      message.error("获取应用地址列表失败:" + res.msg);
+      message.error('获取应用地址列表失败:' + res.msg);
       return res;
     }
 
@@ -257,19 +261,19 @@ export default {
       type: '_apply',
       payload: {
         httpPort: res.data.port,
-        addrList: res.data.hosts
-      }
-    })
+        addrList: res.data.hosts,
+      },
+    });
 
-    return res
+    return res;
   },
 
-  * showModalScriptEditor({payload}, {call, put}) {
+  *showModalScriptEditor({ payload }, { call, put }) {
     yield put({
       type: '_apply',
       payload: {
-        visibleModalScriptEditor: payload
-      }
-    })
-  }
-}
+        visibleModalScriptEditor: payload,
+      },
+    });
+  },
+};

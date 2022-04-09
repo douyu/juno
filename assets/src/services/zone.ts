@@ -1,5 +1,5 @@
-import request from "@/utils/request";
+import request from '@/utils/request';
 
 export async function zoneEnvTree() {
-  return request(`/api/admin/resource/zone/zone_env`)
+  return request(`/api/admin/resource/zone/zone_env`);
 }

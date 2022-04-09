@@ -1,31 +1,31 @@
-import React from "react";
-import { connect } from "dva";
-import { Tooltip, Descriptions, Icon, Row, Col, Select, Tag } from "antd";
-import Help from "../../components/Help";
-import { routerRedux } from "dva/router";
+import React from 'react';
+import { connect } from 'dva';
+import { Tooltip, Descriptions, Icon, Row, Col, Select, Tag } from 'antd';
+import Help from '../../components/Help';
+import { routerRedux } from 'dva/router';
 const { Option } = Select;
 
 const IdcCodeMap = {
-  "HB-WHYL": "武汉银联",
-  "BJ-BG-18": "北京海淀办公",
-  "BJ-ZW-10": "北京兆维",
-  "BJ-YZ": "北京亦庄",
-  "ALIYUN-HN": "华南阿里云",
-  "ALIYUN-SZ": "深圳阿里云",
-  "ALIYUN-HD": "华东阿里云",
-  "ALIYUN-HB2-C": "华北阿里云C区",
-  "ALIYUN-HB2-D": "华北阿里云D区",
-  "ALIYUN-HB2-E": "华北阿里云E区",
-  "ALIYUN-HB2-F": "华北阿里云F区",
-  "ALIYUN-HB2-G": "华北阿里云G区",
-  "ALIYUN-HB2-H": "华北阿里云H区",
-  "BJ-CP-WG": "北京昌平",
-  "TENCENT-SHANGHAI-4": "腾讯云-华东地区(上海)"
+  'HB-WHYL': '武汉银联',
+  'BJ-BG-18': '北京海淀办公',
+  'BJ-ZW-10': '北京兆维',
+  'BJ-YZ': '北京亦庄',
+  'ALIYUN-HN': '华南阿里云',
+  'ALIYUN-SZ': '深圳阿里云',
+  'ALIYUN-HD': '华东阿里云',
+  'ALIYUN-HB2-C': '华北阿里云C区',
+  'ALIYUN-HB2-D': '华北阿里云D区',
+  'ALIYUN-HB2-E': '华北阿里云E区',
+  'ALIYUN-HB2-F': '华北阿里云F区',
+  'ALIYUN-HB2-G': '华北阿里云G区',
+  'ALIYUN-HB2-H': '华北阿里云H区',
+  'BJ-CP-WG': '北京昌平',
+  'TENCENT-SHANGHAI-4': '腾讯云-华东地区(上海)',
 };
 
 @connect(({ appHeaderModel, loading }) => ({
   appList: [],
-  idcList: appHeaderModel.idcList
+  idcList: appHeaderModel.idcList,
 }))
 export default class HeaderView extends React.Component {
   constructor(props) {
@@ -33,7 +33,7 @@ export default class HeaderView extends React.Component {
 
     this.state = {
       app: this.props.appName,
-      env: this.props.env ,
+      env: this.props.env,
       idcCode: this.props.idcCode,
     };
 
@@ -45,12 +45,11 @@ export default class HeaderView extends React.Component {
   componentDidMount() {
     this.getEnv();
     this.getAppList();
-
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
     // 说明已经传了数据
-    if (nextProps.appInfo.appName === "" || nextProps.appInfo.appName === undefined) {
+    if (nextProps.appInfo.appName === '' || nextProps.appInfo.appName === undefined) {
       return;
     }
 
@@ -93,45 +92,45 @@ export default class HeaderView extends React.Component {
   getAppList = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appHeaderModel/getAppList",
+      type: 'appHeaderModel/getAppList',
       payload: {
-        appName: this.state.app
-      }
+        appName: this.state.app,
+      },
     });
   };
 
   getEnv = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "appHeaderModel/getEnv"
+      type: 'appHeaderModel/getEnv',
     });
   };
 
-  onSelectApp = value => {
+  onSelectApp = (value) => {
     this.setState(
       {
-        app: value
+        app: value,
       },
       () => {
         this.changeReduxUrl();
         this.props.getAppInfo(value);
-      }
+      },
     );
   };
 
-  onChangeEnv = value => {
+  onChangeEnv = (value) => {
     this.setState(
       {
-        env: value
+        env: value,
       },
       () => {
         this.changeReduxUrl();
         this.props.setEnv(value);
-      }
+      },
     );
     // 更新环境联动机房选择
     const { appInfo = {}, appIdcList = [], appList = [], minervaVersion } = this.props;
-    appIdcList.forEach(item => {
+    appIdcList.forEach((item) => {
       if (item.env === value) {
         if (IdcCodeMap[item.idcCode] !== undefined) {
           this.onChangeIdc(item.idcCode);
@@ -140,33 +139,33 @@ export default class HeaderView extends React.Component {
     });
   };
 
-  onChangeIdc = value => {
+  onChangeIdc = (value) => {
     this.setState(
       {
-        idcCode: value
+        idcCode: value,
       },
       () => {
         this.changeReduxUrl();
         this.props.setIdcCode(value);
-      }
+      },
     );
   };
 
-  onBlur = value => {
-    console.log("blur");
+  onBlur = (value) => {
+    console.log('blur');
   };
 
-  onFocus = value => {
-    console.log("focus");
+  onFocus = (value) => {
+    console.log('focus');
   };
 
-  onSearch = value => {
-    console.log("search:", value);
+  onSearch = (value) => {
+    console.log('search:', value);
   };
 
   isRepeat = (m, env) => {
     let f = false;
-    m.forEach(v => {
+    m.forEach((v) => {
       if (v === env) {
         f = true;
         return f;
@@ -193,18 +192,18 @@ export default class HeaderView extends React.Component {
       rpcPort,
       healthPort,
       gitUrl,
-      users
+      users,
     } = appInfo || {};
     let { env, app, idcCode } = this.state;
-    if (app === ":app") {
-      app = "选择应用";
+    if (app === ':app') {
+      app = '选择应用';
     }
-    if (env === ":env") {
-      env = "选择环境";
+    if (env === ':env') {
+      env = '选择环境';
     }
 
     let dataSource = [];
-    appList.forEach(value => {
+    appList.forEach((value) => {
       dataSource.push(<Option value={value.appName}>{value.appName}</Option>);
     });
 
@@ -212,63 +211,63 @@ export default class HeaderView extends React.Component {
     let idcOpt = [];
     let envRepeatMap = [];
 
-    envRepeatMap.push("prod");
+    envRepeatMap.push('prod');
     envOpt.push(
       <Option value="prod">
         <Tag color="#f50">prod</Tag>
-      </Option>
+      </Option>,
     );
-    appIdcList.forEach(value => {
+    appIdcList.forEach((value) => {
       if (!this.isRepeat(envRepeatMap, value.env)) {
         envRepeatMap.push(value.env);
         switch (value.env) {
-          case "dev":
+          case 'dev':
             envOpt.push(
               <Option value={value.env}>
                 <Tag color="#87d068">{value.env}</Tag>
-              </Option>
+              </Option>,
             );
             break;
-          case "live":
+          case 'live':
             envOpt.push(
               <Option value={value.env}>
                 <Tag color="#2db7f5">{value.env}</Tag>
-              </Option>
+              </Option>,
             );
             break;
-          case "pre":
+          case 'pre':
             envOpt.push(
               <Option value={value.env}>
                 <Tag color="#108ee9">{value.env}</Tag>
-              </Option>
+              </Option>,
             );
             break;
-          case "stress":
+          case 'stress':
             envOpt.push(
               <Option value={value.env}>
                 <Tag color="#f50">{value.env}</Tag>
-              </Option>
+              </Option>,
             );
             break;
-          case "gray":
+          case 'gray':
             envOpt.push(
               <Option value={value.env}>
                 <Tag color="#f50">{value.env}</Tag>
-              </Option>
+              </Option>,
             );
             break;
-          case "pub":
+          case 'pub':
             envOpt.push(
               <Option value={value.env}>
                 <Tag color="#f50">{value.env}</Tag>
-              </Option>
+              </Option>,
             );
             break;
-          case "prod":
+          case 'prod':
             envOpt.push(
               <Option value={value.env}>
                 <Tag color="#f50">{value.env}</Tag>
-              </Option>
+              </Option>,
             );
             break;
           default:
@@ -283,7 +282,7 @@ export default class HeaderView extends React.Component {
     });
     return (
       <Row>
-        <Col span={11} style={{ float: "right" }}>
+        <Col span={11} style={{ float: 'right' }}>
           <Descriptions size="small" column={5}>
             <Descriptions.Item label="应用ID">{aid}</Descriptions.Item>
 

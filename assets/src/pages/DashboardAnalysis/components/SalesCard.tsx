@@ -44,16 +44,28 @@ const SalesCard = ({
           <div className={styles.salesExtraWrap}>
             <div className={styles.salesExtra}>
               <a className={isActive('today')} onClick={() => selectDate('today')}>
-                <FormattedMessage id="dashboardanalysis.analysis.all-day" defaultMessage="All Day" />
+                <FormattedMessage
+                  id="dashboardanalysis.analysis.all-day"
+                  defaultMessage="All Day"
+                />
               </a>
               <a className={isActive('week')} onClick={() => selectDate('week')}>
-                <FormattedMessage id="dashboardanalysis.analysis.all-week" defaultMessage="All Week" />
+                <FormattedMessage
+                  id="dashboardanalysis.analysis.all-week"
+                  defaultMessage="All Week"
+                />
               </a>
               <a className={isActive('month')} onClick={() => selectDate('month')}>
-                <FormattedMessage id="dashboardanalysis.analysis.all-month" defaultMessage="All Month" />
+                <FormattedMessage
+                  id="dashboardanalysis.analysis.all-month"
+                  defaultMessage="All Month"
+                />
               </a>
               <a className={isActive('year')} onClick={() => selectDate('year')}>
-                <FormattedMessage id="dashboardanalysis.analysis.all-year" defaultMessage="All Year" />
+                <FormattedMessage
+                  id="dashboardanalysis.analysis.all-year"
+                  defaultMessage="All Year"
+                />
               </a>
             </div>
             <RangePicker

@@ -1,15 +1,26 @@
 import React from 'react';
-import {connect} from 'dva';
-import {Alert, Card, Col, message, Radio, Row, Form, Input, Button, Table, Select, Empty} from 'antd';
-import {etcdList} from './services';
-
+import { connect } from 'dva';
+import {
+  Alert,
+  Card,
+  Col,
+  message,
+  Radio,
+  Row,
+  Form,
+  Input,
+  Button,
+  Table,
+  Select,
+  Empty,
+} from 'antd';
+import { etcdList } from './services';
 
 const RadioGroup = Radio.Group;
 
-@connect(({setting}) => ({
+@connect(({ setting }) => ({
   setting,
 }))
-
 export default class Etcd extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -28,8 +39,8 @@ export default class Etcd extends React.PureComponent {
 
   componentDidMount() {
     console.log('>>>>> props', this.props);
-    const {prefix} = this.state;
-    if (prefix&&prefix!==""){
+    const { prefix } = this.state;
+    if (prefix && prefix !== '') {
       this.getList();
     }
     // 加载设置
@@ -44,7 +55,7 @@ export default class Etcd extends React.PureComponent {
     if (nextProps.zoneCode === '' || nextProps.appName === '' || nextProps.mode === '') {
       return;
     }
-    const {zoneCode, appName, mode, env} = this.state;
+    const { zoneCode, appName, mode, env } = this.state;
 
     // 内容一样就不在渲染
     if (
@@ -65,8 +76,8 @@ export default class Etcd extends React.PureComponent {
         mode: nextProps.mode,
       },
       () => {
-        const {prefix} = this.state;
-        if (prefix&&prefix!==""){
+        const { prefix } = this.state;
+        if (prefix && prefix !== '') {
           this.getList();
         }
       },
@@ -74,14 +85,14 @@ export default class Etcd extends React.PureComponent {
   }
 
   getList = () => {
-    const {appName, zoneCode, env, prefix, suffix} = this.state;
-    if (!prefix){
-      message.error("必须选择查询前缀");
+    const { appName, zoneCode, env, prefix, suffix } = this.state;
+    if (!prefix) {
+      message.error('必须选择查询前缀');
       return;
     }
     const app = prefix === '/dubbo/' ? '' : appName;
-    etcdList({appName: app, zoneCode, env, prefix, suffix}).then((res) => {
-      const {code, msg, data} = res;
+    etcdList({ appName: app, zoneCode, env, prefix, suffix }).then((res) => {
+      const { code, msg, data } = res;
       if (code !== 0) {
         message.error(msg);
         this.setState({
@@ -107,14 +118,14 @@ export default class Etcd extends React.PureComponent {
   };
 
   onChangeSuffix = (e) => {
-    console.log("----- onChangeSuffix", e.target.value)
+    console.log('----- onChangeSuffix', e.target.value);
     this.setState({
       suffix: e.target.value,
     });
-  }
+  };
 
   onSelectPrefix = (e) => {
-    console.log("----- onSelectPrefix", e)
+    console.log('----- onSelectPrefix', e);
     if (e === '/dubbo/') {
       console.log('选中了dubbo');
       this.setState({
@@ -127,7 +138,7 @@ export default class Etcd extends React.PureComponent {
       prefix: e,
       showService: false,
     });
-  }
+  };
 
   columns = [
     {
@@ -195,18 +206,13 @@ export default class Etcd extends React.PureComponent {
       dataIndex: 'lease',
       key: 'lease',
       width: 80,
-    }
+    },
   ];
 
   render() {
-    const {
-      zoneCode,
-      appName,
-      env, records, showService,
-      prefix, suffix
-    } = this.state;
+    const { zoneCode, appName, env, records, showService, prefix, suffix } = this.state;
 
-    const {etcd} = this.props.setting.settings;
+    const { etcd } = this.props.setting.settings;
     const colSpan = {
       xxl: 6,
       xl: 6,
@@ -217,21 +223,21 @@ export default class Etcd extends React.PureComponent {
 
     if (!env || !zoneCode) {
       return (
-        <div style={{marginTop: 10}}>
-          <Empty description={"请选择环境和可用区"} style={{padding: '100px'}}/>
+        <div style={{ marginTop: 10 }}>
+          <Empty description={'请选择环境和可用区'} style={{ padding: '100px' }} />
         </div>
       );
     }
     if (zoneCode === 'all') {
       return (
-        <div style={{marginTop: 10}}>
-          <Empty description={"请选择可用区"} style={{padding: '100px'}}/>
+        <div style={{ marginTop: 10 }}>
+          <Empty description={'请选择可用区'} style={{ padding: '100px' }} />
         </div>
       );
     }
 
     return (
-      <div style={{backgroundColor: '#f7f8fa'}}>
+      <div style={{ backgroundColor: '#f7f8fa' }}>
         <div
           style={{
             marginLeft: 10,
@@ -243,46 +249,52 @@ export default class Etcd extends React.PureComponent {
           }}
         >
           <Card
-            title={<Row>
-              <Col {...colSpan}>
-                <Select
-                  showSearch
-                  style={{width: '90%'}}
-                  placeholder="选择查询前缀"
-                  optionFilterProp="children"
-                  value={prefix}
-                  onSelect={this.onSelectPrefix}
-                >
-                  {etcd?.filter(item => item.prefix).map((item, idx) => {
-                    return (
-                      <Select.Option key={idx} value={item.prefix}>
-                        {item.prefix}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Col>
+            title={
+              <Row>
+                <Col {...colSpan}>
+                  <Select
+                    showSearch
+                    style={{ width: '90%' }}
+                    placeholder="选择查询前缀"
+                    optionFilterProp="children"
+                    value={prefix}
+                    onSelect={this.onSelectPrefix}
+                  >
+                    {etcd
+                      ?.filter((item) => item.prefix)
+                      .map((item, idx) => {
+                        return (
+                          <Select.Option key={idx} value={item.prefix}>
+                            {item.prefix}
+                          </Select.Option>
+                        );
+                      })}
+                  </Select>
+                </Col>
 
-              <Col {...colSpan}>
-                <Input style={{width: '90%'}} value={suffix} onChange={this.onChangeSuffix}
-                       placeholder="输入查询后缀"/>
-              </Col>
-              <Button type="primary" onClick={this.getList} style={{marginRight: `16px`}}
-                      htmlType={`button`}>
-                查询
-              </Button>
-              <Button onClick={this.reset}>
-                清空条件
-              </Button>
-            </Row>}
+                <Col {...colSpan}>
+                  <Input
+                    style={{ width: '90%' }}
+                    value={suffix}
+                    onChange={this.onChangeSuffix}
+                    placeholder="输入查询后缀"
+                  />
+                </Col>
+                <Button
+                  type="primary"
+                  onClick={this.getList}
+                  style={{ marginRight: `16px` }}
+                  htmlType={`button`}
+                >
+                  查询
+                </Button>
+                <Button onClick={this.reset}>清空条件</Button>
+              </Row>
+            }
           >
             <div>
               <Row>
-                <Table
-                  rowKey="id"
-                  dataSource={records}
-                  columns={this.columns}
-                />
+                <Table rowKey="id" dataSource={records} columns={this.columns} />
               </Row>
             </div>
           </Card>
