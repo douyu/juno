@@ -1,3 +1,5 @@
+import { ComponentType } from 'react';
+
 export interface PluginProps {}
 
 export interface PluginMeta {
@@ -5,4 +7,5 @@ export interface PluginMeta {
   type: string;
   name: string;
   meta?: any;
+  body?: ComponentType<PluginProps>;
 }

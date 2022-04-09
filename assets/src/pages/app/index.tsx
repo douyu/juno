@@ -27,27 +27,10 @@ import Test from '@/pages/app/components/Test';
 import { Dispatch } from '@@/plugin-dva/connect';
 import styles from './style.less';
 import { setAppSearch, setAppSearchByAppName } from '@/utils/searchapppath';
-import { renderplugin } from './plugin_render';
+import { renderplugin, commonPluginlist } from './plugin_render';
 
 const { TabPane } = Tabs;
 
-const commonPluginlist = [
-  {
-    key: 'etcd',
-    type: 'etcd',
-    name: 'Etcd',
-  },
-  {
-    key: 'event',
-    type: 'event',
-    name: '事件',
-  },
-  {
-    key: 'grpc',
-    type: 'grpc',
-    name: 'grpc',
-  },
-];
 interface AppProps {
   location: { query: any };
   setting: any;
@@ -503,36 +486,6 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
               param={''}
               idcList={this.state.idcList}
               appEnvZone={this.state.appEnvZone}
-              zoneList={this.state.zoneList}
-            />
-          </TabPane>
-          <TabPane tab="日志" key="applog">
-            <Applog
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appNodeList={this.state.appNodeList}
-              appIdcList={''}
-              zoneCode={this.state.zoneCode}
-              param={''}
-              appEnvZone={appEnvZone}
-              idcList={this.state.idcList}
-              zoneList={this.state.zoneList}
-            />
-          </TabPane>
-          <TabPane tab="Pprof" key="pprof">
-            <PPofList
-              aid={aid}
-              env={env}
-              appName={appName}
-              appInfo={this.state.appInfo}
-              appNodeList={this.state.appNodeList}
-              appIdcList={''}
-              zoneCode={this.state.zoneCode}
-              param={''}
-              appEnvZone={appEnvZone}
-              idcList={this.state.idcList}
               zoneList={this.state.zoneList}
             />
           </TabPane>
