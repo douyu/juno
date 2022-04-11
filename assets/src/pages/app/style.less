@@ -113,9 +113,9 @@
       height: 100%;
     }
     .ant-tabs-tabpane {
-      overflow-y: auto;
-      overflow-x: hidden;
       position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
     .ant-tabs-tabpane > div {
       position: absolute;
@@ -123,6 +123,14 @@
       right: 0;
       bottom: 0;
       left: 0;
+    }
+    .ant-tabs-left {
+      & > .ant-tabs-nav .ant-tabs-tab {
+        padding: 2px 5px;
+        & + .ant-tabs-tab {
+          margin-top: 10px;
+        }
+      }
     }
   }
 }
