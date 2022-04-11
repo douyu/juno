@@ -441,8 +441,9 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
         <Tabs
           defaultActiveKey={this.state.tab}
           activeKey={tab}
+          tabPosition={'left'}
           onChange={this.onChangeTab}
-          style={{ width: '100%', marginTop: '-10px' }}
+          style={{ width: '100%', marginTop: '2px' }}
           tabBarStyle={{ paddingLeft: '10px', marginBottom: 0 }}
           destroyInactiveTabPane
         >
