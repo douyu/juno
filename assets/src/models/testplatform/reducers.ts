@@ -1,30 +1,30 @@
-import {DefaultState, Reducers, TestPlatformState} from "@/models/testplatform/types";
+import { DefaultState, Reducers, TestPlatformState } from '@/models/testplatform/types';
 
 const reducers: Reducers = {
-  savePipelines(state = DefaultState, {payload}): TestPlatformState {
+  savePipelines(state = DefaultState, { payload }): TestPlatformState {
     return {
       ...state,
-      pipelines: payload
-    }
-  },
-  setPipelinesLoading(state = DefaultState, {payload}): TestPlatformState {
-    return {
-      ...state,
-      pipelinesLoading: payload
-    }
-  },
-  saveTasks(state = DefaultState, {payload}): TestPlatformState {
-    return {
-      ...state,
-      tasks: payload
+      pipelines: payload,
     };
   },
-  setTasksLoading(state = DefaultState, {payload}): TestPlatformState {
+  setPipelinesLoading(state = DefaultState, { payload }): TestPlatformState {
     return {
       ...state,
-      tasksLoading: payload
+      pipelinesLoading: payload,
     };
-  }
-}
+  },
+  saveTasks(state = DefaultState, { payload }): TestPlatformState {
+    return {
+      ...state,
+      tasks: payload,
+    };
+  },
+  setTasksLoading(state = DefaultState, { payload }): TestPlatformState {
+    return {
+      ...state,
+      tasksLoading: payload,
+    };
+  },
+};
 
-export default reducers
+export default reducers;

@@ -1,16 +1,16 @@
-import React, {Fragment} from 'react';
-import {Card, Row, Col, Statistic, message, Timeline, Tag, Button, Divider, Modal} from 'antd';
-import { reqList,reqDelete } from './service';
+import React, { Fragment } from 'react';
+import { Card, Row, Col, Statistic, message, Timeline, Tag, Button, Divider, Modal } from 'antd';
+import { reqList, reqDelete } from './service';
 import Table from '@/components/Table';
 import { history } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
-import PageList from "@/components/PageList";
+import PageList from '@/components/PageList';
 
 export interface HomeProps {}
 
-const urlList = "/resource/node/list";
-const urlUpdate = "/resource/zone/update";
+const urlList = '/resource/node/list';
+const urlUpdate = '/resource/zone/update';
 
 export default class Base extends React.Component<HomeProps, any> {
   constructor(props: HomeProps) {
@@ -33,15 +33,14 @@ export default class Base extends React.Component<HomeProps, any> {
     rows: 10,
     param: {
       search_port: null,
-      keywords_type: "host_name",
-      keywords: null
+      keywords_type: 'host_name',
+      keywords: null,
     },
-    rule: [{ key: "keywords_type", rule: ["rely", "keywords"] }],
+    rule: [{ key: 'keywords_type', rule: ['rely', 'keywords'] }],
     refresh: (e) => {
       this.initList(e);
-    }
+    },
   });
-
 
   initList = (): void => {
     reqList(this.search.filter()).then((res) => {
@@ -65,13 +64,13 @@ export default class Base extends React.Component<HomeProps, any> {
     let { keywords_type, keywords } = this.search.getParam();
     const keywords_type_list = [
       {
-        name: "机器名称",
-        value: "host_name"
+        name: '机器名称',
+        value: 'host_name',
       },
       {
-        name: "机器IP",
-        value: "ip"
-      }
+        name: '机器IP',
+        value: 'ip',
+      },
     ];
     const columns = [
       {
@@ -137,7 +136,7 @@ export default class Base extends React.Component<HomeProps, any> {
         dataIndex: 'agent_heartbeat_time',
         key: 'agent_heartbeat_time',
         render: (agent_heartbeat_time) => {
-          var timestamp = Date.parse(new Date())/1000;
+          var timestamp = Date.parse(new Date()) / 1000;
           if (agent_heartbeat_time === 0) {
             return (
               <span>
@@ -147,16 +146,17 @@ export default class Base extends React.Component<HomeProps, any> {
           } else if (timestamp - agent_heartbeat_time > 120) {
             return (
               <span>
-                <Tag color="red">心跳超时</Tag>({moment(agent_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
+                <Tag color="red">心跳超时</Tag>(
+                {moment(agent_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
               </span>
             );
-          }else if  (timestamp - agent_heartbeat_time < 120)  {
+          } else if (timestamp - agent_heartbeat_time < 120) {
             return (
               <span>
-                <Tag color="green">心跳正常</Tag>({moment(agent_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
+                <Tag color="green">心跳正常</Tag>(
+                {moment(agent_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
               </span>
             );
-
           }
         },
       },
@@ -177,23 +177,25 @@ export default class Base extends React.Component<HomeProps, any> {
         title: 'proxy心跳时间',
         key: 'proxy_heartbeat_time',
         render: (record) => {
-          var timestamp = Date.parse(new Date())/1000;
+          var timestamp = Date.parse(new Date()) / 1000;
           if (record.proxy_type === 1 && record.proxy_heartbeat_time === 0) {
             return (
               <span>
                 <Tag color="red">未上报心跳</Tag>
               </span>
             );
-          } else if (record.proxy_type === 1 && (timestamp - record.proxy_heartbeat_time > 120)) {
+          } else if (record.proxy_type === 1 && timestamp - record.proxy_heartbeat_time > 120) {
             return (
               <span>
-                <Tag color="red">心跳超时</Tag>({moment(record.proxy_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
+                <Tag color="red">心跳超时</Tag>(
+                {moment(record.proxy_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
               </span>
             );
-          }else if  (record.proxy_type === 1 && (timestamp - record.proxy_heartbeat_time < 120)) {
+          } else if (record.proxy_type === 1 && timestamp - record.proxy_heartbeat_time < 120) {
             return (
               <span>
-                <Tag color="green">心跳正常</Tag>({moment(record.proxy_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
+                <Tag color="green">心跳正常</Tag>(
+                {moment(record.proxy_heartbeat_time, 'X').format('YYYY-MM-DD HH:mm:ss')})
               </span>
             );
           }
@@ -249,25 +251,26 @@ export default class Base extends React.Component<HomeProps, any> {
               {
                 selectInput: [
                   {
-                    field: "keywords_type",
+                    field: 'keywords_type',
                     style: { minWidth: 115 },
                     initialValue: keywords_type,
-                    data: keywords_type_list
+                    data: keywords_type_list,
                   },
                   {
-                    field: "keywords",
-                    placeholder: "请输入关键词",
-                    initialValue: keywords
-                  }
-                ]
-              }
-            ]} />
+                    field: 'keywords',
+                    placeholder: '请输入关键词',
+                    initialValue: keywords,
+                  },
+                ],
+              },
+            ]}
+          />
           <div>
             <Button
               type="primary"
               style={{
-                marginTop:10,
-                marginBottom:10
+                marginTop: 10,
+                marginBottom: 10,
               }}
               onClick={() => {
                 history.push('/resource/node/create');
@@ -281,7 +284,7 @@ export default class Base extends React.Component<HomeProps, any> {
             columns={columns}
             rowKey={(record) => record.id}
             onChange={({ current }) => {
-               this.search.setPage(current).push();
+              this.search.setPage(current).push();
             }}
           />
         </Card>

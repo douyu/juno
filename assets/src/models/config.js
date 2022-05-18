@@ -65,7 +65,7 @@ const defaultState = {
   diffModifiedConfig: {},
   diffContentLoading: false,
   visibleModalDiff: false,
-}
+};
 
 export default {
   namespace: 'config',

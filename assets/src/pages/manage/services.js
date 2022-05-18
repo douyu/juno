@@ -1,5 +1,5 @@
 import request from '@/utils/request';
-import {stringify} from 'qs';
+import { stringify } from 'qs';
 
 export async function checkDep() {
   return request(`/api/admin/pprof/dep/check`);
@@ -14,7 +14,7 @@ export async function getSysConfig(params) {
 }
 
 export async function loadSettings() {
-  return request(`/api/admin/system/setting/list`)
+  return request(`/api/admin/system/setting/list`);
 }
 
 export async function updateSetting(name, content) {
@@ -22,7 +22,7 @@ export async function updateSetting(name, content) {
     method: 'POST',
     data: {
       name,
-      content
-    }
-  })
+      content,
+    },
+  });
 }

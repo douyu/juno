@@ -1,28 +1,31 @@
 import React from 'react';
-import {Card, Form, Input, List, message, Popconfirm, Radio, Tag} from 'antd';
-import {checkDep, getSysConfig, installDep} from './services';
-import SettingBlock from "@/pages/manage/SettingBlock";
-import {PageHeaderWrapper} from "@ant-design/pro-layout";
-import {connect} from 'dva';
-import GatewaySetting from "@/pages/manage/GatewaySetting";
-import EtcdSetting from "@/pages/manage/EtcdSetting";
-import VersionSetting from "@/pages/manage/AppVersionSetting";
-import K8SClusterSetting from "@/pages/manage/K8SClusterSetting";
-import TestPlatformSetting from "@/pages/manage/TestPlatform";
+import { Card, Form, Input, List, message, Popconfirm, Radio, Tag } from 'antd';
+import { checkDep, getSysConfig, installDep } from './services';
+import SettingBlock from '@/pages/manage/SettingBlock';
+import { PageHeaderWrapper } from '@ant-design/pro-layout';
+import { connect } from 'dva';
+import GatewaySetting from '@/pages/manage/GatewaySetting';
+import EtcdSetting from '@/pages/manage/EtcdSetting';
+import VersionSetting from '@/pages/manage/AppVersionSetting';
+import K8SClusterSetting from '@/pages/manage/K8SClusterSetting';
+import TestPlatformSetting from '@/pages/manage/TestPlatform';
 
-const {TextArea} = Input;
+const { TextArea } = Input;
 const RadioGroup = Radio.Group;
 
-const sysTypeList = [{name: "设置配置依赖解析时间（分钟）", value: 1}, {name: "监控展示Grafana地址", value: 2}]
+const sysTypeList = [
+  { name: '设置配置依赖解析时间（分钟）', value: 1 },
+  { name: '监控展示Grafana地址', value: 2 },
+];
 
-@connect(({setting}) => ({
-  ...setting
+@connect(({ setting }) => ({
+  ...setting,
 }))
 export default class SysManage extends React.Component {
   constructor(props) {
     super(props);
-    this.grafanaFormRef = React.createRef()
-    this.configDepFormRef = React.createRef()
+    this.grafanaFormRef = React.createRef();
+    this.configDepFormRef = React.createRef();
     this.state = {
       checkRes: '',
       depRes: [],
@@ -41,22 +44,21 @@ export default class SysManage extends React.Component {
     };
   }
 
-  componentDidMount() {
-  }
+  componentDidMount() {}
 
   componentWillMount() {
     this.GetCheckDep();
     this.GetSysConfig();
-    this.loadSettings().then(r => {
-      this.grafanaFormRef.current && this.grafanaFormRef.current.resetFields()
-      this.configDepFormRef.current && this.configDepFormRef.current.resetFields()
-    })
+    this.loadSettings().then((r) => {
+      this.grafanaFormRef.current && this.grafanaFormRef.current.resetFields();
+      this.configDepFormRef.current && this.configDepFormRef.current.resetFields();
+    });
   }
 
   loadSettings() {
     return this.props.dispatch({
-      type: 'setting/loadSettings'
-    })
+      type: 'setting/loadSettings',
+    });
   }
 
   GetCheckDep = () => {
@@ -73,7 +75,7 @@ export default class SysManage extends React.Component {
   };
 
   GetSysConfig = () => {
-    getSysConfig({sysType: 1}).then((res) => {
+    getSysConfig({ sysType: 1 }).then((res) => {
       if (res.code !== 0) {
         message.error(res.msg);
         return false;
@@ -90,8 +92,8 @@ export default class SysManage extends React.Component {
     const {} = this.state;
     // 耗时比较久,所以这里要loading
     this.enterLoading();
-    installDep({installType: e * 1}).then(rs => {
-      const {code, msg, data} = rs;
+    installDep({ installType: e * 1 }).then((rs) => {
+      const { code, msg, data } = rs;
       if (code === 0) {
         message.success('安装成功：', msg);
         this.GetCheckDep();
@@ -103,61 +105,69 @@ export default class SysManage extends React.Component {
   };
 
   enterLoading = () => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
   };
 
   stopLoading = () => {
-    this.setState({loading: false});
+    this.setState({ loading: false });
   };
 
   setEdit = (name, value) => {
-    console.log("setEdit", name, value)
-    this.props.dispatch({
-      type: 'setting/setEdit',
-      payload: {
-        name,
-        value
-      },
-    }).then(() => {
-      this.setState({})
-    })
-  }
+    console.log('setEdit', name, value);
+    this.props
+      .dispatch({
+        type: 'setting/setEdit',
+        payload: {
+          name,
+          value,
+        },
+      })
+      .then(() => {
+        this.setState({});
+      });
+  };
 
   saveSetting = (name, content) => {
-    this.props.dispatch({
-      type: 'setting/saveSetting',
-      payload: {
-        name,
-        content
-      },
-    }).then(() => {
-      this.props.dispatch({
-        type: 'setting/loadSettings',
+    this.props
+      .dispatch({
+        type: 'setting/saveSetting',
+        payload: {
+          name,
+          content,
+        },
       })
-    })
-  }
+      .then(() => {
+        this.props.dispatch({
+          type: 'setting/loadSettings',
+        });
+      });
+  };
 
   render() {
-    const {depRes = [], loading} = this.state;
-    const {settings} = this.props;
+    const { depRes = [], loading } = this.state;
+    const { settings } = this.props;
 
     return (
       <PageHeaderWrapper>
         <Card>
           <SettingBlock title={'PProf环境检测'} editable={false}>
             <List
-              grid={{gutter: 16, column: 4}}
+              grid={{ gutter: 16, column: 4 }}
               dataSource={depRes}
-              renderItem={item => (
+              renderItem={(item) => (
                 <List.Item>
-                  <Card title={item.name} style={{height: '160px'}}>
-                    {item.check_res === 1 && <Tag color="green" key={2}>
-                      已安装
-                    </Tag>}
-                    {item.check_res === 0 && <Tag color="geekblue" key={1}>
-                      未安装
-                    </Tag>}
-                    <div style={{paddingTop: '10px'}}>
+                  <Card title={item.name} style={{ height: '160px' }}>
+                    {item.check_res === 1 && (
+                      <Tag color="green" key={2}>
+                        已安装
+                      </Tag>
+                    )}
+                    {item.check_res === 0 && (
+                      <Tag color="geekblue" key={1}>
+                        未安装
+                      </Tag>
+                    )}
+                    <div style={{ paddingTop: '10px' }}>
                       <Popconfirm
                         placement="rightBottom"
                         title={'该操作有一定的延迟，确认操作？'}
@@ -175,36 +185,35 @@ export default class SysManage extends React.Component {
                   </Card>
                 </List.Item>
               )}
-            >
-            </List>
+            ></List>
           </SettingBlock>
 
           <SettingBlock
             editable={true}
             edit={this.props.onEdit.config_dep}
-            title={"配置依赖设置"}
+            title={'配置依赖设置'}
             onEdit={() => {
-              this.setEdit("config_dep", true)
+              this.setEdit('config_dep', true);
             }}
             onCancel={() => {
-              this.setEdit("config_dep", false)
+              this.setEdit('config_dep', false);
             }}
             onSave={() => {
-              this.configDepFormRef.current.submit()
+              this.configDepFormRef.current.submit();
             }}
           >
             <Form
               ref={this.configDepFormRef}
               onFinish={(vals) => {
-                this.saveSetting("config_dep", JSON.stringify(vals))
+                this.saveSetting('config_dep', JSON.stringify(vals));
               }}
             >
               <Form.Item
                 initialValue={this.props.configDepSetting.interval}
-                name={"interval"}
-                label={"定时任务间隔时间"}
+                name={'interval'}
+                label={'定时任务间隔时间'}
               >
-                <Input disabled={!this.props.onEdit.config_dep}/>
+                <Input disabled={!this.props.onEdit.config_dep} />
               </Form.Item>
             </Form>
           </SettingBlock>
@@ -212,71 +221,70 @@ export default class SysManage extends React.Component {
           <SettingBlock
             editable={true}
             edit={this.props.onEdit.grafana}
-            title={"Grafana设置"}
+            title={'Grafana设置'}
             onEdit={() => {
-              this.setEdit("grafana", true)
+              this.setEdit('grafana', true);
             }}
             onCancel={() => {
-              this.setEdit("grafana", false)
-              this.grafanaFormRef.current.resetFields()
+              this.setEdit('grafana', false);
+              this.grafanaFormRef.current.resetFields();
             }}
             onSave={() => {
-              this.grafanaFormRef.current.submit()
+              this.grafanaFormRef.current.submit();
             }}
           >
             <Form
               ref={this.grafanaFormRef}
-              placeholder={"grafana的IP地址或者域名，比如：example.com"}
+              placeholder={'grafana的IP地址或者域名，比如：example.com'}
               onFinish={(vals) => {
-                this.saveSetting("grafana", JSON.stringify(vals))
+                this.saveSetting('grafana', JSON.stringify(vals));
               }}
             >
               <Form.Item
                 initialValue={settings.grafana?.host}
-                label={"Host"}
-                name={"host"}
-                rules={[
-                  {required: true, message: '请输入grafana host'},
-                ]}
+                label={'Host'}
+                name={'host'}
+                rules={[{ required: true, message: '请输入grafana host' }]}
               >
-                <Input placeholder={"Grafana 的IP地址或者域名，比如 example.com"} disabled={!this.props.onEdit.grafana}/>
+                <Input
+                  placeholder={'Grafana 的IP地址或者域名，比如 example.com'}
+                  disabled={!this.props.onEdit.grafana}
+                />
               </Form.Item>
               <Form.Item
                 initialValue={settings.grafana?.scheme}
-                label={"Scheme"}
-                name={"scheme"}
-                rules={[
-                  {required: true, message: '请选择协议'},
-                ]}
+                label={'Scheme'}
+                name={'scheme'}
+                rules={[{ required: true, message: '请选择协议' }]}
               >
                 <Radio.Group disabled={!this.props.onEdit.grafana}>
-                  <Radio.Button value={"http"}>HTTP</Radio.Button>
-                  <Radio.Button value={"https"}>HTTPS</Radio.Button>
+                  <Radio.Button value={'http'}>HTTP</Radio.Button>
+                  <Radio.Button value={'https'}>HTTPS</Radio.Button>
                 </Radio.Group>
               </Form.Item>
               <Form.Item
                 initialValue={settings.grafana?.header_name}
-                label={"Header 名称"}
-                name={"header_name"}
-                rules={[
-                  {required: true, message: '请输入grafana进行Header授权的header名称'},
-                ]}
+                label={'Header 名称'}
+                name={'header_name'}
+                rules={[{ required: true, message: '请输入grafana进行Header授权的header名称' }]}
               >
-                <Input placeholder={"Grafana 进行代理授权的 header 字段名称，比如 X-WEBAUTH-USER"}
-                       disabled={!this.props.onEdit.grafana}/>
+                <Input
+                  placeholder={'Grafana 进行代理授权的 header 字段名称，比如 X-WEBAUTH-USER'}
+                  disabled={!this.props.onEdit.grafana}
+                />
               </Form.Item>
             </Form>
           </SettingBlock>
 
-          <GatewaySetting/>
+          <GatewaySetting />
 
-          <EtcdSetting/>
+          <EtcdSetting />
 
-          <VersionSetting/>
+          <VersionSetting />
 
-          <K8SClusterSetting/>
+          <K8SClusterSetting />
 
-          <TestPlatformSetting/>
+          <TestPlatformSetting />
         </Card>
       </PageHeaderWrapper>
     );

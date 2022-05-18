@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/douyu/juno/api/apiv1/provider"
+	"github.com/douyu/juno/api/apiv1/proxyintegrat"
 
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
@@ -43,6 +44,7 @@ import (
 	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/douyu/juno/internal/pkg/service/casbin"
 	"github.com/douyu/juno/internal/pkg/service/grafana"
+	sproxyintegrat "github.com/douyu/juno/internal/pkg/service/proxyintegrat"
 	userSrv "github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
@@ -50,6 +52,7 @@ import (
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	vmiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 func apiAdmin(server *xecho.Server) {
@@ -77,6 +80,10 @@ func apiAdmin(server *xecho.Server) {
 		})
 	}
 
+	server.Use(vmiddleware.GzipWithConfig(vmiddleware.GzipConfig{
+		Level: 5,
+	}))
+
 	// static file
 	flag, err := util.IsFileExists("assets/dist")
 	if err != nil || !flag {
@@ -102,6 +109,16 @@ func apiAdmin(server *xecho.Server) {
 		groupGrafana.Match(AllMethods, "", grafana.Proxy)
 		groupGrafana.Match(AllMethods, "/", grafana.Proxy)
 		groupGrafana.Match(AllMethods, "/*", grafana.Proxy)
+	}
+
+	//common  proxy
+	proxy := server.Group("/proxy")
+	{
+		AllMethods := []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete,
+			http.MethodHead, http.MethodTrace, http.MethodPut, http.MethodConnect, http.MethodOptions}
+		proxy.Match(AllMethods, "", sproxyintegrat.Proxy)
+		proxy.Match(AllMethods, "/", sproxyintegrat.Proxy)
+		proxy.Match(AllMethods, "/*", sproxyintegrat.Proxy)
 	}
 
 	g := server.Group("/api/admin")
@@ -163,6 +180,7 @@ func apiAdmin(server *xecho.Server) {
 		configV2G.POST("/config/lock", core.Handle(confgov2.Lock), configWriteByIDMW)                                      // 获取配置编辑锁
 		configV2G.POST("/config/unlock", core.Handle(confgov2.Unlock), configWriteByIDMW)                                  // 解锁配置
 		configV2G.GET("/config/list", confgov2.List, configReadQueryMW)                                                    // 配置文件列表
+		configV2G.POST("/config/batchClusterPublishConfigInfo", confgov2.BatchClusterPublishConfigInfo, configReadQueryMW) //批量获取配置信息
 		configV2G.GET("/config/detail", confgov2.Detail, configReadByIDMW)                                                 // 配置文件内容
 		configV2G.POST("/config/create", confgov2.Create, configWriteBodyMW)                                               // 配置新建
 		configV2G.POST("/config/update", confgov2.Update, configWriteByIDMW)                                               // 配置更新
@@ -314,6 +332,8 @@ func apiAdmin(server *xecho.Server) {
 		systemGroup.GET("/setting/list", system.SettingList)
 		systemGroup.POST("/setting/update", system.SettingUpdate)
 	}
+	//代理整合页面
+	proxyintegrat.Group(g.Group("/proxyintegrat", loginAuthWithJSON))
 
 	permissionG := g.Group("/permission", loginAuthWithJSON)
 	{

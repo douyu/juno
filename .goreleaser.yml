@@ -55,3 +55,4 @@ changelog:
 archives:
   - files:
       - ./assets/dist/*
+      - ./data/*

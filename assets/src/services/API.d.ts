@@ -21,7 +21,6 @@ declare namespace API {
   }
 }
 
-
 declare namespace Resource {
   export interface Node {
     id: number;

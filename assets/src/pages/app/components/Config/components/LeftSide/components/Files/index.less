@@ -1,13 +1,13 @@
-@import "../../../../var";
+@import '../../../../var';
 
 .zoneList {
-  top:52px;
+  top: 52px;
   bottom: 0;
   position: absolute;
   // overflow-y:scroll;
   flex: 1;
   padding: 5px;
-  padding-inline-start:10px;
+  padding-inline-start: 10px;
   .noConfigTip {
     text-align: center;
     padding: 20px;
@@ -21,11 +21,10 @@
     }
 
     // 配置列表
- 
   }
   .configList {
     padding: 0;
-    padding-inline-start:0px;
+    padding-inline-start: 0px;
 
     li.configItem {
       padding: 3px 5px;
@@ -41,10 +40,10 @@
         background-color: #333;
       }
 
-      display:flex;
+      display: flex;
       justify-content: space-between;
       // grid-template-columns: auto 50px 20px;
-     
+
       .notSavedTip {
         font-size: 12px;
         color: @secondColor;
@@ -62,11 +61,11 @@
   height: 52px;
   padding: 10px;
 
-  > *:nth-child(n+2) {
+  > *:nth-child(n + 2) {
     margin-left: 10px;
   }
 }
 
-.configListTextItem{
-  width:220px;
+.configListTextItem {
+  width: 220px;
 }

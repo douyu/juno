@@ -159,9 +159,15 @@ func History(c echo.Context) (err error) {
 		if err == errorconst.ParamConfigNotExists.Error() {
 			return output.JSON(c, output.MsgErr, "当前配置不存在，无法更新")
 		}
-
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
+	ret, _ := confgov2.ClusterPublishConfigInfoByID(uint64(param.ID))
+	for _, item := range history.List {
+		if ret.Version == item.Version {
+			item.CurrentVersion = 1
+		}
+	}
+
 	return output.JSON(c, output.MsgOk, "", history)
 }
 

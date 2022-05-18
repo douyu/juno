@@ -26,7 +26,7 @@ import Event from '@/pages/app/components/Event';
 import Test from '@/pages/app/components/Test';
 import { Dispatch } from '@@/plugin-dva/connect';
 import styles from './style.less';
-import { setAppSearch,setAppSearchByAppName } from '@/utils/searchapppath';
+import { setAppSearch, setAppSearchByAppName } from '@/utils/searchapppath';
 
 const { TabPane } = Tabs;
 
@@ -74,7 +74,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
       //限定合法值去存储
       if (locationin.query.appName) {
         setAppSearch(locationin.query.appName, locationin);
-        setAppSearchByAppName(locationin.query.appName, locationin)
+        setAppSearchByAppName(locationin.query.appName, locationin);
       }
     });
     ServiceAppList().then((res) => {
@@ -409,7 +409,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
     }
 
     k8sClusters.map((item) => {
-      item.env.map((envItem: string) => {
+      ((item.env && item.env) || []).map((envItem: string) => {
         envList.indexOf(envItem) < 0 && envList.push(envItem);
         if (
           env === envItem &&
@@ -441,8 +441,9 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
         <Tabs
           defaultActiveKey={this.state.tab}
           activeKey={tab}
+          tabPosition={'left'}
           onChange={this.onChangeTab}
-          style={{ width: '100%', marginTop: '-10px' }}
+          style={{ width: '100%', marginTop: '2px' }}
           tabBarStyle={{ paddingLeft: '10px', marginBottom: 0 }}
           destroyInactiveTabPane
         >

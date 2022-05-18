@@ -1,5 +1,5 @@
-import request from "@/utils/request";
-import { stringify } from "qs";
+import request from '@/utils/request';
+import { stringify } from 'qs';
 
 // 获取应用列表
 export async function reqList(param) {
@@ -14,20 +14,20 @@ export async function reqInfo(param) {
 export async function reqCreate(params) {
   return request('/api/admin/resource/app/create', {
     method: 'POST',
-    data: { ...params},
+    data: { ...params },
   });
 }
 
 export async function reqUpdate(params) {
   return request('/api/admin/resource/app/update', {
     method: 'POST',
-    data: { ...params},
+    data: { ...params },
   });
 }
 
 export async function reqDelete(params) {
   return request('/api/admin/resource/app/delete', {
     method: 'POST',
-    data: { ...params},
+    data: { ...params },
   });
 }

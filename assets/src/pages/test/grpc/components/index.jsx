@@ -1,7 +1,4 @@
-import History from './history'
-import Public from "./public";
+import History from './history';
+import Public from './public';
 
-export {
-  History,
-  Public
-}
+export { History, Public };

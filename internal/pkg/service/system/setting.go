@@ -205,7 +205,7 @@ func (s *setting) pubEvent(name string, value string) {
 	}
 }
 
-func (s *setting) Subscribe(name string, callback SubscribeCallback) {
+func (s *setting) Subscribe(name string, callback SubscribeCallback, callOnce bool) {
 	if !view.CheckSettingNameValid(name) {
 		return
 	}
@@ -220,7 +220,7 @@ func (s *setting) Subscribe(name string, callback SubscribeCallback) {
 	s.subscribers[name] = append(s.subscribers[name], callback)
 
 	// 订阅时发布
-	{
+	if callOnce {
 		content, err := s.get(name)
 		if err != nil {
 			return

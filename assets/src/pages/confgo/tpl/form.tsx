@@ -1,12 +1,10 @@
-import {Form, Input, Button, Select, Card, message} from 'antd';
-import React, {useState} from "react";
-import {history} from "umi";
-import {UnControlled as CodeMirror} from 'react-codemirror2'
+import { Form, Input, Button, Select, Card, message } from 'antd';
+import React, { useState } from 'react';
+import { history } from 'umi';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/duotone-light.css';
-
-
 
 const formItemLayout = {
   // labelCol: {
@@ -32,44 +30,39 @@ const tailFormItemLayout = {
   },
 };
 
-
-export default function CommonForm (props) {
+export default function CommonForm(props) {
   const [form] = Form.useForm();
-  const [content, setContent] = useState<string>("");
-  const [initContent, setInitContent] = useState<string>("");
-  let initialValues = props.initialValues
-  let request = props.request
-  let id = props.id
+  const [content, setContent] = useState<string>('');
+  const [initContent, setInitContent] = useState<string>('');
+  let initialValues = props.initialValues;
+  let request = props.request;
+  let id = props.id;
   // 创建的时候初始化会为undefined
   if (props.initialValues !== undefined && props.initialValues.content !== initContent) {
-    setInitContent(initialValues.content)
+    setInitContent(initialValues.content);
   }
 
   const onFinish = (values) => {
-
-
     request({
       ...values,
       content,
-      id:parseInt(id),
-    }).then(res => {
+      id: parseInt(id),
+    }).then((res) => {
       if (res.code !== 0) {
         message.error(res.msg);
         return false;
       }
 
       message.success(res.msg);
-      history.goBack()
+      history.goBack();
       return true;
     });
   };
 
   const onInputChange = (e, d, val) => {
-    setContent(val)
-    console.log("val",val)
+    setContent(val);
+    console.log('val', val);
   };
-
-
 
   return (
     <Form
@@ -86,7 +79,7 @@ export default function CommonForm (props) {
         rules={[
           {
             required: true,
-            message: "请输入配置类型",
+            message: '请输入配置类型',
           },
         ]}
       >
@@ -95,13 +88,14 @@ export default function CommonForm (props) {
       <div>
         <span>模板内容：</span>
         <CodeMirror
-          value = {initContent}
+          value={initContent}
           onChange={onInputChange}
           options={{
             mode: 'javascript',
             theme: 'duotone-light',
-            lineNumbers: true
-          }}/>
+            lineNumbers: true,
+          }}
+        />
       </div>
 
       <Form.Item {...tailFormItemLayout}>
@@ -112,8 +106,8 @@ export default function CommonForm (props) {
           style={{
             marginLeft: 8,
           }}
-          onClick={()=>{
-            history.goBack()
+          onClick={() => {
+            history.goBack();
           }}
         >
           返回
@@ -121,4 +115,4 @@ export default function CommonForm (props) {
       </Form.Item>
     </Form>
   );
-};
+}

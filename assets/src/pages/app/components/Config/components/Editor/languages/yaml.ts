@@ -1,14 +1,14 @@
-import {Language} from "./language";
-import {languages, Thenable} from "monaco-editor";
+import { Language } from './language';
+import { languages, Thenable } from 'monaco-editor';
 
 export const Yaml: Language = {
   id() {
-    return "dy/yaml"
+    return 'dy/yaml';
   },
   configuration() {
     return {
       comments: {
-        lineComment: '#'
+        lineComment: '#',
       },
       brackets: [
         ['{', '}'],
@@ -16,20 +16,20 @@ export const Yaml: Language = {
         ['(', ')'],
       ],
       autoClosingPairs: [
-        {open: '{', close: '}'},
-        {open: '[', close: ']'},
-        {open: '(', close: ')'},
-        {open: '"', close: '"'},
-        {open: '\'', close: '\''},
+        { open: '{', close: '}' },
+        { open: '[', close: ']' },
+        { open: '(', close: ')' },
+        { open: '"', close: '"' },
+        { open: "'", close: "'" },
       ],
       surroundingPairs: [
-        {open: '{', close: '}'},
-        {open: '[', close: ']'},
-        {open: '(', close: ')'},
-        {open: '"', close: '"'},
-        {open: '\'', close: '\''},
+        { open: '{', close: '}' },
+        { open: '[', close: ']' },
+        { open: '(', close: ')' },
+        { open: '"', close: '"' },
+        { open: "'", close: "'" },
       ],
-    } as languages.LanguageConfiguration
+    } as languages.LanguageConfiguration;
   },
   tokensProvider() {
     return {
@@ -37,7 +37,7 @@ export const Yaml: Language = {
 
       brackets: [
         { token: 'delimiter.bracket', open: '{', close: '}' },
-        { token: 'delimiter.square', open: '[', close: ']' }
+        { token: 'delimiter.square', open: '[', close: ']' },
       ],
 
       keywords: ['true', 'True', 'TRUE', 'false', 'False', 'FALSE', 'null', 'Null', 'Null', '~'],
@@ -90,12 +90,15 @@ export const Yaml: Language = {
           { include: '@flowScalars' },
 
           // String nodes
-          [/.+$/, {
-            cases: {
-              '@keywords': 'keyword',
-              '@default': 'string'
-            }
-          }]
+          [
+            /.+$/,
+            {
+              cases: {
+                '@keywords': 'keyword',
+                '@default': 'string',
+              },
+            },
+          ],
         ],
 
         // Flow Collection: Flow Mapping
@@ -125,12 +128,15 @@ export const Yaml: Language = {
           { include: '@flowNumber' },
 
           // Other value (keyword or string)
-          [/[^\},]+/, {
-            cases: {
-              '@keywords': 'keyword',
-              '@default': 'string'
-            }
-          }]
+          [
+            /[^\},]+/,
+            {
+              cases: {
+                '@keywords': 'keyword',
+                '@default': 'string',
+              },
+            },
+          ],
         ],
 
         // Flow Collection: Flow Sequence
@@ -154,43 +160,43 @@ export const Yaml: Language = {
           { include: '@flowNumber' },
 
           // Other value (keyword or string)
-          [/[^\],]+/, {
-            cases: {
-              '@keywords': 'keyword',
-              '@default': 'string'
-            }
-          }]
+          [
+            /[^\],]+/,
+            {
+              cases: {
+                '@keywords': 'keyword',
+                '@default': 'string',
+              },
+            },
+          ],
         ],
 
         // First line of a Block Style
-        multiString: [
-          [/^( +).+$/, 'string', '@multiStringContinued.$1']
-        ],
+        multiString: [[/^( +).+$/, 'string', '@multiStringContinued.$1']],
 
         // Further lines of a Block Style
         //   Workaround for indentation detection
         multiStringContinued: [
-          [/^( *).+$/, {
-            cases: {
-              '$1==$S2': 'string',
-              '@default': { token: '@rematch', next: '@popall' }
-            }
-          }]
+          [
+            /^( *).+$/,
+            {
+              cases: {
+                '$1==$S2': 'string',
+                '@default': { token: '@rematch', next: '@popall' },
+              },
+            },
+          ],
         ],
 
-        whitespace: [
-          [/[ \t\r\n]+/, 'white']
-        ],
+        whitespace: [[/[ \t\r\n]+/, 'white']],
 
         // Only line comments
-        comment: [
-          [/#.*$/, 'comment']
-        ],
+        comment: [[/#.*$/, 'comment']],
 
         // Start Flow Collections
         flowCollections: [
           [/\[/, '@brackets', '@array'],
-          [/\{/, '@brackets', '@object']
+          [/\{/, '@brackets', '@object'],
         ],
 
         // Start Flow Scalars (quoted strings)
@@ -198,15 +204,15 @@ export const Yaml: Language = {
           [/"([^"\\]|\\.)*$/, 'string.invalid'],
           [/'([^'\\]|\\.)*$/, 'string.invalid'],
           [/'[^']*'/, 'string'],
-          [/"/, 'string', '@doubleQuotedString']
+          [/"/, 'string', '@doubleQuotedString'],
         ],
 
         doubleQuotedString: [
-          [/\{\{/, {token: 'delimiter.bracket', next: '@variableCounting'}],
+          [/\{\{/, { token: 'delimiter.bracket', next: '@variableCounting' }],
           [/[^\\"\{]+/, 'string'],
           [/@escapes/, 'string.escape'],
           [/\\./, 'string.escape.invalid'],
-          [/"/, 'string', '@pop']
+          [/"/, 'string', '@pop'],
         ],
 
         variableCounting: [
@@ -215,9 +221,7 @@ export const Yaml: Language = {
         ],
 
         // Start Block Scalar
-        blockStyle: [
-          [/[>|][0-9]*[+-]?$/, 'operators', '@multiString']
-        ],
+        blockStyle: [[/[>|][0-9]*[+-]?$/, 'operators', '@multiString']],
 
         // Numbers in Flow Collections (terminate with ,]})
         flowNumber: [
@@ -227,17 +231,13 @@ export const Yaml: Language = {
           [/@numberHex(?=[ \t]*[,\]\}])/, 'number.hex'],
           [/@numberInfinity(?=[ \t]*[,\]\}])/, 'number.infinity'],
           [/@numberNaN(?=[ \t]*[,\]\}])/, 'number.nan'],
-          [/@numberDate(?=[ \t]*[,\]\}])/, 'number.date']
+          [/@numberDate(?=[ \t]*[,\]\}])/, 'number.date'],
         ],
 
-        tagHandle: [
-          [/\![^ ]*/, 'tag']
-        ],
+        tagHandle: [[/\![^ ]*/, 'tag']],
 
-        anchor: [
-          [/[&*][^ ]+/, 'namespace']
-        ]
-      }
-    } as languages.IMonarchLanguage | Thenable<languages.IMonarchLanguage>
-  }
-}
+        anchor: [[/[&*][^ ]+/, 'namespace']],
+      },
+    } as languages.IMonarchLanguage | Thenable<languages.IMonarchLanguage>;
+  },
+};

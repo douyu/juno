@@ -1,7 +1,7 @@
-import React from "react";
-import Monaco from 'react-monaco-editor'
-import {Modal} from "antd";
-import {connect} from "dva";
+import React from 'react';
+import Monaco from 'react-monaco-editor';
+import { Modal } from 'antd';
+import { connect } from 'dva';
 
 const DefaultScript = `// Http 测试脚本
 // 工具函数:
@@ -20,56 +20,61 @@ test.preRequest = function() {
 test.onResponse = function() {
   // your code here
 }
-`
+`;
 
 function ModalScriptEditor(props) {
-  const {visible, currentRequest, updateCurrentRequest} = props
+  const { visible, currentRequest, updateCurrentRequest } = props;
 
-  let script = currentRequest?.script || DefaultScript
+  let script = currentRequest?.script || DefaultScript;
 
-  return <Modal
-    onCancel={() => {
-      props.show(false)
-    }}
-    footer={null}
-    title={"Test Script"} visible={visible} width={"95%"} style={{maxWidth: '1900px'}}
-  >
-    <Monaco
-      width={"100%"}
-      height={"800px"}
-      language={"javascript"}
-      theme={"vs"}
-      value={script}
-      onChange={(val) => {
-        updateCurrentRequest({
-          script: val
-        })
+  return (
+    <Modal
+      onCancel={() => {
+        props.show(false);
       }}
-    />
-  </Modal>
+      footer={null}
+      title={'Test Script'}
+      visible={visible}
+      width={'95%'}
+      style={{ maxWidth: '1900px' }}
+    >
+      <Monaco
+        width={'100%'}
+        height={'800px'}
+        language={'javascript'}
+        theme={'vs'}
+        value={script}
+        onChange={(val) => {
+          updateCurrentRequest({
+            script: val,
+          });
+        }}
+      />
+    </Modal>
+  );
 }
 
 export default connect(
-  ({HttpDebug}) => {
+  ({ HttpDebug }) => {
     return {
       visible: HttpDebug.visibleModalScriptEditor,
       currentRequest: HttpDebug.currentRequest,
-    }
+    };
   },
   (dispatch) => {
     return {
-      show: visible => {
+      show: (visible) => {
         dispatch({
           type: 'HttpDebug/showModalScriptEditor',
-          payload: visible
-        })
+          payload: visible,
+        });
       },
-      updateCurrentRequest: payload => {
+      updateCurrentRequest: (payload) => {
         dispatch({
           type: 'HttpDebug/updateCurrentRequest',
           payload,
-        })
-      }
-    }
-  }
-)(ModalScriptEditor)
+        });
+      },
+    };
+  },
+)(ModalScriptEditor);

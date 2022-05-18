@@ -15,9 +15,9 @@ import {
   Empty,
   Spin,
 } from 'antd';
-import Pannel from "./pannel";
+import Pannel from './pannel';
 import { getLogUrl } from './services';
-import styles from "./index.less";
+import styles from './index.less';
 
 const RadioGroup = Radio.Group;
 
@@ -39,7 +39,7 @@ export default class Applog extends React.PureComponent {
     };
   }
 
-  componentDidMount() { }
+  componentDidMount() {}
 
   componentWillReceiveProps(nextProps, nextContext) {
     // 说明已经传了数据
@@ -58,6 +58,7 @@ export default class Applog extends React.PureComponent {
       {
         appName: nextProps.appName,
         env: nextProps.env,
+        aid: nextProps.aid,
       },
       () => {
         const { typ } = this.state;
@@ -124,12 +125,12 @@ export default class Applog extends React.PureComponent {
         <div
           style={{
             marginTop: 5,
-            height: "100%"
+            height: '100%',
           }}
         >
           <Card
-            style={{ height: "100%", display: "flex", flexDirection: "column" }}
-            bodyStyle={{ height: "100%", flex: 1, display: "flex", flexDirection: "column" }}
+            style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+            bodyStyle={{ height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}
             title={
               <Row>
                 <Col {...colSpan}>
@@ -165,11 +166,7 @@ export default class Applog extends React.PureComponent {
             }
           >
             <Spin style={{ flex: 1 }} spinning={loading}>
-              {url && (
-                <Pannel
-                  url={url}
-                />
-              )}
+              {url && <Pannel url={url} />}
             </Spin>
           </Card>
         </div>

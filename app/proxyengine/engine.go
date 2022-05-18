@@ -250,6 +250,10 @@ func (eng *Proxy) defers() (err error) {
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
+	config.UserName = cfg.Cfg.Register.UserName
+	config.Password = cfg.Cfg.Register.Password
+	config.BasicAuth = cfg.Cfg.Register.BasicAuth
+
 	client := config.MustBuild()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()

@@ -1,6 +1,6 @@
-import {CstParser} from "chevrotain";
-import {tokensDictionary as t} from "./lexer/api";
-const { tokenize } = require("./lexer/api");
+import { CstParser } from 'chevrotain';
+import { tokensDictionary as t } from './lexer/api';
+const { tokenize } = require('./lexer/api');
 
 class INIParser extends CstParser {
   constructor() {
@@ -11,7 +11,7 @@ class INIParser extends CstParser {
     $.C1 = null;
     $.C2 = null;
 
-    $.RULE("ini", () => {
+    $.RULE('ini', () => {
       $.OPTION(() => {
         $.SUBRULE($.nl);
       });
@@ -26,28 +26,28 @@ class INIParser extends CstParser {
       });
     });
 
-    $.RULE("expression", () => {
+    $.RULE('expression', () => {
       $.OR(
         // https://sap.github.io/chevrotain/docs/guide/performance.html#arrays-of-alternatives
         $.C2 ||
-        ($.C2 = [
-          {ALT: () => $.SUBRULE($.keyval)},
-          {ALT: () => $.SUBRULE($.stdTable)},
-          {ALT: () => $.CONSUME(t.Comment)}
-        ])
+          ($.C2 = [
+            { ALT: () => $.SUBRULE($.keyval) },
+            { ALT: () => $.SUBRULE($.stdTable) },
+            { ALT: () => $.CONSUME(t.Comment) },
+          ]),
       );
       $.OPTION(() => {
         $.CONSUME2(t.Comment);
       });
     });
 
-    $.RULE("keyval", () => {
+    $.RULE('keyval', () => {
       $.SUBRULE($.key);
       $.CONSUME(t.KeyValSep);
       $.SUBRULE($.val);
     });
 
-    $.RULE("key", () => {
+    $.RULE('key', () => {
       $.CONSUME(t.IKey);
       $.MANY(() => {
         $.CONSUME(t.Dot);
@@ -55,27 +55,27 @@ class INIParser extends CstParser {
       });
     });
 
-    $.RULE("resource", () => {
-      $.CONSUME(t.LVarCurly)
-      $.CONSUME(t.ResourceName)
-      $.CONSUME(t.RVarCurly)
-    })
+    $.RULE('resource', () => {
+      $.CONSUME(t.LVarCurly);
+      $.CONSUME(t.ResourceName);
+      $.CONSUME(t.RVarCurly);
+    });
 
-    $.RULE("val", () => {
+    $.RULE('val', () => {
       // https://sap.github.io/chevrotain/docs/guide/performance.html#arrays-of-alternatives
       $.OR(
         $.C1 ||
-        ($.C1 = [
-          {ALT: () => $.SUBRULE($.resource)}, // 资源
-          {ALT: () => $.CONSUME(t.Value)},
-          // {ALT: () => $.CONSUME(t.IString)},
-          // {ALT: () => $.CONSUME(t.IBoolean)},
-          // {ALT: () => $.SUBRULE($.array)},
-          // {ALT: () => $.SUBRULE($.inlineTable)},
-          // {ALT: () => $.CONSUME(t.IDateTime)},
-          // {ALT: () => $.CONSUME(t.IFloat)},
-          // {ALT: () => $.CONSUME(t.IInteger)}
-        ])
+          ($.C1 = [
+            { ALT: () => $.SUBRULE($.resource) }, // 资源
+            { ALT: () => $.CONSUME(t.Value) },
+            // {ALT: () => $.CONSUME(t.IString)},
+            // {ALT: () => $.CONSUME(t.IBoolean)},
+            // {ALT: () => $.SUBRULE($.array)},
+            // {ALT: () => $.SUBRULE($.inlineTable)},
+            // {ALT: () => $.CONSUME(t.IDateTime)},
+            // {ALT: () => $.CONSUME(t.IFloat)},
+            // {ALT: () => $.CONSUME(t.IInteger)}
+          ]),
       );
     });
 
@@ -135,7 +135,7 @@ class INIParser extends CstParser {
     //   ]);
     // });
     //
-    $.RULE("stdTable", () => {
+    $.RULE('stdTable', () => {
       $.CONSUME(t.LSquare);
       $.SUBRULE($.key);
       $.CONSUME(t.RSquare);
@@ -150,13 +150,13 @@ class INIParser extends CstParser {
     //   $.CONSUME2(t.RSquare);
     // });
 
-    $.RULE("nl", () => {
+    $.RULE('nl', () => {
       $.AT_LEAST_ONE(() => {
         $.CONSUME(t.Newline);
       });
     });
 
-    $.RULE("commentNewline", () => {
+    $.RULE('commentNewline', () => {
       $.MANY(() => {
         $.OPTION(() => {
           $.CONSUME(t.Comment);
@@ -180,40 +180,36 @@ function parse(inputText, config) {
 
   if (lexResult.errors.length > 0) {
     // onError(lexResult.errors)
-    config?.onLexError(lexResult.errors)
+    config?.onLexError(lexResult.errors);
     const firstError = lexResult.errors[0];
     throw Error(
-      "lexing errors detected in line: " +
-      firstError.line +
-      ", column: " +
-      firstError.column +
-      "!\n" +
-      firstError.message
+      'lexing errors detected in line: ' +
+        firstError.line +
+        ', column: ' +
+        firstError.column +
+        '!\n' +
+        firstError.message,
     );
   }
 
-  const cst = parser["ini"]();
+  const cst = parser['ini']();
   if (parser.errors.length > 0) {
-    console.debug(cst)
-    config?.onParseError(parser.errors)
+    console.debug(cst);
+    config?.onParseError(parser.errors);
     const error = parser.errors[0];
     throw Error(
-      "parsing errors detected in line: " +
-      error.token.startLine +
-      ", column: " +
-      error.token.startColumn +
-      "!\n" +
-      error.message +
-      "!\n\t->" +
-      error.context.ruleStack.join("\n\t->")
+      'parsing errors detected in line: ' +
+        error.token.startLine +
+        ', column: ' +
+        error.token.startColumn +
+        '!\n' +
+        error.message +
+        '!\n\t->' +
+        error.context.ruleStack.join('\n\t->'),
     );
   }
 
   return cst;
 }
 
-export {
-  parse,
-  BaseINICstVisitor,
-  BaseINICstVisitorWithDefaults
-};
+export { parse, BaseINICstVisitor, BaseINICstVisitorWithDefaults };

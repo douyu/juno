@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import styles from './RightMenu.less';
 
 /**
@@ -12,10 +12,15 @@ import styles from './RightMenu.less';
  * }
  */
 export default class RightMenu extends React.Component {
-
   render() {
-    const {/*菜单类型*/ type, visible, /*菜单项*/ menu, /*会随着onClick返回*/ state,
-      onClick, onCancel, position
+    const {
+      /*菜单类型*/ type,
+      visible,
+      /*菜单项*/ menu,
+      /*会随着onClick返回*/ state,
+      onClick,
+      onCancel,
+      position,
     } = this.props;
 
     let onClickMenuItem = (key) => {
@@ -30,29 +35,34 @@ export default class RightMenu extends React.Component {
 
     if (!visible) return null;
 
-    return <div className={styles.RightMenu}>
-      <div
-        onClick={onMaskClick}
-        className={styles.menuMask}>
-        <ul
-          style={{
-            left: position.x,
-            top: position.y
-          }}
-          className={styles.menuContainer}>
-          {menu && menu.map((item, idx) => {
-            return <li
-              onClick={(ev) => {
-                ev.preventDefault();
-                onClickMenuItem(item.key);
-                return false;
-              }}
-              className={styles.menuItem}>
-              {item.title}
-            </li>
-          })}
-        </ul>
+    return (
+      <div className={styles.RightMenu}>
+        <div onClick={onMaskClick} className={styles.menuMask}>
+          <ul
+            style={{
+              left: position.x,
+              top: position.y,
+            }}
+            className={styles.menuContainer}
+          >
+            {menu &&
+              menu.map((item, idx) => {
+                return (
+                  <li
+                    onClick={(ev) => {
+                      ev.preventDefault();
+                      onClickMenuItem(item.key);
+                      return false;
+                    }}
+                    className={styles.menuItem}
+                  >
+                    {item.title}
+                  </li>
+                );
+              })}
+          </ul>
+        </div>
       </div>
-    </div>
+    );
   }
 }

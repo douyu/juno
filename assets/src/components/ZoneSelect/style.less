@@ -1,17 +1,26 @@
 @import '~antd/es/style/themes/default.less';
 
-.container > * {
-  background-color: @popover-bg;
-  border-radius: 4px;
-  box-shadow: @shadow-1-down;
-}
-
-@media screen and (max-width: @screen-xs) {
-  .container {
-    width: 100% !important;
+.zoneSelect {
+  :global {
+    .ant-radio-button-wrapper {
+      flex-shrink: 0;
+    }
+    .ant-radio-group {
+      display: flex;
+      overflow-x: auto;
+      &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+        background-color: #f5f5f5;
+      }
+      &::-webkit-scrollbar-track {
+        background-color: #f5f5f5;
+        border-radius: 10px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-color: #595959;
+        border-radius: 10px;
+      }
+    }
   }
-  .container > * {
-    border-radius: 0 !important;
-  }
 }
-

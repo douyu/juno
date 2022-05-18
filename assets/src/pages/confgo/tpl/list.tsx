@@ -5,7 +5,7 @@ import { history } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import moment from 'moment';
 import PageList from '@/components/PageList';
-import { reqList,reqDelete } from './service';
+import { reqList, reqDelete } from './service';
 
 const urlList = '/confgo/tpl/list';
 const urlCreate = '/confgo/tpl/create';
@@ -59,7 +59,7 @@ export default class Base extends React.Component<HomeProps, any> {
 
   render() {
     const { listData } = this.state;
-    let {  tpl_type } = this.search.getParam();
+    let { tpl_type } = this.search.getParam();
 
     const columns = [
       {

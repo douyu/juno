@@ -72,37 +72,49 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 }
 
 // allClusterSync ..
-func (g *k8sImpl) allClusterStart(prefix string, excludeSuffix []string, labelAid string) {
+func (g *k8sImpl) allClusterStart(prefix []string, excludeSuffix []string) {
 	for zc, config := range g.clientMap {
-		g.clusterMap[zc] = newCluster(zc, prefix, labelAid, excludeSuffix, config, g.db)
+		cluster := newCluster(zc, prefix, excludeSuffix, config, g.db)
+		if cluster != nil {
+			g.clusterMap[zc] = cluster
+		}
+	}
+}
+func (g *k8sImpl) close() {
+	for zc, cluster := range g.clusterMap {
+		xlog.Info("k8sImpl",
+			xlog.String("zonecode", zc),
+			xlog.String("step", "close"),
+		)
+		cluster.syncPod.close()
+		delete(g.clusterMap, zc)
 	}
 }
 
-// 触发同步,aid==0同步全量数据
-func (g *k8sImpl) allClusterSync(namespace string, aid uint32) error {
+// 触发同步,appName==""同步全量数据
+func (g *k8sImpl) allClusterSync(namespace string, appName string) error {
 	//从数据库捞出所有namespace相关的domain配置，
-	dimainList, err := mysqlNamespaceList(namespace, aid)
+	dimainList, err := mysqlNamespaceList(namespace, appName)
 	if err != nil {
 		xlog.Error("k8sImpl",
 			xlog.String("err", err.Error()),
 			xlog.String("namespace", namespace),
 			xlog.String("step", "mysqlNamespaceList"),
-			xlog.Int("aid", int(aid)),
+			xlog.String("appName", appName),
 		)
 		return err
 	}
 	existDomain := map[string]bool{}
 	for zonecode, cluster := range g.clusterMap {
-		err := cluster.syncPod.sync(namespace, aid)
-		if err != nil {
+		err := cluster.syncPod.sync(namespace, appName)
+		if err != nil { // 报错跳过
 			xlog.Error("k8sImpl",
 				xlog.String("err", err.Error()),
 				xlog.String("namespace", namespace),
 				xlog.String("step", "sync"),
 				xlog.String("zonecode", zonecode),
-				xlog.Int("aid", int(aid)),
+				xlog.String("appName", appName),
 			)
-			return err
 		}
 		existDomain[cluster.syncPod.getDomain()] = true
 	}
@@ -112,9 +124,9 @@ func (g *k8sImpl) allClusterSync(namespace string, aid uint32) error {
 			xlog.Warn("k8sImpl",
 				xlog.String("namespace", namespace),
 				xlog.String("domain", domain),
-				xlog.Int("aid", int(aid)),
+				xlog.String("appName", appName),
 			)
-			cleanByDomain(namespace, aid, domain)
+			cleanByDomain(namespace, appName, domain)
 		}
 	}
 	return nil

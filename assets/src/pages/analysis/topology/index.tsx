@@ -8,7 +8,6 @@ import moment from 'moment';
 import { history } from '@@/core/history';
 import { reqDelete } from '@/pages/resource/app/service';
 
-
 import * as echarts from 'echarts';
 
 const urlList = '/analysis/topology';
@@ -81,7 +80,7 @@ export default class ServiceTopology extends Component {
         this.topology.hideLoading();
         if (res.code != 0) {
           message.error(res.msg);
-          return
+          return;
         }
         this.renderTopology(res.data || []);
 
@@ -155,7 +154,7 @@ export default class ServiceTopology extends Component {
         message.error(res.msg);
         return false;
       }
-      console.log("-------> res.data",res.data);
+      console.log('-------> res.data', res.data);
       this.setState({
         listData: res.data,
       });
@@ -186,20 +185,19 @@ export default class ServiceTopology extends Component {
     // this.renderTopology(relations)
   };
 
-  onSubmit=(value)=>{
-    console.log("######### onSubmit",value);
+  onSubmit = (value) => {
+    console.log('######### onSubmit', value);
     this.search.submit(value);
-    console.log("######### this.queryObj",this.queryObj);
+    console.log('######### this.queryObj', this.queryObj);
     this.issueDispatch(value);
   };
 
-  onReset=(value)=>{
-    console.log("######### onReset",value);
+  onReset = (value) => {
+    console.log('######### onReset', value);
     this.search.reset(value);
-    console.log("######### this.queryObj",this.queryObj);
+    console.log('######### this.queryObj', this.queryObj);
     this.issueDispatch({});
   };
-
 
   render() {
     const {
@@ -263,11 +261,11 @@ export default class ServiceTopology extends Component {
         key: 'update_time',
         render: (text) => {
           if (typeof text === 'number') {
-              return moment(text * 1000).format('YYYY-MM-DD HH:mm:ss');
+            return moment(text * 1000).format('YYYY-MM-DD HH:mm:ss');
           }
           return text;
+        },
       },
-      }
     ];
     return (
       <PageHeaderWrapper>

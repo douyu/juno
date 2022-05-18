@@ -4,6 +4,7 @@ import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 //import favicon from '../favicon.png';
 import MonacoEditorWebpackPlugin from 'monaco-editor-webpack-plugin';
+import CompressionPlugin from 'compression-webpack-plugin';
 import scripts from './scripts';
 import styles from './styles';
 const { REACT_APP_ENV } = process.env;
@@ -14,6 +15,17 @@ export default defineConfig({
   dva: {
     hmr: true,
   },
+  analyze: {
+    analyzerMode: 'server',
+    analyzerHost: '0.0.0.0',
+    analyzerPort: 8888,
+    openAnalyzer: true,
+    // generate stats file while ANALYZE_DUMP exist
+    generateStatsFile: false,
+    statsFilename: 'stats.json',
+    logLevel: 'info',
+    defaultSizes: 'parsed', // stat  // gzip
+  },
   styles: styles,
   mfsu: {},
   externals: {
@@ -21,9 +33,9 @@ export default defineConfig({
     echarts: 'echarts',
     // lodash: '_',
     'prettier/standalone': 'prettier',
-    react: 'React',
-    'react-dom': 'ReactDOM',
-    antd: 'antd',
+    // react: 'React',
+    // 'react-dom': 'ReactDOM',
+    // antd: 'antd',
     codemirror: 'CodeMirror',
   },
   scripts: scripts,
@@ -96,6 +108,11 @@ export default defineConfig({
                   path: '/analysis/grafana',
                   name: 'Grafana',
                   component: './analysis/grafana/index',
+                },
+                {
+                  path: '/analysis/proxy',
+                  name: 'Grafana',
+                  component: './proxy/index',
                 },
                 {
                   name: '依赖拓扑',
@@ -254,6 +271,11 @@ export default defineConfig({
                   component: './manage/manage',
                 },
                 {
+                  name: '代理设置',
+                  path: '/admin/proxy',
+                  component: './analysis/proxy/index',
+                },
+                {
                   name: 'Access Tokens',
                   path: '/admin/accessTokens',
                   component: './manage/AccessTokens',
@@ -308,6 +330,15 @@ export default defineConfig({
         ],
       },
     ]);
-  }
- 
+    if (process.env.NODE_ENV === 'production') {
+      //gzip压缩
+      config.plugin('compression-webpack-plugin').use(CompressionPlugin, [
+        {
+          test: /\.js$|\.html$|\.css$/, //匹配文件名
+          threshold: 10240, //对超过10k的数据压缩
+          deleteOriginalAssets: false, //不删除源文件
+        },
+      ]);
+    }
+  },
 });

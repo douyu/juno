@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { connect } from 'dva';
 import $ from 'jquery';
@@ -10,8 +9,6 @@ import { Empty } from 'antd';
 import styles from './index.less';
 
 function GrafanaPannel(props: any) {
-
-
   const ref = useRef<any>();
   const granfanRef = useRef<any>();
   let [iframeVisible, setIframeVisible] = useState(false);
@@ -50,8 +47,18 @@ function GrafanaPannel(props: any) {
   console.log('renderGrafana -> zoneCode', zoneCode);
 
   const datasource = `${env}.${zoneCode}.${currentVersion.name || ''}`;
-  const url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
-
+  let url = '';
+  //if use pattern like this.  'var-appname=#APP_NAME&var-env=#ENV&var-datasource=#DATASOURCE&var-aid=#AID&from=now-30m&to=now';
+  if (/#DATASOURCE/g.test(dashboardPath)) {
+    url = dashboardPath;
+    url = url.replaceAll('#APP_NAME', appName);
+    url = url.replaceAll('#ENV', env);
+    url = url.replaceAll('#DATASOURCE', datasource);
+    url = url.replaceAll('#AID', aid);
+  } else {
+    // compatiable with the original way to get grafana path
+    url = `${dashboardPath}&var-appname=${appName}&var-env=${env}&var-datasource=${datasource}&var-aid=${aid}&from=now-30m&to=now`;
+  }
   return (
     <div
       style={{
@@ -59,7 +66,7 @@ function GrafanaPannel(props: any) {
         position: 'relative',
         display: 'flex',
         flex: 'auto',
-        marginLeft: iframeVisible ? 0 : -68,
+        marginLeft: iframeVisible ? 0 : -60,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
@@ -70,7 +77,7 @@ function GrafanaPannel(props: any) {
         onClick={() => {
           //触发全屏的时候将sidemenu给隐藏
           if (!isFullscreen) {
-            $(granfanRef.current.contentDocument).find('sidemenu').css({ display: 'none' });
+            $(granfanRef.current.contentDocument).find('.sidemenu').css({ display: 'none' });
             setIframeVisible(true);
           }
           toggleFull();

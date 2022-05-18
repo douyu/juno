@@ -17,8 +17,16 @@ let configLockIntervalId = null;
 let lockConfigId = null;
 
 function Editor(props) {
-  const { currentConfig, mode, configFileLoading, currentContent, currentUser, historyList } =
-    props;
+  const {
+    appName,
+    env,
+    currentConfig,
+    mode,
+    configFileLoading,
+    currentContent,
+    currentUser,
+    historyList,
+  } = props;
   const currentEditUser = currentConfig?.current_edit_user;
   const [insertModalCB, setInsertModalCB] = useState(null);
   const [publishModalVisible, setPublishModalVisible] = useState(false);
@@ -225,9 +233,9 @@ function Editor(props) {
               发布配置
               <ModalPublish
                 visible={publishModalVisible}
-                onCancel={(e) =>{
+                onCancel={(e) => {
                   e.stopPropagation();
-                  setPublishModalVisible(false)
+                  setPublishModalVisible(false);
                 }}
                 configID={currentConfig && currentConfig.id}
                 onSubmit={(version) => {
@@ -243,6 +251,14 @@ function Editor(props) {
                       },
                       callback: () => {
                         setPublishModalVisible(false);
+                        console.log(currentConfig);
+                        props.dispatch({
+                          type: 'config/loadConfigInfo',
+                          payload: {
+                            appName,
+                            env,
+                          },
+                        });
                       },
                     });
                   }

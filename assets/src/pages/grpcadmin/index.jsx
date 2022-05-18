@@ -1,28 +1,24 @@
 import React, { PureComponent } from 'react';
-import View from "./rpc";
-import {connect} from "dva";
-import {Card} from "antd";
-import AppHeader from "./components/Header"
-import {routerRedux} from "dva/router";
+import View from './rpc';
+import { connect } from 'dva';
+import { Card } from 'antd';
+import AppHeader from './components/Header';
+import { routerRedux } from 'dva/router';
 
-@connect(({ monitorModel, loading}) => ({
+@connect(({ monitorModel, loading }) => ({
   appIdcList: [],
-
 }))
 export default class MonitorIndex extends PureComponent {
   constructor(props) {
     super(props);
-
   }
 
-  componentDidMount() {
-  }
-
+  componentDidMount() {}
 
   getAppInfo = (value) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "monitorModel/getAppInfo",
+      type: 'monitorModel/getAppInfo',
       payload: {
         appName: value,
       },
@@ -32,7 +28,7 @@ export default class MonitorIndex extends PureComponent {
   setEnv = (value) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "monitorModel/setEnv",
+      type: 'monitorModel/setEnv',
       payload: {
         env: value,
       },
@@ -42,7 +38,7 @@ export default class MonitorIndex extends PureComponent {
   setIdcCode = (value) => {
     const { dispatch } = this.props;
     dispatch({
-      type: "monitorModel/setIdcCode",
+      type: 'monitorModel/setIdcCode',
       payload: {
         idcCode: value,
       },
@@ -50,25 +46,29 @@ export default class MonitorIndex extends PureComponent {
   };
 
   render() {
-    const {appName,appInfo, version, appIdcList } = this.props;
-    const {env, idcCode} = this.props;
+    const { appName, appInfo, version, appIdcList } = this.props;
+    const { env, idcCode } = this.props;
     let view = null;
-    view = (<View
-      appName={appName}
-      appInfo={appInfo}
-      appIdcList={appIdcList}
-      env={env}
-      idcCode={idcCode}
-    />);
+    view = (
+      <View
+        appName={appName}
+        appInfo={appInfo}
+        appIdcList={appIdcList}
+        env={env}
+        idcCode={idcCode}
+      />
+    );
 
-    return <Card>
-      {/*<AppHeader*/}
-      {/*  appInfo={appInfo}*/}
-      {/*  appIdcList={appIdcList}*/}
-      {/*  env={env}*/}
-      {/*  idcCode={idcCode}*/}
-      {/*/>*/}
-      {view}
-    </Card>;
+    return (
+      <Card>
+        {/*<AppHeader*/}
+        {/*  appInfo={appInfo}*/}
+        {/*  appIdcList={appIdcList}*/}
+        {/*  env={env}*/}
+        {/*  idcCode={idcCode}*/}
+        {/*/>*/}
+        {view}
+      </Card>
+    );
   }
 }

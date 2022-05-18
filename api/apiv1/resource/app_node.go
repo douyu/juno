@@ -1,7 +1,7 @@
 package resource
 
 import (
-	"strconv"
+	"strings"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
@@ -30,16 +30,17 @@ func AppNodeInfo(c echo.Context) error {
 	return output.JSON(c, output.MsgOk, "success", info)
 }
 func AppNodeListSync(c echo.Context) error {
-	aid, _ := strconv.ParseUint(c.QueryParam("aid"), 10, 32)
-	if aid == 0 {
-		return output.JSON(c, output.MsgErr, "aid is null")
+	appName := c.QueryParam("appName")
+	if appName == "" {
+		return output.JSON(c, output.MsgErr, "appName is null")
 	}
-	err := k8s.Sync(uint32(aid))
+	err := k8s.Sync(appName)
 	if err != nil {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 	return output.JSON(c, output.MsgOk, "success")
 }
+
 func AppNodeList(c echo.Context) error {
 	var (
 		err error
@@ -50,6 +51,14 @@ func AppNodeList(c echo.Context) error {
 		return output.JSON(c, output.MsgErr, err.Error())
 	}
 
+	if reqModel.Aid > 0 {
+		res, err := resource.Resource.GetApp(reqModel.Aid)
+		if err != nil {
+			return output.JSON(c, output.MsgErr, "error", err.Error())
+		}
+		reqModel.AppName = res.AppName
+		reqModel.Aid = 0 // 查询时不用aid来进行判断
+	}
 	list, pagination, err := resource.Resource.GetAppNodeList(db.AppNode{
 		AppName:  reqModel.AppName,
 		Aid:      reqModel.Aid,
@@ -124,6 +133,10 @@ func AppEnvZoneList(c echo.Context) error {
 	envZoneMap := make(map[string][]zone)
 
 	for _, appNode := range preNodes {
+		// filter invalid data
+		if strings.TrimSpace(appNode.ZoneName) == "" {
+			continue
+		}
 		if _, ok := record[appNode.Env+"_"+appNode.ZoneCode]; !ok {
 			envZoneMap[appNode.Env] = append(envZoneMap[appNode.Env], zone{
 				ZoneCode: appNode.ZoneCode,

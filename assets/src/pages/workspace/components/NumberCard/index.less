@@ -1,50 +1,49 @@
 .numberCard {
-    //padding: 20px;
-    box-sizing: content-box;
-    display: inline-block;
-    width: 220px;
-    height: 180px;
+  //padding: 20px;
+  box-sizing: content-box;
+  display: inline-block;
+  width: 220px;
+  height: 180px;
 
-    .wrapper {
-        @contentHeight: 120px;
-        @titleHeight: 50px;
-        display: grid;
-        grid-template-columns: auto 90px;
-        height: 100%;
-        padding: 20px;
-        //cursor: pointer;
+  .wrapper {
+    @contentHeight: 120px;
+    @titleHeight: 50px;
+    display: grid;
+    grid-template-columns: auto 90px;
+    height: 100%;
+    padding: 20px;
+    //cursor: pointer;
 
-        border-radius: 5px;
-        background-color: #fff;
-        box-shadow: 0 0 10px rgba(195, 213, 221, 0.59), 0 0 10px rgba(0, 0, 0, 0.08);
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(195, 213, 221, 0.59), 0 0 10px rgba(0, 0, 0, 0.08);
 
-        //&:hover {
-        //    box-shadow: 0 0 10px rgba(195, 213, 221, 0.59), 0 5px 20px rgba(0, 0, 0, 0.3);
-        //    transition: all ease-in 100ms;
-        //}
+    //&:hover {
+    //    box-shadow: 0 0 10px rgba(195, 213, 221, 0.59), 0 5px 20px rgba(0, 0, 0, 0.3);
+    //    transition: all ease-in 100ms;
+    //}
 
-        .body {
-            .title {
-                height: @titleHeight;
-                font-size: 18px;
-                color: #c3c3c3;
-            }
+    .body {
+      .title {
+        height: @titleHeight;
+        font-size: 18px;
+        color: #c3c3c3;
+      }
 
-            .content {
-                box-sizing: border-box;
-                height: @contentHeight - @titleHeight;
-                line-height: @contentHeight - @titleHeight;
-                font-weight: bold;
-                font-size: 48px;
-                color: #333;
-
-            }
-        }
-
-        .icon {
-            font-size: 80px;
-            text-align: right;
-            line-height: @contentHeight;
-        }
+      .content {
+        box-sizing: border-box;
+        height: @contentHeight - @titleHeight;
+        line-height: @contentHeight - @titleHeight;
+        font-weight: bold;
+        font-size: 48px;
+        color: #333;
+      }
     }
+
+    .icon {
+      font-size: 80px;
+      text-align: right;
+      line-height: @contentHeight;
+    }
+  }
 }

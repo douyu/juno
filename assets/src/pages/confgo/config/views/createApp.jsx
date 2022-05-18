@@ -1,5 +1,5 @@
-import React from "react";
-import { Modal, Select } from "antd";
+import React from 'react';
+import { Modal, Select } from 'antd';
 
 const Option = Select.Option;
 
@@ -20,7 +20,7 @@ export default class View extends React.Component {
         visible={this.state.showAddProject}
         onCancel={() => {
           this.setState({
-            showAddProject: false
+            showAddProject: false,
           });
         }}
         footer={null}
@@ -29,11 +29,11 @@ export default class View extends React.Component {
         <div>
           <Select
             showSearch
-            style={{ width: "80%", marginLeft: "8px" }}
+            style={{ width: '80%', marginLeft: '8px' }}
             placeholder="选择应用"
             value={this.state.appName}
             onChange={this.changeApp}
-            onSelect={e => {}}
+            onSelect={(e) => {}}
             allowClear
           >
             {apps.map((v, i) => {

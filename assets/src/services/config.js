@@ -57,7 +57,9 @@ export async function loadConfigDiff(configID, historyID) {
 }
 
 export async function loadConfigVersionDiff(appName, env, serviceVersion, publishVersion) {
-  return request(`/api/admin/confgov2/config/diff?appName=${appName}&env=${env}&serviceVersion=${serviceVersion}&publishVersion=${publishVersion}`);
+  return request(
+    `/api/admin/confgov2/config/diff?appName=${appName}&env=${env}&serviceVersion=${serviceVersion}&publishVersion=${publishVersion}`,
+  );
 }
 
 export async function deleteConfig(id) {
@@ -67,20 +69,22 @@ export async function deleteConfig(id) {
 }
 
 export async function fetchInstanceConfig(id, hostName) {
-  return request(`/api/admin/confgov2/config/instance/configContent?${stringify({
-    id,
-    host_name: hostName
-  })}`)
+  return request(
+    `/api/admin/confgov2/config/instance/configContent?${stringify({
+      id,
+      host_name: hostName,
+    })}`,
+  );
 }
 
 export async function fetchLock(id) {
   return request(`/api/admin/confgov2/config/lock?id=${id}`, {
-    method: 'POST'
-  })
+    method: 'POST',
+  });
 }
 
 export async function unLock(id) {
   return request(`/api/admin/confgov2/config/unlock?id=${id}`, {
-    method: 'POST'
-  })
+    method: 'POST',
+  });
 }

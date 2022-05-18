@@ -8,21 +8,26 @@
 export default {
   dev: {
     '/ant/js': {
-      target: 'http://localhost:8000',
+      target: 'http://localhost:9999',
       changeOrigin: true,
       pathRewrite: { '^/ant': '' },
     },
     '/api/admin': {
-      target: 'http://192.168.56.101:50000',
+      target: 'http://localhost:50000',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'http://192.168.56.101:50000',
+      target: 'http://juno.pre.dz11.com',
       changeOrigin: true,
     },
     '/grafana': {
-      target: 'http://jupiterconsole.douyu.com',
+      target: 'http://juno.pre.dz11.com',
+      changeOrigin: true,
+    },
+    '/proxy': {
+      target: 'http://localhost:50000',
+      changeOrigin: true,
     },
   },
   test: {

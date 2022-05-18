@@ -3,10 +3,6 @@ package service
 import (
 	"time"
 
-	"github.com/douyu/juno/internal/pkg/service/k8s"
-
-	"github.com/douyu/juno/internal/pkg/service/loggerplatform"
-
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appDep"
@@ -19,10 +15,13 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpctest"
 	"github.com/douyu/juno/internal/pkg/service/httptest"
+	"github.com/douyu/juno/internal/pkg/service/k8s"
+	"github.com/douyu/juno/internal/pkg/service/loggerplatform"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
 	"github.com/douyu/juno/internal/pkg/service/parse"
 	"github.com/douyu/juno/internal/pkg/service/permission"
 	"github.com/douyu/juno/internal/pkg/service/pprof"
+	"github.com/douyu/juno/internal/pkg/service/proxyintegrat"
 	sresource "github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/internal/pkg/service/taskplatform"
@@ -51,7 +50,7 @@ func Init() (err error) {
 	user.Init(invoker.JunoMysql)
 
 	analysis.InitAnalysis(invoker.JunoMysql)
-
+	proxyintegrat.Init(invoker.JunoMysql)
 	system.InitSystem(invoker.JunoMysql)
 	pprof.InitPprof(invoker.JunoMysql)
 
