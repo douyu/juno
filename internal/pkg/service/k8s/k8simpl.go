@@ -34,7 +34,13 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 	for zoneCode, kcItem := range kc {
 		apiServerURL, err := url.Parse(kcItem.Domain)
 		if err != nil {
-			panic("k8s client init error, domain:" + kcItem.Domain + err.Error())
+			xlog.Error("k8sWork",
+				xlog.String("step", "url.Parse"),
+				xlog.String("zoneCode", zoneCode),
+				xlog.String("host", kcItem.Domain),
+				xlog.String("err", err.Error()),
+			) 
+			continue
 		}
 		// 开始运行之前先dial一下地址，避免一直报错
 		conn, err := net.DialTimeout("tcp", apiServerURL.Host, time.Second*3)
