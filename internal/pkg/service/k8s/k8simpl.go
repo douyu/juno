@@ -39,7 +39,7 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 				xlog.String("zoneCode", zoneCode),
 				xlog.String("host", kcItem.Domain),
 				xlog.String("err", err.Error()),
-			)
+			) 
 			continue
 		}
 		// 开始运行之前先dial一下地址，避免一直报错
