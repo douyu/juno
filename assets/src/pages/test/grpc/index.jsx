@@ -332,7 +332,7 @@ export default class GrpcDebug extends React.Component {
       content: '确认删除该用例吗？删除后无法恢复',
       okText: '是的',
       cancelText: '我再想想',
-      onCancel: () => {},
+      onCancel: () => { },
       onOk: () => {
         dispatch({
           type: 'grpcDebugModel/deleteUserCase',
@@ -448,17 +448,17 @@ export default class GrpcDebug extends React.Component {
     } = this.props;
     let addrOptions = node_addr_list?.hosts
       ? node_addr_list.hosts
-          .filter((i) => i.env !== 'prod' && i.env !== 'gray')
-          .map((item) => {
-            return (
-              <AutoComplete.Option key={item.addr} value={item.addr + ':' + node_addr_list.port}>
-                <Tag>{item.env}</Tag>
-                <span>
-                  {item.addr}:{node_addr_list.port}
-                </span>
-              </AutoComplete.Option>
-            );
-          })
+        .filter((i) => i.env !== 'prod' && i.env !== 'gray')
+        .map((item) => {
+          return (
+            <AutoComplete.Option key={item.addr} value={item.addr + ':' + node_addr_list.port}>
+              <Tag>{item.env}</Tag>
+              <span>
+                {item.addr}:{node_addr_list.port}
+              </span>
+            </AutoComplete.Option>
+          );
+        })
       : [];
     if (settings && settings.localhost) {
       addrOptions.push(
@@ -592,8 +592,8 @@ export default class GrpcDebug extends React.Component {
                           />
                           {method.use_cases
                             ? method.use_cases.map((tc, id) => {
-                                return <TreeNode title={tc.name} key={`case:${tc.id}`} isLeaf />;
-                              })
+                              return <TreeNode title={tc.name} key={`case:${tc.id}`} isLeaf />;
+                            })
                             : null}
                         </TreeNode>
                       );

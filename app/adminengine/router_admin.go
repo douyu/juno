@@ -27,7 +27,6 @@ import (
 	"github.com/douyu/juno/api/apiv1/confgov2"
 	"github.com/douyu/juno/api/apiv1/confgov2/configresource"
 	configstatics "github.com/douyu/juno/api/apiv1/confgov2/configstatistics"
-	"github.com/douyu/juno/api/apiv1/cronjob"
 	etcdHandle "github.com/douyu/juno/api/apiv1/etcd"
 	"github.com/douyu/juno/api/apiv1/event"
 	"github.com/douyu/juno/api/apiv1/loggerplatform"
@@ -293,21 +292,6 @@ func apiAdmin(server *xecho.Server) {
 			platformG.GET("/pipeline/tasks/steps", core.Handle(platform.TaskSteps))
 			platformG.GET("/worker/zones", core.Handle(platform.WorkerZones))
 		}
-	}
-
-	cronjobG := g.Group("/cronjob", loginAuthWithJSON)
-	{
-		// Job
-		cronjobG.GET("/list", core.Handle(cronjob.ListJob))
-		cronjobG.POST("/create", core.Handle(cronjob.CreateJob))
-		cronjobG.POST("/update", core.Handle(cronjob.UpdateJob))
-		cronjobG.POST("/delete", core.Handle(cronjob.DeleteJob))
-		cronjobG.POST("/dispatch", core.Handle(cronjob.Dispatch)) // 手动触发操作
-
-		// Task
-		taskG := cronjobG.Group("/task")
-		taskG.GET("/list", core.Handle(cronjob.ListTask))     // 任务列表
-		taskG.GET("/detail", core.Handle(cronjob.DetailTask)) // 任务详情（日志等）
 	}
 
 	analysisGroup := g.Group("/analysis", loginAuthWithJSON)

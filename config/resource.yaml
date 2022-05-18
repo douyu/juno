@@ -127,8 +127,6 @@ permission:
           - path: /api/admin/resource/node/statics
             name: 节点信息统计
             method: GET
-      - name: Grafana
-        path: /analysis/grafana
       - name: 代理功能
         path: /analysis/proxy  
         api:
@@ -166,9 +164,6 @@ permission:
           - path: /api/admin/analysis/register/list
             method: GET
             name: 注册列表
-  - name: 任务中心
-    icon: ClockCircleOutlined
-    path: /cronjob
   - name: 资源中心
     path: /resource
     icon: UngroupOutlined
