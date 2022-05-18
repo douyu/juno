@@ -132,17 +132,6 @@ export default defineConfig({
               ],
             },
             {
-              path: '/cronjob',
-              name: '任务中心',
-              icon: 'ClockCircleOutlined',
-              component: './cronjob/JobList',
-            },
-            {
-              name: 'Task列表',
-              path: '/cronjob/jobs/:jobId/tasks',
-              component: './cronjob/TaskList',
-            },
-            {
               path: '/resource',
               name: '资源中心',
               icon: 'UngroupOutlined',
@@ -236,22 +225,6 @@ export default defineConfig({
                   name: '应用权限',
                   path: '/permission/app',
                   component: './permission/App',
-                },
-              ],
-            },
-            {
-              path: '/test',
-              name: '测试平台',
-              routes: [
-                {
-                  name: 'GRPC测试',
-                  path: '/test/grpc',
-                  component: './test/grpc/index',
-                },
-                {
-                  name: 'HTTP测试',
-                  path: '/test/http',
-                  component: './test/http/index',
                 },
               ],
             },

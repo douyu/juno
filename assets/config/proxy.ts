@@ -18,11 +18,11 @@ export default {
       pathRewrite: { '^': '' },
     },
     '/api/v1': {
-      target: 'http://juno.pre.dz11.com',
+      target: 'http://localhost:50000',
       changeOrigin: true,
     },
     '/grafana': {
-      target: 'http://juno.pre.dz11.com',
+      target: 'http://localhost:50000',
       changeOrigin: true,
     },
     '/proxy': {

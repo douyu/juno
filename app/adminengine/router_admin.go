@@ -18,10 +18,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/douyu/juno/api/apiv1/plugin"
-	"github.com/douyu/juno/api/apiv1/provider"
-	"github.com/douyu/juno/api/apiv1/proxyintegrat"
-
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/confgov2"
@@ -32,13 +28,13 @@ import (
 	"github.com/douyu/juno/api/apiv1/loggerplatform"
 	"github.com/douyu/juno/api/apiv1/openauth"
 	"github.com/douyu/juno/api/apiv1/permission"
+	"github.com/douyu/juno/api/apiv1/plugin"
 	pprofHandle "github.com/douyu/juno/api/apiv1/pprof"
+	"github.com/douyu/juno/api/apiv1/provider"
+	"github.com/douyu/juno/api/apiv1/proxyintegrat"
 	"github.com/douyu/juno/api/apiv1/resource"
 	"github.com/douyu/juno/api/apiv1/static"
 	"github.com/douyu/juno/api/apiv1/system"
-	"github.com/douyu/juno/api/apiv1/test/grpc"
-	http2 "github.com/douyu/juno/api/apiv1/test/http"
-	"github.com/douyu/juno/api/apiv1/test/platform"
 	"github.com/douyu/juno/api/apiv1/user"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/app/middleware"
@@ -243,57 +239,6 @@ func apiAdmin(server *xecho.Server) {
 
 		resourceGroup.GET("/app_env_zone/list", resource.AppEnvZoneList)
 	}
-
-	// 测试平台组
-	testGroup := g.Group("/test", loginAuthWithJSON)
-	{
-		// GRPC 测试
-		grpcG := testGroup.Group("/grpc")
-		{
-			//grpcG.GET("/proto/methods", nil)        // 获取 PB Method 列表
-			grpcG.GET("/proto", core.Handle(grpc.Proto))                                 // PB 列表
-			grpcG.GET("/proto/methods/detail", core.Handle(grpc.MethodDetail))           // PB Method 详情
-			grpcG.POST("/proto/bind", core.Handle(grpc.BindProtoToApp))                  // 绑定 PB 到应用
-			grpcG.GET("/appServiceTree", core.Handle(grpc.AppServiceTree))               // app > pb-service 树
-			grpcG.GET("/services", core.Handle(grpc.Services))                           // services -> method -> use-cases tree
-			grpcG.GET("/useCases", core.Handle(grpc.UseCases))                           // pb-method > use-cases 树
-			grpcG.POST("/useCases/create", core.Handle(grpc.CreateUseCase))              // 创建用例
-			grpcG.POST("/useCases/update", core.Handle(grpc.UpdateUseCase))              // 更新用例
-			grpcG.POST("/useCases/delete", core.Handle(grpc.DeleteUseCase))              // 删除用例
-			grpcG.GET("/useCases/detail", core.Handle(grpc.UseCaseDetail))               // 获取用例详情
-			grpcG.POST("/request/send", core.Handle(grpc.SendRequest))                   // 发送 GRPC 请求
-			grpcG.GET("/request/history", core.Handle(grpc.RequestHistory))              // 请求历史
-			grpcG.GET("/request/history/detail", core.Handle(grpc.RequestHistoryDetail)) // 历史详情
-		}
-
-		httpG := testGroup.Group("/http")
-		{
-			httpG.POST("/collections/create", core.Handle(http2.CreateCollection)) // 创建 Collection
-			httpG.GET("/collections", core.Handle(http2.CollectionList))           // Collection->用例 列表
-			httpG.POST("/collections/delete", core.Handle(http2.DeleteCollection)) // 删除 collection
-			httpG.GET("/useCases/detail", core.Handle(http2.UseCaseDetail))        // 用例详情
-			httpG.POST("/useCases/create", core.Handle(http2.CreateUseCase))       // 创建用例
-			httpG.POST("/useCases/update", core.Handle(http2.UpdateUseCase))       // 更新用例
-			httpG.POST("/useCases/delete", core.Handle(http2.DeleteUseCase))       // 删除用例
-			httpG.POST("/request/send", core.Handle(http2.SendRequest))            // 发送请求
-			httpG.GET("/request/history", core.Handle(http2.RequestHistory))       // 请求历史
-			httpG.GET("/request/history/detail", core.Handle(http2.RequestDetail)) // 请求历史详情
-		}
-
-		// 自动化测试平台
-		platformG := testGroup.Group("/platform")
-		{
-			platformG.POST("/pipeline/create", core.Handle(platform.CreatePipeline))
-			platformG.GET("/pipeline/list", core.Handle(platform.ListPipeline))
-			platformG.POST("/pipeline/update", core.Handle(platform.UpdatePipeline))
-			platformG.POST("/pipeline/run", core.Handle(platform.RunPipeline))
-			platformG.GET("/pipeline/tasks", core.Handle(platform.TaskList))
-			platformG.POST("/pipeline/delete", core.Handle(platform.DeletePipeline))
-			platformG.GET("/pipeline/tasks/steps", core.Handle(platform.TaskSteps))
-			platformG.GET("/worker/zones", core.Handle(platform.WorkerZones))
-		}
-	}
-
 	analysisGroup := g.Group("/analysis", loginAuthWithJSON)
 	{
 		analysisGroup.GET("/index", core.Handle(analysis.Index))

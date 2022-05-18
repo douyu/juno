@@ -23,7 +23,6 @@ import Etcd from '@/pages/etcd/etcd';
 import Applog from '@/pages/applog/applog';
 import { getFrameVersion } from '@/pages/monitor/services';
 import Event from '@/pages/app/components/Event';
-import Test from '@/pages/app/components/Test';
 import { Dispatch } from '@@/plugin-dva/connect';
 import styles from './style.less';
 import { setAppSearch, setAppSearchByAppName } from '@/utils/searchapppath';
@@ -504,11 +503,7 @@ export default class App extends React.Component<ConfgoBase & AppProps, any> {
             zoneList: this.state.zoneList,
             idcCode: this.state.zoneCode,
           })}
-          {this.props.setting.settings.test_platform?.enable && (
-            <TabPane tab={'Test'} key={'test'}>
-              <Test appName={appName} env={env} zoneCode={this.state.zoneCode} />
-            </TabPane>
-          )}
+         
         </Tabs>
       );
     }
