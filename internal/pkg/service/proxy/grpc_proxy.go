@@ -15,11 +15,13 @@
 package proxy
 
 import (
+	"context"
 	"net"
 	"time"
 
 	"github.com/cockroachdb/cmux"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/jupiter/pkg/xlog"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	pb "go.etcd.io/etcd/api/v3/etcdserverpb"
 	"go.etcd.io/etcd/client/pkg/v3/transport"
@@ -28,6 +30,7 @@ import (
 	"go.etcd.io/etcd/server/v3/etcdserver/api/v3election/v3electionpb"
 	"go.etcd.io/etcd/server/v3/etcdserver/api/v3lock/v3lockpb"
 	"go.etcd.io/etcd/server/v3/proxy/grpcproxy"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
@@ -101,8 +104,8 @@ func (gp *grpcProxy) startGRPCProxy() error {
 	}
 
 	kvp, _ := grpcproxy.NewKvProxy(client)
-	watchp, _ := grpcproxy.NewWatchProxy(client)
-	leasep, _ := grpcproxy.NewLeaseProxy(client)
+	watchp, _ := grpcproxy.NewWatchProxy(context.TODO(), zap.New(xlog.DefaultConfig().Core), client)
+	leasep, _ := grpcproxy.NewLeaseProxy(context.TODO(), client)
 	mainp := grpcproxy.NewMaintenanceProxy(client)
 	authp := grpcproxy.NewAuthProxy(client)
 	electionp := grpcproxy.NewElectionProxy(client)
@@ -150,7 +153,7 @@ func (gp *grpcProxy) newClientCfg() (*clientv3.Config, error) {
 	}
 
 	if gp.grpcProxyCA != "" {
-		tlsinfo.CAFile = gp.grpcProxyCA
+		tlsinfo.TrustedCAFile = gp.grpcProxyCA
 		cfgtls = &tlsinfo
 	}
 

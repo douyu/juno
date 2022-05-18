@@ -49,7 +49,7 @@ type (
 
 	// ReqDetailConfig ..
 	ReqDetailConfig struct {
-		ID uint `json:"id" validate:"required"`
+		ID uint `query:"id" validate:"required"`
 	}
 
 	// RespDetailConfig Contains configuration content
