@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
+	"github.com/douyu/juno/internal/pkg/service/aliyunlog"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
@@ -29,6 +30,10 @@ import (
 	"github.com/douyu/juno/pkg/auth/social"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/conf"
+)
+
+var (
+	AliyunLog *aliyunlog.Service
 )
 
 // Init service初始化。
@@ -100,6 +105,7 @@ func Init() (err error) {
 		},
 	})
 	loggerplatform.Init()
+	AliyunLog = aliyunlog.Init()
 	k8s.Init()
 	return
 }

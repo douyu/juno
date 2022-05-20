@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/douyu/juno/api/apiv1/aliyunlog"
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
 	"github.com/douyu/juno/api/apiv1/confgov2"
@@ -264,6 +265,8 @@ func apiAdmin(server *xecho.Server) {
 	}
 	//代理整合页面
 	proxyintegrat.Group(g.Group("/proxyintegrat", loginAuthWithJSON))
+	//代理整合页面
+	aliyunlog.Group(g.Group("/aliyunlog", loginAuthWithJSON))
 	//插件功能
 	plugin.Group(g.Group("/plugin", loginAuthWithJSON))
 	permissionG := g.Group("/permission", loginAuthWithJSON)

@@ -17,6 +17,11 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
+    '/api/url': {
+      target: 'http://clive.dz11.com',
+      changeOrigin: true,
+      pathRewrite: { '^': '/log' },
+    },
     '/api/v1': {
       target: 'http://localhost:50000',
       changeOrigin: true,

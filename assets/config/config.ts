@@ -111,8 +111,13 @@ export default defineConfig({
                 },
                 {
                   path: '/analysis/proxy',
-                  name: 'Grafana',
+                  name: 'proxy',
                   component: './proxy/index',
+                },
+                {
+                  path: '/analysis/aliyunlog',
+                  name: 'aliyunlog',
+                  component: './aliyunlog/index',
                 },
                 {
                   name: '依赖拓扑',

@@ -26,14 +26,8 @@ import (
 	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service"
-	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
-	"github.com/douyu/juno/internal/pkg/service/confgo"
-	"github.com/douyu/juno/internal/pkg/service/k8s"
 	"github.com/douyu/juno/internal/pkg/service/notify"
-	"github.com/douyu/juno/internal/pkg/service/openauth"
-	"github.com/douyu/juno/internal/pkg/service/proxyintegrat"
-	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/pb"
@@ -44,7 +38,6 @@ import (
 	"github.com/douyu/jupiter/pkg/flag"
 	"github.com/douyu/jupiter/pkg/governor"
 	"github.com/douyu/jupiter/pkg/server/xecho"
-	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
 )
 
@@ -96,11 +89,7 @@ func New() *Admin {
 		eng.serveHTTP,
 		eng.serveGovern,
 		eng.defers,
-		eng.initParseWorker,
-		eng.refreshProxyManage,
-		eng.initVersionWorker,
-		eng.initUserVisitWorker,
-		eng.initK8sListWorker,
+		eng.initWorker,
 	)
 
 	if err != nil {
@@ -192,6 +181,7 @@ func (eng *Admin) serveGovern() (err error) {
 		return
 	}
 	config := etcdv3.DefaultConfig()
+
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
 	config.Secure = cfg.Cfg.Register.Secure
@@ -269,71 +259,32 @@ func (eng *Admin) defers() (err error) {
 	return nil
 }
 
-func (eng *Admin) initWorker() (err error) {
-	{ // 定时刷新AccessToken任务
-		accessTokenUpdateCron := xcron.DefaultConfig().Build()
-		accessTokenUpdateCron.Schedule(xcron.Every(time.Minute), xcron.FuncJob(openauth.OpenAuthService.IntervalUpdateTokens))
+// func (eng *Admin) initWorker() (err error) {
+// 	{ // 定时刷新AccessToken任务
+// 		accessTokenUpdateCron := xcron.DefaultConfig().Build()
+// 		accessTokenUpdateCron.Schedule(xcron.Every(time.Minute), xcron.FuncJob(openauth.OpenAuthService.IntervalUpdateTokens))
 
-		err = eng.Schedule(accessTokenUpdateCron)
+// 		err = eng.Schedule(accessTokenUpdateCron)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return
+// }
+
+func (eng *Admin) initWorker() (err error) {
+	workers := []func() error{
+		eng.initParseWorker,
+		eng.refreshProxyManage,
+		eng.initVersionWorker,
+		eng.initUserVisitWorker,
+		eng.initK8sListWorker,
+		eng.refreshAliyunLogMenu}
+	for _, f := range workers {
+		err = f()
 		if err != nil {
-			return err
+			return
 		}
 	}
 	return
-}
-
-func (eng *Admin) refreshProxyManage() (err error) {
-	refreshManage := xcron.DefaultConfig().Build()
-	refreshManage.Schedule(xcron.Every(time.Minute), xcron.FuncJob(proxyintegrat.RefreshProxyConfig))
-	err = eng.Schedule(refreshManage)
-	if err != nil {
-		return err
-	}
-	return
-}
-
-func (eng *Admin) initParseWorker() (err error) {
-	if cfg.Cfg.App.Mode == "local" {
-		return
-	}
-
-	// 获取配置解析依赖时间
-	interval := confgo.ConfuSrv.GetConfigParseWorkerTime()
-	// 默认值 7200s
-	if interval == 0 {
-		interval = 7200
-	}
-
-	cron := xcron.StdConfig("parse").Build()
-	cron.Schedule(xcron.Every(time.Second*time.Duration(interval)), xcron.FuncJob(confgo.ConfuSrv.ConfigParseWorker))
-	return eng.Schedule(cron)
-}
-
-func (eng *Admin) initVersionWorker() (err error) {
-	if cfg.Cfg.App.Mode == "local" {
-		return
-	}
-	cron := xcron.StdConfig("parse").Build()
-	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(appDep.AppDep.SyncAppVersion))
-	return eng.Schedule(cron)
-}
-
-// 每隔一天清理三个月前的 用户浏览记录数据
-func (eng *Admin) initUserVisitWorker() (err error) {
-	if cfg.Cfg.App.Mode == "local" {
-		return
-	}
-	cron := xcron.StdConfig("parse").Build()
-	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(user.User.CronCleanUserVisitRecord))
-	return eng.Schedule(cron)
-}
-
-// 每隔12小时同步k8s列表
-func (eng *Admin) initK8sListWorker() (err error) {
-	if cfg.Cfg.App.Mode == "local" {
-		return
-	}
-	cron := xcron.DefaultConfig().Build()
-	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(k8s.SyncAll))
-	return eng.Schedule(cron)
 }
