@@ -87,7 +87,7 @@
     "react-scrollbar": "^0.5.6",
     "resolve-cwd": "^3.0.0",
     "toml": "^3.0.0",
-    "umi": "^4.0.13",
+    "umi": "^3.5.17",
     "umi-request": "^1.0.8",
     "use-merge-value": "^1.0.1"
   },
