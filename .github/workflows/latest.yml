@@ -22,7 +22,7 @@ jobs:
       - name: yarn build dist
         run: |
           cd assets
-          yarn
+          yarn install
           yarn build
       - name: Set up Go 1.16
         uses: actions/setup-go@v2
