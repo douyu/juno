@@ -12,7 +12,7 @@ type RelationApps struct {
 type RespRelationApps struct {
 	Current  int            `json:"current"`
 	PageSize int            `json:"pageSize"`
-	Total    int            `json:"total"`
+	Total    int64          `json:"total"`
 	List     []RelationApps `json:"list"`
 	AddrList []string       `json:"addrList"`
 }

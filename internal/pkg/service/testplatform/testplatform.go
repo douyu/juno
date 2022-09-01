@@ -19,8 +19,8 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/testplatform/workerpool"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/jhump/protoreflect/desc"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
@@ -41,9 +41,9 @@ func ListPipeline(params view.ReqListPipeline) (pipelines []view.TestPipelineUV,
 		Select(
 			"test_pipeline.*, ? as count, ? as status",
 			option.DB.Model(&db.TestPipelineTask{}).Select("count(*) as count").
-				Where("pipeline_id = test_pipeline.id").SubQuery(),
+				Where("pipeline_id = test_pipeline.id"),
 			option.DB.Model(&db.TestPipelineTask{}).Select("status").
-				Where("pipeline_id = test_pipeline.id").Order("id desc").Limit(1).SubQuery(),
+				Where("pipeline_id = test_pipeline.id").Order("id desc").Limit(1),
 		).Where("app_name = ?", params.AppName).
 		Order("id desc")
 	if params.Env != "" {

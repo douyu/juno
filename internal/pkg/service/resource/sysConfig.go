@@ -1,6 +1,8 @@
 package resource
 
 import (
+	"errors"
+
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 )
@@ -16,7 +18,7 @@ func (r *resource) GetSysConfig(sysType int, setCate string) (info []db.SystemCo
 	}
 	err = dbConn.Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	return info, nil

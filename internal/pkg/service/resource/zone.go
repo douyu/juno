@@ -67,7 +67,7 @@ func (r *resource) CreateZone(item db.Zone, user *db.User) (err error) {
 	var info db.Zone
 	err = r.DB.Where("zone_code = ?", item.ZoneCode).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -87,7 +87,7 @@ func (r *resource) UpdateZone(item db.Zone, user *db.User) (err error) {
 	var info db.Zone
 	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -105,7 +105,7 @@ func (r *resource) DeleteZone(item db.Zone, user *db.User) (err error) {
 	var info db.Zone
 	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -114,7 +114,7 @@ func (r *resource) DeleteZone(item db.Zone, user *db.User) (err error) {
 		return
 	}
 	// 该可用区有node节点
-	var cnt int
+	var cnt int64
 	err = r.DB.Model(db.Node{}).Where("zone_code = ?", item.ZoneCode).Count(&cnt).Error
 	if err != nil {
 		return
@@ -139,19 +139,19 @@ func (r *resource) DeleteZone(item db.Zone, user *db.User) (err error) {
 }
 
 // 获取Region个数
-func (r *resource) GetRegionCnt() (cnt int) {
+func (r *resource) GetRegionCnt() (cnt int64) {
 	r.DB.Model(db.Zone{}).Group("region_code").Count(&cnt)
 	return
 }
 
 // 获取Zone个数
-func (r *resource) GetZoneCnt() (cnt int) {
+func (r *resource) GetZoneCnt() (cnt int64) {
 	r.DB.Model(db.Zone{}).Group("zone_code").Count(&cnt)
 	return
 }
 
 // GetEnvCnt 获取环境个数
-func (r *resource) GetEnvCnt() (cnt int) {
+func (r *resource) GetEnvCnt() (cnt int64) {
 	r.DB.Model(db.Zone{}).Group("env").Count(&cnt)
 	return
 }

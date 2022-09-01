@@ -3,14 +3,15 @@ package confgov2
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/douyu/juno/internal/pkg/service/resource"
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/util/xgo"
 	"github.com/douyu/jupiter/pkg/util/xstring"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 )
 
 type ConfigStatusService struct {

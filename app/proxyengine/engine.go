@@ -69,14 +69,14 @@ func (eng *Proxy) initConfig() (err error) {
 	jupiterConfig.Debug = cfg.Cfg.Logger.System.Debug
 	jupiterConfig.Level = cfg.Cfg.Logger.System.Level
 	jupiterConfig.Async = cfg.Cfg.Logger.System.Async
-	xlog.JupiterLogger = jupiterConfig.Build()
+	xlog.SetJupiter(jupiterConfig.Build())
 
 	bizConfig := xlog.DefaultConfig()
 	bizConfig.Name = cfg.Cfg.Logger.Biz.Name
 	bizConfig.Debug = cfg.Cfg.Logger.Biz.Debug
 	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
 	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
-	xlog.DefaultLogger = bizConfig.Build()
+	xlog.SetDefault(bizConfig.Build())
 
 	invoker.Init()
 	return

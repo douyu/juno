@@ -7,6 +7,7 @@ import (
 	"github.com/beeker1121/goque"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/jupiter/pkg/xlog"
+	"go.uber.org/zap"
 )
 
 type (
@@ -57,7 +58,7 @@ func (w *localWorker) start() {
 		taskItem, err := w.queue.Dequeue()
 		if err != nil {
 			if err != goque.ErrEmpty {
-				xlog.Errorf("dequeue failed", xlog.String("err", err.Error()))
+				xlog.Error("dequeue failed", zap.Error(err))
 			}
 			time.Sleep(3 * time.Second)
 			continue
@@ -65,7 +66,7 @@ func (w *localWorker) start() {
 
 		err = taskItem.ToObjectFromJSON(&task)
 		if err != nil {
-			xlog.Errorf("unmarshall task item failed", xlog.String("err", err.Error()))
+			xlog.Error("unmarshall task item failed", zap.Error(err))
 			continue
 		}
 	}

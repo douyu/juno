@@ -1,6 +1,6 @@
 package permission
 
-import "github.com/jinzhu/gorm"
+import "github.com/douyu/jupiter/pkg/store/gorm"
 
 type Option struct {
 	DB                 *gorm.DB

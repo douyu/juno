@@ -57,7 +57,7 @@ var (
 )
 
 func newSocialBase(name string, config *oauth2.Config, info *authconfig.OAuthInfo) *SocialBase {
-	logger := xlog.DefaultLogger
+	logger := xlog.Default()
 	return &SocialBase{
 		Config:         config,
 		log:            logger,

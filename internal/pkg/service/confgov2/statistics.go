@@ -5,7 +5,7 @@ import (
 	"github.com/douyu/juno/pkg/util"
 )
 
-func StatisticsEnv() (res []view.EnvStatic, total int, err error) {
+func StatisticsEnv() (res []view.EnvStatic, total int64, err error) {
 	dbConn := mysql.Table("configuration")
 	res = make([]view.EnvStatic, 0)
 	if err := dbConn.Count(&total).Error; err != nil {
@@ -18,7 +18,7 @@ func StatisticsEnv() (res []view.EnvStatic, total int, err error) {
 	return
 }
 
-func StatisticsCommit(start, end int64) (cmcCnt []view.CmcCnt, total int, err error) {
+func StatisticsCommit(start, end int64) (cmcCnt []view.CmcCnt, total int64, err error) {
 	dbConn := mysql.Table("configuration_history")
 	cmcCnt = make([]view.CmcCnt, 0)
 	if err := dbConn.Count(&total).Error; err != nil {

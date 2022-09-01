@@ -12,7 +12,7 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -39,7 +39,7 @@ func newK8sImpl(kc map[string]view.K8sConfig) apiServer {
 				xlog.String("zoneCode", zoneCode),
 				xlog.String("host", kcItem.Domain),
 				xlog.String("err", err.Error()),
-			) 
+			)
 			continue
 		}
 		// 开始运行之前先dial一下地址，避免一直报错

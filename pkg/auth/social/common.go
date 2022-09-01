@@ -11,6 +11,7 @@ import (
 	"github.com/douyu/juno/pkg/util/errutil"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/jmespath/go-jmespath"
+	"go.uber.org/zap"
 )
 
 var (
@@ -64,7 +65,7 @@ func HttpGet(client *http.Client, url string) (response HttpGetResponse, err err
 		return
 	}
 
-	xlog.Debugf("HTTP GET %s: %s %s", url, r.Status, string(response.Body))
+	xlog.Debug("HTTP GET finished", zap.String("url", url), zap.Any("status", r.Status), zap.String("body", string(response.Body)))
 
 	err = nil
 	return

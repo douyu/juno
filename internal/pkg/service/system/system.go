@@ -41,7 +41,7 @@ func (r *system) CreateOption(item db.Option, user *db.User) (err error) {
 	var info db.Option
 	err = r.db.Where("option_name = ?", item.OptionName).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -60,7 +60,7 @@ func (r *system) UpdateOption(item db.Option, user *db.User) (err error) {
 	var info db.Option
 	err = r.db.Where("id = ?", item.Id).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -78,7 +78,7 @@ func (r *system) DeleteOption(item db.Option, user *db.User) (err error) {
 	var info db.Option
 	err = r.db.Where("id = ?", item.Id).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错

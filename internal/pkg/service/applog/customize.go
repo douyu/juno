@@ -6,9 +6,9 @@ import (
 
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/errorconst"
-	"github.com/douyu/jupiter/pkg/util/xtime"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
+	"github.com/spf13/cast"
 )
 
 type customize struct {
@@ -26,7 +26,7 @@ type resp struct {
 //NewCustomize new customize
 func newCustomize() *customize {
 	return &customize{
-		client:       resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(xtime.Duration("3s")),
+		client:       resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(cast.ToDuration("3s")),
 		dashboardUrl: cfg.Cfg.AppLog.Default.DashboardUrl,
 		logStoreUrl:  cfg.Cfg.AppLog.Default.LogStoreUrl,
 	}

@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/douyu/juno/pkg/model/view/vproxyintegrat"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 var (

@@ -57,3 +57,5 @@ dist/
 *.tar.gz
 
 !assets/dist/README.md
+go.work
+go.work.sum

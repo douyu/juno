@@ -3,8 +3,8 @@ package grpctest
 import (
 	"path/filepath"
 
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 )
 
 var (

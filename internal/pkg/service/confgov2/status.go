@@ -167,7 +167,7 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 }
 
 func getConfigurationStatus(configurationID uint, hostName string) (res db.ConfigurationStatus, err error) {
-	query := mysql.Preload("ConfigurationPublish").Where("configuration_id=? and host_name=?", configurationID, hostName).Order("id desc", false).Find(&res)
+	query := mysql.Preload("ConfigurationPublish").Where("configuration_id=? and host_name=?", configurationID, hostName).Order("id desc").Find(&res)
 	if query.Error != nil {
 		err = query.Error
 		return
@@ -177,12 +177,12 @@ func getConfigurationStatus(configurationID uint, hostName string) (res db.Confi
 
 func getConfigurationHistory(configurationID uint) (res db.ConfigurationHistory, err error) {
 	configurationPublish := db.ConfigurationPublish{}
-	query := mysql.Where("configuration_id=?", configurationID).Order("created_at desc", false).First(&configurationPublish)
+	query := mysql.Where("configuration_id=?", configurationID).Order("created_at desc").First(&configurationPublish)
 	if query.Error != nil {
 		err = query.Error
 		return
 	}
-	queryHistory := mysql.Where("id=?", configurationPublish.ConfigurationHistoryID).Order("created_at desc", false).First(&res)
+	queryHistory := mysql.Where("id=?", configurationPublish.ConfigurationHistoryID).Order("created_at desc").First(&res)
 	if queryHistory.Error != nil {
 		err = queryHistory.Error
 		return

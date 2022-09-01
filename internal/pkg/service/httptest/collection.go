@@ -1,11 +1,12 @@
 package httptest
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -14,7 +15,7 @@ func CreateCollection(uid uint, req view.CreateHttpTestCollection) (collection v
 
 	err = option.DB.Where("app_name = ?", req.AppName).First(&app).Error
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = fmt.Errorf("应用不存在:" + req.AppName)
 		}
 

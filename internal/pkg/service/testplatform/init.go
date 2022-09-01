@@ -10,8 +10,8 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/testplatform/localworker"
 	"github.com/douyu/juno/internal/pkg/service/testplatform/workerpool"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 )
 
 type (

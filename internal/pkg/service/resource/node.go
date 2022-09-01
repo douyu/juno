@@ -62,7 +62,7 @@ func (r *resource) NodeDayCnt(start, end int64) (resp []db.NodeCnt, err error) {
 func (r *resource) PutNode(tx *gorm.DB, info db.Node) (err error) {
 	err = tx.Where("host_name = ?", info.HostName).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		xlog.Error("PutNode db.Node error", zap.Error(err), zap.String("host_name", info.HostName))
 		return
 	}
@@ -100,7 +100,7 @@ func (r *resource) CreateNode(tx *gorm.DB, item db.Node, user *db.User) (err err
 	var info db.Node
 	err = tx.Where("host_name = ?", item.HostName).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -122,7 +122,7 @@ func (r *resource) UpdateNode(item db.Node, user *db.User) (err error) {
 	var info db.Node
 	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -142,7 +142,7 @@ func (r *resource) DeleteNode(item db.Node, user *db.User) (err error) {
 	var info db.Node
 	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -165,7 +165,7 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 	)
 	err = r.DB.Where("host_name = ?", reqInfo.Hostname).Find(&info).Error
 	// return system error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 
@@ -259,19 +259,19 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 }
 
 // 获取节点个数
-func (r *resource) GetNodeCnt() (cnt int) {
+func (r *resource) GetNodeCnt() (cnt int64) {
 	r.DB.Model(db.Node{}).Count(&cnt)
 	return
 }
 
-func (r *resource) NodeTransferSource() (resp []db.Node, total int, err error) {
+func (r *resource) NodeTransferSource() (resp []db.Node, total int64, err error) {
 	sql := r.DB.Model(db.Node{})
 	sql.Count(&total)
 	err = sql.Order("host_name desc").Find(&resp).Error
 	return
 }
 
-func (r *resource) NodeTransferTarget(zoneCode string, env string) (resp []db.Node, total int, err error) {
+func (r *resource) NodeTransferTarget(zoneCode string, env string) (resp []db.Node, total int64, err error) {
 	sql := r.DB.Model(db.Node{}).Where("zone_code = ? and env = ?", zoneCode, env)
 	sql.Count(&total)
 	err = sql.Order("host_name desc").Find(&resp).Error

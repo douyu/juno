@@ -7,7 +7,7 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -409,7 +409,7 @@ func (u *userGroup) GetAppPerm(param view.ReqGetAppPerm) (resp view.RespGetAppPe
 	}
 
 	eg.Go(func() error {
-		return query.Count(resp.Pagination.Total).Error
+		return query.Count(&resp.Pagination.Total).Error
 	})
 
 	eg.Go(func() error {

@@ -12,8 +12,8 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/grpctest/grpctester"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )

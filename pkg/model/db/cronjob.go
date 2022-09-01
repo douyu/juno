@@ -3,7 +3,7 @@ package db
 import (
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 type (

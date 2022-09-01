@@ -34,7 +34,7 @@ func Init(o Option) {
 
 func Instance() *WSEvent {
 	if instance == nil {
-		xlog.Fatalf("wsevent MUST be initialized before call wsevent.Instance()")
+		xlog.Fatal("wsevent MUST be initialized before call wsevent.Instance()")
 	}
 
 	return instance

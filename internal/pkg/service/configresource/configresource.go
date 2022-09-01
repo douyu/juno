@@ -1,6 +1,7 @@
 package configresource
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -9,8 +10,8 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -49,7 +50,7 @@ func List(uid int, param view.ReqListConfigResource) (resp view.RespListConfigRe
 		query = query.Where("name like ?", "%"+param.Query+"%")
 	}
 	if param.Tag != "" {
-		subQuery := mysql.Model(&db.ConfigResourceTag{}).Select("config_resource_id").Where("value = ?", param.Tag).SubQuery()
+		subQuery := mysql.Model(&db.ConfigResourceTag{}).Select("config_resource_id").Where("value = ?", param.Tag)
 		query = query.Where("id in ?", subQuery)
 	}
 
@@ -135,7 +136,7 @@ func Create(uid int, param view.ReqCreateConfigResource) (err error) {
 
 		var existConfigResource db.ConfigResource
 		err = mysql.Where("name = ?", param.Name).First(&existConfigResource).Error
-		if !gorm.IsRecordNotFoundError(err) {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			tx.Rollback()
 			if err == nil {
 				err = fmt.Errorf("已存在同名资源")
@@ -325,7 +326,7 @@ func CreateVersion(param view.ReqCreateConfigResourceVersion) (err error) {
 			return
 		}
 
-		err = mysql.Model(&resource).Association("Tags").Replace(newTags).Error
+		err = mysql.Model(&resource).Association("Tags").Replace(newTags)
 		if err != nil {
 			return
 		}

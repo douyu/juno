@@ -5,7 +5,7 @@ import (
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 var (
@@ -39,7 +39,7 @@ func (a *appGroup) List() (resp view.RespListAppGroup, err error) {
 }
 
 func (a *appGroup) checkAppEnv(appName, env string) error {
-	appNodeExists := 0
+	appNodeExists := int64(0)
 	err := a.db.Where("app_name = ? and env = ?", appName, env).Count(&appNodeExists).Error
 	if err != nil {
 		return err
