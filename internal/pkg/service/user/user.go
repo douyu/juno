@@ -183,13 +183,14 @@ func (u *user) Delete(item db.User) (err error) {
 
 func (u *user) GetAppViewHistory(uid uint32) (resp []db.AppViewHistory, err error) {
 	resp = make([]db.AppViewHistory, 0)
-	dbConn := u.DB.Table("app_view_history")
+
 	ids := make([]uint32, 0)
-	if err = dbConn.Select("max(id) as id").Where("uid = ?", uid).Group("aid").Pluck("id", &ids).Error; err != nil && err != gorm.ErrRecordNotFound {
+
+	if err = u.DB.Table("app_view_history").Select("max(id) as id").Where("uid = ?", uid).Group("aid").Pluck("id", &ids).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return
 	}
 
-	if err = dbConn.Where("id in (?)", ids).Order("created_at desc").Limit(10).Find(&resp).Error; err != nil && err != gorm.ErrRecordNotFound {
+	if err = u.DB.Table("app_view_history").Select("*").Where("id in (?)", ids).Limit(10).Find(&resp).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return
 	}
 

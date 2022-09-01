@@ -86,7 +86,7 @@ UNION
 	whereSql = strings.TrimRight(whereSql, "&&")
 	nodeSql = fmt.Sprintf(nodeSql, whereSql)
 	page = view.NewPagination(currentPage, pageSize)
-	dbw := r.DB.Raw(nodeSql, whereArr...).Offset(page.Current - 1).Limit(page.PageSize).Scan(&resp)
+	dbw := r.DB.Model(&db.AppNode{}).Raw(nodeSql, whereArr...).Offset(page.Current - 1).Limit(page.PageSize).Scan(&resp)
 	dbw.Count(&page.Total)
 	return
 }
