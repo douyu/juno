@@ -55,7 +55,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
-	google.golang.org/grpc v1.46.0
+	google.golang.org/grpc v1.44.0
 	gopkg.in/fsnotify.v1 v1.4.7
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v2 v2.4.0
@@ -160,7 +160,7 @@ require (
 	go.etcd.io/etcd/client/v2 v2.305.1 // indirect
 	go.etcd.io/etcd/pkg/v3 v3.5.1 // indirect
 	go.etcd.io/etcd/raft/v3 v3.5.1 // indirect
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.32.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.29.0 // indirect
 	go.opentelemetry.io/otel v1.7.0 // indirect
 	go.opentelemetry.io/otel/exporters/jaeger v1.7.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.7.0 // indirect
