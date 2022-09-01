@@ -17,12 +17,12 @@ package invoker
 import (
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/client/rocketmq"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cast"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	ggorm "gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )

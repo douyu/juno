@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/model/db"
@@ -16,6 +15,7 @@ import (
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )

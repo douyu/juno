@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 )
 

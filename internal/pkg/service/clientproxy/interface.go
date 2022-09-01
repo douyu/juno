@@ -3,9 +3,9 @@ package clientproxy
 import (
 	"context"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/go-resty/resty/v2"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 type clientProxy interface {
