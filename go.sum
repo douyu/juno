@@ -198,6 +198,8 @@ github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8
 github.com/dimiro1/banner v1.1.0/go.mod h1:tbL318TJiUaHxOUNN+jnlvFSgsh/RX7iJaQrGgOiTco=
 github.com/douyu/jupiter v0.0.0-20220901122007-e2cda2bb16ad h1:oA0sC+9m4qz6pHAoLLFrbf2XKwOv2EHjZY/sMk2Tmbk=
 github.com/douyu/jupiter v0.0.0-20220901122007-e2cda2bb16ad/go.mod h1:pn0M0Gs9RjZ5o7wrCbgpTBaODauED3M3dis97SyOQHM=
+github.com/douyu/jupiter v0.6.0-rc1 h1:+bVWksxAtkwbkoClL1cS129eAbhwPrENwxscSjw9sSQ=
+github.com/douyu/jupiter v0.6.0-rc1/go.mod h1:pn0M0Gs9RjZ5o7wrCbgpTBaODauED3M3dis97SyOQHM=
 github.com/dustin/go-humanize v0.0.0-20171111073723-bb3d318650d4/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
