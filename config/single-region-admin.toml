@@ -193,3 +193,9 @@ dialTimeout = "3s" # MQ连接超时时间
 enable = true
 prefix = ""
 doc = ""
+[aliyun] # 阿里云日志秘钥配置
+    accessKeyId=""
+    secret=""
+    roleArn=""
+    [aliyun.regions]
+        "华北2（北京）"="cn-beijing"

@@ -1,10 +1,13 @@
 package loggerplatform
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/douyu/juno/internal/pkg/service/assist"
+	"github.com/douyu/juno/internal/pkg/service/aliyunlog"
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view/logstore"
 	"github.com/douyu/jupiter/pkg/xlog"
 )
 
@@ -58,10 +61,11 @@ func newAppLogD() {
 }
 
 //LogStore get log store
-func (a *appLogDefault) LogStore(env, query, typ, appName, aid string) (string, error) {
-	project, logStore := a.getLogStoreName(env, typ, appName)
+func (a *appLogDefault) LogStore(env, query, typ, appName, aid string, u *db.User) (string, error) {
+	project, logStore := a.GetLogStoreName(env, typ, appName)
 	query = a.genQuery(env, typ, aid, query, appName)
-	return assist.AliyunLog(project, logStore, query)
+	return aliyunlog.Instance.CompleteLogSearchUrl(context.TODO(), &aliyunlog.CompleteLogSearchUrlRequest{Region: "华北2（北京）", Project: project, LogStore: logStore, Query: query}, u)
+
 }
 
 // genQuery ...
@@ -78,8 +82,16 @@ func (a *appLogDefault) genQuery(env, typ, aid, query, appName string) string {
 }
 
 //getLogStoreName ...
-func (a *appLogDefault) getLogStoreName(env, typ, appName string) (string, string) {
+func (a *appLogDefault) GetLogStoreName(env, typ, appName string) (string, string) {
 	var project AppLogDefaultEnvData
+	//业务日志进行拦截
+	if typ == LogTypBiz {
+		list := make([]*logstore.LogStore, 0)
+		mysql.Where("app_name = ? and env = ?", appName, env).Find(&list)
+		if len(list) > 0 {
+			return list[0].Project, list[0].LogStore
+		}
+	}
 	var ok bool
 	if project, ok = a.data[env]; !ok {
 		return "", ""

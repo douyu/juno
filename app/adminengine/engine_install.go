@@ -21,6 +21,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/juno/pkg/model/view/logstore"
 	"github.com/douyu/juno/pkg/model/view/vproxyintegrat"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/jinzhu/gorm"
@@ -120,6 +121,7 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&db.UserVisit{},
 			&vproxyintegrat.ProxyMenu{},
 			&vproxyintegrat.ProxyManage{},
+			&logstore.LogStore{},
 		}
 		gormdb = gormdb.Debug()
 		gormdb.SingularTable(true)
