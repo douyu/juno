@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/invoker"
+	"github.com/douyu/juno/internal/pkg/service/aliyunlog"
 	"github.com/douyu/juno/internal/pkg/service/analysis"
 	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/appevent"
@@ -105,8 +106,9 @@ func Init() (err error) {
 		DB: invoker.JunoMysql,
 	})
 
-	loggerplatform.Init()
+	loggerplatform.Init(invoker.JunoMysql)
 
 	k8s.Init()
+	aliyunlog.New()
 	return
 }

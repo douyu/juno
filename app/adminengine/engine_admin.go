@@ -26,6 +26,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/install"
 	"github.com/douyu/juno/internal/pkg/invoker"
 	"github.com/douyu/juno/internal/pkg/service"
+	"github.com/douyu/juno/internal/pkg/service/aliyunlog"
 	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
@@ -98,6 +99,7 @@ func New() *Admin {
 		eng.defers,
 		eng.initParseWorker,
 		eng.refreshProxyManage,
+		eng.refreshAliyunLogMenu,
 		eng.initVersionWorker,
 		eng.initUserVisitWorker,
 		eng.initK8sListWorker,
@@ -286,6 +288,19 @@ func (eng *Admin) refreshProxyManage() (err error) {
 	refreshManage := xcron.DefaultConfig().Build()
 	refreshManage.Schedule(xcron.Every(time.Minute), xcron.FuncJob(proxyintegrat.RefreshProxyConfig))
 	err = eng.Schedule(refreshManage)
+	if err != nil {
+		return err
+	}
+	return
+}
+
+//刷新阿里云日志
+func (eng *Admin) refreshAliyunLogMenu() (err error) {
+	refreshMenuDataConfig := xcron.DefaultConfig()
+	refreshMenuDataConfig.ImmediatelyRun = true
+	refreshMenuData := refreshMenuDataConfig.Build()
+	refreshMenuData.Schedule(xcron.Every(time.Minute), xcron.FuncJob(aliyunlog.Instance.RefreshMenuData))
+	err = eng.Schedule(refreshMenuData)
 	if err != nil {
 		return err
 	}

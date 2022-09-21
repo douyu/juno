@@ -14,12 +14,14 @@ import {
   Select,
   Empty,
   Spin,
+  Tabs,
 } from 'antd';
 import Pannel from './pannel';
 import { getLogUrl } from './services';
 import styles from './index.less';
 
 const RadioGroup = Radio.Group;
+const TabPane = Tabs.TabPane;
 
 @connect(({ setting }) => ({
   setting,
@@ -39,7 +41,12 @@ export default class Applog extends React.PureComponent {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    const { typ } = this.state;
+    if (typ && typ !== '') {
+      this.getList();
+    }
+  }
 
   componentWillReceiveProps(nextProps, nextContext) {
     // 说明已经传了数据
@@ -69,16 +76,21 @@ export default class Applog extends React.PureComponent {
     );
   }
 
-  getList = () => {
+  getList = (typT) => {
     this.setState({
       loading: true,
     });
+
     const { aid, appName, query, env, typ } = this.state;
+    let typN = typ;
+    if (typT) {
+      typN = typT
+    }
     if (!typ) {
       message.error('必须选择查询日志类型');
       return;
     }
-    getLogUrl({ query, env, app_name: appName, typ, aid }).then((res) => {
+    getLogUrl({ query, env, app_name: appName, typ: typN, aid }).then((res) => {
       const { code, msg, data } = res;
       if (code !== 0) {
         message.error(msg);
@@ -133,35 +145,25 @@ export default class Applog extends React.PureComponent {
             bodyStyle={{ height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}
             title={
               <Row>
-                <Col {...colSpan}>
-                  <Select
-                    showSearch
-                    style={{ width: '90%' }}
-                    placeholder="选择查询日志类型"
-                    optionFilterProp="children"
-                    value={typ}
-                    onSelect={this.onSelectLogTyp}
-                  >
-                    <Select.Option key="console" value="console">
-                      启动日志
-                    </Select.Option>
-                    <Select.Option key="biz" value="biz">
-                      业务日志
-                    </Select.Option>
-                    <Select.Option key="jupiter" value="jupiter">
-                      框架日志
-                    </Select.Option>
-                  </Select>
-                </Col>
-
-                <Button
-                  type="primary"
-                  onClick={this.getList}
-                  style={{ marginRight: `16px` }}
-                  htmlType={`button`}
+                <Tabs
+                  hideAdd
+                  onChange={(activeKey) => {
+                    this.onSelectLogTyp(activeKey);
+                    this.getList(activeKey);
+                  }}
+                  activeKey={typ}
+                  tabPosition="top"
                 >
-                  查询
-                </Button>
+                  <TabPane tab={"业务日志"} key={"biz"}>
+                  </TabPane>
+                  <TabPane tab={"框架日志"} key={"jupiter"}>
+
+                  </TabPane>
+                  <TabPane tab={"启动日志"} key={"console"}>
+
+                  </TabPane>
+                </Tabs>
+
               </Row>
             }
           >
