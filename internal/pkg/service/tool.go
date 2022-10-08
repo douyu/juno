@@ -25,7 +25,7 @@ func (t *tool) List(currentPage int, pageSize int, queryObj string) *view.RespTo
 		pageSize = 100
 	}
 
-	cnt := 0
+	cnt := int64(0)
 	toolList := make([]*db.ToolInfo, 0)
 	offset := 0
 	offset = currentPage * pageSize
@@ -64,7 +64,7 @@ func (t *tool) Delete(id int) (err error) {
 // Update ...
 func (t *tool) Update(id uint64, tool *view.RespToolDetail) (int, error) {
 
-	if err := invoker.JunoMysql.Table("tool").Where("id = ?", id).Update(&tool).Error; err != nil {
+	if err := invoker.JunoMysql.Table("tool").Where("id = ?", id).Updates(&tool).Error; err != nil {
 		return 0, err
 	}
 	return int(tool.Id), nil

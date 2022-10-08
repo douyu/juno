@@ -23,8 +23,8 @@ import (
 
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/ecode"
-	"github.com/douyu/jupiter/pkg/util/xtime"
 	"github.com/douyu/jupiter/pkg/xlog"
+	"github.com/spf13/cast"
 	"go.uber.org/zap"
 )
 
@@ -170,7 +170,7 @@ func defaultConfig() cfg {
 				Enable:     true,
 				Debug:      false,
 				Addr:       "stream",
-				Internal:   xtime.Duration("60s"),
+				Internal:   cast.ToDuration("60s"),
 				HostName:   "",
 				RegionCode: "",
 				RegionName: "",
@@ -208,7 +208,7 @@ func defaultConfig() cfg {
 			TmpPath:     "/tmp",
 			TokenHeader: "X-JUNO-PPROF",
 			Token:       "juno666",
-			Timeout:     xtime.Duration("120s"),
+			Timeout:     cast.ToDuration("120s"),
 			Debug:       false,
 			StorePath:   "data/pprof",
 		},

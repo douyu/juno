@@ -4,8 +4,8 @@ import "time"
 
 type (
 	ReqListConfigResource struct {
-		Page     uint     `json:"page"`
-		PageSize uint     `json:"page_size" validate:"required"`
+		Page     int      `json:"page"`
+		PageSize int      `json:"page_size" validate:"required"`
 		Env      []string `json:"env"`
 		Zone     []string `json:"zone"`
 		Tag      string   `json:"tag"`

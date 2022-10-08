@@ -2,7 +2,7 @@ package openauth
 
 import (
 	"github.com/douyu/juno/pkg/model/db"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 var (

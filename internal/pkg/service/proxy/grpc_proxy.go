@@ -15,6 +15,7 @@
 package proxy
 
 import (
+	"context"
 	"net"
 	"time"
 
@@ -101,8 +102,8 @@ func (gp *grpcProxy) startGRPCProxy() error {
 	}
 
 	kvp, _ := grpcproxy.NewKvProxy(client)
-	watchp, _ := grpcproxy.NewWatchProxy(client)
-	leasep, _ := grpcproxy.NewLeaseProxy(client)
+	watchp, _ := grpcproxy.NewWatchProxy(context.TODO(), cfg.Logger, client)
+	leasep, _ := grpcproxy.NewLeaseProxy(context.TODO(), client)
 	mainp := grpcproxy.NewMaintenanceProxy(client)
 	authp := grpcproxy.NewAuthProxy(client)
 	electionp := grpcproxy.NewElectionProxy(client)
@@ -150,7 +151,7 @@ func (gp *grpcProxy) newClientCfg() (*clientv3.Config, error) {
 	}
 
 	if gp.grpcProxyCA != "" {
-		tlsinfo.CAFile = gp.grpcProxyCA
+		tlsinfo.TrustedCAFile = gp.grpcProxyCA
 		cfgtls = &tlsinfo
 	}
 

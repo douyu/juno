@@ -10,5 +10,5 @@ type Info struct {
 type RespStatics struct {
 	EnvCnt []Info `json:"env_cnt"`
 	CmcCnt []Info `json:"cmc_cnt"`
-	Total  int    `json:"total"`
+	Total  int64  `json:"total"`
 }

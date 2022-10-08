@@ -8,8 +8,8 @@ import (
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )

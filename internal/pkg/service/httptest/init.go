@@ -1,8 +1,8 @@
 package httptest
 
 import (
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/go-resty/resty/v2"
-	"github.com/jinzhu/gorm"
 )
 
 var (

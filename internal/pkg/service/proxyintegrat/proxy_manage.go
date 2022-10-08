@@ -9,7 +9,7 @@ import (
 )
 
 //ProxyManageList 列表
-func ProxyManageList(ctx context.Context, params *vproxyintegrat.ProxyManageListParams) (list []vproxyintegrat.ProxyManage, total int, err error) {
+func ProxyManageList(ctx context.Context, params *vproxyintegrat.ProxyManageListParams) (list []vproxyintegrat.ProxyManage, total int64, err error) {
 	list = make([]vproxyintegrat.ProxyManage, 0, 20)
 	tmpList := make([]vproxyintegrat.ProxyManage, 0)
 	isValid, msg := params.Valid()
@@ -45,7 +45,7 @@ func ProxyManageList(ctx context.Context, params *vproxyintegrat.ProxyManageList
 //ProxyManageCreateOrUpdate 创建
 func ProxyManageCreateOrUpdate(ctx context.Context, params *vproxyintegrat.ProxyManageCreateOrUpdateParams) (err error) {
 	now := time.Now()
-	count := 0
+	count := int64(0)
 	err = mysql.Table(ProxyManageTable).Where(" delete_time = ? and id!= ? and `sub_path` = ? ", 0, params.ID, params.SubPath).Count(&count).Error
 	if err != nil {
 		return

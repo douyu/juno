@@ -41,8 +41,8 @@ type (
 	}
 
 	ReqGrpcHistoryList struct {
-		Page      uint `query:"page"`
-		PageSize  uint `query:"page_size"`
+		Page      int  `query:"page"`
+		PageSize  int  `query:"page_size"`
 		ServiceID uint `query:"service_id" validate:"required"`
 	}
 

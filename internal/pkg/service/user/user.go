@@ -52,7 +52,7 @@ func IsAdmin(c echo.Context) bool {
 	return false
 }
 
-func (u *user) GetList(where db.User, currentPage, pageSize int, sort string) (out []db.UserInfo, total int, err error) {
+func (u *user) GetList(where db.User, currentPage, pageSize int, sort string) (out []db.UserInfo, total int64, err error) {
 	if pageSize == 0 {
 		pageSize = 20
 	}
@@ -95,12 +95,12 @@ func (u *user) GetNameByUID(uid int) string {
 func (u *user) CreateOrUpdateOauthUser(info *db.User) (err error) {
 	var user db.User
 	err = u.DB.Where("oauth = ? and oauth_id = ?", info.Oauth, info.OauthId).First(&user).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		// system error
 		return
 	}
 	// not found
-	if gorm.IsRecordNotFoundError(err) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		err = u.Create(info)
 		if err != nil {
 			return
@@ -119,7 +119,7 @@ func (u *user) CreateOrUpdateOauthUser(info *db.User) (err error) {
 // 设置APP信息
 func (u *user) Create(item *db.User) (err error) {
 	err = u.DB.Where("username = ?", item.Username).Find(item).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	if item.Uid > 0 {
@@ -154,7 +154,7 @@ func (u *user) Create(item *db.User) (err error) {
 func (u *user) Update(uid int, user *db.User) (err error) {
 	var info db.User
 	err = u.DB.Where("uid = ?", uid).First(&info).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	if info.Uid == 0 {
@@ -169,7 +169,7 @@ func (u *user) Update(uid int, user *db.User) (err error) {
 func (u *user) Delete(item db.User) (err error) {
 	var info db.User
 	err = u.DB.Where("uid = ?", item.Uid).Find(&info).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	if info.Uid == 0 {
@@ -183,13 +183,14 @@ func (u *user) Delete(item db.User) (err error) {
 
 func (u *user) GetAppViewHistory(uid uint32) (resp []db.AppViewHistory, err error) {
 	resp = make([]db.AppViewHistory, 0)
-	dbConn := u.DB.Table("app_view_history")
+
 	ids := make([]uint32, 0)
-	if err = dbConn.Select("max(id) as id").Where("uid = ?", uid).Group("aid").Pluck("id", &ids).Error; err != nil && err != gorm.ErrRecordNotFound {
+
+	if err = u.DB.Table("app_view_history").Select("max(id) as id").Where("uid = ?", uid).Group("aid").Pluck("id", &ids).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return
 	}
 
-	if err = dbConn.Where("id in (?)", ids).Order("created_at desc").Limit(10).Find(&resp).Error; err != nil && err != gorm.ErrRecordNotFound {
+	if err = u.DB.Table("app_view_history").Select("*").Where("id in (?)", ids).Limit(10).Find(&resp).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return
 	}
 
@@ -275,7 +276,7 @@ func (u *user) PostUserAppConfig(uid, aid uint32, info db.UserConfigInfo) (err e
 		return
 	}
 
-	if err = tx.Where("id = ?", record.Id).Update(map[string]interface{}{
+	if err = tx.Where("id = ?", record.Id).Updates(map[string]interface{}{
 		"content":     string(infoData),
 		"update_time": time.Now().Unix(),
 	}).Error; err != nil {

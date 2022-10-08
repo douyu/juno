@@ -20,9 +20,11 @@ import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/jupiter/pkg/client/rocketmq"
 	"github.com/douyu/jupiter/pkg/store/gorm"
-	"github.com/douyu/jupiter/pkg/util/xtime"
 	"github.com/go-resty/resty/v2"
+	"github.com/spf13/cast"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	ggorm "gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var (
@@ -42,9 +44,11 @@ func Init() {
 	if cfg.Cfg.Database.Enable {
 		gormConfig := gorm.DefaultConfig()
 		gormConfig.DSN = cfg.Cfg.Database.DSN
-		JunoMysql = gormConfig.Build()
-		JunoMysql.LogMode(cfg.Cfg.Database.Debug)
-		JunoMysql.SingularTable(true)
+		JunoMysql = gormConfig.WithGormConfig(ggorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true,
+			},
+		}).MustSingleton()
 	}
 
 	var err error
@@ -59,7 +63,7 @@ func Init() {
 			panic(err.Error())
 		}
 	}
-	Resty = resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(xtime.Duration("20s"))
+	Resty = resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(cast.ToDuration("20s"))
 
 	if cfg.Cfg.JunoEvent.Rocketmq.Enable {
 		config := cfg.Cfg.JunoEvent.Rocketmq

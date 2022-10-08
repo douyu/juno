@@ -24,21 +24,23 @@ import (
 	"github.com/douyu/juno/pkg/model/view/logstore"
 	"github.com/douyu/juno/pkg/model/view/vproxyintegrat"
 	"github.com/douyu/juno/pkg/util"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 func (eng *Admin) migrateDB() error {
 	gormdb, err := gorm.Open(
-		"mysql",
-		cfg.Cfg.Database.DSN,
+		mysql.Open(cfg.Cfg.Database.DSN),
+		&gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true,
+			},
+		},
 	)
 	if err != nil {
 		return err
 	}
-
-	defer func() {
-		_ = gormdb.Close()
-	}()
 
 	eng.cmdClear(gormdb)
 	eng.cmdInstall(gormdb)
@@ -124,9 +126,8 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&logstore.LogStore{},
 		}
 		gormdb = gormdb.Debug()
-		gormdb.SingularTable(true)
 		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
-		gormdb.Model(&db.AccessToken{}).AddUniqueIndex("idx_unique_name", "name")
+		// gormdb.Model(&db.AccessToken{}).AddUniqueIndex("idx_unique_name", "name")
 		fmt.Println("create table ok")
 	}
 }

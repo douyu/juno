@@ -9,7 +9,7 @@ import (
 )
 
 //ProxyMenuList 列表
-func ProxyMenuList(ctx context.Context, params *vproxyintegrat.ProxyMenuListParams) (list []vproxyintegrat.ProxyMenu, total int, err error) {
+func ProxyMenuList(ctx context.Context, params *vproxyintegrat.ProxyMenuListParams) (list []vproxyintegrat.ProxyMenu, total int64, err error) {
 	list = make([]vproxyintegrat.ProxyMenu, 0, 20)
 	tmpList := make([]vproxyintegrat.ProxyMenu, 0)
 	isValid, msg := params.Valid()
@@ -45,7 +45,7 @@ func ProxyMenuList(ctx context.Context, params *vproxyintegrat.ProxyMenuListPara
 //ProxyMenuCreateOrUpdate 创建
 func ProxyMenuCreateOrUpdate(ctx context.Context, params *vproxyintegrat.ProxyMenuCreateOrUpdateParams) (err error) {
 	now := time.Now()
-	count := 0
+	count := int64(0)
 	err = mysql.Table(ProxyMenuTable).Where(" delete_time = ? and id!= ? and `key` = ? ", 0, params.ID, params.Key).Count(&count).Error
 	if err != nil {
 		return

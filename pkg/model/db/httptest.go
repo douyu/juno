@@ -3,13 +3,11 @@ package db
 import (
 	"database/sql/driver"
 	"encoding/json"
-
-	"github.com/jinzhu/gorm"
 )
 
 type (
 	HttpTestCollection struct {
-		gorm.Model
+		ModelT
 		CreatedBy uint   `json:"created_by"` // 创建人ID
 		AppName   string `json:"app_name"`
 		Name      string `json:"name"`
@@ -18,7 +16,7 @@ type (
 	}
 
 	HttpTestCase struct {
-		gorm.Model
+		ModelT
 		CollectionID uint          `json:"collection_id"`
 		Name         string        `json:"name"`
 		URL          string        `json:"url"`
@@ -33,7 +31,7 @@ type (
 	}
 
 	HttpTestLog struct {
-		gorm.Model
+		ModelT
 
 		OperatorType string // 执行人类型
 		OperatorID   uint   // 执行人ID

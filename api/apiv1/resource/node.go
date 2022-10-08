@@ -256,7 +256,7 @@ func NodeStatics(c echo.Context) error {
 	now := time.Now().Unix()
 	envMap := make(map[string]map[string]int)
 
-	counts := make([]int, len(list))
+	counts := make([]int64, len(list))
 	wg := sync.WaitGroup{}
 	blockCh := make(chan struct{}, 100) // 限制并发查询数量
 	for _idx, _v := range list {

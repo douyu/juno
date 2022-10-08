@@ -3,13 +3,11 @@ package db
 import (
 	"database/sql/driver"
 	"encoding/json"
-
-	"github.com/jinzhu/gorm"
 )
 
 type (
 	GrpcProto struct {
-		gorm.Model
+		ModelT
 
 		AppName     string
 		FileName    string
@@ -19,7 +17,7 @@ type (
 	}
 
 	GrpcProtoService struct {
-		gorm.Model
+		ModelT
 
 		ProtoID uint
 		Name    string
@@ -30,7 +28,7 @@ type (
 
 	// Protobuf Method 描述，通过解析 PB 文件获取到 PB 描述
 	GrpcServiceMethod struct {
-		gorm.Model
+		ModelT
 
 		ServiceID     uint        `gorm:"column:service_id;"`
 		Name          string      `gorm:"column:name;not null;"`
@@ -46,7 +44,7 @@ type (
 
 	// GRPC 测试用例
 	GrpcTestCase struct {
-		gorm.Model
+		ModelT
 		MethodID uint
 		Uid      uint
 		Name     string
@@ -59,7 +57,7 @@ type (
 
 	// GRPC 测试日志
 	GrpcTestLog struct {
-		gorm.Model
+		ModelT
 
 		MethodID uint
 

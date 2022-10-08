@@ -2,9 +2,9 @@ package view
 
 // 响应
 type Pagination struct {
-	Current  int `json:"current"`
-	Total    int `json:"total"`
-	PageSize int `json:"pageSize"`
+	Current  int   `json:"current"`
+	Total    int64 `json:"total"`
+	PageSize int   `json:"pageSize"`
 }
 
 func NewPagination(current int, pageSize int) *Pagination {

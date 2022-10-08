@@ -3,7 +3,7 @@ package taskplatform
 import (
 	"github.com/douyu/juno/internal/pkg/service/taskplatform/cronjob"
 	"github.com/douyu/juno/pkg/cfg"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 var (

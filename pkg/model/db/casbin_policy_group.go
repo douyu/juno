@@ -1,12 +1,10 @@
 package db
 
-import "github.com/jinzhu/gorm"
-
 type (
 	CasbinGroupType string
 
 	CasbinPolicyGroup struct {
-		gorm.Model
+		ModelT
 		GroupName string `gorm:"type:varchar(30);not null;" json:"group_name"`
 
 		Uid     int    `gorm:"not null;index;"json:"uid"`

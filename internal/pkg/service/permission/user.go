@@ -3,7 +3,7 @@ package permission
 import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -28,7 +28,7 @@ func (u *user) List(param view.ReqListUser) (resp view.RespListUser, err error) 
 	var eg errgroup.Group
 	var limit = param.PageSize
 	var offset = param.Page * param.PageSize
-	var total int
+	var total int64
 
 	if limit > 100 {
 		limit = 100

@@ -1,13 +1,14 @@
 package permission
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/douyu/juno/internal/pkg/service/casbin"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -34,17 +35,17 @@ func initUserGroup(db *gorm.DB) {
 }
 
 func (u *userGroup) List() (resp view.RespListUserGroup, err error) {
-	groupList := make([]db.CasbinPolicyGroup, 0)
-	err = u.db.Where("type = ?", db.CasbinGroupTypeUser).
+	groupList := make([]string, 0)
+	err = u.db.Model(&db.CasbinPolicyGroup{}).Where("type = ?", db.CasbinGroupTypeUser).
 		Group("group_name").
-		Find(&groupList).Error
+		Pluck("group_name", &groupList).Error
 	if err != nil {
 		return nil, err
 	}
 
 	for _, item := range groupList {
 		resp = append(resp, view.ListGroupItem{
-			Name: item.GroupName,
+			Name: item,
 		})
 	}
 
@@ -333,13 +334,13 @@ func (u *userGroup) createPerms(mysql *gorm.DB, list []db.CasbinPolicyAuth) (err
 		var policy db.CasbinPolicyAuth
 
 		// check policy
-		err = mysql.Where("sub = ? and obj = ? and act = ? and type = ?", item.Sub, item.Obj, item.Act, item.Type).
+		err = mysql.Model(&db.CasbinPolicyAuth{}).Where("sub = ? and obj = ? and act = ? and type = ?", item.Sub, item.Obj, item.Act, item.Type).
 			First(&policy).Error
-		if err != gorm.ErrRecordNotFound {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			continue
 		}
 
-		err = mysql.Save(&item).Error
+		err = mysql.Model(&db.CasbinPolicyAuth{}).Save(&item).Error
 		if err != nil {
 			return
 		}
@@ -366,6 +367,8 @@ func (u *userGroup) GetMenuPerm(param view.ReqGetGroupMenuPerm) (resp view.RespG
 	if err != nil {
 		return
 	}
+
+	fmt.Println(menu)
 
 	menuList := expandMenuTree(menu)
 
@@ -409,7 +412,7 @@ func (u *userGroup) GetAppPerm(param view.ReqGetAppPerm) (resp view.RespGetAppPe
 	}
 
 	eg.Go(func() error {
-		return query.Count(resp.Pagination.Total).Error
+		return query.Count(&resp.Pagination.Total).Error
 	})
 
 	eg.Go(func() error {

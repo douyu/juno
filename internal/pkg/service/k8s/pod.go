@@ -18,7 +18,7 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/informers"
@@ -468,7 +468,7 @@ func (i *syncPod) mysqlCreateOrUpdate(zoneCode, domain string, in *v1.Pod) (err 
 			// 如果md5没有变化
 			return
 		}
-		err = i.db.Table("k8s_pod").Where("pod_name=? and is_del=?", m.PodName, 0).Update(map[string]interface{}{
+		err = i.db.Table("k8s_pod").Where("pod_name=? and is_del=?", m.PodName, 0).Updates(map[string]interface{}{
 			"env":                 m.Env,
 			"zone_code":           m.ZoneCode,
 			"domain":              m.Domain,
@@ -507,7 +507,7 @@ func (i *syncPod) mysqlDelete(appName, domain, podName string) (err error) {
 	i.wlock.Lock(appName, domain)
 	defer i.wlock.UnLock(appName, domain)
 	// 数据库中存在对应记录进行delete操作
-	err = i.db.Table("k8s_pod").Where("pod_name=?", podName).Update(map[string]interface{}{
+	err = i.db.Table("k8s_pod").Where("pod_name=?", podName).Updates(map[string]interface{}{
 		"is_del": 1,
 	}).Error
 	if err != nil {

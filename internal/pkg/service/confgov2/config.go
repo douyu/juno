@@ -27,9 +27,9 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -155,7 +155,7 @@ func Create(c echo.Context, param view.ReqCreateConfig) (resp view.RespDetailCon
 		if !envZoneExists {
 			err = mysql.Where("env = ? and zone_code = ?", param.Env, param.Zone).First(&appNode).Error
 			if err != nil {
-				if gorm.IsRecordNotFoundError(err) {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
 					err = fmt.Errorf("该应用不存在该机房-环境")
 				}
 				return resp, err
@@ -187,7 +187,7 @@ func Create(c echo.Context, param view.ReqCreateConfig) (resp view.RespDetailCon
 	tx := mysql.Begin()
 	{
 		// check if name exists
-		exists := 0
+		exists := int64(0)
 		err = tx.Model(&db.Configuration{}).Where("aid = ?", app.Aid).
 			Where("env = ?", param.Env).
 			Where("name = ?", param.FileName).

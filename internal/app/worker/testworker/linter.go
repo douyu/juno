@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/douyu/jupiter/pkg/xlog"
+	"go.uber.org/zap"
 	"golang.org/x/lint"
 )
 
@@ -202,7 +203,7 @@ func (l *Linter) treeCanMatchPattern(pattern string) func(name string) bool {
 func (l *Linter) allPackages(pattern string) []string {
 	pkgs := l.matchPackages(pattern)
 	if len(pkgs) == 0 {
-		xlog.Warnf("Linter.lintImportedPackage. warning: %q matched no packages\n", pattern)
+		xlog.Warn("Linter.lintImportedPackage. warning: matched no packages\n", zap.String("pattern", pattern))
 	}
 	return pkgs
 }
@@ -307,7 +308,7 @@ func (l *Linter) matchPackages(pattern string) []string {
 func (l *Linter) allPackagesInFS(pattern string) []string {
 	pkgs := l.matchPackagesInFS(pattern)
 	if len(pkgs) == 0 {
-		xlog.Warnf("warning: %q matched no packages\n", pattern)
+		xlog.Warn("warning: matched no packages\n", zap.String("pattern", pattern))
 	}
 	return pkgs
 }

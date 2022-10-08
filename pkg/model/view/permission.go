@@ -53,8 +53,8 @@ type (
 	ReqGetAppPerm struct {
 		GroupName     string `json:"group_name"`
 		AppNameSearch string `json:"app_name_search"`
-		PageSize      uint   `json:"size"`
-		Page          uint   `json:"page"`
+		PageSize      int    `json:"size"`
+		Page          int    `json:"page"`
 	}
 
 	RespGetAppPerm struct {
@@ -72,8 +72,8 @@ type (
 	ReqListUser struct {
 		GroupName string `query:"group_name"`
 		Search    string `query:"search"`
-		Page      uint   `query:"page"`
-		PageSize  uint   `query:"page_size"`
+		Page      int    `query:"page"`
+		PageSize  int    `query:"page_size"`
 	}
 
 	RespListUser struct {

@@ -2,13 +2,11 @@ package db
 
 import (
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
 type (
 	CronJob struct {
-		gorm.Model
+		ModelT
 		Name          string      `gorm:"column:name"`
 		Uid           uint        `gorm:"column:uid"`
 		AppName       string      `gorm:"column:app_name"`
@@ -28,7 +26,7 @@ type (
 	}
 
 	CronJobTimer struct {
-		gorm.Model
+		ModelT
 		JobID uint   `gorm:"column:job_id"`
 		Cron  string `gorm:"column:cron"` // crontab-like DSL
 

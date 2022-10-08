@@ -47,7 +47,7 @@ type ReqUserAppViewHistory struct {
 }
 
 type ReqGetAppConfig struct {
-	Aid uint `json:"aid" valid:"required"`
+	Aid uint `json:"aid" query:"aid" valid:"required"`
 }
 
 type ReqPostAppConfig struct {
