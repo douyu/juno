@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/model/db"
@@ -16,6 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -148,7 +148,7 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 	return
 }
 
-//Create 创建 Job
+// Create 创建 Job
 func (j *CronJob) Create(uid uint, params view.CronJob) (err error) {
 	var timers = make([]db.CronJobTimer, len(params.Timers))
 	var job = db.CronJob{
@@ -274,7 +274,7 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 	return
 }
 
-//Delete 删除 id 对应的 Job
+// Delete 删除 id 对应的 Job
 func (j *CronJob) Delete(id uint) (err error) {
 	var job db.CronJob
 
@@ -303,7 +303,7 @@ func (j *CronJob) Delete(id uint) (err error) {
 	return
 }
 
-//DispatchOnce 下发任务手动执行单次
+// DispatchOnce 下发任务手动执行单次
 func (j *CronJob) DispatchOnce(id uint, node string) (err error) {
 	var job db.CronJob
 
@@ -341,7 +341,7 @@ func (j *CronJob) DispatchOnce(id uint, node string) (err error) {
 	return tx.Commit().Error
 }
 
-//ListTask 任务列表
+// ListTask 任务列表
 func (j *CronJob) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pagination view.Pagination, err error) {
 	var tasks []db.CronTask
 
@@ -398,7 +398,7 @@ func (j *CronJob) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pag
 	return
 }
 
-//TaskDetail Task 详情
+// TaskDetail Task 详情
 func (j *CronJob) TaskDetail(id uint) (detail view.CronTaskDetail, err error) {
 	var task db.CronTask
 
@@ -436,7 +436,7 @@ func (j *CronJob) StartWatch() {
 	}
 }
 
-//startSyncJob sync job to etcd from mysql
+// startSyncJob sync job to etcd from mysql
 func (j *CronJob) startSyncJob() {
 	config := xcron.DefaultConfig()
 	config.WithSeconds = true
@@ -462,7 +462,7 @@ func (j *CronJob) startSyncJob() {
 	cron.Start()
 }
 
-//removeInvalidJob remove jobs that not exists in DB
+// removeInvalidJob remove jobs that not exists in DB
 func (j *CronJob) removeInvalidJob() {
 	for _, client := range clientproxy.ClientProxy.DefaultEtcdClients() {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -497,7 +497,7 @@ func (j *CronJob) removeInvalidJob() {
 	}
 }
 
-//writeJobsToEtcd load jobs from mysql, and write them to etcd
+// writeJobsToEtcd load jobs from mysql, and write them to etcd
 func (j *CronJob) writeJobsToEtcd() {
 	var jobs []db.CronJob
 	err := j.db.Preload("Timers").Where("enable = ?", true).Find(&jobs).Error

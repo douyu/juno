@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 )
 
@@ -75,7 +75,7 @@ func (c *simpleProxy) DefaultEtcdClients() []*EtcdClient {
 	}
 }
 
-//ConfigEtcdPut ..
+// ConfigEtcdPut ..
 func (c *simpleProxy) DefaultEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
 	if c.defaultEtcd == nil {
 		err = fmt.Errorf("etcd is nil")
@@ -84,7 +84,7 @@ func (c *simpleProxy) DefaultEtcdPut(uniqZone view.UniqZone, ctx context.Context
 	return c.defaultEtcd.Put(ctx, key, val, opts...)
 }
 
-//ConfigEtcdGet ..
+// ConfigEtcdGet ..
 func (c *simpleProxy) DefaultEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
 	if c.defaultEtcd == nil {
 		err = fmt.Errorf("etcd is nil")
@@ -93,7 +93,7 @@ func (c *simpleProxy) DefaultEtcdGet(uniqZone view.UniqZone, ctx context.Context
 	return c.defaultEtcd.Get(ctx, key, opts...)
 }
 
-//RegisterEtcdPut ..
+// RegisterEtcdPut ..
 func (c *simpleProxy) RegisterEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
 	if c.proxyRegisterEtcd == nil {
 		err = fmt.Errorf("etcd is nil")
@@ -102,7 +102,7 @@ func (c *simpleProxy) RegisterEtcdPut(uniqZone view.UniqZone, ctx context.Contex
 	return c.proxyRegisterEtcd.Put(ctx, key, val, opts...)
 }
 
-//RegisterEtcdGet ..
+// RegisterEtcdGet ..
 func (c *simpleProxy) RegisterEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
 	if c.proxyRegisterEtcd == nil {
 		err = fmt.Errorf("etcd is nil")
@@ -111,7 +111,7 @@ func (c *simpleProxy) RegisterEtcdGet(uniqZone view.UniqZone, ctx context.Contex
 	return c.proxyRegisterEtcd.Get(ctx, key, opts...)
 }
 
-//HttpGet ..
+// HttpGet ..
 func (c *simpleProxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
 	if c.proxyHTTP == nil {
 		err = fmt.Errorf("resty is nil")
@@ -120,7 +120,7 @@ func (c *simpleProxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (re
 	return c.proxyHTTP.Get(req)
 }
 
-//HttpPost ..
+// HttpPost ..
 func (c *simpleProxy) HttpPost(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
 	if c.proxyHTTP == nil {
 		err = fmt.Errorf("resty is nil")

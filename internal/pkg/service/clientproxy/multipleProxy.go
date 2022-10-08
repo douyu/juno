@@ -8,13 +8,13 @@ import (
 
 	"github.com/douyu/jupiter/pkg/util/xgo"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/go-resty/resty/v2"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 )
 
@@ -25,7 +25,7 @@ type multiProxy struct {
 	lock                 sync.RWMutex
 }
 
-//initMultiProxy ..
+// initMultiProxy ..
 func initMultiProxy() (obj *multiProxy) {
 	obj = &multiProxy{
 		defaultConfigEtcdMap: make(map[string]*EtcdClient, 0),
@@ -177,7 +177,7 @@ func (c *multiProxy) getRegisterEtcd(uniqZone view.UniqZone) (*EtcdClient, bool)
 	return conn, ok
 }
 
-//RegisterEtcdPut ..
+// RegisterEtcdPut ..
 func (c *multiProxy) RegisterEtcdPut(uniqZone view.UniqZone, ctx context.Context, key, val string, opts ...clientv3.OpOption) (resp *clientv3.PutResponse, err error) {
 	conn, ok := c.getRegisterEtcd(uniqZone)
 	if !ok {
@@ -188,7 +188,7 @@ func (c *multiProxy) RegisterEtcdPut(uniqZone view.UniqZone, ctx context.Context
 	return conn.Put(ctx, key, val, opts...)
 }
 
-//RegisterEtcdGet ..
+// RegisterEtcdGet ..
 func (c *multiProxy) RegisterEtcdGet(uniqZone view.UniqZone, ctx context.Context, key string, opts ...clientv3.OpOption) (resp *clientv3.GetResponse, err error) {
 	conn, ok := c.getRegisterEtcd(uniqZone)
 	if !ok {
@@ -201,7 +201,7 @@ func (c *multiProxy) RegisterEtcdGet(uniqZone view.UniqZone, ctx context.Context
 	return conn.Get(ctx, key, opts...)
 }
 
-//HttpGet ..
+// HttpGet ..
 func (c *multiProxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
 	c.lock.RLock()
 	conn, ok := c.proxyHTTPMap[uniqZone.String()]
@@ -214,7 +214,7 @@ func (c *multiProxy) HttpGet(uniqZone view.UniqZone, req view.ReqHTTPProxy) (res
 	return conn.Get(req)
 }
 
-//HttpPost ..
+// HttpPost ..
 func (c *multiProxy) HttpPost(uniqZone view.UniqZone, req view.ReqHTTPProxy) (resp *resty.Response, err error) {
 	c.lock.RLock()
 	conn, ok := c.proxyHTTPMap[uniqZone.String()]

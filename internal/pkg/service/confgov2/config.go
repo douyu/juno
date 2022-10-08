@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
+	clientv3 "go.etcd.io/etcd/client/v3"
 
 	"github.com/douyu/juno/internal/pkg/service/agent"
 	"github.com/douyu/juno/internal/pkg/service/app"
