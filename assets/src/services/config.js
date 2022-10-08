@@ -65,6 +65,9 @@ export async function loadConfigVersionDiff(appName, env, serviceVersion, publis
 export async function deleteConfig(id) {
   return request(`/api/admin/confgov2/config/delete?id=${id}`, {
     method: 'POST',
+    data: {
+      id,
+    },
   });
 }
 
@@ -80,11 +83,17 @@ export async function fetchInstanceConfig(id, hostName) {
 export async function fetchLock(id) {
   return request(`/api/admin/confgov2/config/lock?id=${id}`, {
     method: 'POST',
+    data: {
+      id,
+    },
   });
 }
 
 export async function unLock(id) {
   return request(`/api/admin/confgov2/config/unlock?id=${id}`, {
     method: 'POST',
+    data: {
+      id,
+    },
   });
 }

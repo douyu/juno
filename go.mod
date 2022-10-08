@@ -36,7 +36,7 @@ require (
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/labstack/echo-contrib v0.9.0
-	github.com/labstack/echo/v4 v4.6.3
+	github.com/labstack/echo/v4 v4.9.0
 	github.com/labstack/gommon v0.3.1
 	github.com/lib/pq v1.5.2 // indirect
 	github.com/link-duan/toml v0.3.2

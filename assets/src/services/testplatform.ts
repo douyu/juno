@@ -41,6 +41,9 @@ export async function createPipeline(fields: any) {
 export async function deletePipeline(id: number) {
   return request(`/api/admin/test/platform/pipeline/delete?id=${id}`, {
     method: 'POST',
+    data: {
+      id,
+    },
   });
 }
 

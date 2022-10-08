@@ -49,7 +49,7 @@ type (
 
 	// ReqDetailConfig ..
 	ReqDetailConfig struct {
-		ID uint `json:"id" validate:"required"`
+		ID uint `json:"id" validate:"required" query:"id"`
 	}
 
 	// RespDetailConfig Contains configuration content
@@ -315,7 +315,7 @@ type (
 	}
 )
 
-//CheckConfigFormat 检查配置文件格式是否符合要求
+// CheckConfigFormat 检查配置文件格式是否符合要求
 func CheckConfigFormat(format ConfigFormat) bool {
 	for _, item := range ConfigFormats {
 		if item == format {
