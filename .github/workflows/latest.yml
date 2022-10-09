@@ -81,7 +81,7 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           buildArgs: "JUNO_TAR=juno_${{ steps.vars.outputs.tag }}-SNAPSHOT-${{ steps.vars.outputs.sha_short }}_linux_amd64.tar.gz"
           addLatest: true
-          dockerfile: cmd/juno-admin/Dockerfile
           directory: dist
+          dockerfile: cmd/juno-admin/Dockerfile
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
