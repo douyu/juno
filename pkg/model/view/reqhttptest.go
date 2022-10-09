@@ -10,8 +10,8 @@ type (
 
 	ListHttpCollection struct {
 		AppName  string `query:"app_name" validate:"required"`
-		Page     uint   `query:"page"`
-		PageSize uint   `query:"page_size"`
+		Page     int    `query:"page"`
+		PageSize int    `query:"page_size"`
 	}
 
 	CreateHttpTestCase struct {
@@ -58,7 +58,7 @@ type (
 
 	ReqListHttpTestHistory struct {
 		AppName  string `query:"app_name" validate:"required"`
-		Page     uint   `query:"page"`
-		PageSize uint   `query:"page_size"`
+		Page     int    `query:"page"`
+		PageSize int    `query:"page_size"`
 	}
 )

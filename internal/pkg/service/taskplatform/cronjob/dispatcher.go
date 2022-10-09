@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	"github.com/douyu/jupiter/pkg/xlog"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 type (
@@ -77,7 +77,7 @@ func (d *Dispatcher) dispatchOnceJob(job OnceJob, hostname string) (err error) {
 	return
 }
 
-//dispatchJob 下发创建/更新任务
+// dispatchJob 下发创建/更新任务
 func (d *Dispatcher) dispatchJob(job Job) (err error) {
 	etcdKey := EtcdKeyJobPrefix + job.ID
 	jobBytes, _ := json.Marshal(job)
@@ -105,7 +105,7 @@ func (d *Dispatcher) dispatchJob(job Job) (err error) {
 	return
 }
 
-//revokeJob 删除任务
+// revokeJob 删除任务
 func (d *Dispatcher) revokeJob(job Job) (err error) {
 	etcdKey := EtcdKeyJobPrefix + job.ID
 

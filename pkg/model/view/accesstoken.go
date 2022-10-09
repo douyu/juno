@@ -10,8 +10,8 @@ type (
 	}
 
 	ReqListAccessToken struct {
-		Page     uint `query:"page"`
-		PageSize uint `query:"page_size" valid:"required"`
+		Page     int `query:"page"`
+		PageSize int `query:"page_size" valid:"required"`
 	}
 
 	RespListAccessToken struct {

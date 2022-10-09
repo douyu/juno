@@ -3,8 +3,6 @@ package db
 import (
 	"database/sql/driver"
 	"encoding/json"
-
-	"github.com/jinzhu/gorm"
 )
 
 type (
@@ -17,7 +15,7 @@ type (
 	CasbinPolicyType string
 
 	CasbinPolicyAuth struct {
-		gorm.Model
+		ModelT
 		Sub  string           `gorm:"not null;"json:"sub"`
 		Obj  string           `gorm:"type:varchar(255);not null;"json:"obj"`
 		Act  string           `gorm:"type:varchar(255);not null;"json:"act"`

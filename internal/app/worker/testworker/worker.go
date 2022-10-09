@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/jhump/protoreflect/desc"
+	"go.uber.org/zap"
 
 	"github.com/beeker1121/goque"
 	"github.com/douyu/juno/internal/pkg/packages/xtest"
@@ -238,7 +239,7 @@ func (t *TestWorker) runJob(task view.TestTask, name string, payload *db.TestJob
 			xlog.Error("runJob failed", xlog.String("err", err.Error()))
 		}
 	} else {
-		xlog.Errorf("invalid job type: %s", payload.Type)
+		xlog.Error("invalid job type: ", zap.Any("type", payload.Type))
 	}
 
 	return

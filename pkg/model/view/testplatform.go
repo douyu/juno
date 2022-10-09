@@ -83,8 +83,8 @@ type (
 
 	ReqQueryTestTasks struct {
 		PipelineID uint `query:"pipeline_id"`
-		Page       uint `query:"page"`
-		PageSize   uint `query:"page_size"`
+		Page       int  `query:"page"`
+		PageSize   int  `query:"page_size"`
 	}
 
 	ReqQueryTaskItem struct {

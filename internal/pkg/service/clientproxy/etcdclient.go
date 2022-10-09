@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/pkg/model/view"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 type EtcdClient struct {

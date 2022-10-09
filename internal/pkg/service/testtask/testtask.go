@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 )
 
 type (
@@ -33,7 +33,7 @@ func Init(o Option) {
 
 func Instance() *TestTask {
 	if instance == nil {
-		xlog.Fatalf("testtask.Init() MUST be called before call testtask.Instance()")
+		xlog.Fatal("testtask.Init() MUST be called before call testtask.Instance()")
 	}
 
 	return instance

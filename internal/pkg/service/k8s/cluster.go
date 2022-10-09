@@ -1,7 +1,7 @@
 package k8s
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"k8s.io/client-go/rest"
 )
 

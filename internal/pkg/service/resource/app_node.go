@@ -30,7 +30,7 @@ func (r *resource) GetAllAppNodeList(where db.AppNode) (resp []db.AppNode, err e
 	return
 }
 
-func (r *resource) CountAppNode(where db.AppNode) (cnt int, err error) {
+func (r *resource) CountAppNode(where db.AppNode) (cnt int64, err error) {
 	err = r.DB.Table("app_node").Where(&where).Count(&cnt).Error
 	return
 }
@@ -46,7 +46,7 @@ func (r *resource) GetAppPod(where db.K8sPod) (resp db.K8sPod, err error) {
 }
 
 func (r *resource) GetAllAppEnvZone(where db.AppNode) (resp []db.AppNode, err error) {
-	err = r.DB.Where(&where).Order("create_time desc", false).Find(&resp).Error
+	err = r.DB.Where(&where).Order("create_time desc").Find(&resp).Error
 	return
 }
 
@@ -86,7 +86,7 @@ UNION
 	whereSql = strings.TrimRight(whereSql, "&&")
 	nodeSql = fmt.Sprintf(nodeSql, whereSql)
 	page = view.NewPagination(currentPage, pageSize)
-	dbw := r.DB.Raw(nodeSql, whereArr...).Offset(page.Current - 1).Limit(page.PageSize).Scan(&resp)
+	dbw := r.DB.Model(&db.AppNode{}).Raw(nodeSql, whereArr...).Offset(page.Current - 1).Limit(page.PageSize).Scan(&resp)
 	dbw.Count(&page.Total)
 	return
 }
@@ -156,7 +156,7 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 	preNodes, err = r.GetAllAppNodeList(db.AppNode{
 		AppName: appName,
 	})
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		xlog.Error("UpdateNodes GetPreAllAppNodeList error", zap.Error(err), zap.String("app_name: ", appName))
 		return
 	}
@@ -261,14 +261,14 @@ func Md5(s string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (r *resource) AppNodeTransferSource() (resp []db.Node, total int, err error) {
+func (r *resource) AppNodeTransferSource() (resp []db.Node, total int64, err error) {
 	sql := r.DB.Model(db.Node{})
 	sql.Count(&total)
 	err = sql.Order("host_name desc").Find(&resp).Error
 	return
 }
 
-func (r *resource) AppNodeTransferTarget(aid int) (resp []db.AppNode, total int, err error) {
+func (r *resource) AppNodeTransferTarget(aid int) (resp []db.AppNode, total int64, err error) {
 	sql := r.DB.Model(db.AppNode{}).Where("aid = ?", aid)
 	sql.Count(&total)
 	err = sql.Order("host_name desc").Find(&resp).Error

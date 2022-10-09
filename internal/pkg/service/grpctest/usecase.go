@@ -10,7 +10,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/grpctest/grpcinvoker"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 func UseCases(uid uint, param view.ReqListGRPCUseCases) (resp []view.RespListMethodUseCaseItem, err error) {
@@ -53,7 +53,7 @@ func CreateUseCase(uid uint, param view.ReqCreateGRPCUseCase) (useCaseView view.
 
 	tx := option.DB.Begin()
 	err = tx.Where("name = ?", param.Name).Last(&useCase).Error
-	if !gorm.IsRecordNotFoundError(err) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		tx.Rollback()
 		if err != nil {
 			return
@@ -97,7 +97,7 @@ func UpdateUseCase(uid uint, param view.ReqUpdateGRPCUseCase) (useCaseView view.
 	if err != nil {
 		tx.Rollback()
 
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = fmt.Errorf("该用例不存在")
 		}
 

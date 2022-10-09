@@ -37,7 +37,7 @@ func (r *resource) GetApp(identify interface{}) (resp db.AppInfo, err error) {
 
 // 设置APP信息
 func (r *resource) PutApp(item db.AppInfo, user *db.User) (err error) {
-	var count int
+	var count int64
 	now := time.Now().Unix()
 
 	// 验证是否数据有修改
@@ -75,7 +75,7 @@ func (r *resource) CreateApp(item db.AppInfo, user *db.User) (err error) {
 	var info db.AppInfo
 	err = r.DB.Where("app_name = ?", item.AppName).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -98,7 +98,7 @@ func (r *resource) UpdateApp(item db.AppInfo, user *db.User) (err error) {
 	var info db.AppInfo
 	err = r.DB.Where("aid = ?", item.Aid).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -117,7 +117,7 @@ func (r *resource) DeleteApp(item db.AppInfo, user *db.User) (err error) {
 	var info db.AppInfo
 	err = r.DB.Where("aid = ?", item.Aid).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -144,7 +144,7 @@ func (r *resource) GetAppGrpcList(appName string) (port string, appNodes []db.Ap
 
 	err = r.DB.Where("app_name = ?", appName).First(&app).Error
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = fmt.Errorf("应用不存在")
 		}
 		return
@@ -166,7 +166,7 @@ func (r *resource) GetAppHttpList(appName string) (port string, appNodes []db.Ap
 
 	err = r.DB.Where("app_name = ?", appName).First(&app).Error
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = fmt.Errorf("应用不存在")
 		}
 		return
@@ -265,7 +265,7 @@ func (r *resource) GetAppListWithEnv(param view.ReqAppListWithEnv) (resp view.Re
 	return
 }
 
-func (r *resource) GetAppCnt() (cnt int) {
+func (r *resource) GetAppCnt() (cnt int64) {
 	r.DB.Model(db.AppInfo{}).Count(&cnt)
 	return
 }
@@ -390,7 +390,7 @@ func (r *resource) GetMinervaVersion(appName string) (string, error) {
 }
 
 func (r *resource) updateAppInfo(info *db.AppInfo, user *db.User) {
-	var count int
+	var count int64
 	r.DB.Model(db.AppInfo{}).Where("app_name = ?", info.AppName).Count(&count)
 	if count == 0 { // 新增
 		r.DB.Create(info)
@@ -429,7 +429,7 @@ func (r *resource) SaveVisitedApp(appName, userName string) {
 		r.DB.Create(&userVisitedAppNew)
 		return
 	}
-	r.DB.Table("user_visited_app").Where("app_name = ? and user_name = ?", appName, userName).Update(map[string]interface{}{
+	r.DB.Table("user_visited_app").Where("app_name = ? and user_name = ?", appName, userName).Updates(map[string]interface{}{
 		"visited_time": time.Now().Unix(),
 	})
 }
@@ -571,7 +571,7 @@ func (r *resource) appUpdateEvent(app *db.AppInfo, user *db.User) error {
 	return err
 }
 
-func (r *resource) Count() (count int, err error) {
+func (r *resource) Count() (count int64, err error) {
 	err = r.DB.Table("app").Where("biz_domain = ?", "项目A").Count(&count).Error
 	return
 }
@@ -583,7 +583,7 @@ func (r *resource) WhereAID(aid uint) (app *db.AppInfo, err error) {
 }
 
 // WhereNickname 根据负责人和应用名进行查询
-func (r *resource) WhereNickname(username, qs string, page, pageSize uint) (apps []db.AppInfo, total uint, err error) {
+func (r *resource) WhereNickname(username, qs string, page, pageSize int) (apps []db.AppInfo, total int64, err error) {
 	if pageSize == 0 {
 		return
 	}

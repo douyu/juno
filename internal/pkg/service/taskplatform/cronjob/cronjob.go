@@ -6,16 +6,17 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
+	clientv3 "go.etcd.io/etcd/client/v3"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -91,7 +92,7 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 	})
 
 	eg.Go(func() error {
-		pagination.Total = int(page)
+		pagination.Total = int64(page)
 		return query.Count(&pagination.Total).Error
 	})
 
@@ -148,7 +149,7 @@ func (j *CronJob) List(params view.ReqQueryJobs) (list []view.CronJobListItem, p
 	return
 }
 
-//Create 创建 Job
+// Create 创建 Job
 func (j *CronJob) Create(uid uint, params view.CronJob) (err error) {
 	var timers = make([]db.CronJobTimer, len(params.Timers))
 	var job = db.CronJob{
@@ -216,7 +217,7 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 		return errors.Wrap(err, "can not found params")
 	}
 
-	err = tx.Model(&job).Association("Timers").Find(&oldTimers).Error
+	err = tx.Model(&job).Association("Timers").Find(&oldTimers)
 	if err != nil {
 		tx.Rollback()
 		return
@@ -229,7 +230,7 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 		}
 	}
 
-	err = tx.Model(&job).Association("Timers").Append(timers).Error
+	err = tx.Model(&job).Association("Timers").Append(timers)
 	if err != nil {
 		tx.Rollback()
 		return
@@ -274,7 +275,7 @@ func (j *CronJob) Update(params view.CronJob) (err error) {
 	return
 }
 
-//Delete 删除 id 对应的 Job
+// Delete 删除 id 对应的 Job
 func (j *CronJob) Delete(id uint) (err error) {
 	var job db.CronJob
 
@@ -303,7 +304,7 @@ func (j *CronJob) Delete(id uint) (err error) {
 	return
 }
 
-//DispatchOnce 下发任务手动执行单次
+// DispatchOnce 下发任务手动执行单次
 func (j *CronJob) DispatchOnce(id uint, node string) (err error) {
 	var job db.CronJob
 
@@ -341,7 +342,7 @@ func (j *CronJob) DispatchOnce(id uint, node string) (err error) {
 	return tx.Commit().Error
 }
 
-//ListTask 任务列表
+// ListTask 任务列表
 func (j *CronJob) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pagination view.Pagination, err error) {
 	var tasks []db.CronTask
 
@@ -398,7 +399,7 @@ func (j *CronJob) ListTask(params view.ReqQueryTasks) (list []view.CronTask, pag
 	return
 }
 
-//TaskDetail Task 详情
+// TaskDetail Task 详情
 func (j *CronJob) TaskDetail(id uint) (detail view.CronTaskDetail, err error) {
 	var task db.CronTask
 
@@ -436,7 +437,7 @@ func (j *CronJob) StartWatch() {
 	}
 }
 
-//startSyncJob sync job to etcd from mysql
+// startSyncJob sync job to etcd from mysql
 func (j *CronJob) startSyncJob() {
 	config := xcron.DefaultConfig()
 	config.WithSeconds = true
@@ -462,7 +463,7 @@ func (j *CronJob) startSyncJob() {
 	cron.Start()
 }
 
-//removeInvalidJob remove jobs that not exists in DB
+// removeInvalidJob remove jobs that not exists in DB
 func (j *CronJob) removeInvalidJob() {
 	for _, client := range clientproxy.ClientProxy.DefaultEtcdClients() {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -480,7 +481,7 @@ func (j *CronJob) removeInvalidJob() {
 				continue
 			}
 
-			count := 0
+			count := int64(0)
 			err = j.db.Model(&db.CronJob{}).Where("id = ? and enable = ?", job.ID, true).Count(&count).Error
 			if err != nil {
 				continue
@@ -497,7 +498,7 @@ func (j *CronJob) removeInvalidJob() {
 	}
 }
 
-//writeJobsToEtcd load jobs from mysql, and write them to etcd
+// writeJobsToEtcd load jobs from mysql, and write them to etcd
 func (j *CronJob) writeJobsToEtcd() {
 	var jobs []db.CronJob
 	err := j.db.Preload("Timers").Where("enable = ?", true).Find(&jobs).Error
@@ -515,7 +516,7 @@ func (j *CronJob) clearTasks() {
 	xlog.Info("CronJob.clearTasks: start clear tasks")
 
 	const pageSize = 1024
-	var total int
+	var total int64
 
 	query := j.db.Where("status = ?", db.CronTaskStatusProcessing)
 
@@ -524,14 +525,14 @@ func (j *CronJob) clearTasks() {
 		xlog.Error("CronJob.clearTasks: count failed", xlog.FieldErr(err))
 		return
 	}
-	xlog.Infof("Cronjob.clearTasks: find %d processing-tasks", total)
+	xlog.Info("Cronjob.clearTasks: find processing-tasks", zap.Int64("total", total))
 
 	pages := total / pageSize
 	if total%pageSize > 0 {
 		pages += 1
 	}
 
-	for i := 0; i < pages; i++ {
+	for i := 0; i < int(pages); i++ {
 		var tasks []db.CronTask
 		err = query.Limit(pageSize).Select("id").Offset(i * pageSize).Find(&tasks).Error
 		if err != nil {
@@ -631,7 +632,7 @@ func GetJobFromKv(key []byte, value []byte) (*Job, error) {
 	job := &Job{}
 
 	if err := json.Unmarshal(value, job); err != nil {
-		xlog.Warnf("job[%s] unmarshal err: %s", key, err.Error())
+		xlog.Warn("job unmarshal err", zap.ByteString("key", key), zap.Error(err))
 		return nil, err
 	}
 

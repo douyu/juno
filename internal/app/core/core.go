@@ -21,8 +21,8 @@ type JSONResult struct {
 
 // Pagination
 type Pagination struct {
-	Total   int `json:"total"`   // total: 全部记录条数 和 antd 参数一致
-	Current int `json:"current"` // current：当前页数，和 antd 翻页参数一致
+	Total   int64 `json:"total"`   // total: 全部记录条数 和 antd 参数一致
+	Current int   `json:"current"` // current：当前页数，和 antd 翻页参数一致
 }
 
 type HandlerFunc func(c *Context) error

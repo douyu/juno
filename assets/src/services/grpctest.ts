@@ -49,6 +49,9 @@ export async function updateUserCase(payload: any) {
 export async function deleteUserCase(id: number) {
   return request(`/api/admin/test/grpc/useCases/delete?id=${id}`, {
     method: 'POST',
+    data: {
+      id,
+    },
   });
 }
 

@@ -7,8 +7,8 @@ import (
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/douyu/jupiter/pkg/xlog"
-	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -20,7 +20,7 @@ const (
 	appLogModeAliyun  = "aliyun"
 )
 
-//Init ,,
+// Init ,,
 func Init(d *gorm.DB) {
 	mysql = d
 	if !cfg.Cfg.AppLog.Enable {
@@ -33,7 +33,7 @@ func Init(d *gorm.DB) {
 	}
 }
 
-//LogStore ..
+// LogStore ..
 func LogStore(param view.ReqAliyunLogDefault, u *db.User) (string, error) {
 	switch cfg.Cfg.AppLog.Mode {
 	case appLogModeDefault:

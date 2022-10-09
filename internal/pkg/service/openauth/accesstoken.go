@@ -1,12 +1,13 @@
 package openauth
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	"github.com/labstack/gommon/random"
@@ -65,7 +66,7 @@ func (o *openAuthService) Create(param view.ReqCreateAccessToken) (token view.Ac
 
 	tx := o.db.Begin()
 	err = tx.Where("name = ?", param.Name).First(&accessToken).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		tx.Rollback()
 		return
 	} else if err == nil {

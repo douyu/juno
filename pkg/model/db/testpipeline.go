@@ -4,13 +4,11 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
-
-	"github.com/jinzhu/gorm"
 )
 
 type (
 	TestPipeline struct {
-		gorm.Model
+		ModelT
 		Name               string
 		AppName            string
 		Env                string `gorm:"type:varchar(32)"`
@@ -29,7 +27,7 @@ type (
 
 	//TestPipelineTask 任务下发执行的单位
 	TestPipelineTask struct {
-		gorm.Model
+		ModelT
 		PipelineID uint
 		Name       string
 		AppName    string
@@ -46,7 +44,7 @@ type (
 
 	//TestPipelineStepStatus 任务阶段状态
 	TestPipelineStepStatus struct {
-		gorm.Model
+		ModelT
 		TaskID   uint
 		StepName string
 		Status   TestStepStatus // waiting, running, failed, success
@@ -132,7 +130,7 @@ func (d *PipelineGrpcTestCases) Scan(input interface{}) error {
 	return json.Unmarshal(input.([]byte), d)
 }
 
-//ValidatePipelineDesc 检查 TestPipelineDesc 是否有效
+// ValidatePipelineDesc 检查 TestPipelineDesc 是否有效
 func (d TestPipelineDesc) ValidatePipelineDesc() error {
 	names := make(map[string]bool)
 

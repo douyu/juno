@@ -6,15 +6,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/errorconst"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 )
 
-//GovernPort get govern port
+// GovernPort get govern port
 func GovernPort(port, env, zoneCode, appName, nodeName string) string {
 	xlog.Info("GovernPort", zap.String("step", "one"), zap.String("appName", appName), zap.String("env", env), zap.String("zoneCode", zoneCode), zap.String("port", port), zap.String("nodeName", nodeName))
 

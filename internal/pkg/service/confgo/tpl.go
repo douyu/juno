@@ -39,7 +39,7 @@ func (r *confu) UpdateTpl(item db.CmcTpl, user *db.User) (err error) {
 	var info db.CmcTpl
 	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错
@@ -56,7 +56,7 @@ func (r *confu) DeleteTpl(id int, user *db.User) (err error) {
 	var info db.CmcTpl
 	err = r.DB.Where("id = ?", id).Find(&info).Error
 	// 返回系统错误
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 	// 已经存在该应用，报错

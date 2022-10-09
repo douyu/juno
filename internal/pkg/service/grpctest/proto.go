@@ -6,7 +6,8 @@ import (
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/pkg/errors"
 )
 
 func Proto() (resp view.RespListGRPCProto, err error) {
@@ -35,7 +36,7 @@ func MethodDetail(methodID uint) (resp view.RespDetailGrpcMethod, err error) {
 		return db.Preload("Proto")
 	}).Where("id = ?", methodID).Last(&method).Error
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = fmt.Errorf("method not exists")
 			return
 		}
@@ -77,7 +78,7 @@ func BindProtoToApp(param view.ReqBindProtoToApp) (err error) {
 
 	err = option.DB.Where("app_name = ?", param.AppName).Last(&app).Error
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("invalid app name")
 		}
 

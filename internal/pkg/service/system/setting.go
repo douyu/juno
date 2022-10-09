@@ -2,6 +2,7 @@ package system
 
 import (
 	"encoding/json"
+	"errors"
 	"sync"
 	"time"
 
@@ -9,7 +10,7 @@ import (
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 type (
@@ -57,7 +58,7 @@ func (s *setting) intervalSync() {
 	}
 }
 
-//GetAll 从数据库获取所有设置
+// GetAll 从数据库获取所有设置
 func (s *setting) GetAll() (settings map[string]string, err error) {
 	settings = make(map[string]string)
 
@@ -116,14 +117,14 @@ func (s *setting) Get(name string) (val string, err error) {
 func (s *setting) Create(name string, value string) (err error) {
 	setting := db.SystemConfig{}
 	err = s.db.Where("name = ?", name).First(&setting).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 
 	setting.Name = string(name)
 	setting.Content = value
 
-	if err != nil && gorm.IsRecordNotFoundError(err) {
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = s.db.Create(&setting).Error
 		{
 			s.settingCacheMtx.Lock()
@@ -142,14 +143,14 @@ func (s *setting) Set(name string, value string) (err error) {
 	setting := db.SystemConfig{}
 	query := tx.Where("name = ?", name).First(&setting)
 	err = query.Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 
 	setting.Name = string(name)
 	setting.Content = value
 
-	if err != nil && gorm.IsRecordNotFoundError(err) {
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		err = tx.Create(&setting).Error
 	} else {
 		err = tx.Save(&setting).Error
@@ -181,7 +182,7 @@ func (s *setting) get(name string) (val string, err error) {
 	setting := db.SystemConfig{}
 	err = s.db.Where("name = ?", name).First(&setting).Error
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			if config, ok := view.SettingFieldConfigs[name]; ok {
 				return config.Default, nil
 			}

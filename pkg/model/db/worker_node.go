@@ -2,13 +2,11 @@ package db
 
 import (
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
 type (
 	WorkerNode struct {
-		gorm.Model
+		ModelT
 
 		HostName      string    `json:"host_name"`
 		RegionCode    string    `json:"region_code"`

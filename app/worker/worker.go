@@ -50,6 +50,6 @@ func initWorker() error {
 }
 
 func initLogger() error {
-	xlog.DefaultLogger = xlog.StdConfig("default").Build()
+	xlog.SetDefault(xlog.StdConfig("", "default").Build())
 	return nil
 }

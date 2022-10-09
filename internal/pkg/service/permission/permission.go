@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/douyu/juno/pkg/model/db"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 	"github.com/go-resty/resty/v2"
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 )
 

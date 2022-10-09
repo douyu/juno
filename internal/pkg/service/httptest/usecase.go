@@ -1,11 +1,12 @@
 package httptest
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
-	"github.com/jinzhu/gorm"
+	"github.com/douyu/jupiter/pkg/store/gorm"
 )
 
 func GetUseCase(id uint) (useCase view.HttpTestCase, err error) {
@@ -35,7 +36,7 @@ func CreateUseCase(uid uint, req view.CreateHttpTestCase) (useCase view.HttpTest
 	var collection db.HttpTestCollection
 	err = option.DB.Where("created_by = ? and id = ?", uid, req.CollectionID).First(&collection).Error
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			err = fmt.Errorf("collection 不存在")
 		}
 

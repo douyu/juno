@@ -23,6 +23,9 @@ export async function createJob(job: Job) {
 export async function deleteJob(id: number) {
   return request(`/api/admin/cronjob/delete?id=${id}`, {
     method: 'POST',
+    data: {
+      id,
+    },
   });
 }
 

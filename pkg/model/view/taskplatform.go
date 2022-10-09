@@ -50,15 +50,15 @@ type (
 		Enable   *bool   `query:"enable"`
 		Name     *string `query:"name"`
 		User     *string `query:"username"`
-		Page     uint    `query:"page"`
-		PageSize uint    `query:"page_size"`
+		Page     int     `query:"page"`
+		PageSize int     `query:"page_size"`
 	}
 
 	ReqQueryTasks struct {
 		ID         uint     `query:"id"`
 		ExecutedAt []string `query:"executed_at"`
-		Page       uint     `query:"page"`
-		PageSize   uint     `query:"page_size"`
+		Page       int      `query:"page"`
+		PageSize   int      `query:"page_size"`
 	}
 
 	CronJob struct {
