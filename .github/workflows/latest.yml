@@ -67,13 +67,22 @@ jobs:
         uses: docker/metadata-action@v3.6.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set outputs
+        id: vars
+        run: |
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5.6
         with:
           registry: ${{ env.REGISTRY }}
           image: ${{ env.IMAGE_NAME }}
+          buildArgs: "JUNO_TAR=juno_${{ steps.vars.outputs.tag }}-SNAPSHOT-${{ steps.vars.outputs.sha_short }}_linux_amd64.tar.gz"
           addLatest: true
           dockerfile: Dockerfile
+          directory: dist
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
