@@ -1,13 +1,13 @@
-name: latest
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: juno-admin
+name: goreleaser
 
 on:
   push:
     branches:
       - "*"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: juno-admin
 
 jobs:
   goreleaser:
