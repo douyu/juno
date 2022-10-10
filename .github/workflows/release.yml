@@ -1,4 +1,4 @@
-name: release
+name: goreleaser
 
 env:
   REGISTRY: ghcr.io

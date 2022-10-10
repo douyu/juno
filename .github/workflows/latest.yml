@@ -1,13 +1,13 @@
-name: latest
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: juno-admin
+name: goreleaser
 
 on:
   push:
     branches:
       - "*"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: juno-admin
 
 jobs:
   goreleaser:
@@ -41,7 +41,6 @@ jobs:
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
-          # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
           version: latest
           args: release --rm-dist
@@ -71,7 +70,7 @@ jobs:
         id: vars
         run: |
           echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+          echo "::set-output name=tag::$(git describe --tags --abbrev=0| cut -c 2-)"
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5.6
@@ -79,7 +78,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           image: ${{ env.IMAGE_NAME }}
           buildArgs: "JUNO_TAR=juno_${{ steps.vars.outputs.tag }}-SNAPSHOT-${{ steps.vars.outputs.sha_short }}_linux_amd64.tar.gz"
-          addLatest: true
+          addLatest: false
           directory: dist
           dockerfile: cmd/juno-admin/Dockerfile
           username: ${{ secrets.GHCR_USERNAME }}
