@@ -15,8 +15,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+
       - uses: actions/setup-node@v2
         with:
           node-version: "14"
@@ -39,6 +38,12 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Get dependencies
+        run: |
+          go env
+          go get -v -t -d ./...
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
@@ -67,15 +72,14 @@ jobs:
       - name: Set outputs
         id: vars
         run: |
-          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+          echo "::set-output name=file_name::$(ls dist/juno_*linux* |cut -c 6-)"
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5.6
         with:
           registry: ${{ env.REGISTRY }}
           image: ${{ env.IMAGE_NAME }}
-          buildArgs: "JUNO_TAR=juno_${{ steps.vars.outputs.tag }}-SNAPSHOT-${{ steps.vars.outputs.sha_short }}_linux_amd64.tar.gz"
+          buildArgs: "JUNO_TAR=${{ steps.vars.outputs.file_name }}"
           addLatest: true
           directory: dist
           dockerfile: ./cmd/juno-admin/Dockerfile
