@@ -73,15 +73,14 @@ jobs:
       - name: Set outputs
         id: vars
         run: |
-          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-          echo "::set-output name=tag::$(git describe --tags --abbrev=0| cut -c 2-)"
+          echo "::set-output name=file_name::$(ls dist/juno_*linux* |cut -c 6-)"
 
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5.6
         with:
           registry: ${{ env.REGISTRY }}
           image: ${{ env.IMAGE_NAME }}
-          buildArgs: "JUNO_TAR=juno_${{ steps.vars.outputs.tag }}-SNAPSHOT-${{ steps.vars.outputs.sha_short }}_linux_amd64.tar.gz"
+          buildArgs: "JUNO_TAR=${{ steps.vars.outputs.file_name }}"
           addLatest: false
           directory: dist
           dockerfile: cmd/juno-admin/Dockerfile
