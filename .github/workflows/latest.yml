@@ -38,6 +38,11 @@ jobs:
           cd assets
           yarn install
           yarn build
+      - name: Get dependencies
+        run: |
+          go env
+          go get -v -t -d ./...
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
