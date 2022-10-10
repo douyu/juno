@@ -1,12 +1,12 @@
 package vproxyintegrat
 
 type ProxyManageListParams struct {
-	Current  int    `json:"current"`
-	PageSize int    `json:"pageSize"`
-	Query    string `json:"query"`
+	Current  int    `query:"current" json:"current"`
+	PageSize int    `query:"pageSize" json:"pageSize"`
+	Query    string `query:"query" json:"query"`
 }
 
-//Valid 是否合法
+// Valid 是否合法
 func (req *ProxyManageListParams) Valid() (isValid bool, msg string) {
 	if req.Current <= 0 {
 		req.Current = 1
@@ -24,7 +24,7 @@ type ProxyManageCreateOrUpdateParams struct {
 	UID       uint32 `json:"uid"`
 }
 
-//Valid 是否合法
+// Valid 是否合法
 func (req *ProxyManageCreateOrUpdateParams) Valid() (isValid bool, msg string) {
 	if req.Title == "" {
 		msg = "代理名称参数错误"
@@ -51,7 +51,7 @@ type ProxyManageDeleteParams struct {
 	UID uint32 `json:"uid"`
 }
 
-//Valid 是否合法
+// Valid 是否合法
 func (req *ProxyManageDeleteParams) Valid() (isValid bool, msg string) {
 	if req.ID <= 0 {
 		msg = "数据不存在"
