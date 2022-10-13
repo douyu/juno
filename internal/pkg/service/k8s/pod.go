@@ -206,8 +206,16 @@ func (i *syncPod) commonCheck(in *v1.Pod, isnew bool) error {
 	return nil
 }
 func (i *syncPod) add(obj interface{}) {
-	in := obj.(*v1.Pod)
-
+	in, ok := obj.(*v1.Pod)
+	if !ok {
+		xlog.Warn("k8sWork",
+			xlog.String("step", "add-check"),
+			xlog.String("zoneCode", i.zoneCode),
+			xlog.String("podName", in.Name),
+			xlog.Any("obj", obj),
+			xlog.String("reason", "type error"))
+		return
+	}
 	err := i.commonCheck(in, true)
 	if err != nil {
 		xlog.Debug("k8sWork",
@@ -224,7 +232,7 @@ func (i *syncPod) add(obj interface{}) {
 		xlog.String("podName", in.Name),
 		xlog.Any("lab", in.Labels))
 
-	err = i.mysqlCreateOrUpdate(i.zoneCode, i.domain, obj.(*v1.Pod))
+	err = i.mysqlCreateOrUpdate(i.zoneCode, i.domain, in)
 	if err != nil {
 		xlog.Error("k8sWork",
 			xlog.String("step", "add-mysqlCreateOrUpdate"),
@@ -236,8 +244,16 @@ func (i *syncPod) add(obj interface{}) {
 }
 
 func (i *syncPod) update(old interface{}, new interface{}) {
-	in := new.(*v1.Pod)
-
+	in, ok := new.(*v1.Pod)
+	if !ok {
+		xlog.Warn("k8sWork",
+			xlog.String("step", "add-check"),
+			xlog.String("zoneCode", i.zoneCode),
+			xlog.String("podName", in.Name),
+			xlog.Any("obj", new),
+			xlog.String("reason", "type error"))
+		return
+	}
 	err := i.commonCheck(in, true)
 	if err != nil {
 		xlog.Debug("k8sWork",
@@ -247,7 +263,7 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 			xlog.String("reason", err.Error()))
 		return
 	}
-	err = i.mysqlCreateOrUpdate(i.zoneCode, i.domain, new.(*v1.Pod))
+	err = i.mysqlCreateOrUpdate(i.zoneCode, i.domain, in)
 	if err != nil {
 		xlog.Error("k8sWork",
 			xlog.String("step", "update-mysqlCreateOrUpdate"),
@@ -260,8 +276,16 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 }
 
 func (i *syncPod) delete(obj interface{}) {
-	in := obj.(*v1.Pod)
-
+	in, ok := obj.(*v1.Pod)
+	if !ok {
+		xlog.Warn("k8sWork",
+			xlog.String("step", "add-check"),
+			xlog.String("zoneCode", i.zoneCode),
+			xlog.String("podName", in.Name),
+			xlog.Any("obj", obj),
+			xlog.String("reason", "type error"))
+		return
+	}
 	err := i.commonCheck(in, false)
 	if err != nil {
 		xlog.Debug("k8sWork",
