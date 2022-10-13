@@ -208,7 +208,7 @@ func (i *syncPod) commonCheck(in *v1.Pod, isnew bool) error {
 func (i *syncPod) add(obj interface{}) {
 	in, ok := obj.(*v1.Pod)
 	if !ok {
-		xlog.Debug("k8sWork",
+		xlog.Warn("k8sWork",
 			xlog.String("step", "add-check"),
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.String("podName", in.Name),
@@ -246,7 +246,7 @@ func (i *syncPod) add(obj interface{}) {
 func (i *syncPod) update(old interface{}, new interface{}) {
 	in, ok := new.(*v1.Pod)
 	if !ok {
-		xlog.Debug("k8sWork",
+		xlog.Warn("k8sWork",
 			xlog.String("step", "add-check"),
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.String("podName", in.Name),
@@ -278,7 +278,7 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 func (i *syncPod) delete(obj interface{}) {
 	in, ok := obj.(*v1.Pod)
 	if !ok {
-		xlog.Debug("k8sWork",
+		xlog.Warn("k8sWork",
 			xlog.String("step", "add-check"),
 			xlog.String("zoneCode", i.zoneCode),
 			xlog.String("podName", in.Name),
