@@ -2,7 +2,11 @@
 
 package db
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type (
 	ConfigResource struct {
@@ -22,11 +26,11 @@ type (
 	}
 
 	ConfigResourceValue struct {
-		ID               uint       `gorm:"column:id;primary_key;auto_increment"`
-		ConfigResourceID uint       `gorm:"column:config_resource_id;"`
-		Value            string     `gorm:"column:value;type:text;"`
-		CreatedAt        time.Time  `gorm:"column:created_at;"`
-		DeletedAt        *time.Time `gorm:"column:deleted_at;"`
+		ID               uint           `gorm:"column:id;primary_key;auto_increment"`
+		ConfigResourceID uint           `gorm:"column:config_resource_id;"`
+		Value            string         `gorm:"column:value;type:text;"`
+		CreatedAt        time.Time      `gorm:"column:created_at;"`
+		DeletedAt        gorm.DeletedAt `gorm:"column:deleted_at;"`
 	}
 
 	//ConfigResourceTag 资源标签

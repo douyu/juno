@@ -5,42 +5,44 @@ package db
 import (
 	"fmt"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type (
 	// Configuration Application configuration
 	Configuration struct {
-		ID            uint       `gorm:"column:id;primary_key" json:"id"`
-		AID           uint       `gorm:"column:aid" json:"aid"`
-		Name          string     `gorm:"column:name;type:varchar(32)" json:"name"`
-		Content       string     `gorm:"column:content;type:longtext" json:"content"`
-		Format        string     `gorm:"column:format;type:varchar(20)" json:"format"` // Yaml/Toml
-		Env           string     `gorm:"column:env;type:varchar(20)" json:"env"`       // 环境
-		Zone          string     `gorm:"column:zone;type:varchar(50)" json:"zone"`     // 机房Zone
-		Version       string     `gorm:"column:version;type:varchar(50)" json:"version"`
-		CreatedAt     time.Time  `gorm:"column:created_at" json:"created_at"`
-		AccessTokenID uint       `gorm:"access_token_id" json:"access_token_id"` // AccessToken 授权ID
-		UID           uint       `gorm:"column:uid" json:"uid"`                  // 操作用户ID
-		UpdatedAt     time.Time  `gorm:"column:updated_at" json:"updated_at"`
-		DeletedAt     *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
-		PublishedAt   *time.Time `gorm:"column:published_at" json:"published_at"` // 未发布/发布时间
-		LockUid       uint       `gorm:"column:lock_uid" json:"lock_uid"`         // 正在编辑用户
-		LockAt        *time.Time `gorm:"column:lock_at" json:"lock_at"`
+		ID            uint           `gorm:"column:id;primary_key" json:"id"`
+		AID           uint           `gorm:"column:aid" json:"aid"`
+		Name          string         `gorm:"column:name;type:varchar(32)" json:"name"`
+		Content       string         `gorm:"column:content;type:longtext" json:"content"`
+		Format        string         `gorm:"column:format;type:varchar(20)" json:"format"` // Yaml/Toml
+		Env           string         `gorm:"column:env;type:varchar(20)" json:"env"`       // 环境
+		Zone          string         `gorm:"column:zone;type:varchar(50)" json:"zone"`     // 机房Zone
+		Version       string         `gorm:"column:version;type:varchar(50)" json:"version"`
+		CreatedAt     time.Time      `gorm:"column:created_at" json:"created_at"`
+		AccessTokenID uint           `gorm:"access_token_id" json:"access_token_id"` // AccessToken 授权ID
+		UID           uint           `gorm:"column:uid" json:"uid"`                  // 操作用户ID
+		UpdatedAt     time.Time      `gorm:"column:updated_at" json:"updated_at"`
+		DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
+		PublishedAt   *time.Time     `gorm:"column:published_at" json:"published_at"` // 未发布/发布时间
+		LockUid       uint           `gorm:"column:lock_uid" json:"lock_uid"`         // 正在编辑用户
+		LockAt        *time.Time     `gorm:"column:lock_at" json:"lock_at"`
 
 		App AppInfo `gorm:"foreignKey:AID" json:"-"`
 	}
 
 	// ConfigurationHistory Application configuration release history version
 	ConfigurationHistory struct {
-		ID              uint       `gorm:"column:id;primary_key" json:"id"`
-		AccessTokenID   uint       `gorm:"access_token_id" json:"access_token_id"` // AccessToken 授权ID
-		UID             uint       `gorm:"column:uid" json:"uid"`                  // 操作用户ID
-		ConfigurationID uint       `gorm:"column:configuration_id" json:"configuration_id"`
-		ChangeLog       string     `gorm:"column:change_log;type:longtext" json:"change_log"` // 变更说明文字
-		Content         string     `gorm:"column:content;type:longtext" json:"content"`       // 配置内容
-		Version         string     `gorm:"column:version;type:varchar(50)" json:"version"`    // 版本号
-		CreatedAt       time.Time  `gorm:"column:created_at" json:"created_at"`
-		DeletedAt       *time.Time `gorm:"column:deleted_at" json:"deleted_at"`
+		ID              uint           `gorm:"column:id;primary_key" json:"id"`
+		AccessTokenID   uint           `gorm:"access_token_id" json:"access_token_id"` // AccessToken 授权ID
+		UID             uint           `gorm:"column:uid" json:"uid"`                  // 操作用户ID
+		ConfigurationID uint           `gorm:"column:configuration_id" json:"configuration_id"`
+		ChangeLog       string         `gorm:"column:change_log;type:longtext" json:"change_log"` // 变更说明文字
+		Content         string         `gorm:"column:content;type:longtext" json:"content"`       // 配置内容
+		Version         string         `gorm:"column:version;type:varchar(50)" json:"version"`    // 版本号
+		CreatedAt       time.Time      `gorm:"column:created_at" json:"created_at"`
+		DeletedAt       gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
 
 		User             *User                           `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
 		AccessToken      *AccessToken                    `json:"-" gorm:"foreignKey:AccessTokenID;association_foreignkey:ID"`
@@ -127,12 +129,12 @@ func (ConfigurationStatus) TableName() string {
 	return "configuration_status"
 }
 
-//TableName ..
+// TableName ..
 func (ConfigurationResourceRelation) TableName() string {
 	return "configuration_resource_relation"
 }
 
-//TableName ..
+// TableName ..
 func (ConfigurationClusterStatus) TableName() string {
 	return "configuration_cluster_status"
 }
