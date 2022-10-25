@@ -1015,54 +1015,20 @@ func publishETCD(req view.ReqConfigPublish) (err error) {
 // History 发布历史分页列表，Page从0开始
 func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig, err error) {
 	list := make([]db.ConfigurationHistory, 0)
-
 	if param.Size == 0 {
 		param.Size = 1
 	}
-
-	query := mysql.Where("configuration_id = ?", param.ID)
-
-	wg := sync.WaitGroup{}
-	errChan := make(chan error)
-	doneChan := make(chan struct{})
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		offset := param.Size * param.Page
-		query := query.Preload("AccessToken").
-			Preload("User").Limit(param.Size).Offset(offset).Order("id desc").Find(&list)
-		if query.Error != nil {
-			errChan <- query.Error
-		}
-	}()
-
-	wg.Add(1)
-	go func() {
-		wg.Done()
-
-		q := query.Model(&db.ConfigurationHistory{}).Count(&resp.Pagination.Total)
-		if q.Error != nil {
-			errChan <- q.Error
-		}
-	}()
-
-	go func() {
-		wg.Wait()
-
-		doneChan <- struct{}{}
-	}()
-
-	select {
-	case <-doneChan:
-		break
-	case e := <-errChan:
-		close(errChan)
-		err = e
+	query := mysql.Model(&db.ConfigurationHistory{}).Where("configuration_id = ?", param.ID)
+	offset := param.Size * param.Page
+	err = query.Count(&resp.Pagination.Total).Error
+	if err != nil {
 		return
 	}
-
+	err = query.Preload("AccessToken").
+		Preload("User").Limit(param.Size).Offset(offset).Order("id desc").Find(&list).Error
+	if err != nil {
+		return
+	}
 	for _, item := range list {
 		configItem := &view.RespHistoryConfigItem{
 			ID:              item.ID,
@@ -1073,23 +1039,19 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 			CreatedAt:       item.CreatedAt,
 			ChangeLog:       item.ChangeLog,
 		}
-
 		configItem.UID = item.UID
 
 		if item.AccessToken != nil {
 			configItem.AccessTokenName = item.AccessToken.Name
 		}
-
 		if item.User != nil {
 			configItem.UserName = item.User.Username
 		}
 
 		resp.List = append(resp.List, configItem)
 	}
-
 	resp.Pagination.Current = int(param.Page)
 	resp.Pagination.PageSize = int(param.Size)
-
 	return
 }
 
