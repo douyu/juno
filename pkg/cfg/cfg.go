@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/douyu/jupiter/pkg/conf"
-	"github.com/douyu/jupiter/pkg/ecode"
+	"github.com/douyu/jupiter/pkg/core/ecode"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/spf13/cast"
 	"go.uber.org/zap"

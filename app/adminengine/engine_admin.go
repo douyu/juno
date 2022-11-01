@@ -43,7 +43,7 @@ import (
 	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/flag"
-	"github.com/douyu/jupiter/pkg/governor"
+	"github.com/douyu/jupiter/pkg/server/governor"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
 	"github.com/douyu/jupiter/pkg/xlog"
@@ -151,7 +151,7 @@ func (eng *Admin) initNotify() (err error) {
 			ProxyClient := make(map[string]pb.ProxyClient, 0)
 			for _, value := range cp.Stream.ProxyAddr {
 				gconfig := jgrpc.DefaultConfig()
-				gconfig.Address = value
+				gconfig.Addr = value
 				gconfig.Debug = cp.Stream.Debug
 				ProxyClient[value] = pb.NewProxyClient(gconfig.Build())
 			}
