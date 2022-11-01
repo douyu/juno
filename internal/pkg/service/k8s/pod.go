@@ -32,7 +32,7 @@ type keyLock struct {
 }
 
 func formatLockKey(appName string, env string) string {
-	return fmt.Sprintf("%d-%s", appName, env)
+	return fmt.Sprintf("%s-%s", appName, env)
 }
 func (a *keyLock) Lock(appName string, domain string) {
 	key := formatLockKey(appName, domain)
