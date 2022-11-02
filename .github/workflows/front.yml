@@ -4,11 +4,13 @@ on:
   push:
     paths:
       - "assets/**"
+      - ".github/**"
     branches:
       - master
   pull_request:
     paths:
       - "assets/**"
+      - ".github/**"
     branches:
       - master
 
