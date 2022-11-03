@@ -9,7 +9,7 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1842
 	github.com/aliyun/aliyun-log-go-sdk v0.1.39
 	github.com/apache/rocketmq-client-go/v2 v2.1.1
-	github.com/arsmn/fiber-swagger/v2 v2.3.0
+	github.com/arsmn/fiber-swagger/v2 v2.31.1
 	github.com/beeker1121/goque v2.1.0+incompatible
 	github.com/bojand/ghz v0.56.0
 	github.com/casbin/casbin/v2 v2.7.2
@@ -20,7 +20,7 @@ require (
 	github.com/go-playground/validator v9.30.0+incompatible
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/gofiber/fiber/v2 v2.5.0
+	github.com/gofiber/fiber/v2 v2.31.0
 	github.com/golang/protobuf v1.5.2
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/go-cmp v0.5.9
@@ -42,7 +42,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.10.0
-	github.com/swaggo/swag v1.7.0
+	github.com/swaggo/swag v1.8.1
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/tidwall/gjson v1.13.0
 	github.com/uber-archive/go-torch v0.0.0-20181107071353-86f327cc820e
@@ -98,9 +98,9 @@ require (
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
-	github.com/go-openapi/jsonreference v0.19.5 // indirect
-	github.com/go-openapi/spec v0.20.3 // indirect
-	github.com/go-openapi/swag v0.19.14 // indirect
+	github.com/go-openapi/jsonreference v0.19.6 // indirect
+	github.com/go-openapi/spec v0.20.4 // indirect
+	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
@@ -156,7 +156,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stathat/consistent v1.0.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
-	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14 // indirect
+	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/uber/go-torch v0.0.0-20181107071353-86f327cc820e // indirect
