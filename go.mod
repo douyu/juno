@@ -14,7 +14,7 @@ require (
 	github.com/bojand/ghz v0.111.0
 	github.com/casbin/casbin/v2 v2.7.2
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
-	github.com/douyu/jupiter v0.9.2
+	github.com/douyu/jupiter v0.9.4
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-playground/validator v9.30.0+incompatible
@@ -34,7 +34,7 @@ require (
 	github.com/link-duan/toml v0.3.2
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/ginkgo/v2 v2.4.0
-	github.com/onsi/gomega v1.23.0
+	github.com/onsi/gomega v1.24.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.13.1
 	github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff
@@ -65,7 +65,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.4.3
-	gorm.io/gorm v1.24.0
+	gorm.io/gorm v1.24.1
 	k8s.io/api v0.0.0-20190325185214-7544f9db76f6
 	k8s.io/apimachinery v0.0.0-20190223001710-c182ff3b9841
 	k8s.io/client-go v8.0.0+incompatible
