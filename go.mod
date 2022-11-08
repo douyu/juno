@@ -39,7 +39,7 @@ require (
 	github.com/prometheus/client_golang v1.13.1
 	github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.11.0
 	github.com/swaggo/swag v1.8.7
