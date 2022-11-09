@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/alibaba/sentinel-golang v1.0.4
-	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1842
+	github.com/aliyun/alibaba-cloud-sdk-go v1.62.4
 	github.com/aliyun/aliyun-log-go-sdk v0.1.39
 	github.com/apache/rocketmq-client-go/v2 v2.1.1
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
@@ -142,6 +142,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
+	github.com/opentracing/opentracing-go v1.2.1-0.20220228012449-10b1cf09e00b // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
