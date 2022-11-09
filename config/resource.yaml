@@ -157,15 +157,6 @@ permission:
           - path: /api/admin/analysis/deppkg/list
             method: GET
             name: 应用版本列表
-      - name: 注册信息
-        path: /analysis/register
-        api:
-          - path: /api/admin/analysis/topology/select
-            method: GET
-            name: 看板拓扑
-          - path: /api/admin/analysis/register/list
-            method: GET
-            name: 注册列表
   - name: 任务中心
     icon: ClockCircleOutlined
     path: /cronjob

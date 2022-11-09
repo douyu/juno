@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/douyu/juno/internal/app/core"
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/pkg/model/view"
@@ -38,37 +37,6 @@ func List(c echo.Context) error {
 	}
 
 	return output.JSON(c, output.MsgOk, "success", resp)
-}
-
-// protable格式化etcd数据返回
-func ProTableList(c *core.Context) error {
-	req := view.ReqGetEtcdList{}
-	resp := make([]view.RespEtcdInfo, 0)
-
-	if err := c.Bind(&req); err != nil {
-		return output.JSON(c, output.MsgErr, "bind req is error:"+err.Error())
-	}
-
-	if req.Prefix == "" || req.ZoneCode == "" || req.Env == "" {
-		return output.JSON(c, output.MsgErr, "参数错误: env, prefix, ZoneCode均不能为空", resp)
-	}
-
-	if req.ZoneCode == "all" {
-		return output.JSON(c, output.MsgOk, "success", resp)
-	}
-
-	resp, err := list(req)
-	if err != nil {
-		return output.JSON(c, output.MsgErr, "查询失败："+err.Error())
-	}
-
-	total := len(resp)
-	res := output.ProTableResult{
-		Success: true,
-		Total:   total,
-		Data:    resp,
-	}
-	return c.OutputJSON(output.MsgOk, "", c.WithData(res))
 }
 
 func list(req view.ReqGetEtcdList) (resp []view.RespEtcdInfo, err error) {

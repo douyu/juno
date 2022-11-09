@@ -123,12 +123,7 @@ export default defineConfig({
                   name: '版本管理',
                   path: '/analysis/deppkg',
                   component: './analysis/deppkg/index',
-                },
-                {
-                  name: '注册信息',
-                  path: '/analysis/register',
-                  component: './analysis/register/index',
-                },
+                }
               ],
             },
             {
