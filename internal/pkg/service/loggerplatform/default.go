@@ -35,7 +35,7 @@ const (
 	LogTypBiz     = "biz"
 )
 
-//newAppLogD ..
+// newAppLogD ..
 func newAppLogD() {
 	var ald appLogDefault
 	ald.dashboardUrl = cfg.Cfg.AppLog.Default.DashboardUrl
@@ -60,7 +60,7 @@ func newAppLogD() {
 	return
 }
 
-//LogStore get log store
+// LogStore get log store
 func (a *appLogDefault) LogStore(env, query, typ, appName, aid string, u *db.User) (string, error) {
 	project, logStore := a.GetLogStoreName(env, typ, appName)
 	query = a.genQuery(env, typ, aid, query, appName)
@@ -81,7 +81,7 @@ func (a *appLogDefault) genQuery(env, typ, aid, query, appName string) string {
 	return query
 }
 
-//getLogStoreName ...
+// getLogStoreName ...
 func (a *appLogDefault) GetLogStoreName(env, typ, appName string) (string, string) {
 	var project AppLogDefaultEnvData
 	//业务日志进行拦截

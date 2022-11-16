@@ -413,4 +413,5 @@ func apiAdmin(server *xecho.Server) {
 	{
 		loggerGroup.GET("/logstore", core.Handle(loggerplatform.LogStore))
 	}
+
 }
