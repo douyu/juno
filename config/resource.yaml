@@ -135,6 +135,9 @@ permission:
           - path: /api/admin/proxyintegrat/uilist
             method: GET
             name: 功能菜单
+          - path: /api/admin/proxyintegrat/traceURL
+            method: GET
+            name: trace授权地址 
       - name: 依赖拓扑
         path: /analysis/topology
         api:

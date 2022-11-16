@@ -24,7 +24,7 @@ const renderPanel = (config) => {
     case 'welcome':
       return <WelcomeView {...config.config} />;
     default:
-      return <ProxyView {...config.config} />;
+      return <ProxyView {...config.config} panelType={config.panelType} />;
   }
 };
 

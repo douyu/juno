@@ -20,6 +20,7 @@ export interface ModalCreateResourceInterface {
 export const PanelTypes = [
   { title: 'Grafana', val: 'grafana' },
   { title: 'Pyroscope', val: 'pyroscope' },
+  { title: 'AliTrace', val: 'alitrace' },
 ];
 
 function ModalCreateResource(props: ModalCreateResourceInterface) {
