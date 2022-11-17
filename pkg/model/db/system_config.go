@@ -1,6 +1,10 @@
 package db
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type SystemConfig struct {
 	Name       string `gorm:"not null;column:name;type:varchar(50);primary_key" json:"name"`
@@ -13,12 +17,12 @@ func (SystemConfig) TableName() string {
 	return "system_config"
 }
 
-func (s *SystemConfig) BeforeCreate() error {
+func (s *SystemConfig) BeforeCreate(*gorm.DB) error {
 	s.CreateTime = time.Now().Unix()
 	return nil
 }
 
-func (s *SystemConfig) BeforeUpdate() error {
+func (s *SystemConfig) BeforeUpdate(*gorm.DB) error {
 	s.UpdateTime = time.Now().Unix()
 	return nil
 }
