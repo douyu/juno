@@ -19,10 +19,10 @@ type (
 		Description string `gorm:"column:description;"`
 		Visible     bool   `gorm:"column:visible;"`
 
-		Tags   []ConfigResourceTag   `gorm:"foreignKey:ConfigResourceID"`
-		Zone   Zone                  `gorm:"foreignKey:zoneCode;association_foreignkey:zoneCode;association_autoupdate:false"`
-		User   User                  `gorm:"foreignKey:Username;association_foreignkey:UID;association_autoupdate:false"`
-		Values []ConfigResourceValue `gorm:"foreignKey:ConfigResourceID;association_autoupdate:false"`
+		Tags   []ConfigResourceTag   `gorm:"foreignKey:config_resource_id"`
+		Zone   Zone                  `gorm:"foreignKey:zone_code;association_foreignkey:zone_code;association_autoupdate:false"`
+		User   User                  `gorm:"foreignKey:username;association_foreignkey:uid;association_autoupdate:false"`
+		Values []ConfigResourceValue `gorm:"foreignKey:config_resource_id;association_autoupdate:false"`
 	}
 
 	ConfigResourceValue struct {

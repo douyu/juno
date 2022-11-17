@@ -29,8 +29,8 @@ type AppInfo struct {
 	ProtoDir   string       `gorm:"not null;" json:"proto_dir"`
 	GitURL     string       `gorm:"not null;" json:"git_url"`
 
-	AppNodes   []AppNode   `gorm:"foreignKey:Aid;association_foreignkey:Aid" json:"-"`
-	GrpcProtos []GrpcProto `gorm:"foreignKey:AppName;association_foreignkey:AppName" json:"-"`
+	AppNodes   []AppNode   `gorm:"foreignKey:aid;association_foreignkey:aid" json:"-"`
+	GrpcProtos []GrpcProto `gorm:"foreignKey:app_name;association_foreignkey:app_name" json:"-"`
 }
 
 // TableName ...

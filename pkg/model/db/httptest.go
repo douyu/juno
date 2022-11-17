@@ -27,7 +27,7 @@ type (
 		Body         string        `json:"body"`
 		Script       string        `gorm:"type:longtext;" json:"script"`
 
-		Collection HttpTestCollection `gorm:"foreignKey:CollectionID" json:"-"`
+		Collection HttpTestCollection `gorm:"foreignKey:collection_id" json:"-"`
 	}
 
 	HttpTestLog struct {

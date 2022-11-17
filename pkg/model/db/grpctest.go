@@ -38,7 +38,7 @@ type (
 		OutputType    ProtoFields `gorm:"column:output_type;not null;type:json"` // 返回值类型描述
 		OutputName    string      `gorm:"column:output_name;not null;"`
 
-		Service   GrpcProtoService `gorm:"foreignKey:ServiceID"`
+		Service   GrpcProtoService `gorm:"foreignKey:service_id"`
 		TestCases []GrpcTestCase   `gorm:"foreignKey:MethodID"`
 	}
 

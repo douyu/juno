@@ -20,9 +20,9 @@ type (
 		Nodes         StringArray `gorm:"type:json"`
 		JobType       CronJobType
 
-		User       User           `gorm:"foreignKey:Uid;association_foreignkey:Uid"`
-		Timers     []CronJobTimer `gorm:"foreignKey:JobID"`
-		LatestTask *CronTask      `gorm:"foreignKey:JobID"`
+		User       User           `gorm:"foreignKey:uid;association_foreignkey:uid"`
+		Timers     []CronJobTimer `gorm:"foreignKey:job_id"`
+		LatestTask *CronTask      `gorm:"foreignKey:job_id"`
 	}
 
 	CronJobTimer struct {
@@ -30,7 +30,7 @@ type (
 		JobID uint   `gorm:"column:job_id"`
 		Cron  string `gorm:"column:cron"` // crontab-like DSL
 
-		Job CronJob `gorm:"foreignKey:JobID"`
+		Job CronJob `gorm:"foreignKey:job_id"`
 	}
 
 	CronTask struct {
@@ -51,7 +51,7 @@ type (
 		UpdatedAt   time.Time
 		DeletedAt   *time.Time `sql:"index"`
 
-		Job CronJob `gorm:"foreignKey:JobID"`
+		Job CronJob `gorm:"foreignKey:job_id"`
 	}
 
 	CronTaskStatus string
