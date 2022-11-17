@@ -96,9 +96,9 @@ type (
 
 	// ReqHistoryConfig ..
 	ReqHistoryConfig struct {
-		ID   uint `json:"id" validate:"required"` // 配置文件ID
-		Size int  `json:"size" validate:"required"`
-		Page int  `json:"page"`
+		ID   uint `query:"id" json:"id" validate:"required"` // 配置文件ID
+		Size int  `query:"size"  json:"size" validate:"required"`
+		Page int  `query:"page"  json:"page"`
 	}
 
 	// RespHistoryConfig ..
