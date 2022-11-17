@@ -15,8 +15,6 @@
 package adminengine
 
 import (
-	"context"
-	"strconv"
 	"time"
 
 	"github.com/douyu/juno/api/apiv1/resource"
@@ -39,10 +37,9 @@ import (
 	"github.com/douyu/juno/pkg/constx"
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
-	"github.com/douyu/jupiter/pkg"
-	"github.com/douyu/jupiter/pkg/client/etcdv3"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
 	"github.com/douyu/jupiter/pkg/flag"
+	"github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/governor"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/douyu/jupiter/pkg/worker/xcron"
@@ -86,6 +83,7 @@ func New() *Admin {
 	})
 
 	eng := &Admin{}
+
 	err := eng.Startup(
 		eng.parseFlag,
 		eng.initConfig,
@@ -96,7 +94,6 @@ func New() *Admin {
 		eng.initNotify,
 		eng.serveHTTP,
 		eng.serveGovern,
-		eng.defers,
 		eng.initParseWorker,
 		eng.refreshProxyManage,
 		eng.refreshAliyunLogMenu,
@@ -138,6 +135,12 @@ func (eng *Admin) initConfig() (err error) {
 	bizConfig.Level = cfg.Cfg.Logger.Biz.Level
 	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
 	xlog.SetDefault(bizConfig.Build())
+
+	config := etcdv3.DefaultConfig()
+	config.Endpoints = cfg.Cfg.Register.Endpoints
+	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
+	config.Secure = cfg.Cfg.Register.Secure
+	eng.SetRegistry(config.MustBuild())
 
 	return
 }
@@ -193,26 +196,6 @@ func (eng *Admin) serveGovern() (err error) {
 	if !eng.runFlag {
 		return
 	}
-	config := etcdv3.DefaultConfig()
-	config.Endpoints = cfg.Cfg.Register.Endpoints
-	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
-	config.Secure = cfg.Cfg.Register.Secure
-
-	client := config.MustBuild()
-
-	host := cfg.Cfg.Server.Govern.Host
-	if eng.hostFlag != "" {
-		host = eng.hostFlag
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
-	defer cancel()
-	addr := host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port)
-	// todo optimize, jupiter will after support metric
-	_, err = client.Put(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName(), addr)
-	if err != nil {
-		xlog.Panic(err.Error())
-	}
 
 	server := governor.RawConfig("server.govern").Build()
 	err = eng.Serve(server)
@@ -221,11 +204,6 @@ func (eng *Admin) serveGovern() (err error) {
 		return err
 	}
 
-	//eng.SetGovernor(cfg.Cfg.Server.Govern.Host + ":" + strconv.Itoa(cfg.Cfg.Server.Govern.Port))
-	err = client.Close()
-	if err != nil {
-		return err
-	}
 	return
 }
 
@@ -246,29 +224,6 @@ func (eng *Admin) initInvoker() (err error) {
 func (eng *Admin) initClientProxy() (err error) {
 	clientproxy.Init()
 	return
-}
-
-func (eng *Admin) defers() (err error) {
-	if !eng.runFlag {
-		return
-	}
-	config := etcdv3.DefaultConfig()
-	config.Endpoints = cfg.Cfg.Register.Endpoints
-	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
-	config.Secure = cfg.Cfg.Register.Secure
-	client := config.MustBuild()
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
-	defer cancel()
-	// todo optimize, jupiter will after support metric
-	_, err = client.Delete(ctx, "/prometheus/job/"+pkg.Name()+"/"+pkg.HostName())
-	if err != nil {
-		xlog.Panic(err.Error())
-	}
-	err = client.Close()
-	if err != nil {
-		xlog.Panic(err.Error())
-	}
-	return nil
 }
 
 func (eng *Admin) initWorker() (err error) {
