@@ -225,7 +225,7 @@ type (
 	}
 
 	ReqLockConfig struct {
-		ConfigID uint `query:"id" validate:"required"`
+		ConfigID uint `query:"id" json:"id" validate:"required"`
 	}
 
 	RespReadInstanceConfigItem struct {
