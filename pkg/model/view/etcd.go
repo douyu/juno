@@ -9,12 +9,12 @@ type EtcdInfo struct {
 }
 
 type ReqGetEtcdList struct {
-	Prefix      string `json:"prefix"`
-	AppName     string `json:"appName"`
-	ServiceName string `json:"serviceName"`
-	Suffix      string `json:"suffix"`
-	ZoneCode    string `json:"zoneCode"`
-	Env         string `json:"env"`
+	Prefix      string `query:"prefix" json:"prefix"`
+	AppName     string `query:"appName"  json:"appName"`
+	ServiceName string `query:"serviceName"  json:"serviceName"`
+	Suffix      string `query:"suffix"  json:"suffix"`
+	ZoneCode    string `query:"zoneCode"  json:"zoneCode"`
+	Env         string `query:"env"  json:"env"`
 }
 
 type ReqAddEtcd struct {

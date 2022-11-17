@@ -36,12 +36,12 @@ func (r *resource) CountAppNode(where db.AppNode) (cnt int64, err error) {
 }
 
 func (r *resource) GetAppNode(where db.AppNode) (resp db.AppNode, err error) {
-	err = r.DB.Where(&where).Find(&resp).Error
+	err = r.DB.Where(&where).First(&resp).Error
 	return
 }
 
 func (r *resource) GetAppPod(where db.K8sPod) (resp db.K8sPod, err error) {
-	err = r.DB.Where(&where).Find(&resp).Error
+	err = r.DB.Where(&where).First(&resp).Error
 	return
 }
 
@@ -146,7 +146,7 @@ func (r *resource) PutAppNode(identify interface{}, list []db.AppNode, user *db.
 	return
 }
 
-//批量更新应用节点
+// 批量更新应用节点
 func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNode, tx *gorm.DB, user *db.User) (err error) {
 	var (
 		preNodes []db.AppNode
@@ -156,7 +156,7 @@ func (r *resource) UpdateNodes(aid int, appName string, currentNodes []db.AppNod
 	preNodes, err = r.GetAllAppNodeList(db.AppNode{
 		AppName: appName,
 	})
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil {
 		xlog.Error("UpdateNodes GetPreAllAppNodeList error", zap.Error(err), zap.String("app_name: ", appName))
 		return
 	}

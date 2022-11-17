@@ -39,7 +39,7 @@ func (r *system) GetOptionList(where db.Option, currentPage, pageSize int, sort 
 // 设置APP信息
 func (r *system) CreateOption(item db.Option, user *db.User) (err error) {
 	var info db.Option
-	err = r.db.Where("option_name = ?", item.OptionName).Find(&info).Error
+	err = r.db.Where("option_name = ?", item.OptionName).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -58,7 +58,7 @@ func (r *system) CreateOption(item db.Option, user *db.User) (err error) {
 
 func (r *system) UpdateOption(item db.Option, user *db.User) (err error) {
 	var info db.Option
-	err = r.db.Where("id = ?", item.Id).Find(&info).Error
+	err = r.db.Where("id = ?", item.Id).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -76,7 +76,7 @@ func (r *system) UpdateOption(item db.Option, user *db.User) (err error) {
 
 func (r *system) DeleteOption(item db.Option, user *db.User) (err error) {
 	var info db.Option
-	err = r.db.Where("id = ?", item.Id).Find(&info).Error
+	err = r.db.Where("id = ?", item.Id).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return

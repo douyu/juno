@@ -73,7 +73,7 @@ func (r *resource) PutApp(item db.AppInfo, user *db.User) (err error) {
 // 设置APP信息
 func (r *resource) CreateApp(item db.AppInfo, user *db.User) (err error) {
 	var info db.AppInfo
-	err = r.DB.Where("app_name = ?", item.AppName).Find(&info).Error
+	err = r.DB.Where("app_name = ?", item.AppName).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -96,7 +96,7 @@ func (r *resource) CreateApp(item db.AppInfo, user *db.User) (err error) {
 
 func (r *resource) UpdateApp(item db.AppInfo, user *db.User) (err error) {
 	var info db.AppInfo
-	err = r.DB.Where("aid = ?", item.Aid).Find(&info).Error
+	err = r.DB.Where("aid = ?", item.Aid).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -115,7 +115,7 @@ func (r *resource) UpdateApp(item db.AppInfo, user *db.User) (err error) {
 
 func (r *resource) DeleteApp(item db.AppInfo, user *db.User) (err error) {
 	var info db.AppInfo
-	err = r.DB.Where("aid = ?", item.Aid).Find(&info).Error
+	err = r.DB.Where("aid = ?", item.Aid).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -138,7 +138,7 @@ func (r *resource) GetAllApp() (resp []db.AppInfo, err error) {
 	return
 }
 
-//GetAppGrpcList 获取应用GRPC地址列表
+// GetAppGrpcList 获取应用GRPC地址列表
 func (r *resource) GetAppGrpcList(appName string) (port string, appNodes []db.AppNode, err error) {
 	var app db.AppInfo
 
@@ -160,7 +160,7 @@ func (r *resource) GetAppGrpcList(appName string) (port string, appNodes []db.Ap
 	return
 }
 
-//GetAppHttpList 获取应用HTTP地址列表
+// GetAppHttpList 获取应用HTTP地址列表
 func (r *resource) GetAppHttpList(appName string) (port string, appNodes []db.AppNode, err error) {
 	var app db.AppInfo
 
