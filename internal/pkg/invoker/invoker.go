@@ -18,9 +18,9 @@ import (
 	"time"
 
 	"github.com/douyu/juno/pkg/cfg"
+	"github.com/douyu/jupiter/pkg/client/resty"
 	"github.com/douyu/jupiter/pkg/client/rocketmq"
 	"github.com/douyu/jupiter/pkg/store/gorm"
-	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cast"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	ggorm "gorm.io/gorm"
@@ -43,6 +43,7 @@ var (
 func Init() {
 	if cfg.Cfg.Database.Enable {
 		gormConfig := gorm.DefaultConfig()
+		gormConfig.Name = "juno"
 		gormConfig.DSN = cfg.Cfg.Database.DSN
 		JunoMysql = gormConfig.WithGormConfig(ggorm.Config{
 			NamingStrategy: schema.NamingStrategy{
@@ -63,7 +64,11 @@ func Init() {
 			panic(err.Error())
 		}
 	}
-	Resty = resty.New().SetDebug(true).SetHeader("Content-Type", "application/json").SetTimeout(cast.ToDuration("20s"))
+
+	Resty = resty.DefaultConfig().MustBuild().
+		SetDebug(true).
+		SetHeader("Content-Type", "application/json").
+		SetTimeout(cast.ToDuration("20s"))
 
 	if cfg.Cfg.JunoEvent.Rocketmq.Enable {
 		config := cfg.Cfg.JunoEvent.Rocketmq
