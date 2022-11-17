@@ -18,9 +18,9 @@ import (
 	"time"
 
 	"github.com/douyu/juno/pkg/cfg"
-	"github.com/douyu/jupiter/pkg/client/resty"
 	"github.com/douyu/jupiter/pkg/client/rocketmq"
 	"github.com/douyu/jupiter/pkg/store/gorm"
+	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cast"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	ggorm "gorm.io/gorm"
@@ -65,7 +65,7 @@ func Init() {
 		}
 	}
 
-	Resty = resty.DefaultConfig().MustBuild().
+	Resty = resty.New().
 		SetDebug(true).
 		SetHeader("Content-Type", "application/json").
 		SetTimeout(cast.ToDuration("20s"))
