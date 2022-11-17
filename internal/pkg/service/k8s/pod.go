@@ -477,7 +477,7 @@ func (i *syncPod) mysqlCreateOrUpdate(zoneCode, domain string, in *v1.Pod) (err 
 	}()
 	var row db.K8sPod
 	// 判断数据库中是否已存在
-	err = i.db.Select("md5").Where("pod_name=? and is_del=?", m.PodName, 0).Find(&row).Error
+	err = i.db.Select("md5").Where("pod_name=? and is_del=?", m.PodName, 0).First(&row).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		xlog.Error("mysqlCreate", xlog.String("err", err.Error()))
 		return

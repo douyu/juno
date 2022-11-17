@@ -65,7 +65,7 @@ func (r *resource) PutZone(tx *gorm.DB, info db.Zone) error {
 // 设置APP信息
 func (r *resource) CreateZone(item db.Zone, user *db.User) (err error) {
 	var info db.Zone
-	err = r.DB.Where("zone_code = ?", item.ZoneCode).Find(&info).Error
+	err = r.DB.Where("zone_code = ?", item.ZoneCode).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -85,7 +85,7 @@ func (r *resource) CreateZone(item db.Zone, user *db.User) (err error) {
 
 func (r *resource) UpdateZone(item db.Zone, user *db.User) (err error) {
 	var info db.Zone
-	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
+	err = r.DB.Where("id = ?", item.Id).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -103,7 +103,7 @@ func (r *resource) UpdateZone(item db.Zone, user *db.User) (err error) {
 
 func (r *resource) DeleteZone(item db.Zone, user *db.User) (err error) {
 	var info db.Zone
-	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
+	err = r.DB.Where("id = ?", item.Id).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return

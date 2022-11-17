@@ -205,7 +205,7 @@ func getFlameGraph(fileName, tagFileName string) error {
 	return nil
 }
 
-//GetPprof ..
+// GetPprof ..
 func (p *pprof) getPprof(uniqZone view.UniqZone, ip, port, pprofType string, durationSec int) (resp []byte, err error) {
 	url := "/debug/pprof"
 	_, err = clientproxy.ClientProxy.HttpGet(uniqZone, view.ReqHTTPProxy{

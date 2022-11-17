@@ -60,7 +60,7 @@ func (r *resource) NodeDayCnt(start, end int64) (resp []db.NodeCnt, err error) {
 }
 
 func (r *resource) PutNode(tx *gorm.DB, info db.Node) (err error) {
-	err = tx.Where("host_name = ?", info.HostName).Find(&info).Error
+	err = tx.Where("host_name = ?", info.HostName).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		xlog.Error("PutNode db.Node error", zap.Error(err), zap.String("host_name", info.HostName))
@@ -98,7 +98,7 @@ func (r *resource) PutNode(tx *gorm.DB, info db.Node) (err error) {
 // 设置APP信息
 func (r *resource) CreateNode(tx *gorm.DB, item db.Node, user *db.User) (err error) {
 	var info db.Node
-	err = tx.Where("host_name = ?", item.HostName).Find(&info).Error
+	err = tx.Where("host_name = ?", item.HostName).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -120,7 +120,7 @@ func (r *resource) CreateNode(tx *gorm.DB, item db.Node, user *db.User) (err err
 
 func (r *resource) UpdateNode(item db.Node, user *db.User) (err error) {
 	var info db.Node
-	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
+	err = r.DB.Where("id = ?", item.Id).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -140,7 +140,7 @@ func (r *resource) UpdateNode(item db.Node, user *db.User) (err error) {
 
 func (r *resource) DeleteNode(item db.Node, user *db.User) (err error) {
 	var info db.Node
-	err = r.DB.Where("id = ?", item.Id).Find(&info).Error
+	err = r.DB.Where("id = ?", item.Id).First(&info).Error
 	// 返回系统错误
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
@@ -163,7 +163,7 @@ func (r *resource) NodeHeartBeat(reqInfo view.ReqNodeHeartBeat,
 	var (
 		info db.Node
 	)
-	err = r.DB.Where("host_name = ?", reqInfo.Hostname).Find(&info).Error
+	err = r.DB.Where("host_name = ?", reqInfo.Hostname).First(&info).Error
 	// return system error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return

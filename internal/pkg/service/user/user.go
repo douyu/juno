@@ -72,13 +72,13 @@ func (u *user) GetList(where db.User, currentPage, pageSize int, sort string) (o
 	return
 }
 
-//GetUserBuOaUID 根据oaUid获取用户
+// GetUserBuOaUID 根据oaUid获取用户
 func (u *user) GetUserByName(name string) (userData db.User) {
 	u.DB.Where("username=?", name).Find(&userData)
 	return
 }
 
-//GetUserBuOaUID 根据oaUid获取用户
+// GetUserBuOaUID 根据oaUid获取用户
 func (u *user) GetUserByUID(uid int) (userData db.User) {
 	u.DB.Where("uid=?", uid).Find(&userData)
 	return
@@ -118,7 +118,7 @@ func (u *user) CreateOrUpdateOauthUser(info *db.User) (err error) {
 
 // 设置APP信息
 func (u *user) Create(item *db.User) (err error) {
-	err = u.DB.Where("username = ?", item.Username).Find(item).Error
+	err = u.DB.Where("username = ?", item.Username).First(item).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
@@ -168,7 +168,7 @@ func (u *user) Update(uid int, user *db.User) (err error) {
 
 func (u *user) Delete(item db.User) (err error) {
 	var info db.User
-	err = u.DB.Where("uid = ?", item.Uid).Find(&info).Error
+	err = u.DB.Where("uid = ?", item.Uid).First(&info).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
@@ -186,11 +186,11 @@ func (u *user) GetAppViewHistory(uid uint32) (resp []db.AppViewHistory, err erro
 
 	ids := make([]uint32, 0)
 
-	if err = u.DB.Table("app_view_history").Select("max(id) as id").Where("uid = ?", uid).Group("aid").Pluck("id", &ids).Error; err != nil && err != gorm.ErrRecordNotFound {
+	if err = u.DB.Table("app_view_history").Select("max(id) as id").Where("uid = ?", uid).Group("aid").Pluck("id", &ids).Error; err != nil {
 		return
 	}
 
-	if err = u.DB.Table("app_view_history").Select("*").Where("id in (?)", ids).Limit(10).Find(&resp).Error; err != nil && err != gorm.ErrRecordNotFound {
+	if err = u.DB.Table("app_view_history").Select("*").Where("id in (?)", ids).Limit(10).Find(&resp).Error; err != nil {
 		return
 	}
 
@@ -232,7 +232,7 @@ func (u *user) PostUserAppConfig(uid, aid uint32, info db.UserConfigInfo) (err e
 		config   = db.UserConfigInfo{}
 	)
 
-	if err = tx.Where("uid = ? AND aid = ?", uid, aid).Order("update_time desc").Find(&record).Error; err != nil && err != gorm.ErrRecordNotFound {
+	if err = tx.Where("uid = ? AND aid = ?", uid, aid).Order("update_time desc").First(&record).Error; err != nil && err != gorm.ErrRecordNotFound {
 		tx.Rollback()
 		return
 	}
@@ -298,7 +298,7 @@ func (u *user) GetTabVisit(req view.ReqGetTabVisit) (records []db.UserVisit, err
 	if req.StartTime > 0 && req.EndTime > 0 {
 		dbConn = dbConn.Where("ts > ? AND ts < ?", req.StartTime, req.EndTime)
 	}
-	if err = dbConn.Find(&records).Error; err != nil && err != gorm.ErrRecordNotFound {
+	if err = dbConn.Find(&records).Error; err != nil {
 		xlog.Error("GetTabVisit", zap.Any("err", err), zap.Any("req", req))
 		return
 	}
@@ -433,7 +433,7 @@ func (u *user) GetListByUids(uids []int) (out map[int]db.User, err error) {
 	out = make(map[int]db.User)
 	var resp = make([]db.User, 0)
 	err = u.DB.Model(db.User{}).Where("uid in (?)", uids).Find(&resp).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
 		return
 	}
 	for _, user := range resp {

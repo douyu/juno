@@ -49,7 +49,7 @@ func (s *Service) CompleteLogSearchUrl(ctx context.Context, req *CompleteLogSear
 
 	//设置参数。关于参数含义和设置方法，请参见《API参考》。
 	request.RoleArn = conf.GetString("aliyun.roleArn")
-	request.RoleSessionName = u.Username
+	request.RoleSessionName = fmt.Sprintf("user_%d", u.Uid)
 	request.DurationSeconds = requests.Integer(strconv.Itoa(3600 * 12))
 
 	//发起请求，并得到响应。
@@ -110,7 +110,7 @@ func (s *Service) CompleteTraceSearchUrl(ctx context.Context, req *CompleteTrace
 
 	//设置参数。关于参数含义和设置方法，请参见《API参考》。
 	request.RoleArn = conf.GetString("aliyun.roleArn")
-	request.RoleSessionName = u.Username
+	request.RoleSessionName = fmt.Sprintf("user_%d", u.Uid)
 	request.DurationSeconds = requests.Integer(strconv.Itoa(3600 * 12))
 
 	//发起请求，并得到响应。

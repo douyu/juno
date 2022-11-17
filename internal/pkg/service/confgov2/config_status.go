@@ -149,7 +149,7 @@ func (r *ConfigStatusService) initConfigLatestVersionId() error {
 	}
 
 	if len(ids) > 0 {
-		if err = mysql.Select("id,configuration_id").Where("id in (?)", ids).Find(&historyList).Error; err != nil && err != gorm.ErrRecordNotFound {
+		if err = mysql.Select("id,configuration_id").Where("id in (?)", ids).Find(&historyList).Error; err != nil {
 			r.logError("initConfigLatestVersionId", "db find last version error", err)
 			return err
 		}
@@ -201,7 +201,7 @@ func (r *ConfigStatusService) initConfigPublishId() error {
 	}
 
 	if len(ids) > 0 {
-		if err = mysql.Select("id,configuration_id,configuration_history_id").Where("id in (?)", ids).Find(&configPublishList).Error; err != nil && err != gorm.ErrRecordNotFound {
+		if err = mysql.Select("id,configuration_id,configuration_history_id").Where("id in (?)", ids).Find(&configPublishList).Error; err != nil {
 			r.logError("initConfigPublishId", "db find last version error", err)
 			return err
 		}
@@ -254,7 +254,7 @@ func (r *ConfigStatusService) checkNodePublish() error {
 
 	var ConfigurationStatusList = make([]db.ConfigurationStatus, 0)
 	if sqlWhere != "" {
-		if err := mysql.Where(sqlWhere, sqlParam...).Find(&ConfigurationStatusList).Error; err != nil && err != gorm.ErrRecordNotFound {
+		if err := mysql.Where(sqlWhere, sqlParam...).Find(&ConfigurationStatusList).Error; err != nil {
 			r.logError("checkNodePublish", "db find config publish status error", err)
 			return err
 		}
@@ -322,7 +322,7 @@ func (r *ConfigStatusService) checkClusterPublish() error {
 
 	var ConfigurationClusterStatusList = make([]db.ConfigurationClusterStatus, 0)
 	if sqlWhere != "" {
-		if err := mysql.Where(sqlWhere, sqlParam...).Find(&ConfigurationClusterStatusList).Error; err != nil && err != gorm.ErrRecordNotFound {
+		if err := mysql.Where(sqlWhere, sqlParam...).Find(&ConfigurationClusterStatusList).Error; err != nil {
 			r.logError("checkClusterPublish", "db find config cluster publish status error", err)
 			return err
 		}
