@@ -4,12 +4,12 @@ import "time"
 
 type (
 	ReqListConfigResource struct {
-		Page     int      `json:"page"`
-		PageSize int      `json:"page_size" validate:"required"`
-		Env      []string `json:"env"`
-		Zone     []string `json:"zone"`
-		Tag      string   `json:"tag"`
-		Query    string   `json:"query"`
+		Page     int      `query:"page" json:"page"`
+		PageSize int      `query:"pageSize" json:"page_size" validate:"required"`
+		Env      []string `query:"env" json:"env"`
+		Zone     []string `query:"zone" json:"zone"`
+		Tag      string   `query:"tag" json:"tag"`
+		Query    string   `query:"query" json:"query"`
 	}
 
 	RespListConfigResource struct {

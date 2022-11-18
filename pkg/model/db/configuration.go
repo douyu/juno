@@ -29,7 +29,7 @@ type (
 		LockUid       uint           `gorm:"column:lock_uid" json:"lock_uid"`         // 正在编辑用户
 		LockAt        *time.Time     `gorm:"column:lock_at" json:"lock_at"`
 
-		App AppInfo `gorm:"foreignKey:AID" json:"-"`
+		App AppInfo `gorm:"foreignKey:aid" json:"-"`
 	}
 
 	// ConfigurationHistory Application configuration release history version
@@ -44,10 +44,10 @@ type (
 		CreatedAt       time.Time      `gorm:"column:created_at" json:"created_at"`
 		DeletedAt       gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
 
-		User             *User                           `json:"-" gorm:"foreignKey:UID;association_foreignkey:Uid"`
-		AccessToken      *AccessToken                    `json:"-" gorm:"foreignKey:AccessTokenID;association_foreignkey:ID"`
-		Configuration    *Configuration                  `json:"-" gorm:"foreignKey:ConfigurationID;"`
-		ResourceRelation []ConfigurationResourceRelation `json:"-" gorm:"association_foreignkey:ConfigurationHistoryID"`
+		User             *User                           `json:"-" gorm:"foreignKey:uid;association_foreignkey:uid"`
+		AccessToken      *AccessToken                    `json:"-" gorm:"foreignKey:access_token_id;association_foreignkey:id"`
+		Configuration    *Configuration                  `json:"-" gorm:"foreignKey:configuration_id;"`
+		ResourceRelation []ConfigurationResourceRelation `json:"-" gorm:"association_foreignkey:configuration_history_id"`
 	}
 
 	//ConfigurationResourceRelation relate configuration and resource
