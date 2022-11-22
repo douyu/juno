@@ -17,7 +17,7 @@ require (
 	github.com/douyu/jupiter v0.9.5
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
-	github.com/go-playground/validator v9.30.0+incompatible
+	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gofiber/fiber/v2 v2.39.0
