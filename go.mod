@@ -12,7 +12,7 @@ require (
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
 	github.com/beeker1121/goque v2.1.0+incompatible
 	github.com/bojand/ghz v0.111.0
-	github.com/casbin/casbin/v2 v2.51.1
+	github.com/casbin/casbin/v2 v2.57.0
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/douyu/jupiter v0.9.9
 	github.com/go-git/go-git/v5 v5.4.2
@@ -92,7 +92,6 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
-	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
@@ -111,6 +110,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -182,9 +182,9 @@ require (
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
-	go.etcd.io/etcd/client/v2 v2.305.5 // indirect
-	go.etcd.io/etcd/pkg/v3 v3.5.1 // indirect
-	go.etcd.io/etcd/raft/v3 v3.5.1 // indirect
+	go.etcd.io/etcd/client/v2 v2.305.6 // indirect
+	go.etcd.io/etcd/pkg/v3 v3.5.6 // indirect
+	go.etcd.io/etcd/raft/v3 v3.5.6 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.29.0 // indirect
 	go.opentelemetry.io/otel v1.11.1 // indirect
 	go.opentelemetry.io/otel/exporters/jaeger v1.11.1 // indirect
