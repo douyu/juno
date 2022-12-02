@@ -2,7 +2,10 @@ package clientproxy
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"sync"
 	"time"
 
@@ -77,10 +80,42 @@ func (c *multiProxy) loadEtcdClient(etcd cfg.Etcd, zone view.UniqZone) (conn *Et
 			DialTimeout: etcd.Timeout,
 			Username:    etcd.UserName,
 			Password:    etcd.Password,
+			TLS:         c.genTLSConfig(etcd),
 		},
 		WithUniqueZone(&zone),
 	)
 	return
+}
+
+func (c *multiProxy) genTLSConfig(etcd cfg.Etcd) *tls.Config {
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: false,
+	}
+
+	if etcd.TLS.CaCert != "" {
+		certBytes, err := ioutil.ReadFile(etcd.TLS.CaCert)
+		if err != nil {
+			xlog.Panic("parse CaCert failed", xlog.Any("err", err))
+		}
+
+		caCertPool := x509.NewCertPool()
+		ok := caCertPool.AppendCertsFromPEM(certBytes)
+
+		if ok {
+			tlsConfig.RootCAs = caCertPool
+		}
+	}
+
+	if etcd.TLS.Cert != "" && etcd.TLS.Key != "" {
+		tlsCert, err := tls.LoadX509KeyPair(etcd.TLS.Cert, etcd.TLS.Key)
+		if err != nil {
+			xlog.Panic("load CertFile or KeyFile failed", xlog.Any("config", etcd), xlog.Any("err", err))
+		}
+
+		tlsConfig.Certificates = []tls.Certificate{tlsCert}
+	}
+
+	return tlsConfig
 }
 
 func (c *multiProxy) initProxyRegisterEtcdMap() {
