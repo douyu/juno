@@ -115,6 +115,10 @@ func (c *multiProxy) genTLSConfig(etcd cfg.Etcd) *tls.Config {
 		tlsConfig.Certificates = []tls.Certificate{tlsCert}
 	}
 
+	if tlsConfig.RootCAs == nil || tlsConfig.Certificates == nil {
+		return nil
+	}
+
 	return tlsConfig
 }
 
