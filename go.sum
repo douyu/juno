@@ -78,8 +78,8 @@ github.com/alibaba/sentinel-golang v1.0.4 h1:i0wtMvNVdy7vM4DdzYrlC4r/Mpk1OKUUBur
 github.com/alibaba/sentinel-golang v1.0.4/go.mod h1:Lag5rIYyJiPOylK8Kku2P+a23gdKMMqzQS7wTnjWEpk=
 github.com/aliyun/alibaba-cloud-sdk-go v1.62.80 h1:gChEHVx5SZUXAMZq3gZTCIcm0E7/c1ejcbscJL4lubE=
 github.com/aliyun/alibaba-cloud-sdk-go v1.62.80/go.mod h1:Api2AkmMgGaSUAhmk76oaFObkoeCPc/bKAqcyplPODs=
-github.com/aliyun/aliyun-log-go-sdk v0.1.41 h1:aitUXlMIzMb8KZvwAqrJ77Nad9FOpAFi1Ju7rjFOYCM=
-github.com/aliyun/aliyun-log-go-sdk v0.1.41/go.mod h1:1QQ59pEJiVVXqKgbHcU6FWIgxT5RKBt+CT8AiQ2bEts=
+github.com/aliyun/aliyun-log-go-sdk v0.1.42 h1:F4tdl8CEaiJTAcBNCmnt2ONqmDCybF3ZVxwb//RvTp0=
+github.com/aliyun/aliyun-log-go-sdk v0.1.42/go.mod h1:1QQ59pEJiVVXqKgbHcU6FWIgxT5RKBt+CT8AiQ2bEts=
 github.com/andybalholm/brotli v1.0.4 h1:V7DdXeJtZscaqfNuAdSRuRFzuiKlHSC/Zh3zl9qY3JY=
 github.com/andybalholm/brotli v1.0.4/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be h1:9AeTilPcZAjCFIImctFaOjnTIavg87rW78vTPkQqLI8=
