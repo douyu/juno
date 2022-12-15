@@ -33,7 +33,7 @@ require (
 	github.com/labstack/gommon v0.4.0
 	github.com/link-duan/toml v0.3.2
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/ginkgo/v2 v2.5.1
+	github.com/onsi/ginkgo/v2 v2.6.1
 	github.com/onsi/gomega v1.24.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.14.0
@@ -203,7 +203,7 @@ require (
 	golang.org/x/term v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
-	golang.org/x/tools v0.2.0 // indirect
+	golang.org/x/tools v0.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20221114212237-e4508ebdbee1 // indirect
 	google.golang.org/grpc/examples v0.0.0-20220831213702-ddcda5f76a3b // indirect
