@@ -89,6 +89,7 @@ func (s *Service) CompleteLogSearchUrl(ctx context.Context, req *CompleteLogSear
 	}
 	query.Add("readOnly", "true")
 	query.Add("hiddenBack", "true")
+	query.Add("ignoreTabLocalStorage", "true")
 	toURL = toURL + "?" + query.Encode()
 	signInUrl = fmt.Sprintf("https://signin.aliyun.com/federation?Action=Login&LoginUrl=%s&Destination=%s&SigninToken=%s", conf.GetString("server.http.rootUrl"), url.QueryEscape(toURL), tokenItem.SigninToken)
 	return
