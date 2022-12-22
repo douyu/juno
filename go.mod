@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/alibaba/sentinel-golang v1.0.4
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.83
+	github.com/aliyun/alibaba-cloud-sdk-go v1.62.97
 	github.com/aliyun/aliyun-log-go-sdk v0.1.42
 	github.com/apache/rocketmq-client-go/v2 v2.1.1
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
