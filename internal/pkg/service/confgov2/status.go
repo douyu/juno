@@ -16,6 +16,7 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/util/xstring"
 	"github.com/douyu/jupiter/pkg/xlog"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
@@ -54,7 +55,6 @@ func syncUsedStatus(nodes []db.AppNode, resp []view.RespConfigInstanceItem, env,
 		}
 	}
 	_ = eg.Wait()
-
 	for k, v := range resp {
 		if resp[k].ConfigFileUsed != 0 {
 			continue
@@ -139,9 +139,9 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 	}, view.ReqHTTPProxy{
 		Address: ipPort,
 		URL:     queryAgentUsedStatus,
-		Params: map[string]string{
+		Body: xstring.JsonBytes(map[string]string{
 			"config": filePath,
-		},
+		}),
 	})
 	if err != nil {
 		return 0
