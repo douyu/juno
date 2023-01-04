@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/alibaba/sentinel-golang v1.0.4
 	github.com/aliyun/alibaba-cloud-sdk-go v1.62.108
-	github.com/aliyun/aliyun-log-go-sdk v0.1.42
+	github.com/aliyun/aliyun-log-go-sdk v0.1.43
 	github.com/apache/rocketmq-client-go/v2 v2.1.1
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
 	github.com/beeker1121/goque v2.1.0+incompatible
