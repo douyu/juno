@@ -75,7 +75,7 @@
     "omit.js": "^1.0.2",
     "pretty-json-view": "^0.1.11",
     "prop-types": "^15.7.2",
-    "qs": "^6.9.0",
+    "qs": "^6.10.3",
     "react": "^16.14.0",
     "react-cmirror": "^1.4.2",
     "react-codemirror2": "^7.1.0",
