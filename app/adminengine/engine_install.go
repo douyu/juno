@@ -33,6 +33,7 @@ func (eng *Admin) migrateDB() error {
 	gormdb, err := gorm.Open(
 		mysql.Open(cfg.Cfg.Database.DSN),
 		&gorm.Config{
+			DisableForeignKeyConstraintWhenMigrating: true,
 			NamingStrategy: schema.NamingStrategy{
 				SingularTable: true,
 			},
@@ -126,7 +127,10 @@ func (eng *Admin) cmdInstall(gormdb *gorm.DB) {
 			&logstore.LogStore{},
 		}
 		gormdb = gormdb.Debug()
-		gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
+		err := gormdb.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(models...)
+		if err != nil {
+			panic(err)
+		}
 		// gormdb.Model(&db.AccessToken{}).AddUniqueIndex("idx_unique_name", "name")
 		fmt.Println("create table ok")
 	}
