@@ -136,6 +136,10 @@ func (eng *Admin) initConfig() (err error) {
 	bizConfig.Async = cfg.Cfg.Logger.Biz.Async
 	xlog.SetDefault(bizConfig.Build())
 
+	if !eng.runFlag {
+		return
+	}
+
 	config := etcdv3.DefaultConfig()
 	config.Endpoints = cfg.Cfg.Register.Endpoints
 	config.ConnectTimeout = cfg.Cfg.Register.ConnectTimeout
@@ -249,7 +253,7 @@ func (eng *Admin) refreshProxyManage() (err error) {
 	return
 }
 
-//刷新阿里云日志
+// 刷新阿里云日志
 func (eng *Admin) refreshAliyunLogMenu() (err error) {
 	refreshMenuDataConfig := xcron.DefaultConfig()
 	refreshMenuDataConfig.ImmediatelyRun = true
