@@ -1,22 +1,27 @@
 @import '~antd/es/style/themes/default.less';
 
 .zoneSelect {
+  flex: 1;
   :global {
     .ant-radio-button-wrapper {
       flex-shrink: 0;
     }
+
     .ant-radio-group {
       display: flex;
       overflow-x: auto;
+      overflow-y: hidden;
       &::-webkit-scrollbar {
         width: 8px;
         height: 8px;
         background-color: #f5f5f5;
       }
+
       &::-webkit-scrollbar-track {
         background-color: #f5f5f5;
         border-radius: 10px;
       }
+
       &::-webkit-scrollbar-thumb {
         background-color: #595959;
         border-radius: 10px;
