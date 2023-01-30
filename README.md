@@ -23,7 +23,7 @@ JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，
 
 - [快速构建启动](https://github.com/douyu/juno-install)
 
-## Bugs and Feedback
+## Bug and Feedback
 
 For bug report, questions and discussions please submit GitHub Issues.
 
