@@ -12,6 +12,8 @@ on:
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -26,6 +28,7 @@ jobs:
           cd assets
           yarn install
           yarn build
+          git checkout -- ./assets/yarn.lock
       - name: Set up Go 1.18
         uses: actions/setup-go@v3
         with:
@@ -38,12 +41,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-
       - name: Get dependencies
         run: |
           go env
           go get -v -t -d ./...
-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
@@ -73,7 +74,6 @@ jobs:
         id: vars
         run: |
           echo "::set-output name=file_name::$(ls dist/juno_*linux* |cut -c 6-)"
-
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5.9
         with:
