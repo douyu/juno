@@ -28,7 +28,7 @@ jobs:
           cd assets
           yarn install
           yarn build
-          git reset --hard
+          git checkout -- ./assets/yarn.lock
       - name: Set up Go 1.18
         uses: actions/setup-go@v3
         with:
