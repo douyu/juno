@@ -33,8 +33,8 @@ require (
 	github.com/labstack/gommon v0.4.0
 	github.com/link-duan/toml v0.3.2
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/ginkgo/v2 v2.6.1
-	github.com/onsi/gomega v1.24.2
+	github.com/onsi/ginkgo/v2 v2.7.0
+	github.com/onsi/gomega v1.26.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.14.0
 	github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff
