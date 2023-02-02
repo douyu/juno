@@ -26,7 +26,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/gorilla/sessions v1.2.1
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/jhump/protoreflect v1.14.0
+	github.com/jhump/protoreflect v1.14.1
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/labstack/echo-contrib v0.13.1
 	github.com/labstack/echo/v4 v4.9.1
