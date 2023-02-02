@@ -48,7 +48,7 @@ require (
 	github.com/uber-archive/go-torch v0.0.0-20181107071353-86f327cc820e
 	github.com/unknwon/com v1.0.1
 	github.com/urfave/negroni v1.0.0
-	go.etcd.io/etcd/api/v3 v3.5.6
+	go.etcd.io/etcd/api/v3 v3.5.7
 	go.etcd.io/etcd/client/pkg/v3 v3.5.6
 	go.etcd.io/etcd/client/v3 v3.5.6
 	go.etcd.io/etcd/server/v3 v3.5.6
