@@ -12,7 +12,7 @@ require (
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
 	github.com/beeker1121/goque v2.1.0+incompatible
 	github.com/bojand/ghz v0.114.0
-	github.com/casbin/casbin/v2 v2.60.0
+	github.com/casbin/casbin/v2 v2.61.1
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/douyu/jupiter v0.9.13
 	github.com/go-git/go-git/v5 v5.5.2
