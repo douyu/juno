@@ -64,7 +64,7 @@ require (
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
-	gorm.io/driver/mysql v1.4.5
+	gorm.io/driver/mysql v1.4.6
 	gorm.io/gorm v1.24.5
 	k8s.io/api v0.0.0-20190325185214-7544f9db76f6
 	k8s.io/apimachinery v0.0.0-20190223001710-c182ff3b9841
