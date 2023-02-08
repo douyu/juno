@@ -160,7 +160,7 @@ func (eng *Admin) initNotify() (err error) {
 				gconfig := jgrpc.DefaultConfig()
 				gconfig.Addr = value
 				gconfig.Debug = cp.Stream.Debug
-				ProxyClient[value] = pb.NewProxyClient(gconfig.Build())
+				ProxyClient[value] = pb.NewProxyClient(gconfig.MustBuild())
 			}
 			notify.InitStreamStore(ProxyClient)
 			notify.StreamStore.AddRouter(constx.MsgNodeHeartBeatResp, resource.NodeHeartBeat)
