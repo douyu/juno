@@ -53,12 +53,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2.1.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: image_name
         run: echo ${{ env.IMAGE_NAME }}
       - name: Extract metadata (tags, labels) for Docker
@@ -81,5 +75,5 @@ jobs:
           addLatest: true
           directory: dist
           dockerfile: ./cmd/juno-admin/Dockerfile
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
