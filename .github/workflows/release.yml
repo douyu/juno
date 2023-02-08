@@ -38,7 +38,7 @@ jobs:
             ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-
+            ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
       - name: Get dependencies
         run: |
           go env
