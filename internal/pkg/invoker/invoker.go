@@ -72,7 +72,7 @@ func Init() {
 
 	if cfg.Cfg.JunoEvent.Rocketmq.Enable {
 		config := cfg.Cfg.JunoEvent.Rocketmq
-		mqConfig := rocketmq.DefaultProducerConfig()
+		mqConfig := rocketmq.DefaultConfig().Producer
 		mqConfig.Group = config.Group
 		mqConfig.Retry = config.Retry
 		mqConfig.Topic = config.Topic
