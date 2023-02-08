@@ -41,4 +41,4 @@ jobs:
             This is the "latest" release of **Juno**, which contains the most recent commits from the main branch.
 
             This release **might not be stable**.
-            It is only intended for developers wishing to try out the latest features in Envoy Gateway, some of which may not be fully implemented.
+            It is only intended for developers wishing to try out the latest features in Juno, some of which may not be fully implemented.
