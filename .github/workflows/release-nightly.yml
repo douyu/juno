@@ -1,0 +1,44 @@
+name: Juno Nightly Build
+
+on:
+  schedule:
+    # schedule build every night
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Ignore the error when we delete the latest release, it might not exist.
+      - name: Delete the Latest Release
+        continue-on-error: true
+        run: |
+          gh release delete latest --repo $GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+
+      # Ignore the error when we delete the latest tag, it might not exist.
+      - name: Delete the Latest Tag
+        continue-on-error: true
+        run:
+          gh api --method DELETE /repos/$GITHUB_REPOSITORY/git/refs/tags/latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+
+      - name: Recreate the Latest Release and Tag
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          tag_name: nightly
+          body: |
+            This is the "latest" release of **Juno**, which contains the most recent commits from the main branch.
+
+            This release **might not be stable**.
+            It is only intended for developers wishing to try out the latest features in Juno, some of which may not be fully implemented.
