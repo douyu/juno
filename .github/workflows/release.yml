@@ -55,7 +55,7 @@ jobs:
 
       - name: Change tag in install.yml
         run: |
-          sed 's/juno-admin:latest/juno-admin:${{ github.ref }}/g' deployment/install.yml > deployment/install.yml
+          sed -i 's/juno-admin:latest/juno-admin:${{ github.ref }}/g' deployment/install.yml
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
