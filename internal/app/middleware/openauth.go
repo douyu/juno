@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
-	"strconv"
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/packages/contrib/output"
@@ -30,15 +29,14 @@ func OpenAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		bodyContent, _ := ioutil.ReadAll(c.Request().Body)
 		c.Request().Body = ioutil.NopCloser(bytes.NewReader(bodyContent))
 		authParam := OpenAuthCommonPayload{}
-		err := c.Bind(&authParam)
+		b := echo.DefaultBinder{}
+		err := b.BindQueryParams(c, &authParam)
 		if err != nil {
 			return output.JSON(c, output.MsgOpenAuthFailed, err.Error(), nil)
 		}
-		if authParam.AppID == "" {
-			authParam.AppID = c.QueryParams().Get("app_id")
-			authParam.Timestamp, _ = strconv.ParseInt(c.QueryParams().Get("timestamp"), 10, 64)
-			authParam.NonceStr = c.QueryParams().Get("nonce_str")
-			authParam.Sign = c.QueryParams().Get("sign")
+		err = b.Bind(&authParam, c)
+		if err != nil {
+			return output.JSON(c, output.MsgOpenAuthFailed, err.Error(), nil)
 		}
 		err = c.Validate(&authParam)
 		if err != nil {
