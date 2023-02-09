@@ -29,12 +29,15 @@ func OpenAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		bodyContent, _ := ioutil.ReadAll(c.Request().Body)
 		c.Request().Body = ioutil.NopCloser(bytes.NewReader(bodyContent))
 		authParam := OpenAuthCommonPayload{}
-
-		err := c.Bind(&authParam)
+		b := echo.DefaultBinder{}
+		err := b.BindQueryParams(c, &authParam)
 		if err != nil {
 			return output.JSON(c, output.MsgOpenAuthFailed, err.Error(), nil)
 		}
-
+		err = b.Bind(&authParam, c)
+		if err != nil {
+			return output.JSON(c, output.MsgOpenAuthFailed, err.Error(), nil)
+		}
 		err = c.Validate(&authParam)
 		if err != nil {
 			return output.JSON(c, output.MsgOpenAuthFailed, err.Error(), nil)
@@ -75,7 +78,7 @@ func checkOpenAuthPayload(appId, nonceStr, secret, sign string, timestamp int64)
 	return
 }
 
-//计算签名
+// 计算签名
 func openAuthSign(appId, nonceStr, secret string, timestamp int64) (sign string) {
 	plainText := fmt.Sprintf("%s%s%s%d", appId, nonceStr, secret, timestamp)
 
