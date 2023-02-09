@@ -81,6 +81,7 @@ jobs:
           tag_name: nightly
           files: |
               ./dist/juno_0.0.0-SNAPSHOT-*
+              ./deployment/install-nightly.yml
           body: |
             This is the "nightly" release of **Juno**, which contains the most recent commits from the main branch.
 

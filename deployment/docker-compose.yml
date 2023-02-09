@@ -1,0 +1,245 @@
+version: '3.3'
+
+services:
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server
+    # volumes:
+    #   - ./data/cache:/data
+  db:
+    image: mysql:5.7
+    restart: always
+    labels:
+      - kompose.volume.type=configMap
+    # volumes:
+    #   - ./data/mysql:/var/run/mysqld/
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+
+    ports:
+      - 3306:3306
+    volumes:
+      - ./data/config/initdb/:/docker-entrypoint-initdb.d
+      # - ./data/mysql/data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-proot"
+        ]
+      timeout: 20s
+      retries: 10
+
+  etcd:
+    image: "quay.io/coreos/etcd:v3.3"
+    restart: always
+    environment:
+      ETCD_ADVERTISE_CLIENT_URLS: "http://0.0.0.0:2379"
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+      ETCDCTL_API: "3"
+      ALLOW_NONE_AUTHENTICATION: "yes"
+    ports:
+      - 2379:2379
+      - 2380:2380
+      - 4001:4001
+
+  namesrv:
+    image: apacherocketmq/rocketmq:4.5.0
+    restart: always
+    ports:
+      - 9876:9876
+    # volumes:
+    #   - ./data/namesrv/logs:/home/rocketmq/logs
+    command: sh mqnamesrv
+    environment:
+      JAVA_OPT_EXT: -Xmx256m -Xms256m -Xmn128m
+  broker:
+    image: apacherocketmq/rocketmq:4.5.0
+    restart: always
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    labels:
+      - kompose.volume.type=configMap
+    volumes:
+      - ./data/config/broker/broker.conf:/home/rocketmq/rocketmq-4.5.0/conf/broker.conf
+    environment:
+      JAVA_OPT_EXT: -Xmx256m -Xms256m -Xmn128m
+    command: sh mqbroker -n namesrv:9876 -c ../conf/broker.conf
+    depends_on:
+      - namesrv
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.42
+    restart: always
+    ports:
+      - 16686:16686
+      - 14268:14268
+      - 14269:14269
+      - 14250:14250
+      - 9411:9411
+      - 5778:5778
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+    environment:
+      COLLECTOR_ZIPKIN_HOST_PORT: :9411
+
+  prometheus:
+    image: prom/prometheus:v2.42.0
+    restart: always
+    labels:
+      - kompose.volume.type=configMap
+    volumes:
+      - ./data/config/prometheus/juno-prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - etcd
+
+  grafana:
+    image: grafana/grafana:9.3.6
+    restart: always
+    # volumes:
+    #   - ./data/config/juno/juno-grafana.ini:/etc/grafana/grafana.ini
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+
+  juno-admin:
+    image: ghcr.io/douyu/juno-admin:latest
+    restart: always
+    ports:
+      - 50002:50002
+      - 50004:50004
+    labels:
+      - kompose.volume.type=configMap
+      - kompose.image-pull-policy=Always
+    volumes:
+      - ./data/config/juno/:/root/juno/config
+    depends_on:
+      - db
+
+  juno-agent:
+    image: ghcr.io/douyu/juno-agent:latest
+    restart: always
+    environment:
+      ENV: dev
+      JUNO_HOST: juno-agent-dev01
+      REGION_CODE: cn-wuhan
+      REGION_NAME: 武汉
+      ZONE_CODE: cn-wuhan-guanggu-f1
+      ZONE_NAME: 武汉光谷F1区
+    ports:
+      - 50010:50010
+    labels:
+      - kompose.volume.type=configMap
+    volumes:
+      - ./data/config/juno-agent/:/app/config
+    depends_on:
+      - etcd
+      - prometheus
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.1.3.5-alpine
+    restart: on-failure
+    environment:
+      CLICKHOUSE_DB: uptrace
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--spider',
+          '-q',
+          'localhost:8123/ping'
+        ]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+    ports:
+      - '8123:8123'
+      - '9000:9000'
+
+  uptrace:
+    image: 'uptrace/uptrace:1.3.1'
+    #image: 'uptrace/uptrace-dev:latest'
+    restart: on-failure
+    labels:
+      - kompose.volume.type=configMap
+    volumes:
+      # - uptrace_data:/var/lib/uptrace
+      - ./data/config/uptrace/uptrace.yml:/etc/uptrace/uptrace.yml
+    #environment:
+    #  - DEBUG=2
+    ports:
+      - '14317:14317'
+      - '14318:14318'
+    depends_on:
+      - clickhouse
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.58.0
+    restart: on-failure
+    user: '0:0' # required for logs
+    labels:
+      - kompose.volume.type=configMap
+    volumes:
+      - ./data/config/uptrace/otel-collector.yml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - '4317:4317'
+      - '4318:4318'
+  alertmanager:
+    image: prom/alertmanager:v0.24.0
+    restart: on-failure
+    labels:
+      - kompose.volume.type=configMap
+    volumes:
+      - ./data/config/uptrace/alertmanager.yml:/etc/alertmanager/config.yml
+    ports:
+      - 9093:9093
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: on-failure
+    ports:
+      - '8025:8025'
+  vector:
+    image: timberio/vector:0.24.X-alpine
+    labels:
+      - kompose.volume.type=configMap
+    volumes:
+      - ./data/config/uptrace/vector.toml:/etc/vector/vector.toml:ro
+
+  mqconsole:
+    image: apacherocketmq/rocketmq-dashboard:1.0.0
+    restart: always
+    ports:
+      - 19876:8080
+    environment:
+      JAVA_OPTS: -Drocketmq.namesrv.addr=namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=falses
+      JAVA_OPT_EXT: -Xmx256m -Xms256m -Xmn128m
+    depends_on:
+      - namesrv
+
+  adminer:
+    image: adminer:4.8.1
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
