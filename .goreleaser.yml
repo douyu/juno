@@ -8,8 +8,6 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-      - darwin
-      - windows
     goarch: [amd64]
     ldflags:
       - -X github.com/douyu/jupiter/pkg.buildAppVersion={{.Version}}
@@ -22,8 +20,6 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-      - darwin
-      - windows
     goarch: [amd64]
     ldflags:
       - -X github.com/douyu/jupiter/pkg.buildAppVersion={{.Version}}

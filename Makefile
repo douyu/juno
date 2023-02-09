@@ -102,4 +102,3 @@ tar:
 
 gen-k8s-deployment:
 	kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
-	kompose convert -f deployment/docker-compose-nightly.yml -o deployment/install-nightly.yml

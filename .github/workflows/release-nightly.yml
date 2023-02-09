@@ -55,6 +55,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Change tag in install.yml
+        run: |
+          sed 's/juno-admin:latest/juno-admin:nightly/g' deployment/install.yml > deployment/install.yml
+
       # Ignore the error when we delete the nightly release, it might not exist.
       - name: Delete the nightly Release
         continue-on-error: true
@@ -81,7 +85,7 @@ jobs:
           tag_name: nightly
           files: |
               ./dist/juno_0.0.0-SNAPSHOT-*
-              ./deployment/install-nightly.yml
+              ./deployment/install.yml
           body: |
             This is the "nightly" release of **Juno**, which contains the most recent commits from the main branch.
 
