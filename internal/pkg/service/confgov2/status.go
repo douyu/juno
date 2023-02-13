@@ -167,7 +167,7 @@ func getUsedStatus(env, zoneCode, filePath string, ipPort string) int {
 }
 
 func getConfigurationStatus(configurationID uint, hostName string) (res db.ConfigurationStatus, err error) {
-	query := mysql.Preload("ConfigurationPublish").Where("configuration_id=? and host_name=?", configurationID, hostName).Order("id desc").Find(&res)
+	query := mysql.Preload("ConfigurationPublish").Where("configuration_id=? and host_name=?", configurationID, hostName).Order("id desc").First(&res)
 	if query.Error != nil {
 		err = query.Error
 		return

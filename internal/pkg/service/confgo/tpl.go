@@ -31,7 +31,7 @@ func (r *confu) GetTplList(where db.CmcTpl, currentPage, pageSize int, keyType, 
 }
 
 func (r *confu) GetTpl(v int) (resp db.CmcTpl, err error) {
-	err = r.DB.Where("id = ?", v).Find(&resp).Error
+	err = r.DB.Where("id = ?", v).First(&resp).Error
 	return
 }
 

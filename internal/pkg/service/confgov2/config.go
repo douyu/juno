@@ -427,7 +427,7 @@ func Instances(param view.ReqConfigInstanceList) (resp view.RespConfigInstanceLi
 		instanceNotPublished = make(view.RespConfigInstanceList, 0)
 	)
 	// get configuration info
-	query := mysql.Where("id=?", param.ConfigurationID).Find(&configuration)
+	query := mysql.Where("id=?", param.ConfigurationID).First(&configuration)
 	if query.Error != nil {
 		err = query.Error
 		return
@@ -772,7 +772,7 @@ func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 
 	// get publish version
 	var confHistory db.ConfigurationHistory
-	query = mysql.Where("configuration_id=? and version =?", param.ID, param.Version).Find(&confHistory)
+	query = mysql.Where("configuration_id=? and version =?", param.ID, param.Version).First(&confHistory)
 	if query.Error != nil {
 		return query.Error
 	}
