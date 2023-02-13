@@ -1,0 +1,91 @@
+[plugin]
+
+    [plugin.regProxy]
+        enable = true
+
+        [plugin.regProxy.prometheus]
+            enable = true
+            path = "/home/www/system/prometheus/conf"
+            enableZone = true
+            zones = ["HB-WHYL"]                       # 用于支持zone过滤
+            enableCleanup = false
+            timeInterval = 10
+
+[plugin.confProxy]
+    # 配置中心地址
+    env = ["dev", "live", "pre"]
+    prefix = "/juno-agent"
+    timeout = "3s"
+    enable = true
+
+    #配置中心数据源
+    [plugin.confProxy.mysql]
+        enable = false
+        dsn = ""
+        secure = false
+
+[plugin.supervisor]
+    enable = true
+    dir = "/etc/supervisor/conf.d"
+
+[plugin.systemd]
+    enable = true
+    dir = "/etc/systemd/system"
+
+[plugin.nginx]
+    enable = false
+    dir = "/usr/local/openresty/nginx/conf"
+
+[plugin.report]
+    enable = true
+    debug = true
+    addr = "http://juno-admin:50002/api/v1/resource/node/heartbeat"
+    internal = "60s"
+    hostName = "JUNO_HOST"                                         # 环境变量的名称，或者命令行参数的名称
+    regionCode = "REGION_CODE"                                     # 环境变量的名称，或者命令行参数的名称
+    regionName = "REGION_NAME"
+    zoneCode = "ZONE_CODE"
+    zoneName = "ZONE_NAME"
+    env = "ENV"
+
+[plugin.healthCheck]
+    enable = false
+
+[plugin.process]
+    enable = false
+
+[plugin.worker]
+    enable = false
+    reqTimeout = 10
+
+# service registry etcd
+[jupiter.etcdv3.register]
+    endpoints = ["http://etcd:2379"]
+    connectTimeout = "3s"
+
+# default etcd (config-publish / cronjob-dispatch / etc...)
+[jupiter.etcdv3.default]
+    endpoints = ["http://etcd:2379"]
+    connectTimeout = "3s"
+
+[jupiter.logger.default]
+    name = "default"
+    debug = true
+
+[jupiter.logger.cronjob]
+    name = "cronjob.log"
+    level = "debug"
+
+[jupiter.server]
+
+    [jupiter.server.grpc]
+        host = "0.0.0.0"
+        port = 60813
+
+    [jupiter.server.http]
+        host = "0.0.0.0"
+        port = 50010
+
+[api]
+    # 密钥长度需要为32位
+    secret = "j1Sblr5uiJtuCQLsT89BRqtAgWDO2anI"

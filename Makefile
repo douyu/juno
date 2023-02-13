@@ -99,3 +99,9 @@ build_data:
 
 tar:
 	@cd $(BASE_PATH)/release && tar zcvf juno_$(APP_VERSION).tar.gz $(APP_VERSION)
+
+gen-dev-deployment:
+	kustomize build deployment/overlays/dev > deployment/install.yml
+
+gen-deployment:
+	kustomize build deployment/ > deployment/install.yml

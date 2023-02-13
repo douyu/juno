@@ -11,8 +11,10 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/view"
+	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
+	"go.uber.org/zap"
 )
 
 type (
@@ -75,11 +77,13 @@ func Proxy(c echo.Context) (err error) {
 			req.URL.Scheme = opt.Scheme
 			req.URL.Host = opt.Host
 			req.URL.Path = c.Request().URL.Path
+			req.Host = opt.Host
 
 			req.Header.Add(opt.AuthHeaderName, u.Username)
 		},
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, e error) {
 			if e != nil {
+				xlog.Error("grafana proxy error", zap.Error(e))
 				err = e
 			}
 		},

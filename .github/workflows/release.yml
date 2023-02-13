@@ -53,6 +53,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate install.yml
+        run: |
+          make gen-deployment
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: deployment/install.yml
+          asset_name: install.yml
+          tag: ${{ github.ref }}
+
       - name: image_name
         run: echo ${{ env.IMAGE_NAME }}
       - name: Extract metadata (tags, labels) for Docker

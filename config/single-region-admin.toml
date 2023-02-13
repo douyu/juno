@@ -12,7 +12,7 @@
     secret="12341234123412341234123412341234"
 
 [logger.system]
-    debug=false         # 是否在命令行输出
+    debug=true         # 是否在命令行输出
     enableConsole=false # 是否按命令行格式输出
     level="debug"
     async=false
@@ -20,7 +20,7 @@
     dir="./logs"
 
 [logger.biz]
-    debug=false         # 是否在命令行输出
+    debug=true         # 是否在命令行输出
     enableConsole=false # 是否按命令行格式输出
     level="debug"
     async=false

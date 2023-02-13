@@ -1,0 +1,3137 @@
+apiVersion: v1
+data:
+  broker.conf: |
+    brokerClusterName = DefaultCluster
+    brokerName = broker-a
+    brokerId = 0
+    deleteWhen = 04
+    autoCreateTopicEnable = true
+    fileReservedTime = 48
+    brokerRole = ASYNC_MASTER
+    flushDiskType = ASYNC_FLUSH
+    #set `brokerIP1` if you want to set physical IP as broker IP.
+    # brokerIP1=127.0.0.1
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker
+  name: broker-cm0
+---
+apiVersion: v1
+data:
+  grafana.sql: |
+    -- create database for grafana
+    CREATE DATABASE IF NOT EXISTS grafana DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+  juno.sql: "-- Adminer 4.8.1 MySQL 5.7.41 dump\n\nSET NAMES utf8;\nSET time_zone
+    = '+00:00';\nSET foreign_key_checks = 0;\nSET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';\n\nSET
+    NAMES utf8mb4;\n\nDROP DATABASE IF EXISTS `juno`;\nCREATE DATABASE `juno` /*!40100
+    DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */;\nUSE `juno`;\n\nDROP TABLE
+    IF EXISTS `access_token`;\nCREATE TABLE `access_token` (\n  `id` bigint(20) unsigned
+    NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n  `updated_at`
+    datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  `name`
+    varchar(32) COLLATE utf8mb4_bin DEFAULT NULL,\n  `app_id` varchar(32) COLLATE
+    utf8mb4_bin DEFAULT NULL,\n  `secret` varchar(64) COLLATE utf8mb4_bin DEFAULT
+    NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `app_id` (`app_id`),\n  UNIQUE KEY
+    `idx_unique_name` (`name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `access_token` (`id`, `created_at`, `updated_at`, `deleted_at`, `name`, `app_id`,
+    `secret`) VALUES\n(1,\t'2023-02-08 05:43:01.498',\t'2023-02-08 05:43:01.498',\tNULL,\t'API_TEST',\t'LhoCOwiwBn2kzwxE',\t'wiROR8O3FlT1ICoCw6mEfU9ZF04z53Eg');\n\nDROP
+    TABLE IF EXISTS `app`;\nCREATE TABLE `app` (\n  `aid` bigint(20) unsigned NOT
+    NULL AUTO_INCREMENT,\n  `gid` bigint(20) NOT NULL COMMENT 'gitlab id',\n  `name`
+    varchar(191) COLLATE utf8mb4_bin NOT NULL COMMENT '项目中文名',\n  `app_name` varchar(191)
+    COLLATE utf8mb4_bin NOT NULL COMMENT '项目英文唯一标识名',\n  `create_time` bigint(20)
+    NOT NULL COMMENT '创建时间',\n  `update_time` bigint(20) NOT NULL COMMENT '更新时间',\n
+    \ `level` bigint(20) NOT NULL COMMENT '层级',\n  `lang` longtext COLLATE utf8mb4_bin
+    NOT NULL COMMENT '语言',\n  `biz_domain` longtext COLLATE utf8mb4_bin NOT NULL COMMENT
+    '业务类型',\n  `created_by` bigint(20) NOT NULL COMMENT '创建者',\n  `updated_by` bigint(20)
+    NOT NULL COMMENT '更新者',\n  `http_port` longtext COLLATE utf8mb4_bin NOT NULL COMMENT
+    'HTTP端口号',\n  `rpc_port` longtext COLLATE utf8mb4_bin NOT NULL COMMENT 'RPC端口号',\n
+    \ `govern_port` longtext COLLATE utf8mb4_bin NOT NULL COMMENT '治理端口号',\n  `hook_id`
+    bigint(20) NOT NULL COMMENT '钩子',\n  `users` json NOT NULL COMMENT '业务负责人',\n
+    \ `web_url` longtext COLLATE utf8mb4_bin NOT NULL,\n  `proto_dir` longtext COLLATE
+    utf8mb4_bin NOT NULL,\n  `git_url` longtext COLLATE utf8mb4_bin NOT NULL,\n  PRIMARY
+    KEY (`aid`),\n  KEY `idx_app_name` (`name`),\n  KEY `idx_app_app_name` (`app_name`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `app`
+    (`aid`, `gid`, `name`, `app_name`, `create_time`, `update_time`, `level`, `lang`,
+    `biz_domain`, `created_by`, `updated_by`, `http_port`, `rpc_port`, `govern_port`,
+    `hook_id`, `users`, `web_url`, `proto_dir`, `git_url`) VALUES\n(1,\t1,\t'jupiter-agent',\t'jupiter-agent',\t1673064118,\t1675836081,\t1,\t'go',\t'直播系统',\t0,\t0,\t'8011',\t'8012',\t'9999',\t0,\t'[\\\"askuy\\\",
+    \\\"lvchao\\\", \\\"duminxiang\\\"]',\t'https://github.com/douyu/jupiter-demo',\t'',\t'git@github.com/douyu/jupiter-agent.git'),\n(2,\t2,\t'juno-admin',\t'juno-admin',\t1673064118,\t1673064118,\t1,\t'go',\t'直播系统',\t0,\t0,\t'50000',\t'0',\t'50004',\t0,\t'[\\\"askuy\\\",
+    \\\"mex\\\"]',\t'https://github.com/douyu/juno',\t'',\t'git@github.com/douyu/juno.git');\n\nDROP
+    TABLE IF EXISTS `app_change_map`;\nCREATE TABLE `app_change_map` (\n  `id` bigint(20)
+    NOT NULL AUTO_INCREMENT,\n  `app_name` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n
+    \ `md5` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n  `updated_at` bigint(20)
+    NOT NULL,\n  PRIMARY KEY (`id`),\n  KEY `idx_app_change_map_app_name` (`app_name`),\n
+    \ KEY `idx_app_change_map_md5` (`md5`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\nINSERT INTO `app_change_map` (`id`, `app_name`, `md5`,
+    `updated_at`) VALUES\n(3,\t'jupiter-demo',\t'23de0483bcc83e69d2f83a9583572b8c',\t1673064118),\n(4,\t'juno-admin',\t'af66bc40d197e6b69c37a956d312dd5e',\t1673064118);\n\nDROP
+    TABLE IF EXISTS `app_event`;\nCREATE TABLE `app_event` (\n  `id` bigint(20) NOT
+    NULL AUTO_INCREMENT,\n  `app_name` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n
+    \ `aid` bigint(20) NOT NULL,\n  `zone_code` varchar(191) COLLATE utf8mb4_bin NOT
+    NULL,\n  `env` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n  `host_name` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `operator_type` varchar(191) COLLATE utf8mb4_bin
+    NOT NULL DEFAULT 'user',\n  `user_name` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `uid` bigint(20) NOT NULL,\n  `operation` varchar(191) COLLATE utf8mb4_bin NOT
+    NULL,\n  `create_time` bigint(20) DEFAULT NULL,\n  `source` varchar(191) COLLATE
+    utf8mb4_bin NOT NULL,\n  `metadata` text COLLATE utf8mb4_bin NOT NULL,\n  PRIMARY
+    KEY (`id`),\n  KEY `idx_source` (`source`),\n  KEY `idx_app_name` (`app_name`),\n
+    \ KEY `idx_aid` (`aid`),\n  KEY `idx_zone_code` (`zone_code`),\n  KEY `idx_env`
+    (`env`),\n  KEY `idx_operation` (`operation`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\nINSERT INTO `app_event` (`id`, `app_name`, `aid`, `zone_code`,
+    `env`, `host_name`, `operator_type`, `user_name`, `uid`, `operation`, `create_time`,
+    `source`, `metadata`) VALUES\n(1,\t'',\t0,\t'cn-wuhan-guanggu-f1',\t'dev',\t'wuhan-host-1-1',\t'user',\t'',\t0,\t'cmdb_node_create',\t1673061235,\t'cmdb',\t'{\\\"id\\\":1,\\\"host_name\\\":\\\"wuhan-host-1-1\\\",\\\"ip\\\":\\\"192.168.1.1\\\",\\\"create_time\\\":1673061235,\\\"update_time\\\":1673061235,\\\"env\\\":\\\"dev\\\",\\\"region_code\\\":\\\"cn-wuhan\\\",\\\"region_name\\\":\\\"武汉\\\",\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"agent_heartbeat_time\\\":0,\\\"proxy_heartbeat_time\\\":0,\\\"node_type\\\":1,\\\"agent_type\\\":0,\\\"agent_version\\\":\\\"\\\",\\\"proxy_type\\\":0,\\\"proxy_version\\\":\\\"\\\"}'),\n(2,\t'',\t0,\t'cn-wuhan-guanggu-f1',\t'dev',\t'wuhan-host-1-1',\t'user',\t'',\t0,\t'cmdb_app_node_create',\t1673061235,\t'cmdb',\t'{\\\"id\\\":1,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"wuhan-host-1-1\\\",\\\"ip\\\":\\\"192.168.1.1\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"dev\\\",\\\"region_code\\\":\\\"cn-wuhan\\\",\\\"region_name\\\":\\\"武汉\\\",\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"create_time\\\":1673061235,\\\"update_time\\\":1673061235}'),\n(3,\t'',\t0,\t'',\t'',\t'',\t'user',\t'',\t0,\t'cmdb_app_node_delete',\t1673061235,\t'cmdb',\t'{\\\"id\\\":0,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"\\\",\\\"ip\\\":\\\"\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"\\\",\\\"region_code\\\":\\\"\\\",\\\"region_name\\\":\\\"\\\",\\\"zone_code\\\":\\\"\\\",\\\"zone_name\\\":\\\"\\\",\\\"create_time\\\":0,\\\"update_time\\\":0}'),\n(4,\t'',\t0,\t'',\t'',\t'',\t'user',\t'',\t0,\t'cmdb_user_create',\t1673061235,\t'cmdb',\t'{\\\"uid\\\":1,\\\"id\\\":0,\\\"username\\\":\\\"admin\\\",\\\"nickname\\\":\\\"admin\\\",\\\"secret\\\":\\\"\\\",\\\"email\\\":\\\"\\\",\\\"avatar\\\":\\\"\\\",\\\"webUrl\\\":\\\"\\\",\\\"state\\\":\\\"\\\",\\\"hash\\\":\\\"\\\",\\\"createTime\\\":1673061235,\\\"updateTime\\\":1673061235,\\\"oauth\\\":\\\"\\\",\\\"oauthId\\\":\\\"\\\",\\\"password\\\":\\\"$2a$10$r9DQ07wk24/Pzkf99OR2huTT/4SbJp.pckSvQMl7bC7OXgOn1NZRi\\\",\\\"currentAuthority\\\":\\\"\\\",\\\"access\\\":\\\"admin\\\"}'),\n(5,\t'',\t0,\t'cn-wuhan-guanggu-f1',\t'dev',\t'wuhan-host-1-1',\t'user',\t'',\t0,\t'cmdb_app_node_create',\t1673063158,\t'cmdb',\t'{\\\"id\\\":2,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"wuhan-host-1-1\\\",\\\"ip\\\":\\\"192.168.1.1\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"dev\\\",\\\"region_code\\\":\\\"cn-wuhan\\\",\\\"region_name\\\":\\\"武汉\\\",\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"create_time\\\":1673063158,\\\"update_time\\\":1673063158}'),\n(6,\t'',\t0,\t'',\t'',\t'',\t'user',\t'',\t0,\t'cmdb_app_node_delete',\t1673063158,\t'cmdb',\t'{\\\"id\\\":0,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"\\\",\\\"ip\\\":\\\"\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"\\\",\\\"region_code\\\":\\\"\\\",\\\"region_name\\\":\\\"\\\",\\\"zone_code\\\":\\\"\\\",\\\"zone_name\\\":\\\"\\\",\\\"create_time\\\":0,\\\"update_time\\\":0}'),\n(7,\t'',\t0,\t'cn-wuhan-guanggu-f1',\t'dev',\t'wuhan-host-1-1',\t'user',\t'',\t0,\t'cmdb_app_node_create',\t1673063919,\t'cmdb',\t'{\\\"id\\\":3,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"wuhan-host-1-1\\\",\\\"ip\\\":\\\"192.168.1.1\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"dev\\\",\\\"region_code\\\":\\\"cn-wuhan\\\",\\\"region_name\\\":\\\"武汉\\\",\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"create_time\\\":1673063919,\\\"update_time\\\":1673063919}'),\n(8,\t'',\t0,\t'',\t'',\t'',\t'user',\t'',\t0,\t'cmdb_app_node_delete',\t1673063919,\t'cmdb',\t'{\\\"id\\\":0,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"\\\",\\\"ip\\\":\\\"\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"\\\",\\\"region_code\\\":\\\"\\\",\\\"region_name\\\":\\\"\\\",\\\"zone_code\\\":\\\"\\\",\\\"zone_name\\\":\\\"\\\",\\\"create_time\\\":0,\\\"update_time\\\":0}'),\n(9,\t'',\t0,\t'cn-wuhan-guanggu-f1',\t'dev',\t'wuhan-host-1-1',\t'user',\t'',\t0,\t'cmdb_app_node_create',\t1673063958,\t'cmdb',\t'{\\\"id\\\":4,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"wuhan-host-1-1\\\",\\\"ip\\\":\\\"192.168.1.1\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"dev\\\",\\\"region_code\\\":\\\"cn-wuhan\\\",\\\"region_name\\\":\\\"武汉\\\",\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"create_time\\\":1673063958,\\\"update_time\\\":1673063958}'),\n(10,\t'',\t0,\t'',\t'',\t'',\t'user',\t'',\t0,\t'cmdb_app_node_delete',\t1673063958,\t'cmdb',\t'{\\\"id\\\":0,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"\\\",\\\"ip\\\":\\\"\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"\\\",\\\"region_code\\\":\\\"\\\",\\\"region_name\\\":\\\"\\\",\\\"zone_code\\\":\\\"\\\",\\\"zone_name\\\":\\\"\\\",\\\"create_time\\\":0,\\\"update_time\\\":0}'),\n(11,\t'',\t0,\t'cn-wuhan-guanggu-f1',\t'dev',\t'wuhan-host-1-1',\t'user',\t'',\t0,\t'cmdb_app_node_create',\t1673064118,\t'cmdb',\t'{\\\"id\\\":5,\\\"app_name\\\":\\\"\\\",\\\"aid\\\":0,\\\"host_name\\\":\\\"wuhan-host-1-1\\\",\\\"ip\\\":\\\"192.168.1.1\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"dev\\\",\\\"region_code\\\":\\\"cn-wuhan\\\",\\\"region_name\\\":\\\"武汉\\\",\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"create_time\\\":1673064118,\\\"update_time\\\":1673064118}'),\n(12,\t'juno-admin',\t2,\t'cn-wuhan-guanggu-f1',\t'dev',\t'wuhan-host-1-1',\t'user',\t'',\t0,\t'cmdb_app_node_create',\t1675765612,\t'cmdb',\t'{\\\"id\\\":6,\\\"app_name\\\":\\\"juno-admin\\\",\\\"aid\\\":2,\\\"host_name\\\":\\\"wuhan-host-1-1\\\",\\\"ip\\\":\\\"192.168.1.1\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"dev\\\",\\\"region_code\\\":\\\"cn-wuhan\\\",\\\"region_name\\\":\\\"武汉\\\",\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"create_time\\\":1675765612,\\\"update_time\\\":1675765612}'),\n(13,\t'jupiter-demo',\t1,\t'cn-wuhan-guanggu-f1',\t'dev',\t'wuhan-host-1-1',\t'user',\t'',\t0,\t'cmdb_app_node_create',\t1675765617,\t'cmdb',\t'{\\\"id\\\":7,\\\"app_name\\\":\\\"jupiter-demo\\\",\\\"aid\\\":1,\\\"host_name\\\":\\\"wuhan-host-1-1\\\",\\\"ip\\\":\\\"192.168.1.1\\\",\\\"device_id\\\":0,\\\"env\\\":\\\"dev\\\",\\\"region_code\\\":\\\"cn-wuhan\\\",\\\"region_name\\\":\\\"武汉\\\",\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"create_time\\\":1675765617,\\\"update_time\\\":1675765617}'),\n(14,\t'',\t0,\t'',\t'',\t'572d5a0b2485',\t'user',\t'',\t0,\t'cmdb_node_delete',\t1675835962,\t'cmdb',\t'{\\\"id\\\":3,\\\"host_name\\\":\\\"\\\",\\\"ip\\\":\\\"\\\",\\\"create_time\\\":0,\\\"update_time\\\":0,\\\"env\\\":\\\"\\\",\\\"region_code\\\":\\\"\\\",\\\"region_name\\\":\\\"\\\",\\\"zone_code\\\":\\\"\\\",\\\"zone_name\\\":\\\"\\\",\\\"agent_heartbeat_time\\\":0,\\\"proxy_heartbeat_time\\\":0,\\\"node_type\\\":0,\\\"agent_type\\\":0,\\\"agent_version\\\":\\\"\\\",\\\"proxy_type\\\":0,\\\"proxy_version\\\":\\\"\\\"}'),\n(15,\t'',\t0,\t'',\t'',\t'a946734f2a23',\t'user',\t'',\t0,\t'cmdb_node_delete',\t1675835964,\t'cmdb',\t'{\\\"id\\\":2,\\\"host_name\\\":\\\"\\\",\\\"ip\\\":\\\"\\\",\\\"create_time\\\":0,\\\"update_time\\\":0,\\\"env\\\":\\\"\\\",\\\"region_code\\\":\\\"\\\",\\\"region_name\\\":\\\"\\\",\\\"zone_code\\\":\\\"\\\",\\\"zone_name\\\":\\\"\\\",\\\"agent_heartbeat_time\\\":0,\\\"proxy_heartbeat_time\\\":0,\\\"node_type\\\":0,\\\"agent_type\\\":0,\\\"agent_version\\\":\\\"\\\",\\\"proxy_type\\\":0,\\\"proxy_version\\\":\\\"\\\"}'),\n(16,\t'jupiter-demo',\t1,\t'',\t'',\t'',\t'user',\t'',\t0,\t'cmdb_app_update',\t1675836081,\t'cmdb',\t'{\\\"aid\\\":1,\\\"gid\\\":1,\\\"name\\\":\\\"\\\",\\\"app_name\\\":\\\"jupiter-agent\\\",\\\"create_time\\\":0,\\\"update_time\\\":1675836081,\\\"level\\\":0,\\\"lang\\\":\\\"go\\\",\\\"biz_domain\\\":\\\"直播系统\\\",\\\"created_by\\\":0,\\\"updated_by\\\":0,\\\"http_port\\\":\\\"8011\\\",\\\"rpc_port\\\":\\\"8012\\\",\\\"govern_port\\\":\\\"9999\\\",\\\"hook_id\\\":0,\\\"users\\\":null,\\\"web_url\\\":\\\"\\\",\\\"proto_dir\\\":\\\"\\\",\\\"git_url\\\":\\\"git@github.com/douyu/jupiter-agent.git\\\"}');\n\nDROP
+    TABLE IF EXISTS `app_log`;\nCREATE TABLE `app_log` (\n  `id` bigint(20) NOT NULL
+    AUTO_INCREMENT COMMENT '''应用id''',\n  `aid` bigint(20) NOT NULL COMMENT '''应用id''',\n
+    \ `gid` bigint(20) NOT NULL COMMENT '''gitlab id''',\n  `name` varchar(191) COLLATE
+    utf8mb4_bin NOT NULL COMMENT '''项目中文名''',\n  `app_name` varchar(191) COLLATE utf8mb4_bin
+    NOT NULL COMMENT '''项目英文唯一标识名''',\n  `create_time` bigint(20) NOT NULL COMMENT
+    '''创建时间''',\n  `update_time` bigint(20) NOT NULL COMMENT '''更新时间''',\n  `level`
+    bigint(20) NOT NULL COMMENT '''层级''',\n  `lang` longtext COLLATE utf8mb4_bin NOT
+    NULL COMMENT '''语言''',\n  `biz_domain` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `created_by` bigint(20) NOT NULL COMMENT '''创建者''',\n  `updated_by` bigint(20)
+    NOT NULL COMMENT '''更新者''',\n  `http_port` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `rpc_port` longtext COLLATE utf8mb4_bin NOT NULL,\n  `health_port` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `hook_id` bigint(20) NOT NULL COMMENT '''钩子''',\n
+    \ `users` json NOT NULL,\n  `web_url` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `action` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '''动作''',\n  `created_at`
+    datetime(3) DEFAULT NULL COMMENT '''记录创建时间''',\n  PRIMARY KEY (`id`),\n  KEY `idx_app_log_app_name`
+    (`app_name`),\n  KEY `idx_app_log_name` (`name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `app_node`;\nCREATE TABLE `app_node`
+    (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `app_name` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `aid` bigint(20) NOT NULL,\n  `host_name` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `ip` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n  `device_id` bigint(20)
+    NOT NULL,\n  `env` longtext COLLATE utf8mb4_bin NOT NULL,\n  `region_code` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `region_name` longtext COLLATE utf8mb4_bin NOT
+    NULL,\n  `zone_code` longtext COLLATE utf8mb4_bin NOT NULL,\n  `zone_name` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `create_time` bigint(20) NOT NULL,\n  `update_time`
+    bigint(20) NOT NULL,\n  PRIMARY KEY (`id`),\n  KEY `idx_app_node_ip` (`ip`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `app_node`
+    (`id`, `app_name`, `aid`, `host_name`, `ip`, `device_id`, `env`, `region_code`,
+    `region_name`, `zone_code`, `zone_name`, `create_time`, `update_time`) VALUES\n(6,\t'juno-admin',\t2,\t'wuhan-host-1-1',\t'192.168.1.1',\t0,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t1675765612,\t1675765612),\n(7,\t'jupiter-demo',\t1,\t'wuhan-host-1-1',\t'192.168.1.1',\t0,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t1675765617,\t1675765617);\n\nDROP
+    TABLE IF EXISTS `app_node_map`;\nCREATE TABLE `app_node_map` (\n  `id` bigint(20)
+    NOT NULL AUTO_INCREMENT,\n  `aid` bigint(20) DEFAULT NULL,\n  `app_name` longtext
+    COLLATE utf8mb4_bin,\n  `md5` longtext COLLATE utf8mb4_bin,\n  PRIMARY KEY (`id`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `app_node_map`
+    (`id`, `aid`, `app_name`, `md5`) VALUES\n(11,\t0,\t'',\t'29b799d89c788f64efc491e01a81aed2');\n\nDROP
+    TABLE IF EXISTS `app_package`;\nCREATE TABLE `app_package` (\n  `id` bigint(20)
+    NOT NULL AUTO_INCREMENT,\n  `aid` bigint(20) NOT NULL,\n  `name` longtext COLLATE
+    utf8mb4_bin NOT NULL,\n  `branch` longtext COLLATE utf8mb4_bin NOT NULL,\n  `version`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `revision` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `packages` text COLLATE utf8mb4_bin NOT NULL,\n  `update_time` bigint(20)
+    NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `app_statics`;\nCREATE TABLE `app_statics` (\n  `aid` bigint(20)
+    NOT NULL,\n  `app_name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `git_push` bigint(20)
+    NOT NULL,\n  `git_tag_push` bigint(20) NOT NULL,\n  `git_issue` bigint(20) NOT
+    NULL,\n  `git_merge_request` bigint(20) NOT NULL,\n  `git_wiki_page` bigint(20)
+    NOT NULL,\n  `git_pipeline` bigint(20) NOT NULL,\n  `git_job` bigint(20) NOT NULL,\n
+    \ `cmc_create` bigint(20) NOT NULL,\n  `cmc_update` bigint(20) NOT NULL,\n  `cmc_delete`
+    bigint(20) NOT NULL,\n  `app_create` bigint(20) NOT NULL,\n  `app_update` bigint(20)
+    NOT NULL,\n  `app_delete` bigint(20) NOT NULL,\n  `node_create` bigint(20) NOT
+    NULL,\n  `node_update` bigint(20) NOT NULL,\n  `node_delete` bigint(20) NOT NULL,\n
+    \ `pprof_create` bigint(20) NOT NULL,\n  `devops_update` bigint(20) NOT NULL,\n
+    \ `devops_register` bigint(20) NOT NULL,\n  `devops_unregister` bigint(20) NOT
+    NULL,\n  `devops_start` bigint(20) NOT NULL,\n  `devops_restart` bigint(20) NOT
+    NULL,\n  `devops_stop` bigint(20) NOT NULL,\n  `devops_deploy` bigint(20) NOT
+    NULL,\n  `devops_rollback` bigint(20) NOT NULL,\n  `updated_at` datetime(3) DEFAULT
+    NULL,\n  `created_at` datetime(3) DEFAULT NULL\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `app_topology`;\nCREATE TABLE `app_topology`
+    (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `aid` bigint(20) NOT NULL,\n
+    \ `app_name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `region_code` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `zone_code` longtext COLLATE utf8mb4_bin NOT
+    NULL,\n  `env` longtext COLLATE utf8mb4_bin NOT NULL,\n  `file_name` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `addr` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `ip` longtext COLLATE utf8mb4_bin NOT NULL,\n  `port` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `type` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `info` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `update_time` bigint(20) NOT NULL,\n  `updated_by` bigint(20) NOT NULL,\n  `extra`
+    text COLLATE utf8mb4_bin NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT
+    CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `app_user_relation`;\nCREATE
+    TABLE `app_user_relation` (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `app_name`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `user_name` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `updated_at` bigint(20) NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `app_user_relation`
+    (`id`, `app_name`, `user_name`, `updated_at`) VALUES\n(6,\t'jupiter-demo',\t'askuy',\t1673064118),\n(7,\t'jupiter-demo',\t'lvchao',\t1673064118),\n(8,\t'jupiter-demo',\t'duminxiang',\t1673064118),\n(9,\t'juno-admin',\t'askuy',\t1673064118),\n(10,\t'juno-admin',\t'mex',\t1673064118);\n\nDROP
+    TABLE IF EXISTS `app_view_history`;\nCREATE TABLE `app_view_history` (\n  `id`
+    bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT
+    NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT
+    NULL,\n  `uid` bigint(20) unsigned DEFAULT NULL,\n  `aid` bigint(20) unsigned
+    DEFAULT NULL,\n  `app_name` longtext COLLATE utf8mb4_bin,\n  PRIMARY KEY (`id`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `app_view_history`
+    (`id`, `created_at`, `updated_at`, `deleted_at`, `uid`, `aid`, `app_name`) VALUES\n(1,\t'2023-01-07
+    12:02:46.385',\t'2023-01-07 12:02:46.385',\tNULL,\t1,\t2,\t'juno-admin'),\n(2,\t'2023-01-07
+    12:02:49.467',\t'2023-01-07 12:02:49.467',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(3,\t'2023-01-07
+    12:02:50.528',\t'2023-01-07 12:02:50.528',\tNULL,\t1,\t2,\t'juno-admin'),\n(4,\t'2023-02-07
+    10:26:20.527',\t'2023-02-07 10:26:20.527',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(5,\t'2023-02-07
+    10:27:02.782',\t'2023-02-07 10:27:02.782',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(6,\t'2023-02-07
+    10:27:10.840',\t'2023-02-07 10:27:10.840',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(7,\t'2023-02-07
+    10:27:18.429',\t'2023-02-07 10:27:18.429',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(8,\t'2023-02-07
+    10:27:36.633',\t'2023-02-07 10:27:36.633',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(9,\t'2023-02-07
+    10:31:22.345',\t'2023-02-07 10:31:22.345',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(10,\t'2023-02-07
+    10:31:25.011',\t'2023-02-07 10:31:25.011',\tNULL,\t1,\t2,\t'juno-admin'),\n(11,\t'2023-02-07
+    10:31:26.518',\t'2023-02-07 10:31:26.518',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(12,\t'2023-02-07
+    10:32:07.914',\t'2023-02-07 10:32:07.914',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(13,\t'2023-02-07
+    10:32:44.308',\t'2023-02-07 10:32:44.308',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(14,\t'2023-02-07
+    10:32:50.196',\t'2023-02-07 10:32:50.196',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(15,\t'2023-02-07
+    10:46:18.899',\t'2023-02-07 10:46:18.899',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(16,\t'2023-02-07
+    10:47:01.516',\t'2023-02-07 10:47:01.516',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(17,\t'2023-02-07
+    10:47:09.979',\t'2023-02-07 10:47:09.979',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(18,\t'2023-02-07
+    10:47:42.253',\t'2023-02-07 10:47:42.253',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(19,\t'2023-02-07
+    11:14:05.481',\t'2023-02-07 11:14:05.481',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(20,\t'2023-02-07
+    11:14:54.547',\t'2023-02-07 11:14:54.547',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(21,\t'2023-02-08
+    02:10:21.372',\t'2023-02-08 02:10:21.372',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(22,\t'2023-02-08
+    02:19:43.177',\t'2023-02-08 02:19:43.177',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(23,\t'2023-02-08
+    03:48:08.028',\t'2023-02-08 03:48:08.028',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(24,\t'2023-02-08
+    05:42:18.728',\t'2023-02-08 05:42:18.728',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(25,\t'2023-02-08
+    05:43:36.673',\t'2023-02-08 05:43:36.673',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(26,\t'2023-02-08
+    05:43:56.493',\t'2023-02-08 05:43:56.493',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(27,\t'2023-02-08
+    05:56:17.842',\t'2023-02-08 05:56:17.842',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(28,\t'2023-02-08
+    05:59:43.162',\t'2023-02-08 05:59:43.162',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(29,\t'2023-02-08
+    05:59:56.808',\t'2023-02-08 05:59:56.808',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(30,\t'2023-02-08
+    06:00:11.680',\t'2023-02-08 06:00:11.680',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(31,\t'2023-02-08
+    06:00:37.422',\t'2023-02-08 06:00:37.422',\tNULL,\t1,\t1,\t'jupiter-demo'),\n(32,\t'2023-02-08
+    06:02:00.697',\t'2023-02-08 06:02:00.697',\tNULL,\t1,\t1,\t'jupiter-agent'),\n(33,\t'2023-02-08
+    06:04:01.840',\t'2023-02-08 06:04:01.840',\tNULL,\t1,\t2,\t'juno-admin'),\n(34,\t'2023-02-08
+    06:07:27.761',\t'2023-02-08 06:07:27.761',\tNULL,\t1,\t2,\t'juno-admin'),\n(35,\t'2023-02-08
+    06:07:34.574',\t'2023-02-08 06:07:34.574',\tNULL,\t1,\t2,\t'juno-admin'),\n(36,\t'2023-02-08
+    06:08:52.629',\t'2023-02-08 06:08:52.629',\tNULL,\t1,\t2,\t'juno-admin');\n\nDROP
+    TABLE IF EXISTS `board`;\nCREATE TABLE `board` (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n
+    \ `name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `src` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `meta_data` json NOT NULL,\n  `is_enable` tinyint(1) NOT NULL,\n
+    \ `is_common` tinyint(1) NOT NULL,\n  `created_at` bigint(20) NOT NULL,\n  `updated_at`
+    bigint(20) NOT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  PRIMARY KEY
+    (`id`),\n  KEY `idx_board_deleted_at` (`deleted_at`)\n) ENGINE=InnoDB DEFAULT
+    CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `board_auth`;\nCREATE
+    TABLE `board_auth` (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `did` bigint(20)
+    NOT NULL,\n  `uid` bigint(20) NOT NULL,\n  `created_at` bigint(20) NOT NULL,\n
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `casbin_policy_auth`;\nCREATE TABLE `casbin_policy_auth` (\n  `id`
+    bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT
+    NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT
+    NULL,\n  `sub` longtext COLLATE utf8mb4_bin NOT NULL,\n  `obj` varchar(255) COLLATE
+    utf8mb4_bin NOT NULL,\n  `act` varchar(255) COLLATE utf8mb4_bin NOT NULL,\n  `type`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `casbin_policy_group`;\nCREATE
+    TABLE `casbin_policy_group` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
+    \ `created_at` datetime(3) DEFAULT NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n
+    \ `deleted_at` datetime(3) DEFAULT NULL,\n  `group_name` varchar(30) COLLATE utf8mb4_bin
+    NOT NULL,\n  `uid` bigint(20) NOT NULL,\n  `app_name` varchar(255) COLLATE utf8mb4_bin
+    NOT NULL,\n  `app_env` varchar(30) COLLATE utf8mb4_bin NOT NULL,\n  `url` varchar(255)
+    COLLATE utf8mb4_bin NOT NULL,\n  `type` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ PRIMARY KEY (`id`),\n  KEY `idx_casbin_policy_group_uid` (`uid`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `casbin_policy_group`
+    (`id`, `created_at`, `updated_at`, `deleted_at`, `group_name`, `uid`, `app_name`,
+    `app_env`, `url`, `type`) VALUES\n(1,\t'2023-01-07 11:13:55.386',\t'2023-01-07
+    11:13:55.386',\tNULL,\t'admin',\t1,\t'',\t'',\t'',\t'user'),\n(2,\t'2023-01-07
+    11:13:55.487',\t'2023-01-07 11:13:55.487',\tNULL,\t'default',\t2,\t'',\t'',\t'',\t'user');\n\nDROP
+    TABLE IF EXISTS `cmc_tpl`;\nCREATE TABLE `cmc_tpl` (\n  `id` bigint(20) NOT NULL
+    AUTO_INCREMENT,\n  `tpl_type` longtext COLLATE utf8mb4_bin NOT NULL,\n  `content`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `create_time` bigint(20) NOT NULL,\n
+    \ `update_time` bigint(20) NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT
+    CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `configuration`;\nCREATE
+    TABLE `configuration` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
+    \ `aid` bigint(20) unsigned DEFAULT NULL,\n  `name` varchar(32) COLLATE utf8mb4_bin
+    DEFAULT NULL,\n  `content` longtext COLLATE utf8mb4_bin,\n  `format` varchar(20)
+    COLLATE utf8mb4_bin DEFAULT NULL,\n  `env` varchar(20) COLLATE utf8mb4_bin DEFAULT
+    NULL,\n  `zone` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL,\n  `version` varchar(50)
+    COLLATE utf8mb4_bin DEFAULT NULL,\n  `created_at` datetime(3) DEFAULT NULL,\n
+    \ `access_token_id` bigint(20) unsigned DEFAULT NULL,\n  `uid` bigint(20) unsigned
+    DEFAULT NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3)
+    DEFAULT NULL,\n  `published_at` datetime(3) DEFAULT NULL,\n  `lock_uid` bigint(20)
+    unsigned DEFAULT NULL,\n  `lock_at` datetime(3) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF
+    EXISTS `configuration_cluster_status`;\nCREATE TABLE `configuration_cluster_status`
+    (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `configuration_id` bigint(20)
+    unsigned DEFAULT NULL,\n  `configuration_publish_id` bigint(20) unsigned DEFAULT
+    NULL,\n  `cluster_name` longtext COLLATE utf8mb4_bin,\n  `used` bigint(20) unsigned
+    DEFAULT NULL,\n  `synced` bigint(20) unsigned DEFAULT NULL,\n  `take_effect` bigint(20)
+    unsigned DEFAULT NULL,\n  `created_at` datetime(3) DEFAULT NULL,\n  `update_at`
+    datetime(3) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `configuration_history`;\nCREATE
+    TABLE `configuration_history` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
+    \ `access_token_id` bigint(20) unsigned DEFAULT NULL,\n  `uid` bigint(20) unsigned
+    DEFAULT NULL,\n  `configuration_id` bigint(20) unsigned DEFAULT NULL,\n  `change_log`
+    longtext COLLATE utf8mb4_bin,\n  `content` longtext COLLATE utf8mb4_bin,\n  `version`
+    varchar(50) COLLATE utf8mb4_bin DEFAULT NULL,\n  `created_at` datetime(3) DEFAULT
+    NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `configuration_publish`;\nCREATE
+    TABLE `configuration_publish` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
+    \ `uid` bigint(20) DEFAULT NULL,\n  `access_token_id` bigint(20) unsigned DEFAULT
+    NULL,\n  `configuration_id` bigint(20) unsigned DEFAULT NULL,\n  `configuration_history_id`
+    bigint(20) unsigned DEFAULT NULL,\n  `apply_instance` longtext COLLATE utf8mb4_bin,\n
+    \ `file_path` longtext COLLATE utf8mb4_bin,\n  `created_at` datetime(3) DEFAULT
+    NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `configuration_resource_relation`;\nCREATE TABLE `configuration_resource_relation`
+    (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3)
+    DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  `configuration_history_id`
+    bigint(20) unsigned DEFAULT NULL,\n  `config_resource_value_id` bigint(20) unsigned
+    DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `configuration_status`;\nCREATE TABLE `configuration_status` (\n
+    \ `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `configuration_id` bigint(20)
+    unsigned DEFAULT NULL,\n  `configuration_publish_id` bigint(20) unsigned DEFAULT
+    NULL,\n  `host_name` longtext COLLATE utf8mb4_bin,\n  `used` bigint(20) unsigned
+    DEFAULT NULL,\n  `synced` bigint(20) unsigned DEFAULT NULL,\n  `take_effect` bigint(20)
+    unsigned DEFAULT NULL,\n  `created_at` datetime(3) DEFAULT NULL,\n  `update_at`
+    datetime(3) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `config_resource`;\nCREATE TABLE
+    `config_resource` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `uid`
+    bigint(20) unsigned DEFAULT NULL,\n  `is_global` tinyint(1) DEFAULT NULL,\n  `name`
+    varchar(50) COLLATE utf8mb4_bin DEFAULT NULL,\n  `env` varchar(30) COLLATE utf8mb4_bin
+    DEFAULT NULL,\n  `zone_code` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL,\n  `description`
+    longtext COLLATE utf8mb4_bin,\n  `visible` tinyint(1) DEFAULT NULL,\n  PRIMARY
+    KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `config_resource_tag`;\nCREATE TABLE `config_resource_tag` (\n
+    \ `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `config_resource_id` bigint(20)
+    unsigned DEFAULT NULL,\n  `value` varchar(30) COLLATE utf8mb4_bin DEFAULT NULL,\n
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `config_resource_value`;\nCREATE TABLE `config_resource_value`
+    (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `config_resource_id`
+    bigint(20) unsigned DEFAULT NULL,\n  `value` text COLLATE utf8mb4_bin,\n  `created_at`
+    datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  PRIMARY
+    KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `cron_job`;\nCREATE TABLE `cron_job` (\n  `id` bigint(20) unsigned
+    NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n  `updated_at`
+    datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  `name`
+    longtext COLLATE utf8mb4_bin,\n  `uid` bigint(20) unsigned DEFAULT NULL,\n  `app_name`
+    longtext COLLATE utf8mb4_bin,\n  `env` longtext COLLATE utf8mb4_bin,\n  `zone`
+    longtext COLLATE utf8mb4_bin,\n  `timeout` bigint(20) unsigned DEFAULT NULL,\n
+    \ `retry_count` bigint(20) unsigned DEFAULT NULL,\n  `retry_interval` bigint(20)
+    unsigned DEFAULT NULL,\n  `script` longtext COLLATE utf8mb4_bin,\n  `enable` tinyint(1)
+    DEFAULT NULL,\n  `nodes` json DEFAULT NULL,\n  `job_type` bigint(20) DEFAULT NULL,\n
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `cron_job_timer`;\nCREATE TABLE `cron_job_timer` (\n  `id` bigint(20)
+    unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
+    \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
+    \ `job_id` bigint(20) unsigned DEFAULT NULL,\n  `cron` longtext COLLATE utf8mb4_bin,\n
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `cron_task`;\nCREATE TABLE `cron_task` (\n  `id` bigint(20) unsigned
+    NOT NULL AUTO_INCREMENT,\n  `job_id` bigint(20) unsigned DEFAULT NULL,\n  `node`
+    longtext COLLATE utf8mb4_bin,\n  `env` longtext COLLATE utf8mb4_bin,\n  `zone`
+    longtext COLLATE utf8mb4_bin,\n  `status` longtext COLLATE utf8mb4_bin,\n  `timeout`
+    bigint(20) unsigned DEFAULT NULL,\n  `executed_at` datetime(3) DEFAULT NULL,\n
+    \ `finished_at` datetime(3) DEFAULT NULL,\n  `retry_count` bigint(20) unsigned
+    DEFAULT NULL,\n  `log` longtext COLLATE utf8mb4_bin,\n  `script` longtext COLLATE
+    utf8mb4_bin,\n  `execute_type` bigint(20) DEFAULT NULL,\n  `created_at` datetime(3)
+    DEFAULT NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3)
+    DEFAULT NULL,\n  PRIMARY KEY (`id`),\n  KEY `idx_cron_task_job_id` (`job_id`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF
+    EXISTS `example_models`;\nCREATE TABLE `example_models` (\n  `id` bigint(20) unsigned
+    NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n  `updated_at`
+    datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  PRIMARY
+    KEY (`id`),\n  KEY `idx_example_models_deleted_at` (`deleted_at`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `grpc_proto`;\nCREATE
+    TABLE `grpc_proto` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `created_at`
+    datetime(3) DEFAULT NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at`
+    datetime(3) DEFAULT NULL,\n  `app_name` bigint(20) DEFAULT NULL,\n  `file_name`
+    longtext COLLATE utf8mb4_bin,\n  `package_name` longtext COLLATE utf8mb4_bin,\n
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `grpc_proto_service`;\nCREATE TABLE `grpc_proto_service` (\n  `id`
+    bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT
+    NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT
+    NULL,\n  `proto_id` bigint(20) unsigned DEFAULT NULL,\n  `name` longtext COLLATE
+    utf8mb4_bin,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `grpc_service_method`;\nCREATE TABLE `grpc_service_method` (\n
+    \ `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3)
+    DEFAULT NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3)
+    DEFAULT NULL,\n  `service_id` bigint(20) unsigned DEFAULT NULL,\n  `name` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `method_comment` longtext COLLATE utf8mb4_bin,\n
+    \ `input_name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `input_type` json NOT
+    NULL,\n  `output_type` json NOT NULL,\n  `output_name` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `grpc_test_case`;\nCREATE TABLE `grpc_test_case` (\n  `id` bigint(20)
+    unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
+    \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
+    \ `method_id` bigint(20) unsigned DEFAULT NULL,\n  `uid` bigint(20) unsigned DEFAULT
+    NULL,\n  `name` longtext COLLATE utf8mb4_bin,\n  `input` longtext COLLATE utf8mb4_bin,\n
+    \ `metadata` longtext COLLATE utf8mb4_bin,\n  `script` longtext COLLATE utf8mb4_bin,\n
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `grpc_test_log`;\nCREATE TABLE `grpc_test_log` (\n  `id` bigint(20)
+    unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
+    \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
+    \ `method_id` bigint(20) unsigned DEFAULT NULL,\n  `operator_type` longtext COLLATE
+    utf8mb4_bin,\n  `operator_id` bigint(20) unsigned DEFAULT NULL,\n  `input` longtext
+    COLLATE utf8mb4_bin,\n  `output` longtext COLLATE utf8mb4_bin,\n  `status` varchar(20)
+    COLLATE utf8mb4_bin DEFAULT NULL,\n  `error` longtext COLLATE utf8mb4_bin,\n  `time_cost`
+    int(10) unsigned DEFAULT NULL,\n  `addr` varchar(30) COLLATE utf8mb4_bin DEFAULT
+    NULL,\n  `metadata` longtext COLLATE utf8mb4_bin,\n  `script` longtext COLLATE
+    utf8mb4_bin,\n  `test_passed` tinyint(1) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF
+    EXISTS `http_test_case`;\nCREATE TABLE `http_test_case` (\n  `id` bigint(20) unsigned
+    NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n  `updated_at`
+    datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  `collection_id`
+    bigint(20) unsigned DEFAULT NULL,\n  `name` longtext COLLATE utf8mb4_bin,\n  `url`
+    longtext COLLATE utf8mb4_bin,\n  `method` longtext COLLATE utf8mb4_bin,\n  `query`
+    json DEFAULT NULL,\n  `headers` json DEFAULT NULL,\n  `content_type` longtext
+    COLLATE utf8mb4_bin,\n  `body` longtext COLLATE utf8mb4_bin,\n  `script` longtext
+    COLLATE utf8mb4_bin,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `http_test_collection`;\nCREATE
+    TABLE `http_test_collection` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
+    \ `created_at` datetime(3) DEFAULT NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n
+    \ `deleted_at` datetime(3) DEFAULT NULL,\n  `created_by` bigint(20) unsigned DEFAULT
+    NULL,\n  `app_name` longtext COLLATE utf8mb4_bin,\n  `name` longtext COLLATE utf8mb4_bin,\n
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `http_test_log`;\nCREATE TABLE `http_test_log` (\n  `id` bigint(20)
+    unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
+    \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
+    \ `operator_type` longtext COLLATE utf8mb4_bin,\n  `operator_id` bigint(20) unsigned
+    DEFAULT NULL,\n  `app_name` longtext COLLATE utf8mb4_bin,\n  `name` longtext COLLATE
+    utf8mb4_bin,\n  `url` longtext COLLATE utf8mb4_bin,\n  `method` longtext COLLATE
+    utf8mb4_bin,\n  `query` json DEFAULT NULL,\n  `headers` json DEFAULT NULL,\n  `content_type`
+    longtext COLLATE utf8mb4_bin,\n  `body` longtext COLLATE utf8mb4_bin,\n  `response_body`
+    longtext COLLATE utf8mb4_bin,\n  `response_headers` json DEFAULT NULL,\n  `size`
+    bigint(20) DEFAULT NULL,\n  `cost` bigint(20) DEFAULT NULL,\n  `code` bigint(20)
+    DEFAULT NULL,\n  `status` longtext COLLATE utf8mb4_bin,\n  `error` longtext COLLATE
+    utf8mb4_bin,\n  `test_logs` json DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `k8s_pod`;\nCREATE
+    TABLE `k8s_pod` (\n  `pod_name` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n  `env`
+    longtext COLLATE utf8mb4_bin,\n  `namespace` longtext COLLATE utf8mb4_bin,\n  `host_ip`
+    longtext COLLATE utf8mb4_bin,\n  `pod_ip` longtext COLLATE utf8mb4_bin,\n  `node_name`
+    varchar(191) COLLATE utf8mb4_bin DEFAULT NULL,\n  `start_time` datetime(3) DEFAULT
+    NULL,\n  `update_time` datetime(3) DEFAULT NULL,\n  `image` longtext COLLATE utf8mb4_bin,\n
+    \ `status` longtext COLLATE utf8mb4_bin,\n  `instance_group_id` longtext COLLATE
+    utf8mb4_bin,\n  `instance_group_name` longtext COLLATE utf8mb4_bin,\n  `md5` varchar(191)
+    COLLATE utf8mb4_bin DEFAULT NULL,\n  `is_del` int(11) DEFAULT NULL,\n  `aid` int(11)
+    DEFAULT NULL,\n  `app_name` varchar(191) COLLATE utf8mb4_bin DEFAULT NULL,\n  `zone_code`
+    longtext COLLATE utf8mb4_bin,\n  `domain` longtext COLLATE utf8mb4_bin,\n  PRIMARY
+    KEY (`pod_name`),\n  KEY `idx_md5` (`md5`),\n  KEY `idx_aid` (`aid`),\n  KEY `idx_appname`
+    (`app_name`),\n  KEY `idx_node_name` (`node_name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `log_store`;\nCREATE TABLE `log_store`
+    (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `title` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `active_key` longtext COLLATE utf8mb4_bin NOT NULL,\n  `app_name`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `env` longtext COLLATE utf8mb4_bin NOT
+    NULL,\n  `region` longtext COLLATE utf8mb4_bin,\n  `project` longtext COLLATE
+    utf8mb4_bin NOT NULL,\n  `log_store` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `remark` longtext COLLATE utf8mb4_bin NOT NULL,\n  `ctime` bigint(20) NOT NULL
+    DEFAULT '0',\n  `utime` bigint(20) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `node`;\nCREATE
+    TABLE `node` (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `host_name` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `ip` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `create_time` bigint(20) NOT NULL,\n  `update_time` bigint(20) NOT NULL,\n  `env`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `region_code` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `region_name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `zone_code`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `zone_name` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `agent_heartbeat_time` bigint(20) NOT NULL,\n  `proxy_heartbeat_time`
+    bigint(20) NOT NULL,\n  `node_type` bigint(20) NOT NULL,\n  `agent_type` bigint(20)
+    NOT NULL,\n  `agent_version` longtext COLLATE utf8mb4_bin NOT NULL,\n  `proxy_type`
+    bigint(20) NOT NULL,\n  `proxy_version` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `node` (`id`, `host_name`, `ip`, `create_time`, `update_time`, `env`, `region_code`,
+    `region_name`, `zone_code`, `zone_name`, `agent_heartbeat_time`, `proxy_heartbeat_time`,
+    `node_type`, `agent_type`, `agent_version`, `proxy_type`, `proxy_version`) VALUES\n(1,\t'wuhan-host-1-1',\t'192.168.1.1',\t1673061235,\t1673061235,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t0,\t0,\t1,\t0,\t'',\t0,\t''),\n(4,\t'juno-agent-dev01',\t'172.18.0.19',\t1675828157,\t1675828157,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t1675836887,\t0,\t0,\t1,\t'0.2.1',\t0,\t'');\n\nDROP
+    TABLE IF EXISTS `ops_supervisor_config`;\nCREATE TABLE `ops_supervisor_config`
+    (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `aid` bigint(20) DEFAULT NULL,\n
+    \ `app_name` longtext COLLATE utf8mb4_bin,\n  `ops_app_name` longtext COLLATE
+    utf8mb4_bin,\n  `zone_code` longtext COLLATE utf8mb4_bin,\n  `access_key` longtext
+    COLLATE utf8mb4_bin,\n  `access_secret` longtext COLLATE utf8mb4_bin,\n  `create_time`
+    bigint(20) DEFAULT NULL,\n  `update_time` bigint(20) DEFAULT NULL,\n  PRIMARY
+    KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `option`;\nCREATE TABLE `option` (\n  `id` bigint(20) NOT NULL
+    AUTO_INCREMENT,\n  `option_title` longtext COLLATE utf8mb4_bin NOT NULL,\n  `option_name`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `option_value` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `create_time` bigint(20) NOT NULL COMMENT '''创建时间''',\n  `update_time`
+    bigint(20) NOT NULL COMMENT '''更新时间''',\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `pprof`;\nCREATE
+    TABLE `pprof` (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `type` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `scene_id` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `app_name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `aid` bigint(20) NOT NULL,\n
+    \ `file_info` longtext COLLATE utf8mb4_bin NOT NULL,\n  `zone_code` longtext COLLATE
+    utf8mb4_bin NOT NULL,\n  `env` longtext COLLATE utf8mb4_bin NOT NULL,\n  `ext`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `remark` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `host_name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `create_time`
+    bigint(20) DEFAULT NULL,\n  `update_time` bigint(20) DEFAULT NULL,\n  `delete_time`
+    bigint(20) DEFAULT NULL,\n  PRIMARY KEY (`id`),\n  KEY `idx_pprof_delete_time`
+    (`delete_time`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `proxy_manage`;\nCREATE TABLE `proxy_manage` (\n  `id` bigint(20)
+    NOT NULL AUTO_INCREMENT,\n  `title` longtext COLLATE utf8mb4_bin NOT NULL,\n  `sub_path`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `is_rewrite` bigint(20) NOT NULL DEFAULT
+    '0',\n  `proxy_addr` longtext COLLATE utf8mb4_bin NOT NULL,\n  `create_time` bigint(20)
+    NOT NULL DEFAULT '0',\n  `update_time` bigint(20) NOT NULL DEFAULT '0',\n  `delete_time`
+    bigint(20) NOT NULL DEFAULT '0',\n  `uid` bigint(20) NOT NULL DEFAULT '0',\n  PRIMARY
+    KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `proxy_menu`;\nCREATE TABLE `proxy_menu` (\n  `id` bigint(20)
+    NOT NULL AUTO_INCREMENT,\n  `panel_type` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `proxy_url` longtext COLLATE utf8mb4_bin NOT NULL,\n  `key` longtext COLLATE
+    utf8mb4_bin NOT NULL,\n  `create_time` bigint(20) NOT NULL DEFAULT '0',\n  `update_time`
+    bigint(20) NOT NULL DEFAULT '0',\n  `delete_time` bigint(20) NOT NULL DEFAULT
+    '0',\n  `uid` bigint(20) NOT NULL DEFAULT '0',\n  `title` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `system_config`;\nCREATE TABLE `system_config` (\n  `name` varchar(50)
+    COLLATE utf8mb4_bin NOT NULL,\n  `content` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `create_time` bigint(20) NOT NULL,\n  `update_time` bigint(20) NOT NULL,\n  PRIMARY
+    KEY (`name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `system_config` (`name`, `content`, `create_time`, `update_time`) VALUES\n('etcd',\t'[{\\\"prefix\\\":\\\"/prometheus/job/\\\",\\\"info\\\":\\\"监控查询\\\"},{\\\"prefix\\\":\\\"grpc:\\\",\\\"info\\\":\\\"grpc\\\"},{\\\"prefix\\\":\\\"http:\\\",\\\"info\\\":\\\"http\\\"}]',\t1673061016,\t1675836035),\n('grafana',\t'{\\\"host\\\":\\\"http://grafana:3000\\\",\\\"scheme\\\":\\\"http\\\",\\\"header_name\\\":\\\"X-WEBAUTH-USER\\\"}',\t1673061016,\t1675836436),\n('version',\t'[{\\\"name\\\":\\\"jupiter1.0\\\",\\\"version\\\":\\\"v1.0\\\",\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"host\\\":\\\"http://127.0.0.1:3000\\\",\\\"header_name\\\":\\\"X-WEBAUTH-USER\\\",\\\"dashboards\\\":[{\\\"name\\\":\\\"API监控面板地址\\\",\\\"value\\\":\\\"/grafana/d/api\\\"},{\\\"name\\\":\\\"实例监控面板\\\",\\\"value\\\":\\\"/grafana/d/instance\\\"},{\\\"name\\\":\\\"概览监控面板\\\",\\\"value\\\":\\\"/grafana/d/overview\\\"}]}]',\t1673061016,\t0);\n\nDROP
+    TABLE IF EXISTS `test_pipeline`;\nCREATE TABLE `test_pipeline` (\n  `id` bigint(20)
+    unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
+    \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
+    \ `name` longtext COLLATE utf8mb4_bin,\n  `app_name` longtext COLLATE utf8mb4_bin,\n
+    \ `env` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL,\n  `zone_code` longtext
+    COLLATE utf8mb4_bin,\n  `branch` longtext COLLATE utf8mb4_bin,\n  `code_check`
+    tinyint(1) DEFAULT NULL,\n  `unit_test` tinyint(1) DEFAULT NULL,\n  `http_test_collection`
+    bigint(20) DEFAULT NULL,\n  `grpc_test_addr` longtext COLLATE utf8mb4_bin,\n  `grpc_test_cases`
+    json DEFAULT NULL,\n  `created_by` bigint(20) unsigned DEFAULT NULL,\n  `updated_by`
+    bigint(20) unsigned DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT
+    CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `test_pipeline_step_status`;\nCREATE
+    TABLE `test_pipeline_step_status` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
+    \ `created_at` datetime(3) DEFAULT NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n
+    \ `deleted_at` datetime(3) DEFAULT NULL,\n  `task_id` bigint(20) unsigned DEFAULT
+    NULL,\n  `step_name` longtext COLLATE utf8mb4_bin,\n  `status` longtext COLLATE
+    utf8mb4_bin,\n  `logs` longtext COLLATE utf8mb4_bin,\n  PRIMARY KEY (`id`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF
+    EXISTS `test_pipeline_task`;\nCREATE TABLE `test_pipeline_task` (\n  `id` bigint(20)
+    unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
+    \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
+    \ `pipeline_id` bigint(20) unsigned DEFAULT NULL,\n  `name` longtext COLLATE utf8mb4_bin,\n
+    \ `app_name` longtext COLLATE utf8mb4_bin,\n  `branch` longtext COLLATE utf8mb4_bin,\n
+    \ `env` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL,\n  `zone_code` varchar(32)
+    COLLATE utf8mb4_bin DEFAULT NULL,\n  `desc` json DEFAULT NULL,\n  `status` longtext
+    COLLATE utf8mb4_bin,\n  `logs` longtext COLLATE utf8mb4_bin,\n  `created_by` bigint(20)
+    unsigned DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `tool`;\nCREATE TABLE `tool` (\n
+    \ `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '''id''',\n  `name`
+    longtext COLLATE utf8mb4_bin NOT NULL COMMENT '''工具名''',\n  `url` longtext COLLATE
+    utf8mb4_bin NOT NULL COMMENT '''工具地址''',\n  `pic_url` longtext COLLATE utf8mb4_bin
+    NOT NULL COMMENT '''图片地址''',\n  `desc` longtext COLLATE utf8mb4_bin NOT NULL COMMENT
+    '''工具描述''',\n  `create_time` bigint(20) NOT NULL COMMENT '''创建时间''',\n  PRIMARY
+    KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    TABLE IF EXISTS `user`;\nCREATE TABLE `user` (\n  `uid` bigint(20) unsigned NOT
+    NULL AUTO_INCREMENT,\n  `oaid` bigint(20) NOT NULL COMMENT '''oa uid''',\n  `username`
+    varchar(100) COLLATE utf8mb4_bin NOT NULL COMMENT '''用户名''',\n  `nickname` longtext
+    COLLATE utf8mb4_bin NOT NULL COMMENT '''昵称''',\n  `secret` longtext COLLATE utf8mb4_bin
+    NOT NULL COMMENT '''秘钥''',\n  `email` longtext COLLATE utf8mb4_bin NOT NULL COMMENT
+    '''email''',\n  `avatar` longtext COLLATE utf8mb4_bin NOT NULL COMMENT '''avatart''',\n
+    \ `web_url` longtext COLLATE utf8mb4_bin NOT NULL COMMENT '''注释''',\n  `state`
+    longtext COLLATE utf8mb4_bin NOT NULL COMMENT '''注释''',\n  `hash` longtext COLLATE
+    utf8mb4_bin NOT NULL COMMENT '''注释''',\n  `create_time` bigint(20) NOT NULL COMMENT
+    '''注释''',\n  `update_time` bigint(20) NOT NULL COMMENT '''注释''',\n  `oauth` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `oauth_id` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `password` longtext COLLATE utf8mb4_bin NOT NULL COMMENT '''注释''',\n  `current_authority`
+    longtext COLLATE utf8mb4_bin,\n  `access` longtext COLLATE utf8mb4_bin,\n  `oauth_token`
+    json DEFAULT NULL COMMENT '''OAuth Token 信息''',\n  PRIMARY KEY (`uid`)\n) ENGINE=InnoDB
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `user` (`uid`, `oaid`,
+    `username`, `nickname`, `secret`, `email`, `avatar`, `web_url`, `state`, `hash`,
+    `create_time`, `update_time`, `oauth`, `oauth_id`, `password`, `current_authority`,
+    `access`, `oauth_token`) VALUES\n(1,\t0,\t'admin',\t'admin',\t'',\t'',\t'',\t'',\t'',\t'',\t1673061235,\t1673061235,\t'',\t'',\t'$2a$10$r9DQ07wk24/Pzkf99OR2huTT/4SbJp.pckSvQMl7bC7OXgOn1NZRi',\t'',\t'admin',\t'{}'),\n(2,\t0,\t'default',\t'default',\t'',\t'',\t'',\t'',\t'',\t'',\t1673061235,\t1673061235,\t'',\t'',\t'$2a$10$8H/zMx1BGrOIoPv0gnreu.s1i0zK8pGicyFXANbpXCYHOTQ9Y160O',\t'',\t'user',\t'{}');\n\nDROP
+    TABLE IF EXISTS `user_config`;\nCREATE TABLE `user_config` (\n  `id` bigint(20)
+    unsigned NOT NULL AUTO_INCREMENT,\n  `uid` bigint(20) NOT NULL COMMENT '''用户id''',\n
+    \ `aid` bigint(20) NOT NULL COMMENT '''应用id''',\n  `content` longtext COLLATE
+    utf8mb4_bin NOT NULL,\n  `create_time` bigint(20) NOT NULL,\n  `update_time` bigint(20)
+    NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `user_config` (`id`, `uid`, `aid`, `content`, `create_time`, `update_time`)
+    VALUES\n(1,\t1,\t1,\t'{\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboardPath\\\":\\\"/grafana/d/api\\\"}',\t1675834945,\t1675836000),\n(2,\t1,\t2,\t'{\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboardPath\\\":\\\"/grafana/d/instance\\\"}',\t1675836450,\t1675836533);\n\nDROP
+    TABLE IF EXISTS `user_relation`;\nCREATE TABLE `user_relation` (\n  `id` bigint(20)
+    NOT NULL AUTO_INCREMENT COMMENT '''注释''',\n  `uid` bigint(20) NOT NULL COMMENT
+    '''注释''',\n  `bid` bigint(20) NOT NULL COMMENT '''注释''',\n  `type` bigint(20)
+    NOT NULL COMMENT '''注释''',\n  `create_time` bigint(20) NOT NULL COMMENT '''注释''',\n
+    \ `update_time` bigint(20) NOT NULL COMMENT '''注释''',\n  `delete_time` bigint(20)
+    NOT NULL COMMENT '''注释''',\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `user_visit`;\nCREATE TABLE `user_visit`
+    (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `uid` bigint(20) NOT
+    NULL COMMENT '''用户id''',\n  `aid` bigint(20) NOT NULL COMMENT '''应用id''',\n  `app_name`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `zone_code` varchar(191) COLLATE utf8mb4_bin
+    NOT NULL,\n  `env` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n  `tab` longtext
+    COLLATE utf8mb4_bin NOT NULL,\n  `url` longtext COLLATE utf8mb4_bin NOT NULL,\n
+    \ `ts` bigint(20) NOT NULL,\n  PRIMARY KEY (`id`),\n  KEY `idx_env` (`env`),\n
+    \ KEY `tx` (`ts`),\n  KEY `idx_uid` (`uid`),\n  KEY `idx_aid` (`aid`),\n  KEY
+    `idx_zone_code` (`zone_code`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `user_visit` (`id`, `uid`, `aid`, `app_name`, `zone_code`, `env`, `tab`,
+    `url`, `ts`) VALUES\n(1,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0',\t1675765625),\n(2,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765627),\n(3,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765630),\n(4,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765632),\n(5,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765632),\n(6,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765633),\n(7,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765633),\n(8,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765633),\n(9,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'applog',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765634),\n(10,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=applog&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765634),\n(11,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765635),\n(12,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765636),\n(13,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765638),\n(14,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765656),\n(15,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765657),\n(16,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765658),\n(17,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765659),\n(18,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765659),\n(19,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765660),\n(20,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765882),\n(21,\t1,\t2,\t'juno-admin',\t'',\t'dev',\t'confgo',\t'/app?aid=2&appName=juno-admin&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765884),\n(22,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765886),\n(23,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765887),\n(24,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765888),\n(25,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765927),\n(26,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765929),\n(27,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765939),\n(28,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765941),\n(29,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765946),\n(30,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'applog',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765948),\n(31,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=applog&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765948),\n(32,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'applog',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765949),\n(33,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'pprof',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=applog&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765950),\n(34,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'etcd',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=pprof&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765951),\n(35,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'event',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765952),\n(36,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'grpc',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=event&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765953),\n(37,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'applog',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=grpc&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765954),\n(38,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=applog&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765954),\n(39,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765964),\n(40,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675765970),\n(41,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766778),\n(42,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766780),\n(43,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766780),\n(44,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'applog',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766793),\n(45,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=applog&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766794),\n(46,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766794),\n(47,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766795),\n(48,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766821),\n(49,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766829),\n(50,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766831),\n(51,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766831),\n(52,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766862),\n(53,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766865),\n(54,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766865),\n(55,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'applog',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766866),\n(56,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'pprof',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=applog&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766866),\n(57,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'etcd',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=pprof&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766867),\n(58,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'event',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766868),\n(59,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=event&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675766869),\n(60,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675768437),\n(61,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675768445),\n(62,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675768446),\n(63,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675768494),\n(64,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675822221),\n(65,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675822626),\n(66,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0',\t1675834941),\n(67,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0',\t1675834942),\n(68,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0',\t1675834943),\n(69,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0',\t1675834943),\n(70,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=monitor&versionKey=jupiter1.0',\t1675834943),\n(71,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=confgo&versionKey=jupiter1.0',\t1675834944),\n(72,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675834951),\n(73,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675834956),\n(74,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675834957),\n(75,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675834957),\n(76,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'applog',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675834958),\n(77,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=applog&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675834959),\n(78,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835016),\n(79,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835018),\n(80,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835018),\n(81,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'applog',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835019),\n(82,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'pprof',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=applog&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835021),\n(83,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'etcd',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=pprof&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835025),\n(84,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'event',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835026),\n(85,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'grpc',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=event&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835026),\n(86,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'etcd',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=grpc&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835027),\n(87,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835032),\n(88,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835036),\n(89,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835983),\n(90,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835996),\n(91,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675835997),\n(92,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836011),\n(93,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'etcd',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836012),\n(94,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'etcd',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836037),\n(95,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'confgo',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836041),\n(96,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=confgo&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836041),\n(97,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'detail',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836042),\n(98,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'pprof',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=detail&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836043),\n(99,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'etcd',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=pprof&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836043),\n(100,\t1,\t1,\t'jupiter-demo',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836049),\n(101,\t1,\t1,\t'jupiter-agent',\t'',\t'dev',\t'monitor',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836120),\n(102,\t1,\t1,\t'jupiter-agent',\t'',\t'dev',\t'etcd',\t'/app?aid=1&appName=jupiter-demo&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836122),\n(103,\t1,\t2,\t'juno-admin',\t'',\t'dev',\t'etcd',\t'/app?aid=2&appName=juno-admin&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836241),\n(104,\t1,\t2,\t'juno-admin',\t'',\t'dev',\t'etcd',\t'/app?aid=2&appName=juno-admin&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836447),\n(105,\t1,\t2,\t'juno-admin',\t'',\t'dev',\t'monitor',\t'/app?aid=2&appName=juno-admin&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=etcd&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836449),\n(106,\t1,\t2,\t'juno-admin',\t'',\t'dev',\t'monitor',\t'/app?aid=2&appName=juno-admin&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836454),\n(107,\t1,\t2,\t'juno-admin',\t'',\t'dev',\t'monitor',\t'/app?aid=2&appName=juno-admin&dashboardPath=%2Fgrafana%2Fd%2Fapi&env=dev&tab=monitor&versionKey=jupiter1.0&zone=cn-wuhan-guanggu-f1',\t1675836532);\n\nDROP
+    TABLE IF EXISTS `worker_node`;\nCREATE TABLE `worker_node` (\n  `id` bigint(20)
+    unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
+    \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
+    \ `host_name` longtext COLLATE utf8mb4_bin,\n  `region_code` longtext COLLATE
+    utf8mb4_bin,\n  `region_name` longtext COLLATE utf8mb4_bin,\n  `zone_code` longtext
+    COLLATE utf8mb4_bin,\n  `zone_name` longtext COLLATE utf8mb4_bin,\n  `ip` longtext
+    COLLATE utf8mb4_bin,\n  `port` bigint(20) DEFAULT NULL,\n  `env` longtext COLLATE
+    utf8mb4_bin,\n  `last_heartbeat` datetime(3) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n)
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF
+    EXISTS `zone`;\nCREATE TABLE `zone` (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT
+    COMMENT '''注释''',\n  `env` longtext COLLATE utf8mb4_bin NOT NULL,\n  `region_code`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `region_name` longtext COLLATE utf8mb4_bin
+    NOT NULL,\n  `zone_code` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n  `zone_name`
+    longtext COLLATE utf8mb4_bin NOT NULL,\n  `create_time` bigint(20) NOT NULL COMMENT
+    '''注释''',\n  `update_time` bigint(20) NOT NULL COMMENT '''注释''',\n  `created_by`
+    bigint(20) NOT NULL COMMENT '''注释''',\n  `updated_by` bigint(20) NOT NULL COMMENT
+    '''注释''',\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `zone` (`id`, `env`, `region_code`, `region_name`, `zone_code`, `zone_name`,
+    `create_time`, `update_time`, `created_by`, `updated_by`) VALUES\n(1,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t1675836887,\t1675836887,\t0,\t0);\n\n--
+    2023-02-08 06:14:47"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db
+  name: db-cm0
+---
+apiVersion: v1
+data:
+  entry.sh: |+
+    #!/bin/sh
+
+    echo "init juno-admin..."
+    # /usr/local/bin/juno-admin --config=/root/juno/config/install.toml --install=true
+    # /usr/local/bin/juno-admin --config=/root/juno/config/install.toml --mock=true
+    /usr/local/bin/juno-admin --config=/root/juno/config/single-region-admin.toml --host=0.0.0.0
+
+  install.toml: |
+    [database]
+        enable = true
+        connMaxLifetime = "300s"
+        debug = true
+        dsn = "root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+        level = "panic"
+        maxIdleConns = 50
+        maxOpenConns = 100
+    [logger.system]
+        debug = false         # 是否在命令行输出
+        enableConsole = false # 是否按命令行格式输出
+        level = "debug"
+        async = false
+        name = "system.json"  # 日志名称
+        dir = "./"
+    [logger.biz]
+        debug = false         # 是否在命令行输出
+        enableConsole = false # 是否按命令行格式输出
+        level = "debug"
+        async = false
+        name = "biz.json"     # 日志名称
+        dir = "./"
+  juno-grafana.ini: |+
+    ##################### Grafana Configuration Defaults #####################
+    #
+    # Do not modify this file in grafana installs
+    #
+
+    # possible values : production, development
+    app_mode = production
+
+    # instance name, defaults to HOSTNAME environment variable value or hostname if HOSTNAME var is empty
+    instance_name = ${HOSTNAME}
+
+    #################################### Paths ###############################
+    [paths]
+    # Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)
+    data = data
+
+    # Temporary files in `data` directory older than given duration will be removed
+    temp_data_lifetime = 24h
+
+    # Directory where grafana can store logs
+    logs = data/log
+
+    # Directory where grafana will automatically scan and look for plugins
+    plugins = data/plugins
+
+    # folder that contains provisioning config files that grafana will apply on startup and while running.
+    provisioning = conf/provisioning
+
+    #################################### Server ##############################
+    [server]
+    # Protocol (http, https, h2, socket)
+    protocol = http
+
+    # The ip address to bind to, empty will bind to all interfaces
+    http_addr =
+
+    # The http port to use
+    http_port = 3000
+
+    # The public facing domain name used to access grafana from a browser
+    domain = localhost
+
+    # Redirect to correct domain if host header does not match domain
+    # Prevents DNS rebinding attacks
+    enforce_domain = false
+
+    # The full public facing url
+    root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana
+
+    # Serve Grafana from subpath specified in `root_url` setting. By default it is set to `false` for compatibility reasons.
+    serve_from_sub_path = true
+
+    # Log web requests
+    router_logging = false
+
+    # the path relative working path
+    static_root_path = public
+
+    # enable gzip
+    enable_gzip = false
+
+    # https certs & key file
+    cert_file =
+    cert_key =
+
+    # Unix socket path
+    socket = /tmp/grafana.sock
+
+    #################################### Database ############################
+    [database]
+    # You can configure the database connection by specifying type, host, name, user and password
+    # as separate properties or as on string using the url property.
+
+    # Either "mysql", "postgres" or "sqlite3", it's your choice
+    ;type = mysql
+    ;host = 127.0.0.1:3306
+    ;name = grafana
+    ;user = root
+    # If the password contains # or ; you have to wrap it with triple quotes. Ex """#password;"""
+    ;password =
+    # Use either URL or the previous fields to configure the database
+    # Example: mysql://user:secret@host:port/database
+    url = mysql://root:root@db:3306/grafana
+
+    # Max idle conn setting default is 2
+    max_idle_conn = 2
+
+    # Max conn setting default is 0 (mean not set)
+    max_open_conn =
+
+    # Connection Max Lifetime default is 14400 (means 14400 seconds or 4 hours)
+    conn_max_lifetime = 14400
+
+    # Set to true to log the sql calls and execution times.
+    log_queries =
+
+    # For "postgres", use either "disable", "require" or "verify-full"
+    # For "mysql", use either "true", "false", or "skip-verify".
+    ssl_mode = disable
+
+    ca_cert_path =
+    client_key_path =
+    client_cert_path =
+    server_cert_name =
+
+    # For "sqlite3" only, path relative to data_path setting
+    path = grafana.db
+
+    # For "sqlite3" only. cache mode setting used for connecting to the database
+    cache_mode = private
+
+    #################################### Cache server #############################
+    [remote_cache]
+    # Either "redis", "memcached" or "database" default is "database"
+    type = database
+
+    # cache connectionstring options
+    # database: will use Grafana primary database.
+    # redis: config like redis server e.g. `addr=127.0.0.1:6379,pool_size=100,db=0,ssl=false`. Only addr is required. ssl may be 'true', 'false', or 'insecure'.
+    # memcache: 127.0.0.1:11211
+    connstr =
+
+    #################################### Data proxy ###########################
+    [dataproxy]
+
+    # This enables data proxy logging, default is false
+    logging = false
+
+    # How long the data proxy waits before timing out, default is 30 seconds.
+    # This setting also applies to core backend HTTP data sources where query requests use an HTTP client with timeout set.
+    timeout = 30
+
+    # If enabled and user is not anonymous, data proxy will add X-Grafana-User header with username into the request, default is false.
+    send_user_header = false
+
+    #################################### Analytics ###########################
+    [analytics]
+    # Server reporting, sends usage counters to stats.grafana.org every 24 hours.
+    # No ip addresses are being tracked, only simple counters to track
+    # running instances, dashboard and error counts. It is very helpful to us.
+    # Change this option to false to disable reporting.
+    reporting_enabled = true
+
+    # Set to false to disable all checks to https://grafana.com
+    # for new versions (grafana itself and plugins), check is used
+    # in some UI views to notify that grafana or plugin update exists
+    # This option does not cause any auto updates, nor send any information
+    # only a GET request to https://grafana.com to get latest versions
+    check_for_updates = true
+
+    # Google Analytics universal tracking code, only enabled if you specify an id here
+    google_analytics_ua_id =
+
+    # Google Tag Manager ID, only enabled if you specify an id here
+    google_tag_manager_id =
+
+    #################################### Security ############################
+    [security]
+    # disable creation of admin user on first start of grafana
+    disable_initial_admin_creation = false
+
+    # default admin user, created on startup
+    admin_user = admin
+
+    # default admin password, can be changed before first start of grafana, or in profile settings
+    admin_password = admin
+
+    # used for signing
+    secret_key = SW2YcwTIb9zpOOhoPsMm
+
+    # disable gravatar profile images
+    disable_gravatar = false
+
+    # data source proxy whitelist (ip_or_domain:port separated by spaces)
+    data_source_proxy_whitelist =
+
+    # disable protection against brute force login attempts
+    disable_brute_force_login_protection = false
+
+    # set to true if you host Grafana behind HTTPS. default is false.
+    cookie_secure = false
+
+    # set cookie SameSite attribute. defaults to `lax`. can be set to "lax", "strict", "none" and "disabled"
+    cookie_samesite = lax
+
+    # set to true if you want to allow browsers to render Grafana in a <frame>, <iframe>, <embed> or <object>. default is false.
+    allow_embedding = true
+
+    # Set to true if you want to enable http strict transport security (HSTS) response header.
+    # This is only sent when HTTPS is enabled in this configuration.
+    # HSTS tells browsers that the site should only be accessed using HTTPS.
+    strict_transport_security = false
+
+    # Sets how long a browser should cache HSTS. Only applied if strict_transport_security is enabled.
+    strict_transport_security_max_age_seconds = 86400
+
+    # Set to true if to enable HSTS preloading option. Only applied if strict_transport_security is enabled.
+    strict_transport_security_preload = false
+
+    # Set to true if to enable the HSTS includeSubDomains option. Only applied if strict_transport_security is enabled.
+    strict_transport_security_subdomains = false
+
+    # Set to true to enable the X-Content-Type-Options response header.
+    # The X-Content-Type-Options response HTTP header is a marker used by the server to indicate that the MIME types advertised
+    # in the Content-Type headers should not be changed and be followed.
+    x_content_type_options = true
+
+    # Set to true to enable the X-XSS-Protection header, which tells browsers to stop pages from loading
+    # when they detect reflected cross-site scripting (XSS) attacks.
+    x_xss_protection = true
+
+
+    #################################### Snapshots ###########################
+    [snapshots]
+    # snapshot sharing options
+    external_enabled = true
+    external_snapshot_url = https://snapshots-origin.raintank.io
+    external_snapshot_name = Publish to snapshot.raintank.io
+
+    # Set to true to enable this Grafana instance act as an external snapshot server and allow unauthenticated requests for
+    # creating and deleting snapshots.
+    public_mode = false
+
+    # remove expired snapshot
+    snapshot_remove_expired = true
+
+    #################################### Dashboards ##################
+
+    [dashboards]
+    # Number dashboard versions to keep (per dashboard). Default: 20, Minimum: 1
+    versions_to_keep = 20
+
+    # Minimum dashboard refresh interval. When set, this will restrict users to set the refresh interval of a dashboard lower than given interval. Per default this is 5 seconds.
+    # The interval string is a possibly signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s or 1m.
+    min_refresh_interval = 5s
+
+    # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
+    default_home_dashboard_path =
+
+    #################################### Users ###############################
+    [users]
+    # disable user signup / registration
+    allow_sign_up = false
+
+    # Allow non admin users to create organizations
+    allow_org_create = false
+
+    # Set to true to automatically assign new users to the default organization (id 1)
+    auto_assign_org = true
+
+    # Set this value to automatically add new users to the provided organization (if auto_assign_org above is set to true)
+    auto_assign_org_id = 1
+
+    # Default role new users will be automatically assigned (if auto_assign_org above is set to true)
+    auto_assign_org_role = Viewer
+
+    # Require email validation before sign up completes
+    verify_email_enabled = false
+
+    # Background text for the user field on the login page
+    login_hint = email or username
+    password_hint = password
+
+    # Default UI theme ("dark" or "light")
+    default_theme = dark
+
+    # External user management
+    external_manage_link_url =
+    external_manage_link_name =
+    external_manage_info =
+
+    # Viewers can edit/inspect dashboard settings in the browser. But not save the dashboard.
+    viewers_can_edit = false
+
+    # Editors can administrate dashboard, folders and teams they create
+    editors_can_admin = false
+
+    [auth]
+    # Login cookie name
+    login_cookie_name = grafana_session
+
+    # The lifetime (days) an authenticated user can be inactive before being required to login at next visit. Default is 7 days.
+    login_maximum_inactive_lifetime_days = 7
+
+    # The maximum lifetime (days) an authenticated user can be logged in since login time before being required to login. Default is 30 days.
+    login_maximum_lifetime_days = 30
+
+    # How often should auth tokens be rotated for authenticated users when being active. The default is each 10 minutes.
+    token_rotation_interval_minutes = 10
+
+    # Set to true to disable (hide) the login form, useful if you use OAuth
+    disable_login_form = true
+
+    # Set to true to disable the signout link in the side menu. useful if you use auth.proxy
+    disable_signout_menu = true
+
+    # URL to redirect the user to after sign out
+    signout_redirect_url =
+
+    # Set to true to attempt login with OAuth automatically, skipping the login screen.
+    # This setting is ignored if multiple OAuth providers are configured.
+    oauth_auto_login = false
+
+    # OAuth state max age cookie duration. Defaults to 60 seconds.
+    oauth_state_cookie_max_age = 60
+
+    # limit of api_key seconds to live before expiration
+    api_key_max_seconds_to_live = -1
+
+
+    #################################### Basic Auth ##########################
+    [auth.basic]
+    enabled = true
+
+    #################################### Auth Proxy ##########################
+    [auth.proxy]
+    enabled = true
+    header_name = X-WEBAUTH-USER
+    header_property = username
+    auto_sign_up = true
+    # Deprecated, use sync_ttl instead
+    ldap_sync_ttl = 60
+    sync_ttl = 60
+    whitelist =
+    headers =
+    enable_login_token = false
+
+
+    #################################### SMTP / Emailing #####################
+    [smtp]
+    enabled = false
+    host = localhost:25
+    user =
+    # If the password contains # or ; you have to wrap it with triple quotes. Ex """#password;"""
+    password =
+    cert_file =
+    key_file =
+    skip_verify = false
+    from_address = admin@grafana.localhost
+    from_name = Grafana
+    ehlo_identity =
+    startTLS_policy =
+
+    [emails]
+    welcome_email_on_sign_up = false
+    templates_pattern = emails/*.html
+
+    #################################### Logging ##########################
+    [log]
+    # Either "console", "file", "syslog". Default is console and file
+    # Use space to separate multiple modes, e.g. "console file"
+    mode = console file
+
+    # Either "debug", "info", "warn", "error", "critical", default is "info"
+    level = info
+
+    # optional settings to set different levels for specific loggers. Ex filters = sqlstore:debug
+    filters =
+
+    # For "console" mode only
+    [log.console]
+    level =
+
+    # log line format, valid options are text, console and json
+    format = console
+
+    # For "file" mode only
+    [log.file]
+    level =
+
+    # log line format, valid options are text, console and json
+    format = text
+
+    # This enables automated log rotate(switch of following options), default is true
+    log_rotate = true
+
+    # Max line number of single file, default is 1000000
+    max_lines = 1000000
+
+    # Max size shift of single file, default is 28 means 1 << 28, 256MB
+    max_size_shift = 28
+
+    # Segment log daily, default is true
+    daily_rotate = true
+
+    # Expired days of log file(delete after max days), default is 7
+    max_days = 7
+
+    [log.syslog]
+    level =
+
+    # log line format, valid options are text, console and json
+    format = text
+
+    # Syslog network type and address. This can be udp, tcp, or unix. If left blank, the default unix endpoints will be used.
+    network =
+    address =
+
+    # Syslog facility. user, daemon and local0 through local7 are valid.
+    facility =
+
+    # Syslog tag. By default, the process' argv[0] is used.
+    tag =
+
+    #################################### Usage Quotas ########################
+    [quota]
+    enabled = false
+
+    #### set quotas to -1 to make unlimited. ####
+    # limit number of users per Org.
+    org_user = 10
+
+    # limit number of dashboards per Org.
+    org_dashboard = 100
+
+    # limit number of data_sources per Org.
+    org_data_source = 10
+
+    # limit number of api_keys per Org.
+    org_api_key = 10
+
+    # limit number of orgs a user can create.
+    user_org = 10
+
+    # Global limit of users.
+    global_user = -1
+
+    # global limit of orgs.
+    global_org = -1
+
+    # global limit of dashboards
+    global_dashboard = -1
+
+    # global limit of api_keys
+    global_api_key = -1
+
+    # global limit on number of logged in users.
+    global_session = -1
+
+    #################################### Alerting ############################
+    [alerting]
+    # Disable alerting engine & UI features
+    enabled = true
+    # Makes it possible to turn off alert rule execution but alerting UI is visible
+    execute_alerts = true
+
+    # Default setting for new alert rules. Defaults to categorize error and timeouts as alerting. (alerting, keep_state)
+    error_or_timeout = alerting
+
+    # Default setting for how Grafana handles nodata or null values in alerting. (alerting, no_data, keep_state, ok)
+    nodata_or_nullvalues = no_data
+
+    # Alert notifications can include images, but rendering many images at the same time can overload the server
+    # This limit will protect the server from render overloading and make sure notifications are sent out quickly
+    concurrent_render_limit = 5
+
+    # Default setting for alert calculation timeout. Default value is 30
+    evaluation_timeout_seconds = 30
+
+    # Default setting for alert notification timeout. Default value is 30
+    notification_timeout_seconds = 30
+
+    # Default setting for max attempts to sending alert notifications. Default value is 3
+    max_attempts = 3
+
+    # Makes it possible to enforce a minimal interval between evaluations, to reduce load on the backend
+    min_interval_seconds = 1
+
+    #################################### Explore #############################
+    [explore]
+    # Enable the Explore section
+    enabled = true
+
+    #################################### Internal Grafana Metrics ############
+    # Metrics available at HTTP API Url /metrics
+    [metrics]
+    enabled              = true
+    interval_seconds     = 10
+    # Disable total stats (stat_totals_*) metrics to be generated
+    disable_total_stats = false
+
+    #If both are set, basic auth will be required for the metrics endpoint.
+    basic_auth_username =
+    basic_auth_password =
+
+    # Send internal Grafana metrics to graphite
+    [metrics.graphite]
+    # Enable by setting the address setting (ex localhost:2003)
+    address =
+    prefix = prod.grafana.%(instance_name)s.
+
+    #################################### Grafana.com integration  ##########################
+    [grafana_net]
+    url = https://grafana.com
+
+    [grafana_com]
+    url = https://grafana.com
+
+    #################################### Distributed tracing ############
+    [tracing.jaeger]
+    # jaeger destination (ex localhost:6831)
+    address =
+    # tag that will always be included in when creating new spans. ex (tag1:value1,tag2:value2)
+    always_included_tag =
+    # Type specifies the type of the sampler: const, probabilistic, rateLimiting, or remote
+    sampler_type = const
+    # jaeger samplerconfig param
+    # for "const" sampler, 0 or 1 for always false/true respectively
+    # for "probabilistic" sampler, a probability between 0 and 1
+    # for "rateLimiting" sampler, the number of spans per second
+    # for "remote" sampler, param is the same as for "probabilistic"
+    # and indicates the initial sampling rate before the actual one
+    # is received from the mothership
+    sampler_param = 1
+    # Whether or not to use Zipkin span propagation (x-b3- HTTP headers).
+    zipkin_propagation = false
+    # Setting this to true disables shared RPC spans.
+    # Not disabling is the most common setting when using Zipkin elsewhere in your infrastructure.
+    disable_shared_zipkin_spans = false
+
+    #################################### External Image Storage ##############
+    [external_image_storage]
+    # Used for uploading images to public servers so they can be included in slack/email messages.
+    # You can choose between (s3, webdav, gcs, azure_blob, local)
+    provider =
+
+    [external_image_storage.s3]
+    endpoint =
+    path_style_access =
+    bucket_url =
+    bucket =
+    region =
+    path =
+    access_key =
+    secret_key =
+
+    [external_image_storage.webdav]
+    url =
+    username =
+    password =
+    public_url =
+
+    [external_image_storage.gcs]
+    key_file =
+    bucket =
+    path =
+
+    [external_image_storage.azure_blob]
+    account_name =
+    account_key =
+    container_name =
+
+    [external_image_storage.local]
+    # does not require any configuration
+
+    [rendering]
+    # Options to configure a remote HTTP image rendering service, e.g. using https://github.com/grafana/grafana-image-renderer.
+    # URL to a remote HTTP image renderer service, e.g. http://localhost:8081/render, will enable Grafana to render panels and dashboards to PNG-images using HTTP requests to an external service.
+    server_url =
+    # If the remote HTTP image renderer service runs on a different server than the Grafana server you may have to configure this to a URL where Grafana is reachable, e.g. http://grafana.domain/.
+    callback_url =
+    # Concurrent render request limit affects when the /render HTTP endpoint is used. Rendering many images at the same time can overload the server,
+    # which this setting can help protect against by only allowing a certain amount of concurrent requests.
+    concurrent_render_request_limit = 30
+
+    [panels]
+    # here for to support old env variables, can remove after a few months
+    enable_alpha = false
+    disable_sanitize_html = false
+
+    #################################### Grafana Image Renderer Plugin ##########################
+    [plugin.grafana-image-renderer]
+    # Instruct headless browser instance to use a default timezone when not provided by Grafana, e.g. when rendering panel image of alert.
+    # See ICU’s metaZones.txt (https://cs.chromium.org/chromium/src/third_party/icu/source/data/misc/metaZones.txt) for a list of supported
+    # timezone IDs. Fallbacks to TZ environment variable if not set.
+    rendering_timezone =
+
+    # Instruct headless browser instance to use a default language when not provided by Grafana, e.g. when rendering panel image of alert.
+    # Please refer to the HTTP header Accept-Language to understand how to format this value, e.g. 'fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5'.
+    rendering_language =
+
+    # Instruct headless browser instance to use a default device scale factor when not provided by Grafana, e.g. when rendering panel image of alert.
+    # Default is 1. Using a higher value will produce more detailed images (higher DPI), but will require more disk space to store an image.
+    rendering_viewport_device_scale_factor =
+
+    # Instruct headless browser instance whether to ignore HTTPS errors during navigation. Per default HTTPS errors are not ignored. Due to
+    # the security risk it's not recommended to ignore HTTPS errors.
+    rendering_ignore_https_errors =
+
+    # Instruct headless browser instance whether to capture and log verbose information when rendering an image. Default is false and will
+    # only capture and log error messages. When enabled, debug messages are captured and logged as well.
+    # For the verbose information to be included in the Grafana server log you have to adjust the rendering log level to debug, configure
+    # [log].filter = rendering:debug.
+    rendering_verbose_logging =
+
+    # Instruct headless browser instance whether to output its debug and error messages into running process of remote rendering service.
+    # Default is false. This can be useful to enable (true) when troubleshooting.
+    rendering_dumpio =
+
+    # Additional arguments to pass to the headless browser instance. Default is --no-sandbox. The list of Chromium flags can be found
+    # here (https://peter.sh/experiments/chromium-command-line-switches/). Multiple arguments is separated with comma-character.
+    rendering_args =
+
+    # You can configure the plugin to use a different browser binary instead of the pre-packaged version of Chromium.
+    # Please note that this is not recommended, since you may encounter problems if the installed version of Chrome/Chromium is not
+    # compatible with the plugin.
+    rendering_chrome_bin =
+
+    # Instruct how headless browser instances are created. Default is 'default' and will create a new browser instance on each request.
+    # Mode 'clustered' will make sure that only a maximum of browsers/incognito pages can execute concurrently.
+    # Mode 'reusable' will have one browser instance and will create a new incognito page on each request.
+    rendering_mode =
+
+    # When rendering_mode = clustered you can instruct how many browsers or incognito pages can execute concurrently. Default is 'browser'
+    # and will cluster using browser instances.
+    # Mode 'context' will cluster using incognito pages.
+    rendering_clustering_mode =
+    # When rendering_mode = clustered you can define maximum number of browser instances/incognito pages that can execute concurrently..
+    rendering_clustering_max_concurrency =
+
+    # Limit the maximum viewport width, height and device scale factor that can be requested.
+    rendering_viewport_max_width =
+    rendering_viewport_max_height =
+    rendering_viewport_max_device_scale_factor =
+
+    # Change the listening host and port of the gRPC server. Default host is 127.0.0.1 and default port is 0 and will automatically assign
+    # a port not in use.
+    grpc_host =
+    grpc_port =
+
+  juno-prometheus.yml: |
+    scrape_configs:
+      # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+      - job_name: "prometheus"
+
+        # metrics_path defaults to '/metrics'
+        # scheme defaults to 'http'.
+
+        static_configs:
+          - targets: ["localhost:9090"]
+
+      - job_name: "node"
+        file_sd_configs:
+          - refresh_interval: 1m
+            files:
+              - "/home/www/system/prometheus/conf/*.yml"
+  model.conf: |
+    [request_definition]
+    r = sub, obj, act, type
+
+    [policy_definition]
+    p = sub, obj, act, type
+
+    [role_definition]
+    g = _, _ # user group
+    g2 = _, _ # menu group
+    g3 = _, _ # app group
+
+    [policy_effect]
+    e = some(where (p.eft == allow))
+
+    [matchers]
+    m = g(r.sub, "group_user:admin") || \
+        ( g(r.sub, p.sub) && r.type == p.type && r.act == p.act \
+        && (\
+            (r.type == "menu" && g2(r.obj, p.obj)) \
+            || (r.type == "api" && keyMatch2(r.obj, p.obj)) \
+            || (r.type == "app" && g3(r.obj, p.obj)) \
+        ) )
+  multiple-region-admin.toml: |
+    [app]
+      secretKey = "ASDFASDFASDF" # hashStatecode
+      mode = "multiple"          # single without proxy, multiple with proxy
+
+    [configure]
+      dirs = ["/tmp/www/server", "/tmp/www/.config"]
+      prefixes = ["juno-agent", "jupiter-agent"]
+
+      [configure.agent]
+        port = 50010
+
+
+    [logger.system]
+      debug = false        # 是否在命令行输出
+      level = "debug"
+      async = false
+      name = "system.json" # 日志名称
+      dir = "."
+    [logger.biz]
+      debug = false     # 是否在命令行输出
+      level = "debug"
+      async = false
+      name = "biz.json" # 日志名称
+      dir = "."
+
+    [session]
+      maxAge = 172800
+      secret = "ldfgoqnf935nvav34"
+      type = ""
+
+    [register]
+      enable = true
+      connectTimeout = "1s"
+      endpoints = ["etcd:2379"]
+      secure = false
+
+
+    #################################### Server ##############################
+    [server.http]
+      # The ip address to bind to, empty will bind to all interfaces
+      host = "0.0.0.0"
+      # The http port to use
+      port = 50002
+      domain = "localhost"
+    [server.govern]
+      # The ip address to bind to, empty will bind to all interfaces
+      host = "0.0.0.0"
+      # The http port to use
+      port = 50004
+    #################################### Database ##############################
+    [database]
+      enable = true
+      connMaxLifetime = "300s"
+      debug = true
+      dsn = "root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+      level = "panic"
+      maxIdleConns = 50
+      maxOpenConns = 100
+
+    [grafanaProxy]
+      enable = true
+      name = "grafana"
+
+    #################################### Proxy ##############################
+    [[clientProxy.multiProxy]]
+      env = "dev"
+      zoneCode = "guanggu"
+
+      [clientProxy.multiProxy.stream]
+        enable = true
+        proxyAddr = ["127.0.0.1:50001"]
+
+      [clientProxy.multiProxy.etcd]
+        enable = true
+        endpoints = ["127.0.0.1:5239"]
+        timeout = "3s"
+
+      [clientProxy.multiProxy.http]
+        enable = true
+        listenAddr = "127.0.0.1:50000"
+        disableKeepAlives = true
+        maxIdelPerHost = 1
+        maxIdleConns = 10
+        timeout = 100
+        scheme = "http"
+
+    [pprof]
+      path = "."
+
+    [auth]
+      # Login cookie name
+      loginCookieName = "juno_session"
+      # The lifetime (days) an authenticated user can be inactive before being required to login at next visit. Default is 7 days.
+      # 接口授权用户
+      loginMaximumInactiveLifetimeDays = 7
+      # The maximum lifetime (days) an authenticated user can be logged in since login time before being required to login. Default is 30 days.
+      # 页面登录用户
+      loginMaximumLifetimeDays = 30
+      # How often should auth tokens be rotated for authenticated users when being active. The default is each 10 minutes.
+      # 刷新时间
+      tokenRotationIntervalMinutes = 10
+      # Set to true to disable (hide) the login form, useful if you use OAuth
+      disableLoginForm = false
+      # Set to true to disable the signout link in the side menu. useful if you use auth.proxy
+      disableSignoutMenu = false
+      # URL to redirect the user to after sign out
+      signoutRedirectUrl = ""
+      # Set to true to attempt login with OAuth automatically, skipping the login screen.
+      # This setting is ignored if multiple OAuth providers are configured.
+      oauthAutoLogin = false
+      # OAuth state max age cookie duration. Defaults to 60 seconds.
+      oauthStateCookieMaxAge = 60
+      # limit of api_key seconds to live before expiration
+      apiKeyMaxSecondsToLive = -1
+
+      #################################### Github Auth #########################
+      [auth.github]
+        enable = true
+        allowSignUp = true
+        clientId = "a6633e5544e60bd2574e"
+        clientSecret = "7c6f51d97fc93d5d575ebd13115b20f397807549"
+        scopes = ["user:email", "read:org"]
+        authUrl = "https://github.com/login/oauth/authorize"
+        tokenUrl = "https://github.com/login/oauth/access_token"
+        apiUrl = "https://api.github.com/user"
+        allowedDomains = []
+        teamIds = []
+        allowedOrganizations = []
+
+    [casbin]
+      enable = false
+      debug = true
+      model = "./config/model.conf"
+      autoLoad = true
+      autoLoadInternal = 60
+      # 资源配置
+      resourceFile = './config/resource.yaml'
+  multiple-region-proxy.toml: |
+    [app]
+        secretKey = "ASDFASDFASDF"
+
+    [confgo]
+        dir = "/tmp/www/server"
+        prefix = "juno-agent"
+
+        [confgo.agent]
+            port = 50010
+
+
+    [logger.system]
+        debug = false        # 是否在命令行输出
+        level = "debug"
+        async = true
+        name = "system.json" # 日志名称
+        dir = "."
+    [logger.biz]
+        debug = false     # 是否在命令行输出
+        level = "debug"
+        async = false
+        name = "biz.json" # 日志名称
+        dir = "."
+
+
+    [register]
+        enable = true
+        connectTimeout = "1s"
+        endpoints = ["etcd:2379"]
+        secure = false
+
+
+    #################################### Server ##############################
+    [serverProxy.httpServer]
+        # The ip address to bind to, empty will bind to all interfaces
+        host = "0.0.0.0"
+        # The http port to use
+        port = 50000
+
+    [serverProxy.grpcServer]
+        # The ip address to bind to, empty will bind to all interfaces
+        host = "0.0.0.0"
+        # The http port to use
+        port = 50001
+
+    [serverProxy.governServer]
+        # The ip address to bind to, empty will bind to all interfaces
+        host = "0.0.0.0"
+        # The http port to use
+        port = 50008
+
+    [serverProxy.heartbeat]
+        enable = true
+        debug = true
+        addr = "stream"
+        internal = "120s"
+        hostName = "JUNO_HOST"     # 环境变量的名称，或者命令行参数的名称
+        regionCode = "REGION_CODE" # 环境变量的名称，或者命令行参数的名称
+        regionName = "REGION_NAME"
+        zoneCode = "ZONE_CODE"
+        zoneName = "ZONE_NAME"
+        env = "env"
+
+    [serverProxy.etcd]
+        enable = true
+        listenAddr = "127.0.0.1:52379"
+        endpoints = ["etcd:2379"]
+        namespace = ""
+        [serverProxy.etcd.tls]
+            cert = ""
+            key = ""
+            cacert = ""
+
+    [serverProxy.prometheus]
+        enable = true
+        listenAddr = "127.0.0.1:59090"
+        backend = "127.0.0.1:9090"
+        disableKeepAlives = true
+        maxIdleConns = 100
+        maxIdelPerHost = 200
+        timeout = 3
+  resource.yaml: |
+    #菜单权限
+    permission:
+      - name: 工作台
+        path: /workspace
+        icon: CrownOutlined
+        api:
+          - path: /api/admin/analysis/index
+            method: GET
+            name: 全局统计信息
+          - path: /api/admin/event/list
+            method: GET
+            name: 事件流列表
+          - path: /api/admin/resource/node/statics
+            name: 节点信息统计
+            method: GET
+
+      - name: 应用服务
+        path: /app
+        icon: RocketOutlined
+        api:
+          - name: 应用列表
+            path: /api/admin/resource/app/list
+            method: GET
+          - name: 可用区列表
+            path: /api/admin/resource/zone/list
+            method: GET
+          - path: /api/admin/resource/app_env_zone/list
+            name: 应用环境可用区列表
+            method: GET
+          - name: 应用详情信息
+            path: /api/admin/resource/app/info
+            method: GET
+          - name: 配置资源列表
+            path: /api/admin/resource/list
+            method: GET
+          - name: 创建配置资源
+            path: /api/admin/resource/create
+            method: POST
+          - name: 配置资源详情
+            path: /api/admin/resource/detail
+            method: GET
+          - name: 获取资源详情（通过名称）
+            path: /api/admin/resource/getByName
+            method: GET
+          - name: 更新资源
+            path: /api/admin/resource/createVersion
+            method: POST
+          - name: 批量检查资源版本
+            path: /api/admin/resource/batchCheckVersion
+            method: GET
+          - name: 资源标签列表
+            path: /api/admin/resource/tags
+            method: GET
+
+      - name: 功能看板
+        path: /analysis
+        icon: GlobalOutlined
+        children:
+          - name: 大盘
+            path: /analysis/dashboard
+            api:
+              - path: /api/admin/confgo/config/statics
+                method: GET
+                name: 配置统计
+              - path: /api/admin/analysis/index
+                method: GET
+                name: 全局统计信息
+              - path: /api/admin/event/list
+                method: GET
+                name: 事件流列表
+              - path: /api/admin/resource/node/statics
+                name: 节点信息统计
+                method: GET
+          - name: 依赖拓扑
+            path: /analysis/topology
+            api:
+              - path: /api/admin/analysis/topology/select
+                method: GET
+                name: 看板拓扑
+              - path: /api/admin/analysis/topology/list
+                method: GET
+                name: 应用拓扑列表
+              - path: /api/admin/analysis/topology/relationship
+                method: GET
+                name: 应用拓扑关系
+
+      - name: 资源中心
+        path: /resource
+        icon: UngroupOutlined
+        children:
+          - path: /resource/app/list
+            name: 应用列表
+            api:
+              - name: 应用列表
+                path: /api/admin/resource/app/list
+                method: GET
+              - name: 应用创建
+                path: /api/admin/resource/app/create
+                method: POST
+              - name: 更新应用
+                path: /api/admin/resource/app/update
+                method: POST
+              - name: 删除应用
+                path: /api/admin/resource/app/delete
+                method: POST
+              - path: /api/admin/resource/app_node/transfer/list
+                name: 应用节点列表
+                method: GET
+              - path: /api/admin/resource/app_node/transfer/put
+                name: 更新应用节点列表
+                method: POST
+          - path: /resource/zone/list
+            name: 可用区列表
+            api:
+              - name: 可用区列表
+                path: /api/admin/resource/zone/list
+                method: GET
+              - name: 创建可用区
+                path: /api/admin/resource/zone/create
+                method: POST
+              - name: 更新可用区
+                path: /api/admin/resource/zone/update
+                method: POST
+              - name: 删除可用区
+                path: /api/admin/resource/zone/delete
+                method: POST
+              - path: /api/admin/resource/node/transfer/list
+                name: 可用区节点列表
+                method: GET
+              - path: /api/admin/resource/node/transfer/put
+                name: 可用区节点列表更新
+                method: POST
+          - path: /resource/node/list
+            name: 节点列表
+            api:
+              - name: 节点列表
+                path: /api/admin/resource/node/list
+                method: GET
+              - path: /api/admin/resource/node/create
+                name: 创建节点
+                method: POST
+              - path: /api/admin/resource/node/delete
+                name: 删除节点
+                method: POST
+          - path: /resource/appnode/list
+            name: 应用节点关系列表
+            api:
+              - path: /api/admin/resource/app_node/list
+                name: 应用节点列表
+                method: GET
+
+      - name: 配置中心
+        path: /confgo
+        icon: FileProtectOutlined
+        children:
+          - path: /confgo/resource
+            name: 资源
+            api:
+              - name: 可用区和环境列表
+                path: /api/admin/resource/zone/zone_env
+                method: GET
+              - name: 配置资源列表
+                path: /api/admin/confgov2/resource/list
+                method: GET
+              - name: 创建配置资源
+                path: /api/admin/confgov2/resource/create
+                method: POST
+              - name: 配置资源详情
+                path: /api/admin/confgov2/resource/detail
+                method: GET
+              - name: 获取配置资源详情（通过名称）
+                path: /api/admin/confgov2/resource/getByName
+                method: GET
+              - name: 更新配置资源
+                path: /api/admin/confgov2/resource/createVersion
+                method: POST
+              - name: 批量检查配置资源版本
+                path: /api/admin/confgov2/resource/batchCheckVersion
+                method: GET
+              - name: 配置资源标签列表
+                path: /api/admin/confgov2/resource/tags
+                method: GET
+          - path: /confgo/tpl/list
+            name: 配置依赖解析模板
+            api:
+              - path: /api/admin/confgo/tpl/list
+                name: 配置依赖解析模板列表
+                method: GET
+              - path: /api/admin/confgo/tpl/create
+                name: 创建配置依赖解析模板
+                method: POST
+              - path: /api/admin/confgo/tpl/update
+                name: 更新配置依赖解析模板
+                method: POST
+              - path: /api/admin/confgo/tpl/delete
+                name: 删除配置依赖解析模板
+                method: POST
+
+      - name: 权限管理
+        path: /permission
+        icon: UserOutlined
+        children:
+          - path: /permission/user_group
+            name: 用户组
+            api:
+              - path: /api/admin/permission/user/list
+                name: 用户列表
+                method: GET
+              - path: /api/admin/permission/user/group/list
+                name: 用户组列表
+                method: GET
+              - path: /api/admin/permission/user/changeGroup
+                name: 修改用户所在组
+                method: POST
+
+          - path: /permission/menu_api_permission
+            name: 菜单接口权限
+            api:
+              - path: /api/admin/permission/user/group/list
+                name: 用户组列表
+                method: GET
+              - path: /api/admin/permission/user/group/menuPermission
+                name: 获取用户组菜单权限
+                method: GET
+              - path: /api/admin/permission/user/group/apiPermission
+                name: 获取用户组接口权限
+                method: GET
+              - path: /api/admin/permission/permissionTree
+                name: 菜单-接口权限树
+                method: GET
+              - path: /api/admin/permission/user/group/setMenuPermission
+                name: 设置用户组菜单权限
+                method: POST
+              - path: /api/admin/permission/user/group/setApiPermission
+                name: 设置用户组接口权限
+                method: GET
+          - path: /permission/app
+            name: 应用权限
+            api:
+              - path: /api/admin/permission/appPermissions
+                name: 获取用户组应用权限
+                method: GET
+              - path: /api/admin/resource/app/listWithEnv
+                name: 应用列表（带环境信息）
+                method: GET
+              - path: /api/admin/permission/user/group/list
+                name: 用户组列表
+                method: GET
+              - path: /user/group/setAppPermission
+                name: 设置用户组应用权限
+                method: POST
+
+      - name: 系统设置
+        path: /admin
+        icon: ToolOutlined
+        children:
+          - path: /admin/user
+            name: 用户管理
+            api:
+              - name: 用户创建
+                path: /api/admin/user/create
+                method: GET
+              - name: 用户删除
+                path: /api/admin/user/delete
+                method: POST
+              - name: 用户列表
+                path: /api/admin/user/list
+                method: GET
+          - path: /admin/config
+            name: 系统设置
+            api:
+              - path: /api/admin/pprof/dep/check
+                name: PProf依赖检查
+                method: GET
+              - path: /api/admin/system/setting/list
+                name: 系统设置列表
+                method: GET
+              - path: /api/admin/system/setting/update
+                name: 修改系统设置
+                method: POST
+          - path: /admin/accessTokens
+            name: Access Tokens
+            api:
+              - path: /api/admin/openAuth/accessToken/list
+                name: AccessToken列表
+                method: GET
+              - path: /api/admin/openAuth/accessToken/create
+                name: 创建AccessToken
+                method: POST
+              - path: /api/admin/openAuth/accessToken/delete
+                name: 删除AccessToken
+                method: POST
+
+    # 应用权限
+    app:
+      - name: 应用查看
+        key: app:read
+      - name: 配置查看
+        key: config:read
+      - name: 配置编辑
+        key: config:write
+      - name: 监控查看
+        key: monitor:read
+      - name: PProf查看
+        key: pprof:read
+      - name: PProf执行
+        key: pprof:run
+
+    # 接口
+    api:
+      - name: 用户管理
+        path: /api/admin/user
+        children:
+          - name: 用户创建
+            path: /api/admin/user/create
+            method: GET
+          - name: 用户删除
+            path: /api/admin/user/delete
+            method: POST
+          - name: 用户列表
+            path: /api/admin/user/list
+            method: GET
+      - name: 资源
+        path: /api/admin/resource
+        children:
+          - name: 应用
+            path: /api/admin/resource/app
+            children:
+              - name: 应用列表
+                path: /api/admin/resource/app/list
+                method: GET
+              - name: 应用详情信息
+                path: /api/admin/resource/app/info
+                method: GET
+              - name: 应用更新
+                path: /api/admin/resource/app/update
+                method: POST
+              - name: 应用创建
+                path: /api/admin/resource/app/create
+                method: POST
+              - name: 应用删除
+                path: /api/admin/resource/app/delete
+                method: POST
+          - name: 可用区
+            path: /api/admin/resource/zone
+            children:
+              - name: 可用区详情信息
+                path: /api/admin/resource/zone/info
+                method: GET
+              - name: 可用区列表
+                path: /api/admin/resource/zone/list
+                method: GET
+              - name: 创建可用区
+                path: /api/admin/resource/zone/create
+                method: POST
+              - name: 更新可用区
+                path: /api/admin/resource/zone/update
+                method: POST
+              - name: 删除可用区
+                path: /api/admin/resource/zone/delete
+                method: POST
+              - name: 可用区和环境列表
+                path: /api/admin/resource/zone/zone_env
+                method: GET
+          - name: 节点
+            path: /api/admin/resource/node
+            children:
+              - name: 节点信息
+                path: /api/admin/resource/node/info
+                method: GET
+              - name: 节点列表
+                path: /api/admin/resource/node/list
+                method: GET
+              - path: /api/admin/resource/node/create
+                name: 创建节点
+                method: POST
+              - path: /api/admin/resource/node/update
+                name: 更新节点
+                method: POST
+              - path: /api/admin/resource/node/delete
+                name: 删除节点
+                method: POST
+              - path: /api/admin/resource/node/statics
+                name: 节点信息统计
+                method: GET
+              - path: /api/admin/resource/node/transfer/list
+                name: 可用区节点列表
+                method: GET
+              - path: /api/admin/resource/node/transfer/put
+                name: 可用区节点列表更新
+                method: POST
+              - path: /api/admin/resource/app_node/info
+                name: 应用节点信息
+                method: GET
+              - path: /api/admin/resource/app_node/list
+                name: 应用节点列表
+                method: GET
+              - path: /api/admin/resource/app_node/transfer/list
+                name: 应用节点列表
+                method: GET
+              - path: /api/admin/resource/app_node/transfer/list
+                name: 应用节点列表更新
+                method: POST
+              - path: /api/admin/resource/app_env_zone/list
+                name: 应用环境可用区列表
+                method: GET
+
+      - name: 系统分析
+        path: /api/admin/analysis
+        children:
+          - path: /api/admin/analysis/index
+            method: GET
+            name: 全局统计信息
+          - path: /api/admin/analysis/topology/select
+            method: GET
+            name: 看板拓扑
+          - path: /api/admin/analysis/topology/list
+            method: GET
+            name: 应用拓扑列表
+          - path: /api/admin/analysis/topology/relationship
+            method: GET
+            name: 应用拓扑关系
+      - name: 系统
+        path: /api/admin/system
+        children:
+          - path: /api/admin/system/menu
+            method: GET
+            name: 系统菜单
+          - path: /api/admin/system/option/info
+            method: GET
+            name: 可用区信息
+          - path: /api/admin/system/option/list
+            method: GET
+            name: 可用区列表
+          - path: /api/admin/system/option/create
+            method: POST
+            name: 创建可用区
+          - path: /api/admin/system/option/update
+            method: POST
+            name: 更新可用区
+          - path: /api/admin/system/option/delete
+            method: POST
+            name: 删除可用区
+  single-region-admin.toml: |
+    [app]
+        secretKey = "ASDFASDFASDF"      # hashStatecode
+        mode = "local"                  # single without proxy, multiple with proxy
+        productionEnvs = ["production"]
+
+    [configure]
+        dir = "/tmp/www/server"
+        prefix = "juno-agent"
+
+    [agent]
+        port = 60814
+        secret = "12341234123412341234123412341234"
+
+    [logger.system]
+        debug = false         # 是否在命令行输出
+        enableConsole = false # 是否按命令行格式输出
+        level = "debug"
+        async = false
+        name = "system.json"  # 日志名称
+        dir = "./logs"
+
+    [logger.biz]
+        debug = false         # 是否在命令行输出
+        enableConsole = false # 是否按命令行格式输出
+        level = "debug"
+        async = false
+        name = "biz.json"     # 日志名称
+        dir = "./logs"
+
+    [session]
+        maxAge = 172800
+        secret = "ldfgoqnf935nvav34"
+        type = ""
+
+    [register]
+        enable = true
+        connectTimeout = "1s"
+        endpoints = ["http://etcd:2379"]
+        secure = false
+
+    [grafanaProxy]
+        enable = true
+        name = "grafana"
+
+    #################################### Server ##############################
+    [server.http]
+        # The ip address to bind to, empty will bind to all interfaces
+        host = "0.0.0.0"
+        # The http port to use
+        port = 50002
+        # The public facing domain name used to access grafana from a browser
+        domain = "localhost"
+        rootUrl = "http://127.0.0.1:50002/"
+
+        # [server.govern]
+        #     # The ip address to bind to, empty will bind to all interfaces
+        #     host = "0.0.0.0"
+        #     # The http port to use
+        #     port = 50004
+
+    #################################### Jupiter Config #########################
+    [jupiter]
+
+        #################################### Config Dependency Parse #########################
+        [jupiter.cron]
+
+            [jupiter.cron.parse]
+                withSeconds = false
+                concurrentDelay = 10
+                immediatelyRun = false
+
+    [jupiter.server]
+
+        [jupiter.server.governor]
+            # The ip address to bind to, empty will bind to all interfaces
+            host = "0.0.0.0"
+            # The http port to use
+            port = 50004
+            enable = true
+
+    #################################### Database ##############################
+    [database]
+        enable = true
+        connMaxLifetime = "300s"
+        debug = true
+        dsn = "root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+        level = "panic"
+        maxIdleConns = 50
+        maxOpenConns = 100
+
+    #################################### Proxy ##############################
+    [clientProxy]
+        [clientProxy.httpRouter]
+            governConfig = "/debug/config"
+        [clientProxy.singleProxy.registerEtcd]
+            endpoints = ["http://etcd:2379"]
+
+        [clientProxy.singleProxy.defaultEtcd]
+            endpoints = ["http://etcd:2379"]
+
+    [auth]
+        # Login cookie name
+        loginCookieName = "juno_session"
+        # The lifetime (days) an authenticated user can be inactive before being required to login at next visit. Default is 7 days.
+        # 接口授权用户
+        loginMaximumInactiveLifetimeDays = 7
+        # The maximum lifetime (days) an authenticated user can be logged in since login time before being required to login. Default is 30 days.
+        # 页面登录用户
+        loginMaximumLifetimeDays = 30
+        # How often should auth tokens be rotated for authenticated users when being active. The default is each 10 minutes.
+        # 刷新时间
+        tokenRotationIntervalMinutes = 10
+        # Set to true to disable (hide) the login form, useful if you use OAuth
+        disableLoginForm = false
+        # Set to true to disable the signout link in the side menu. useful if you use auth.proxy
+        disableSignoutMenu = false
+        # URL to redirect the user to after sign out
+        signoutRedirectUrl = ""
+        # Set to true to attempt login with OAuth automatically, skipping the login screen.
+        # This setting is ignored if multiple OAuth providers are configured.
+        oauthAutoLogin = false
+        # OAuth state max age cookie duration. Defaults to 60 seconds.
+        oauthStateCookieMaxAge = 60
+        # limit of api_key seconds to live before expiration
+        apiKeyMaxSecondsToLive = -1
+
+        #################################### Github Auth #########################
+        [auth.github]
+            enable = true
+            allowSignUp = true
+            clientId = "b88bb66e4d3114ed1669"
+            clientSecret = "a42917ca55917f330eb913cc9504cd6a1aeecabc"
+            scopes = ["user:email", "read:org"]
+            authUrl = "https://github.com/login/oauth/authorize"
+            tokenUrl = "https://github.com/login/oauth/access_token"
+            apiUrl = "https://api.github.com/user"
+            allowedDomains = []
+            teamIds = []
+            allowedOrganizations = []
+
+    [casbin]
+        enable = false
+        debug = true
+        model = "./config/model.conf"
+        autoLoad = true
+        autoLoadInternal = 60
+        # 资源配置
+        resourceFile = './config/resource.yaml'
+
+    [proxyAuth]
+        token = "token" # 用于对 Juno Proxy 的请求进行授权
+
+    [grpcTest]
+        enable = false
+        # PB文件目录，该目录下的所有PB文件会被遍历
+        protoDir = '../proto'
+
+    #################################### Go Dep Auth #########################
+    [godep.gitlab]
+        host = "https://gitlab.com"
+        token = "RgZev8zy6dtP2y8EA4sB"
+        frameName = "gitlab.com/douyu/jupiter"
+
+    [codeplatform]
+        token = "token" # 代码仓库访问凭证
+
+    [testplatform]
+        enable = false # 是否启用测试平台
+
+        [testplatform.worker]
+            localQueueDir = "/tmp/localworkerqueue"
+            heartbeatTimeout = "6s"
+
+    #################################### notice #########################
+    [notice]
+
+        [notice.email]
+            serverHost = "smtp.163.com"
+            serverPort = 465
+            fromEmail = "xxx@163.com"
+            fromPasswd = "xxx"
+            toers = ["xxxxxxx@qq.com"]
+            cCers = ["xxx@qq.com"]
+
+        [notice.ding]
+            webHook = "http://XXX.com"
+            msgType = "text"
+
+    # 系统事件的 RocektMQ 配置
+    [junoevent.rocketmq]
+        enable = false            # 开关.如果为false，则系统事件不写MQ.
+        addr = ["127.0.0.1:9876"] # mq地址
+        topic = "juno_test_job"   # mq topic
+        group = "juno_devops_go"  # mq producer group
+        retry = 3                 # MQ写重试次数
+        dialTimeout = "3s"        # MQ连接超时时间
+
+    [k8s]
+        enable = true
+        prefix = [""]
+        doc = ""
+    [aliyun] # 阿里云日志秘钥配置
+        accessKeyId = ""
+        secret = ""
+        roleArn = ""
+        [aliyun.regions]
+            "华北2（北京）" = "cn-beijing"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-admin
+  name: juno-admin-cm0
+---
+apiVersion: v1
+data:
+  config.toml: |
+    [plugin]
+
+        [plugin.regProxy]
+            enable = true
+
+            [plugin.regProxy.prometheus]
+                enable = true
+                path = "/home/www/system/prometheus/conf"
+                enableZone = true
+                zones = ["HB-WHYL"]                       # 用于支持zone过滤
+                enableCleanup = false
+                timeInterval = 10
+
+    [plugin.confProxy]
+        # 配置中心地址
+        env = ["dev", "live", "pre"]
+        prefix = "/juno-agent"
+        timeout = "3s"
+        enable = true
+
+        #配置中心数据源
+        [plugin.confProxy.mysql]
+            enable = false
+            dsn = ""
+            secure = false
+
+    [plugin.supervisor]
+        enable = true
+        dir = "/etc/supervisor/conf.d"
+
+    [plugin.systemd]
+        enable = true
+        dir = "/etc/systemd/system"
+
+    [plugin.nginx]
+        enable = false
+        dir = "/usr/local/openresty/nginx/conf"
+
+    [plugin.report]
+        enable = true
+        debug = true
+        addr = "http://juno-admin:50002/api/v1/resource/node/heartbeat"
+        internal = "60s"
+        hostName = "JUNO_HOST"                                         # 环境变量的名称，或者命令行参数的名称
+        regionCode = "REGION_CODE"                                     # 环境变量的名称，或者命令行参数的名称
+        regionName = "REGION_NAME"
+        zoneCode = "ZONE_CODE"
+        zoneName = "ZONE_NAME"
+        env = "ENV"
+
+    [plugin.healthCheck]
+        enable = false
+
+    [plugin.process]
+        enable = false
+
+    [plugin.worker]
+        enable = false
+        reqTimeout = 10
+
+    # service registry etcd
+    [jupiter.etcdv3.register]
+        endpoints = ["http://etcd:2379"]
+        connectTimeout = "3s"
+
+    # default etcd (config-publish / cronjob-dispatch / etc...)
+    [jupiter.etcdv3.default]
+        endpoints = ["http://etcd:2379"]
+        connectTimeout = "3s"
+
+    [jupiter.logger.default]
+        name = "default"
+        debug = true
+
+    [jupiter.logger.cronjob]
+        name = "cronjob.log"
+        level = "debug"
+
+    [jupiter.server]
+
+        [jupiter.server.grpc]
+            host = "0.0.0.0"
+            port = 60813
+
+        [jupiter.server.http]
+            host = "0.0.0.0"
+            port = 50010
+
+    [api]
+        # 密钥长度需要为32位
+        secret = "j1Sblr5uiJtuCQLsT89BRqtAgWDO2anI"
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-agent
+  name: juno-agent-cm0
+---
+apiVersion: v1
+data:
+  juno-prometheus.yml: "# my global config\nglobal:\n  scrape_interval:     15s #
+    Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval:
+    15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout
+    is set to the global default (10s).\n\n# Alertmanager configuration\nalerting:\n
+    \ alertmanagers:\n  - static_configs:\n    - targets:\n      # - alertmanager:9093\n\n#
+    Load rules once and periodically evaluate them according to the global 'evaluation_interval'.\nrule_files:\n
+    \ # - \"first_rules.yml\"\n  # - \"second_rules.yml\"\n\n# A scrape configuration
+    containing exactly one endpoint to scrape:\n# Here it's Prometheus itself.\nscrape_configs:\n
+    \ # The job name is added as a label `job=<job_name>` to any timeseries scraped
+    from this config.\n  - job_name: 'prometheus'\n\n    # metrics_path defaults to
+    '/metrics'\n    # scheme defaults to 'http'.\n\n    static_configs:\n    - targets:
+    ['localhost:9090']\n  \n  - job_name: jupiter-layout\n    static_configs:\n    -
+    targets: ['jupiter-layout-exampleserver:9529']"
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prometheus
+  name: prometheus-cm0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: adminer
+  name: adminer
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    io.kompose.service: adminer
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker
+  name: broker
+spec:
+  ports:
+  - name: "10909"
+    port: 10909
+    targetPort: 10909
+  - name: "10911"
+    port: 10911
+    targetPort: 10911
+  - name: "10912"
+    port: 10912
+    targetPort: 10912
+  selector:
+    io.kompose.service: broker
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db
+  name: db
+spec:
+  ports:
+  - name: "3306"
+    port: 3306
+    targetPort: 3306
+  selector:
+    io.kompose.service: db
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: etcd
+  name: etcd
+spec:
+  ports:
+  - name: "2379"
+    port: 2379
+    targetPort: 2379
+  - name: "2380"
+    port: 2380
+    targetPort: 2380
+  - name: "4001"
+    port: 4001
+    targetPort: 4001
+  selector:
+    io.kompose.service: etcd
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: grafana
+  name: grafana
+spec:
+  ports:
+  - name: "3000"
+    port: 3000
+    targetPort: 3000
+  selector:
+    io.kompose.service: grafana
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: jaeger
+  name: jaeger
+spec:
+  ports:
+  - name: "16686"
+    port: 16686
+    targetPort: 16686
+  - name: "14268"
+    port: 14268
+    targetPort: 14268
+  - name: "14269"
+    port: 14269
+    targetPort: 14269
+  - name: "14250"
+    port: 14250
+    targetPort: 14250
+  - name: "9411"
+    port: 9411
+    targetPort: 9411
+  - name: "5778"
+    port: 5778
+    targetPort: 5778
+  - name: "5775"
+    port: 5775
+    protocol: UDP
+    targetPort: 5775
+  - name: "6831"
+    port: 6831
+    protocol: UDP
+    targetPort: 6831
+  - name: "6832"
+    port: 6832
+    protocol: UDP
+    targetPort: 6832
+  selector:
+    io.kompose.service: jaeger
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.image-pull-policy: Always
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-admin
+  name: juno-admin
+spec:
+  ports:
+  - name: "50002"
+    port: 50002
+    targetPort: 50002
+  - name: "50004"
+    port: 50004
+    targetPort: 50004
+  selector:
+    io.kompose.service: juno-admin
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-agent
+  name: juno-agent
+spec:
+  ports:
+  - name: "50010"
+    port: 50010
+    targetPort: 50010
+  selector:
+    io.kompose.service: juno-agent
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mqconsole
+  name: mqconsole
+spec:
+  ports:
+  - name: "19876"
+    port: 19876
+    targetPort: 8080
+  selector:
+    io.kompose.service: mqconsole
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namesrv
+  name: namesrv
+spec:
+  ports:
+  - name: "9876"
+    port: 9876
+    targetPort: 9876
+  selector:
+    io.kompose.service: namesrv
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prometheus
+  name: prometheus
+spec:
+  ports:
+  - name: "9090"
+    port: 9090
+    targetPort: 9090
+  selector:
+    io.kompose.service: prometheus
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  ports:
+  - name: "6379"
+    port: 6379
+    targetPort: 6379
+  selector:
+    io.kompose.service: redis
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: adminer
+  name: adminer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: adminer
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: adminer
+    spec:
+      containers:
+      - image: adminer:4.8.1
+        name: adminer
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker
+  name: broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: broker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: broker
+    spec:
+      containers:
+      - args:
+        - sh
+        - mqbroker
+        - -n
+        - namesrv:9876
+        - -c
+        - ../conf/broker.conf
+        env:
+        - name: JAVA_OPT_EXT
+          value: -Xmx256m -Xms256m -Xmn128m
+        image: apacherocketmq/rocketmq:4.5.0
+        name: broker
+        ports:
+        - containerPort: 10909
+        - containerPort: 10911
+        - containerPort: 10912
+        resources: {}
+        volumeMounts:
+        - mountPath: /home/rocketmq/rocketmq-4.5.0/conf/broker.conf
+          name: broker-cm0
+          subPath: broker.conf
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          items:
+          - key: broker.conf
+            path: broker.conf
+          name: broker-cm0
+        name: broker-cm0
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: db
+    spec:
+      containers:
+      - args:
+        - --default-authentication-plugin=mysql_native_password
+        env:
+        - name: MYSQL_ROOT_HOST
+          value: '%'
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        image: mysql:5.7
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - -h
+            - localhost
+            - -u
+            - root
+            - -proot
+          failureThreshold: 10
+          timeoutSeconds: 20
+        name: db
+        ports:
+        - containerPort: 3306
+        resources: {}
+        volumeMounts:
+        - mountPath: /docker-entrypoint-initdb.d
+          name: db-cm0
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: db-cm0
+        name: db-cm0
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: etcd
+  name: etcd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: etcd
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: etcd
+    spec:
+      containers:
+      - env:
+        - name: ALLOW_NONE_AUTHENTICATION
+          value: "yes"
+        - name: ETCDCTL_API
+          value: "3"
+        - name: ETCD_ADVERTISE_CLIENT_URLS
+          value: http://0.0.0.0:2379
+        - name: ETCD_LISTEN_CLIENT_URLS
+          value: http://0.0.0.0:2379
+        image: quay.io/coreos/etcd:v3.3
+        name: etcd
+        ports:
+        - containerPort: 2379
+        - containerPort: 2380
+        - containerPort: 4001
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: grafana
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: grafana
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: grafana
+    spec:
+      containers:
+      - image: grafana/grafana:9.3.6
+        name: grafana
+        ports:
+        - containerPort: 3000
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: jaeger
+  name: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: jaeger
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: jaeger
+    spec:
+      containers:
+      - env:
+        - name: COLLECTOR_ZIPKIN_HOST_PORT
+          value: :9411
+        image: jaegertracing/all-in-one:1.42
+        name: jaeger
+        ports:
+        - containerPort: 16686
+        - containerPort: 14268
+        - containerPort: 14269
+        - containerPort: 14250
+        - containerPort: 9411
+        - containerPort: 5778
+        - containerPort: 5775
+          protocol: UDP
+        - containerPort: 6831
+          protocol: UDP
+        - containerPort: 6832
+          protocol: UDP
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.image-pull-policy: Always
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-admin
+  name: juno-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: juno-admin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.image-pull-policy: Always
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: juno-admin
+    spec:
+      containers:
+      - image: ghcr.io/douyu/juno-admin-dev:latest
+        imagePullPolicy: Always
+        name: juno-admin
+        ports:
+        - containerPort: 50002
+        - containerPort: 50004
+        resources: {}
+        volumeMounts:
+        - mountPath: /root/juno/config
+          name: juno-admin-cm0
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: juno-admin-cm0
+        name: juno-admin-cm0
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-agent
+  name: juno-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: juno-agent
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: juno-agent
+    spec:
+      containers:
+      - env:
+        - name: ENV
+          value: dev
+        - name: JUNO_HOST
+          value: juno-agent-dev01
+        - name: REGION_CODE
+          value: cn-wuhan
+        - name: REGION_NAME
+          value: 武汉
+        - name: ZONE_CODE
+          value: cn-wuhan-guanggu-f1
+        - name: ZONE_NAME
+          value: 武汉光谷F1区
+        image: ghcr.io/douyu/juno-agent:latest
+        name: juno-agent
+        ports:
+        - containerPort: 50010
+        resources: {}
+        volumeMounts:
+        - mountPath: /app/config
+          name: juno-agent-cm0
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: juno-agent-cm0
+        name: juno-agent-cm0
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mqconsole
+  name: mqconsole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mqconsole
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: mqconsole
+    spec:
+      containers:
+      - env:
+        - name: JAVA_OPTS
+          value: -Drocketmq.namesrv.addr=namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=falses
+        - name: JAVA_OPT_EXT
+          value: -Xmx256m -Xms256m -Xmn128m
+        image: apacherocketmq/rocketmq-dashboard:1.0.0
+        name: mqconsole
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namesrv
+  name: namesrv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: namesrv
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: namesrv
+    spec:
+      containers:
+      - args:
+        - sh
+        - mqnamesrv
+        env:
+        - name: JAVA_OPT_EXT
+          value: -Xmx256m -Xms256m -Xmn128m
+        image: apacherocketmq/rocketmq:4.5.0
+        name: namesrv
+        ports:
+        - containerPort: 9876
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prometheus
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: prometheus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: prometheus
+    spec:
+      containers:
+      - image: prom/prometheus:v2.42.0
+        name: prometheus
+        ports:
+        - containerPort: 9090
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/prometheus/prometheus.yml
+          name: prometheus-cm0
+          subPath: prometheus.yml
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          items:
+          - key: juno-prometheus.yml
+            path: prometheus.yml
+          name: prometheus-cm0
+        name: prometheus-cm0
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: redis
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: redis
+    spec:
+      containers:
+      - args:
+        - redis-server
+        image: redis:6.2-alpine
+        name: redis
+        ports:
+        - containerPort: 6379
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: deployment-default
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          io.kompose.network/deployment-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/deployment-default: "true"
