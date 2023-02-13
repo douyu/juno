@@ -53,9 +53,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Change tag in install.yml
+      - name: Generate install.yml
         run: |
-          sed -i 's/juno-admin:latest/juno-admin:${{ github.ref }}/g' deployment/install.yml
+          make gen-deployment
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2

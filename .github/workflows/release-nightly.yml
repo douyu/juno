@@ -1,4 +1,4 @@
-name: Juno Nightly Build
+name: Juno Latest Build
 
 env:
   REGISTRY: ghcr.io
@@ -55,43 +55,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Change tag in install.yml
-        run: |
-          sed -i 's/juno-admin:latest/juno-admin:nightly/g' deployment/install.yml
-
-      # Ignore the error when we delete the nightly release, it might not exist.
-      - name: Delete the nightly Release
-        continue-on-error: true
-        run: |
-          gh release delete nightly --repo $GITHUB_REPOSITORY
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository_owner }}/${{ github.event.repository.name }}
-
-      # Ignore the error when we delete the nightly tag, it might not exist.
-      - name: Delete the nightly Tag
-        continue-on-error: true
-        run:
-          gh api --method DELETE /repos/$GITHUB_REPOSITORY/git/refs/tags/nightly
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository_owner }}/${{ github.event.repository.name }}
-
-      - name: Recreate the nightly Release and Tag
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: false
-          prerelease: true
-          tag_name: nightly
-          files: |
-              ./dist/juno_0.0.0-SNAPSHOT-*
-              ./deployment/install.yml
-          body: |
-            This is the "nightly" release of **Juno**, which contains the most recent commits from the main branch.
-
-            This release **might not be stable**.
-            It is only intended for developers wishing to try out the nightly features in Juno, some of which may not be fully implemented.
-
       - name: image_name
         run: echo ${{ env.IMAGE_NAME }}
       - name: Extract metadata (tags, labels) for Docker
@@ -112,8 +75,45 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           buildArgs: "JUNO_TAR=${{ steps.vars.outputs.file_name }}"
           addLatest: false
-          tags: nightly
+          tags: latest
           directory: dist
           dockerfile: ./cmd/juno-admin/Dockerfile
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate install.yml
+        run: |
+          make gen-dev-deployment
+
+      # Ignore the error when we delete the latest release, it might not exist.
+      - name: Delete the latest Release
+        continue-on-error: true
+        run: |
+          gh release delete latest --repo $GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+
+      # Ignore the error when we delete the latest tag, it might not exist.
+      - name: Delete the latest Tag
+        continue-on-error: true
+        run:
+          gh api --method DELETE /repos/$GITHUB_REPOSITORY/git/refs/tags/latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+
+      - name: Recreate the latest Release and Tag
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          tag_name: latest
+          files: |
+              ./dist/juno_0.0.0-SNAPSHOT-*
+              ./deployment/install.yml
+          body: |
+            This is the "latest" release of **Juno**, which contains the most recent commits from the main branch.
+
+            This release **might not be stable**.
+            It is only intended for developers wishing to try out the latest features in Juno, some of which may not be fully implemented.
