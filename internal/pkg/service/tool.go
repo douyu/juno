@@ -51,7 +51,7 @@ func (t *tool) List(currentPage int, pageSize int, queryObj string) *view.RespTo
 func (t *tool) Detail(id int) *db.ToolInfo {
 	resp := new(db.ToolInfo)
 	invoker.JunoMysql.Table("tool").Select("id, name, url, pic_url, create_time, `desc`").
-		Where("id = ?", id).Find(&resp)
+		Where("id = ?", id).First(&resp)
 	return resp
 }
 

@@ -26,9 +26,9 @@ import (
 func (r *resource) GetApp(identify interface{}) (resp db.AppInfo, err error) {
 	switch v := identify.(type) {
 	case string:
-		err = r.DB.Where("app_name = ?", v).Find(&resp).Error
+		err = r.DB.Where("app_name = ?", v).First(&resp).Error
 	case int, uint:
-		err = r.DB.Where("aid=?", v).Find(&resp).Error
+		err = r.DB.Where("aid=?", v).First(&resp).Error
 	default:
 		err = errors.New("identify type error")
 	}

@@ -21,7 +21,7 @@ func mockGrafanaSetting(url string, e *echo.Echo) {
 
 func mockAdminUser() {
 	var user db.User
-	invoker.JunoMysql.Where("uid = ?", 1).Find(&user)
+	invoker.JunoMysql.Where("uid = ?", 1).First(&user)
 	if user.Uid == 0 {
 		return
 	}
