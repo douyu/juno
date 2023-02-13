@@ -2,12 +2,12 @@ name: Juno Latest Build
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: juno-admin
+  IMAGE_NAME: juno-admin-dev
 
 on:
-  schedule:
-    # schedule build every night
-    - cron: "0 0 * * *"
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
