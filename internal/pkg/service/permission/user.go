@@ -4,7 +4,6 @@ import (
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/store/gorm"
-	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -25,7 +24,7 @@ func initUser(db *gorm.DB) {
 
 func (u *user) List(param view.ReqListUser) (resp view.RespListUser, err error) {
 	var users []db.User
-	var eg errgroup.Group
+
 	var limit = param.PageSize
 	var offset = param.Page * param.PageSize
 	var total int64
@@ -45,20 +44,15 @@ func (u *user) List(param view.ReqListUser) (resp view.RespListUser, err error) 
 		query = query.Where("username like ? or nickname like ?", searchText, searchText)
 	}
 
-	eg.Go(func() error {
-		return query.Preload("Groups").
-			Limit(limit).Offset(offset).Find(&users).Error
-	})
-
-	eg.Go(func() error {
-		return query.Model(&db.User{}).Count(&total).Error
-	})
-
-	err = eg.Wait()
+	err = query.Preload("Groups").
+		Limit(limit).Offset(offset).Find(&users).Error
 	if err != nil {
 		return
 	}
-
+	err = query.Table("user").Count(&total).Error
+	if err != nil {
+		return
+	}
 	resp.Pagination.PageSize = int(limit)
 	resp.Pagination.Current = int(param.Page)
 	resp.Pagination.Total = total
