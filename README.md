@@ -19,9 +19,11 @@ JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，
 
 更多产品介绍参见 [Juno微服务治理系统介绍](http://jupiter.douyu.com/juno)
 
-本地环境搭建:
+## Quick Start with Kubernetes
 
-- [快速构建启动](https://github.com/douyu/juno-install)
+```bash
+kubectl apply -f https://github.com/douyu/juno/releases/download/latest/install.yml
+```
 
 ## Bug and Feedback
 
