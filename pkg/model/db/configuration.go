@@ -44,10 +44,10 @@ type (
 		CreatedAt       time.Time      `gorm:"column:created_at" json:"created_at"`
 		DeletedAt       gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`
 
-		User             *User                           `json:"-" gorm:"foreignKey:uid;association_foreignkey:uid"`
-		AccessToken      *AccessToken                    `json:"-" gorm:"foreignKey:access_token_id;association_foreignkey:id"`
-		Configuration    *Configuration                  `json:"-" gorm:"foreignKey:configuration_id;"`
-		ResourceRelation []ConfigurationResourceRelation `json:"-" gorm:"association_foreignkey:configuration_history_id"`
+		User             *User                           `json:"-" gorm:"foreignKey:UID"`
+		AccessToken      *AccessToken                    `json:"-" gorm:"foreignKey:AccessTokenID"`
+		Configuration    *Configuration                  `json:"-" gorm:"foreignKey:ConfigurationID;"`
+		ResourceRelation []ConfigurationResourceRelation `json:"-" gorm:"foreignKey:ID"`
 	}
 
 	//ConfigurationResourceRelation relate configuration and resource
@@ -71,9 +71,9 @@ type (
 		FilePath               string    `gorm:"column:file_path" json:"file_path"`
 		CreatedAt              time.Time `gorm:"column:created_at" json:"created_at"`
 
-		User                 *User                 `json:"-" gorm:"foreignKey:UID;association_foreignkey:Username"`
-		Configuration        *Configuration        `json:"-" gorm:"foreignKey:ConfigurationID;"`
-		ConfigurationHistory *ConfigurationHistory `json:"-" gorm:"foreignKey:ConfigurationHistoryID;association_foreignkey:configuration_history_id"`
+		User                 *User                 `json:"-" gorm:"foreignKey:UID"`
+		Configuration        *Configuration        `json:"-" gorm:"foreignKey:ConfigurationID"`
+		ConfigurationHistory *ConfigurationHistory `json:"-" gorm:"foreignKey:ConfigurationHistoryID"`
 	}
 
 	// ConfigurationStatus ..
@@ -88,7 +88,7 @@ type (
 		CreatedAt              time.Time `gorm:"column:created_at" json:"created_at"`
 		UpdateAt               time.Time `gorm:"column:update_at" json:"update_at"`
 
-		ConfigurationPublish *ConfigurationPublish `json:"-" gorm:"foreignKey:ConfigurationPublishID;association_foreignkey:ID"`
+		ConfigurationPublish *ConfigurationPublish `json:"-" gorm:"foreignKey:ConfigurationPublishID"`
 	}
 	// ConfigurationClusterStatus ..
 	ConfigurationClusterStatus struct {

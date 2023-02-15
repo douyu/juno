@@ -31,7 +31,7 @@ type User struct {
 
 	OauthToken OAuthToken `gorm:"type:json;comment:'OAuth Token 信息'" json:"-"`
 
-	Groups []CasbinPolicyGroup `gorm:"foreignKey:uid;association_foreignkey:uid" json:"-"`
+	Groups []CasbinPolicyGroup `gorm:"foreignKey:Uid" json:"-"`
 }
 
 type UserList []User

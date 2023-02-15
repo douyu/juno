@@ -22,7 +22,7 @@ type (
 		CreatedBy          uint
 		UpdatedBy          uint
 
-		App AppInfo `gorm:"foreignKey:AppName;association_foreignkey:AppName" json:"-"`
+		App AppInfo `gorm:"foreignKey:AppName" json:"-"`
 	}
 
 	//TestPipelineTask 任务下发执行的单位
