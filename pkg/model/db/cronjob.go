@@ -20,9 +20,9 @@ type (
 		Nodes         StringArray `gorm:"type:json"`
 		JobType       CronJobType
 
-		User       User           `gorm:"foreignKey:uid;association_foreignkey:uid"`
-		Timers     []CronJobTimer `gorm:"foreignKey:job_id"`
-		LatestTask *CronTask      `gorm:"foreignKey:job_id"`
+		User       User           `gorm:"foreignKey:Uid"`
+		Timers     []CronJobTimer `gorm:"foreignKey:ID"`
+		LatestTask *CronTask      `gorm:"foreignKey:ID"`
 	}
 
 	CronJobTimer struct {

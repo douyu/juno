@@ -1024,8 +1024,7 @@ func History(param view.ReqHistoryConfig, uid int) (resp view.RespHistoryConfig,
 	if err != nil {
 		return
 	}
-	err = query.Preload("AccessToken").
-		Preload("User").Limit(param.Size).Offset(offset).Order("id desc").Find(&list).Error
+	err = query.Preload("AccessToken").Preload("User").Limit(param.Size).Offset(offset).Order("id desc").Find(&list).Error
 	if err != nil {
 		return
 	}
