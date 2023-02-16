@@ -636,7 +636,7 @@ data:
     http_port = 3000
 
     # The public facing domain name used to access grafana from a browser
-    domain = localhost
+    domain = grafana
 
     # Redirect to correct domain if host header does not match domain
     # Prevents DNS rebinding attacks
@@ -1507,19 +1507,17 @@ data:
 
     #################################### Server ##############################
     [server.http]
-        # The ip address to bind to, empty will bind to all interfaces
-        host = "0.0.0.0"
-        # The http port to use
-        port = 50002
-        # The public facing domain name used to access grafana from a browser
-        domain = "localhost"
-        rootUrl = "http://127.0.0.1:50002/"
+      # The ip address to bind to, empty will bind to all interfaces
+      host = "0.0.0.0"
+      # The http port to use
+      port = 50002
+      # The public facing domain name used to access grafana from a browser
+      domain = "localhost"
+      rootUrl = "http://127.0.0.1:50002/"
 
-        # [server.govern]
-        #     # The ip address to bind to, empty will bind to all interfaces
-        #     host = "0.0.0.0"
-        #     # The http port to use
-        #     port = 50004
+    [server.govern]
+      port = 50004
+      enable = true
 
     #################################### Jupiter Config #########################
     [jupiter]
@@ -1775,19 +1773,22 @@ metadata:
 ---
 apiVersion: v1
 data:
-  juno-prometheus.yml: "# my global config\nglobal:\n  scrape_interval:     15s #
-    Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval:
-    15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout
-    is set to the global default (10s).\n\n# Alertmanager configuration\nalerting:\n
-    \ alertmanagers:\n  - static_configs:\n    - targets:\n      # - alertmanager:9093\n\n#
-    Load rules once and periodically evaluate them according to the global 'evaluation_interval'.\nrule_files:\n
-    \ # - \"first_rules.yml\"\n  # - \"second_rules.yml\"\n\n# A scrape configuration
-    containing exactly one endpoint to scrape:\n# Here it's Prometheus itself.\nscrape_configs:\n
-    \ # The job name is added as a label `job=<job_name>` to any timeseries scraped
-    from this config.\n  - job_name: 'prometheus'\n\n    # metrics_path defaults to
-    '/metrics'\n    # scheme defaults to 'http'.\n\n    static_configs:\n    - targets:
-    ['localhost:9090']\n  \n  - job_name: jupiter-layout\n    static_configs:\n    -
-    targets: ['jupiter-layout-exampleserver:9529']"
+  juno-prometheus.yml: |
+    scrape_configs:
+        # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+        - job_name: "prometheus"
+
+          # metrics_path defaults to '/metrics'
+          # scheme defaults to 'http'.
+
+          static_configs:
+            - targets: ["localhost:9090"]
+
+        - job_name: "node"
+          file_sd_configs:
+            - refresh_interval: 1m
+              files:
+                - "/home/www/system/prometheus/conf/*.yml"
 kind: ConfigMap
 metadata:
   annotations:
@@ -2610,6 +2611,8 @@ spec:
         - containerPort: 9090
         resources: {}
         volumeMounts:
+        - mountPath: /home/www/system/prometheus/
+          name: shared-data
         - mountPath: /etc/prometheus/prometheus.yml
           name: prometheus-cm0
           subPath: prometheus.yml
@@ -2632,6 +2635,8 @@ spec:
         - containerPort: 50010
         resources: {}
         volumeMounts:
+        - mountPath: /home/www/system/prometheus/
+          name: shared-data
         - mountPath: /app/config
           name: juno-agent-cm0
       restartPolicy: Always
@@ -2645,6 +2650,8 @@ spec:
       - configMap:
           name: juno-agent-cm0
         name: juno-agent-cm0
+      - emptyDir: {}
+        name: shared-data
 status: {}
 ---
 apiVersion: apps/v1
