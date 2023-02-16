@@ -459,7 +459,7 @@ data:
     COLLATE utf8mb4_bin NOT NULL,\n  `content` longtext COLLATE utf8mb4_bin NOT NULL,\n
     \ `create_time` bigint(20) NOT NULL,\n  `update_time` bigint(20) NOT NULL,\n  PRIMARY
     KEY (`name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
-    INTO `system_config` (`name`, `content`, `create_time`, `update_time`) VALUES\n('etcd',\t'[{\\\"prefix\\\":\\\"/prometheus/job/\\\",\\\"info\\\":\\\"监控查询\\\"},{\\\"prefix\\\":\\\"grpc:\\\",\\\"info\\\":\\\"grpc\\\"},{\\\"prefix\\\":\\\"http:\\\",\\\"info\\\":\\\"http\\\"}]',\t1673061016,\t1675836035),\n('grafana',\t'{\\\"host\\\":\\\"http://grafana:3000\\\",\\\"scheme\\\":\\\"http\\\",\\\"header_name\\\":\\\"X-WEBAUTH-USER\\\"}',\t1673061016,\t1675836436),\n('version',\t'[{\\\"name\\\":\\\"jupiter1.0\\\",\\\"version\\\":\\\"v1.0\\\",\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"host\\\":\\\"http://127.0.0.1:3000\\\",\\\"header_name\\\":\\\"X-WEBAUTH-USER\\\",\\\"dashboards\\\":[{\\\"name\\\":\\\"API监控面板地址\\\",\\\"value\\\":\\\"/grafana/d/api\\\"},{\\\"name\\\":\\\"实例监控面板\\\",\\\"value\\\":\\\"/grafana/d/instance\\\"},{\\\"name\\\":\\\"概览监控面板\\\",\\\"value\\\":\\\"/grafana/d/overview\\\"}]}]',\t1673061016,\t0);\n\nDROP
+    INTO `system_config` (`name`, `content`, `create_time`, `update_time`) VALUES\n('etcd',\t'[{\\\"prefix\\\":\\\"/prometheus/job/\\\",\\\"info\\\":\\\"监控查询\\\"},{\\\"prefix\\\":\\\"grpc:\\\",\\\"info\\\":\\\"grpc\\\"},{\\\"prefix\\\":\\\"http:\\\",\\\"info\\\":\\\"http\\\"}]',\t1673061016,\t1675836035),\n('grafana',\t'{\\\"host\\\":\\\"grafana:3000\\\",\\\"scheme\\\":\\\"http\\\",\\\"header_name\\\":\\\"X-WEBAUTH-USER\\\"}',\t1673061016,\t1675836436),\n('version',\t'[{\\\"name\\\":\\\"jupiter1.0\\\",\\\"version\\\":\\\"v1.0\\\",\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"host\\\":\\\"http://127.0.0.1:3000\\\",\\\"header_name\\\":\\\"X-WEBAUTH-USER\\\",\\\"dashboards\\\":[{\\\"name\\\":\\\"API监控面板地址\\\",\\\"value\\\":\\\"/grafana/d/api/api\\\"},{\\\"name\\\":\\\"实例监控面板\\\",\\\"value\\\":\\\"/grafana/d/instance/instance\\\"},{\\\"name\\\":\\\"概览监控面板\\\",\\\"value\\\":\\\"/grafana/d/overview/overview\\\"}]}]',\t1673061016,\t0);\n\nDROP
     TABLE IF EXISTS `test_pipeline`;\nCREATE TABLE `test_pipeline` (\n  `id` bigint(20)
     unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
     \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
@@ -1242,29 +1242,6 @@ data:
           - refresh_interval: 1m
             files:
               - "/home/www/system/prometheus/conf/*.yml"
-  model.conf: |
-    [request_definition]
-    r = sub, obj, act, type
-
-    [policy_definition]
-    p = sub, obj, act, type
-
-    [role_definition]
-    g = _, _ # user group
-    g2 = _, _ # menu group
-    g3 = _, _ # app group
-
-    [policy_effect]
-    e = some(where (p.eft == allow))
-
-    [matchers]
-    m = g(r.sub, "group_user:admin") || \
-        ( g(r.sub, p.sub) && r.type == p.type && r.act == p.act \
-        && (\
-            (r.type == "menu" && g2(r.obj, p.obj)) \
-            || (r.type == "api" && keyMatch2(r.obj, p.obj)) \
-            || (r.type == "app" && g3(r.obj, p.obj)) \
-        ) )
   multiple-region-admin.toml: |
     [app]
       secretKey = "ASDFASDFASDF" # hashStatecode
@@ -1398,11 +1375,9 @@ data:
     [casbin]
       enable = false
       debug = true
-      model = "./config/model.conf"
       autoLoad = true
       autoLoadInternal = 60
       # 资源配置
-      resourceFile = './config/resource.yaml'
   multiple-region-proxy.toml: |
     [app]
         secretKey = "ASDFASDFASDF"
@@ -1485,450 +1460,6 @@ data:
         maxIdleConns = 100
         maxIdelPerHost = 200
         timeout = 3
-  resource.yaml: |
-    #菜单权限
-    permission:
-      - name: 工作台
-        path: /workspace
-        icon: CrownOutlined
-        api:
-          - path: /api/admin/analysis/index
-            method: GET
-            name: 全局统计信息
-          - path: /api/admin/event/list
-            method: GET
-            name: 事件流列表
-          - path: /api/admin/resource/node/statics
-            name: 节点信息统计
-            method: GET
-
-      - name: 应用服务
-        path: /app
-        icon: RocketOutlined
-        api:
-          - name: 应用列表
-            path: /api/admin/resource/app/list
-            method: GET
-          - name: 可用区列表
-            path: /api/admin/resource/zone/list
-            method: GET
-          - path: /api/admin/resource/app_env_zone/list
-            name: 应用环境可用区列表
-            method: GET
-          - name: 应用详情信息
-            path: /api/admin/resource/app/info
-            method: GET
-          - name: 配置资源列表
-            path: /api/admin/resource/list
-            method: GET
-          - name: 创建配置资源
-            path: /api/admin/resource/create
-            method: POST
-          - name: 配置资源详情
-            path: /api/admin/resource/detail
-            method: GET
-          - name: 获取资源详情（通过名称）
-            path: /api/admin/resource/getByName
-            method: GET
-          - name: 更新资源
-            path: /api/admin/resource/createVersion
-            method: POST
-          - name: 批量检查资源版本
-            path: /api/admin/resource/batchCheckVersion
-            method: GET
-          - name: 资源标签列表
-            path: /api/admin/resource/tags
-            method: GET
-
-      - name: 功能看板
-        path: /analysis
-        icon: GlobalOutlined
-        children:
-          - name: 大盘
-            path: /analysis/dashboard
-            api:
-              - path: /api/admin/confgo/config/statics
-                method: GET
-                name: 配置统计
-              - path: /api/admin/analysis/index
-                method: GET
-                name: 全局统计信息
-              - path: /api/admin/event/list
-                method: GET
-                name: 事件流列表
-              - path: /api/admin/resource/node/statics
-                name: 节点信息统计
-                method: GET
-          - name: 依赖拓扑
-            path: /analysis/topology
-            api:
-              - path: /api/admin/analysis/topology/select
-                method: GET
-                name: 看板拓扑
-              - path: /api/admin/analysis/topology/list
-                method: GET
-                name: 应用拓扑列表
-              - path: /api/admin/analysis/topology/relationship
-                method: GET
-                name: 应用拓扑关系
-
-      - name: 资源中心
-        path: /resource
-        icon: UngroupOutlined
-        children:
-          - path: /resource/app/list
-            name: 应用列表
-            api:
-              - name: 应用列表
-                path: /api/admin/resource/app/list
-                method: GET
-              - name: 应用创建
-                path: /api/admin/resource/app/create
-                method: POST
-              - name: 更新应用
-                path: /api/admin/resource/app/update
-                method: POST
-              - name: 删除应用
-                path: /api/admin/resource/app/delete
-                method: POST
-              - path: /api/admin/resource/app_node/transfer/list
-                name: 应用节点列表
-                method: GET
-              - path: /api/admin/resource/app_node/transfer/put
-                name: 更新应用节点列表
-                method: POST
-          - path: /resource/zone/list
-            name: 可用区列表
-            api:
-              - name: 可用区列表
-                path: /api/admin/resource/zone/list
-                method: GET
-              - name: 创建可用区
-                path: /api/admin/resource/zone/create
-                method: POST
-              - name: 更新可用区
-                path: /api/admin/resource/zone/update
-                method: POST
-              - name: 删除可用区
-                path: /api/admin/resource/zone/delete
-                method: POST
-              - path: /api/admin/resource/node/transfer/list
-                name: 可用区节点列表
-                method: GET
-              - path: /api/admin/resource/node/transfer/put
-                name: 可用区节点列表更新
-                method: POST
-          - path: /resource/node/list
-            name: 节点列表
-            api:
-              - name: 节点列表
-                path: /api/admin/resource/node/list
-                method: GET
-              - path: /api/admin/resource/node/create
-                name: 创建节点
-                method: POST
-              - path: /api/admin/resource/node/delete
-                name: 删除节点
-                method: POST
-          - path: /resource/appnode/list
-            name: 应用节点关系列表
-            api:
-              - path: /api/admin/resource/app_node/list
-                name: 应用节点列表
-                method: GET
-
-      - name: 配置中心
-        path: /confgo
-        icon: FileProtectOutlined
-        children:
-          - path: /confgo/resource
-            name: 资源
-            api:
-              - name: 可用区和环境列表
-                path: /api/admin/resource/zone/zone_env
-                method: GET
-              - name: 配置资源列表
-                path: /api/admin/confgov2/resource/list
-                method: GET
-              - name: 创建配置资源
-                path: /api/admin/confgov2/resource/create
-                method: POST
-              - name: 配置资源详情
-                path: /api/admin/confgov2/resource/detail
-                method: GET
-              - name: 获取配置资源详情（通过名称）
-                path: /api/admin/confgov2/resource/getByName
-                method: GET
-              - name: 更新配置资源
-                path: /api/admin/confgov2/resource/createVersion
-                method: POST
-              - name: 批量检查配置资源版本
-                path: /api/admin/confgov2/resource/batchCheckVersion
-                method: GET
-              - name: 配置资源标签列表
-                path: /api/admin/confgov2/resource/tags
-                method: GET
-          - path: /confgo/tpl/list
-            name: 配置依赖解析模板
-            api:
-              - path: /api/admin/confgo/tpl/list
-                name: 配置依赖解析模板列表
-                method: GET
-              - path: /api/admin/confgo/tpl/create
-                name: 创建配置依赖解析模板
-                method: POST
-              - path: /api/admin/confgo/tpl/update
-                name: 更新配置依赖解析模板
-                method: POST
-              - path: /api/admin/confgo/tpl/delete
-                name: 删除配置依赖解析模板
-                method: POST
-
-      - name: 权限管理
-        path: /permission
-        icon: UserOutlined
-        children:
-          - path: /permission/user_group
-            name: 用户组
-            api:
-              - path: /api/admin/permission/user/list
-                name: 用户列表
-                method: GET
-              - path: /api/admin/permission/user/group/list
-                name: 用户组列表
-                method: GET
-              - path: /api/admin/permission/user/changeGroup
-                name: 修改用户所在组
-                method: POST
-
-          - path: /permission/menu_api_permission
-            name: 菜单接口权限
-            api:
-              - path: /api/admin/permission/user/group/list
-                name: 用户组列表
-                method: GET
-              - path: /api/admin/permission/user/group/menuPermission
-                name: 获取用户组菜单权限
-                method: GET
-              - path: /api/admin/permission/user/group/apiPermission
-                name: 获取用户组接口权限
-                method: GET
-              - path: /api/admin/permission/permissionTree
-                name: 菜单-接口权限树
-                method: GET
-              - path: /api/admin/permission/user/group/setMenuPermission
-                name: 设置用户组菜单权限
-                method: POST
-              - path: /api/admin/permission/user/group/setApiPermission
-                name: 设置用户组接口权限
-                method: GET
-          - path: /permission/app
-            name: 应用权限
-            api:
-              - path: /api/admin/permission/appPermissions
-                name: 获取用户组应用权限
-                method: GET
-              - path: /api/admin/resource/app/listWithEnv
-                name: 应用列表（带环境信息）
-                method: GET
-              - path: /api/admin/permission/user/group/list
-                name: 用户组列表
-                method: GET
-              - path: /user/group/setAppPermission
-                name: 设置用户组应用权限
-                method: POST
-
-      - name: 系统设置
-        path: /admin
-        icon: ToolOutlined
-        children:
-          - path: /admin/user
-            name: 用户管理
-            api:
-              - name: 用户创建
-                path: /api/admin/user/create
-                method: GET
-              - name: 用户删除
-                path: /api/admin/user/delete
-                method: POST
-              - name: 用户列表
-                path: /api/admin/user/list
-                method: GET
-          - path: /admin/config
-            name: 系统设置
-            api:
-              - path: /api/admin/pprof/dep/check
-                name: PProf依赖检查
-                method: GET
-              - path: /api/admin/system/setting/list
-                name: 系统设置列表
-                method: GET
-              - path: /api/admin/system/setting/update
-                name: 修改系统设置
-                method: POST
-          - path: /admin/accessTokens
-            name: Access Tokens
-            api:
-              - path: /api/admin/openAuth/accessToken/list
-                name: AccessToken列表
-                method: GET
-              - path: /api/admin/openAuth/accessToken/create
-                name: 创建AccessToken
-                method: POST
-              - path: /api/admin/openAuth/accessToken/delete
-                name: 删除AccessToken
-                method: POST
-
-    # 应用权限
-    app:
-      - name: 应用查看
-        key: app:read
-      - name: 配置查看
-        key: config:read
-      - name: 配置编辑
-        key: config:write
-      - name: 监控查看
-        key: monitor:read
-      - name: PProf查看
-        key: pprof:read
-      - name: PProf执行
-        key: pprof:run
-
-    # 接口
-    api:
-      - name: 用户管理
-        path: /api/admin/user
-        children:
-          - name: 用户创建
-            path: /api/admin/user/create
-            method: GET
-          - name: 用户删除
-            path: /api/admin/user/delete
-            method: POST
-          - name: 用户列表
-            path: /api/admin/user/list
-            method: GET
-      - name: 资源
-        path: /api/admin/resource
-        children:
-          - name: 应用
-            path: /api/admin/resource/app
-            children:
-              - name: 应用列表
-                path: /api/admin/resource/app/list
-                method: GET
-              - name: 应用详情信息
-                path: /api/admin/resource/app/info
-                method: GET
-              - name: 应用更新
-                path: /api/admin/resource/app/update
-                method: POST
-              - name: 应用创建
-                path: /api/admin/resource/app/create
-                method: POST
-              - name: 应用删除
-                path: /api/admin/resource/app/delete
-                method: POST
-          - name: 可用区
-            path: /api/admin/resource/zone
-            children:
-              - name: 可用区详情信息
-                path: /api/admin/resource/zone/info
-                method: GET
-              - name: 可用区列表
-                path: /api/admin/resource/zone/list
-                method: GET
-              - name: 创建可用区
-                path: /api/admin/resource/zone/create
-                method: POST
-              - name: 更新可用区
-                path: /api/admin/resource/zone/update
-                method: POST
-              - name: 删除可用区
-                path: /api/admin/resource/zone/delete
-                method: POST
-              - name: 可用区和环境列表
-                path: /api/admin/resource/zone/zone_env
-                method: GET
-          - name: 节点
-            path: /api/admin/resource/node
-            children:
-              - name: 节点信息
-                path: /api/admin/resource/node/info
-                method: GET
-              - name: 节点列表
-                path: /api/admin/resource/node/list
-                method: GET
-              - path: /api/admin/resource/node/create
-                name: 创建节点
-                method: POST
-              - path: /api/admin/resource/node/update
-                name: 更新节点
-                method: POST
-              - path: /api/admin/resource/node/delete
-                name: 删除节点
-                method: POST
-              - path: /api/admin/resource/node/statics
-                name: 节点信息统计
-                method: GET
-              - path: /api/admin/resource/node/transfer/list
-                name: 可用区节点列表
-                method: GET
-              - path: /api/admin/resource/node/transfer/put
-                name: 可用区节点列表更新
-                method: POST
-              - path: /api/admin/resource/app_node/info
-                name: 应用节点信息
-                method: GET
-              - path: /api/admin/resource/app_node/list
-                name: 应用节点列表
-                method: GET
-              - path: /api/admin/resource/app_node/transfer/list
-                name: 应用节点列表
-                method: GET
-              - path: /api/admin/resource/app_node/transfer/list
-                name: 应用节点列表更新
-                method: POST
-              - path: /api/admin/resource/app_env_zone/list
-                name: 应用环境可用区列表
-                method: GET
-
-      - name: 系统分析
-        path: /api/admin/analysis
-        children:
-          - path: /api/admin/analysis/index
-            method: GET
-            name: 全局统计信息
-          - path: /api/admin/analysis/topology/select
-            method: GET
-            name: 看板拓扑
-          - path: /api/admin/analysis/topology/list
-            method: GET
-            name: 应用拓扑列表
-          - path: /api/admin/analysis/topology/relationship
-            method: GET
-            name: 应用拓扑关系
-      - name: 系统
-        path: /api/admin/system
-        children:
-          - path: /api/admin/system/menu
-            method: GET
-            name: 系统菜单
-          - path: /api/admin/system/option/info
-            method: GET
-            name: 可用区信息
-          - path: /api/admin/system/option/list
-            method: GET
-            name: 可用区列表
-          - path: /api/admin/system/option/create
-            method: POST
-            name: 创建可用区
-          - path: /api/admin/system/option/update
-            method: POST
-            name: 更新可用区
-          - path: /api/admin/system/option/delete
-            method: POST
-            name: 删除可用区
   single-region-admin.toml: |
     [app]
         secretKey = "ASDFASDFASDF"      # hashStatecode
@@ -2073,11 +1604,8 @@ data:
     [casbin]
         enable = false
         debug = true
-        model = "./config/model.conf"
         autoLoad = true
         autoLoadInternal = 60
-        # 资源配置
-        resourceFile = './config/resource.yaml'
 
     [proxyAuth]
         token = "token" # 用于对 Juno Proxy 的请求进行授权
@@ -2155,7 +1683,7 @@ data:
             [plugin.regProxy.prometheus]
                 enable = true
                 path = "/home/www/system/prometheus/conf"
-                enableZone = true
+                enableZone = false
                 zones = ["HB-WHYL"]                       # 用于支持zone过滤
                 enableCleanup = false
                 timeInterval = 10
@@ -2795,7 +2323,18 @@ spec:
         ports:
         - containerPort: 3000
         resources: {}
+        volumeMounts:
+        - mountPath: /etc/grafana/grafana.ini
+          name: juno-admin-cm0
+          subPath: grafana.ini
       restartPolicy: Always
+      volumes:
+      - configMap:
+          items:
+          - key: juno-grafana.ini
+            path: grafana.ini
+          name: juno-admin-cm0
+        name: juno-admin-cm0
 status: {}
 ---
 apiVersion: apps/v1
@@ -3074,6 +2613,27 @@ spec:
         - mountPath: /etc/prometheus/prometheus.yml
           name: prometheus-cm0
           subPath: prometheus.yml
+      - env:
+        - name: ENV
+          value: dev
+        - name: JUNO_HOST
+          value: juno-agent-dev01
+        - name: REGION_CODE
+          value: cn-wuhan
+        - name: REGION_NAME
+          value: 武汉
+        - name: ZONE_CODE
+          value: cn-wuhan-guanggu-f1
+        - name: ZONE_NAME
+          value: 武汉光谷F1区
+        image: ghcr.io/douyu/juno-agent:latest
+        name: juno-agent
+        ports:
+        - containerPort: 50010
+        resources: {}
+        volumeMounts:
+        - mountPath: /app/config
+          name: juno-agent-cm0
       restartPolicy: Always
       volumes:
       - configMap:
@@ -3082,6 +2642,9 @@ spec:
             path: prometheus.yml
           name: prometheus-cm0
         name: prometheus-cm0
+      - configMap:
+          name: juno-agent-cm0
+        name: juno-agent-cm0
 status: {}
 ---
 apiVersion: apps/v1
