@@ -492,12 +492,12 @@ spec:
           resources: {}
           volumeMounts:
             - mountPath: /docker-entrypoint-initdb.d
-              name: test-config
+              name: db-cm0
       restartPolicy: Always
       volumes:
         - configMap:
-            name: test-config
-          name: test-config
+            name: db-cm0
+          name:  db-cm0
 status: {}
 ---
 apiVersion: apps/v1
