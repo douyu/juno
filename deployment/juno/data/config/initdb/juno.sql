@@ -879,8 +879,8 @@ CREATE TABLE `system_config` (
 
 INSERT INTO `system_config` (`name`, `content`, `create_time`, `update_time`) VALUES
 ('etcd',	'[{\"prefix\":\"/prometheus/job/\",\"info\":\"监控查询\"},{\"prefix\":\"grpc:\",\"info\":\"grpc\"},{\"prefix\":\"http:\",\"info\":\"http\"}]',	1673061016,	1675836035),
-('grafana',	'{\"host\":\"http://grafana:3000\",\"scheme\":\"http\",\"header_name\":\"X-WEBAUTH-USER\"}',	1673061016,	1675836436),
-('version',	'[{\"name\":\"jupiter1.0\",\"version\":\"v1.0\",\"versionKey\":\"jupiter1.0\",\"host\":\"http://127.0.0.1:3000\",\"header_name\":\"X-WEBAUTH-USER\",\"dashboards\":[{\"name\":\"API监控面板地址\",\"value\":\"/grafana/d/api\"},{\"name\":\"实例监控面板\",\"value\":\"/grafana/d/instance\"},{\"name\":\"概览监控面板\",\"value\":\"/grafana/d/overview\"}]}]',	1673061016,	0);
+('grafana',	'{\"host\":\"grafana:3000\",\"scheme\":\"http\",\"header_name\":\"X-WEBAUTH-USER\"}',	1673061016,	1676546139),
+('version',	'[{\"name\":\"jupiter1.0\",\"version\":\"v1.0\",\"versionKey\":\"jupiter1.0\",\"dashboards\":[{\"name\":\"API监控面板地址\",\"value\":\"/grafana/d/api/api?orgId=1\"},{\"name\":\"实例监控面板\",\"value\":\"/grafana/d/instance/instance?orgId=1\"},{\"name\":\"概览监控面板\",\"value\":\"/grafana/d/overview/overview?orgId=1\"}]}]',	1673061016,	1676546237);
 
 DROP TABLE IF EXISTS `test_pipeline`;
 CREATE TABLE `test_pipeline` (
