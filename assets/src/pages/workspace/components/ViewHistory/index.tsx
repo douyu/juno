@@ -30,21 +30,22 @@ export default class ViewHistory extends React.Component {
 
   render() {
     const { myAppViewHistory = [] } = this.state;
-    console.log(myAppViewHistory);
     if (myAppViewHistory.length === 0) return <></>;
     return (
       <div className={styles.viewHistory}>
-        {myAppViewHistory.map((item, index) => {
+        {myAppViewHistory && myAppViewHistory.filter((item) => {
+          return item.appName
+        }).map((item, index) => {
           // 解决历史应用点击进来无历史信息的问题
           return (
             <a
+              key={index}
               onClick={() => {
                 getAppSearchByAppName(item.appName, '/app').then((val) => {
                   if (val == null) {
                     // eslint-disable-next-line no-param-reassign
                     val = `aid=${item.aid}&appName=${item.appName}&&tab=detailL`;
                   }
-
                   //若是通过路由跳转历史app
                   // history.push({
                   //   search: val ||'',
@@ -58,7 +59,7 @@ export default class ViewHistory extends React.Component {
               <Popover content={item.appName}>
                 <div
                   style={{ backgroundColor: this.pickColor(item.appName) }}
-                  key={index}
+
                   className={styles.historyItem}
                 >
                   {item.appName}
