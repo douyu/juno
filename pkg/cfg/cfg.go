@@ -215,10 +215,8 @@ func defaultConfig() cfg {
 		Casbin: Casbin{
 			Enable:           false,
 			Debug:            true,
-			Model:            "./config/model.conf",
 			AutoLoad:         false,
 			AutoLoadInternal: 0,
-			ResourceFile:     "./config/resource.yaml",
 		},
 		Assist: Assist{
 			Action{

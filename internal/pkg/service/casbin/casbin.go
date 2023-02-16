@@ -2,12 +2,12 @@ package casbin
 
 import (
 	"fmt"
-	"io/ioutil"
 	"sort"
 	"strconv"
 	"time"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
@@ -78,24 +78,17 @@ func InitCasbin(adapter persist.Adapter) (err error) {
 	}
 
 	config := cfg.Cfg.Casbin
-	if config.ResourceFile == "" {
-		log.Panicf("invalid ResourceFile is ''")
-	}
-	Casbin.loadResourceFile(config.ResourceFile)
+
+	Casbin.loadResourceFile()
 
 	if !cfg.Cfg.Casbin.Enable {
 		return
 	}
-
-	if config.Model == "" {
-		Casbin.SyncedEnforcer = new(casbin.SyncedEnforcer)
-		return
-	}
-
-	e, err := casbin.NewSyncedEnforcer(config.Model)
+	m, err := model.NewModelFromString(modelContent)
 	if err != nil {
 		return
 	}
+	e, err := casbin.NewSyncedEnforcer(m)
 	e.EnableLog(config.Debug)
 
 	err = e.InitWithModelAndAdapter(e.GetModel(), adapter)
@@ -113,15 +106,10 @@ func InitCasbin(adapter persist.Adapter) (err error) {
 	return
 }
 
-func (c *CasbinService) loadResourceFile(resourceFile string) {
-	resourceContent, err := ioutil.ReadFile(resourceFile)
+func (c *CasbinService) loadResourceFile() {
+	err := yaml.Unmarshal([]byte(resourceContent), &c.Resource)
 	if err != nil {
-		log.Panicf("Read Resource File Failed: %s", err.Error())
-	}
-
-	err = yaml.Unmarshal(resourceContent, &c.Resource)
-	if err != nil {
-		log.Panicf("Unmarshall %s failed: %s", resourceFile, err.Error())
+		log.Panicf("Unmarshall %s failed: %s", resourceContent, err.Error())
 	}
 }
 

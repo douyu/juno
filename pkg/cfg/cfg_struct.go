@@ -218,10 +218,8 @@ type Agent struct {
 type Casbin struct {
 	Enable           bool
 	Debug            bool
-	Model            string
 	AutoLoad         bool
 	AutoLoadInternal int
-	ResourceFile     string
 }
 
 // HTTPProxy ..
