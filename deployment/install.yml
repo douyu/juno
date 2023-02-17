@@ -2815,30 +2815,31 @@ data:
     # /usr/local/bin/juno-admin --config=/root/juno/config/install.toml --mock=true
     /usr/local/bin/juno-admin --config=/root/juno/config/single-region-admin.toml --host=0.0.0.0
 
+
   install.toml: |
     [database]
-        enable = true
-        connMaxLifetime = "300s"
-        debug = true
-        dsn = "root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
-        level = "panic"
-        maxIdleConns = 50
-        maxOpenConns = 100
+        enable=true
+        connMaxLifetime="300s"
+        debug=true
+        dsn="root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+        level="panic"
+        maxIdleConns=50
+        maxOpenConns=100
     [logger.system]
-        debug = false         # 是否在命令行输出
-        enableConsole = false # 是否按命令行格式输出
-        level = "debug"
-        async = false
-        name = "system.json"  # 日志名称
-        dir = "./"
+        debug=false         # 是否在命令行输出
+        enableConsole=false # 是否按命令行格式输出
+        level="debug"
+        async=false
+        name="system.json"  # 日志名称
+        dir="./"
     [logger.biz]
-        debug = false         # 是否在命令行输出
-        enableConsole = false # 是否按命令行格式输出
-        level = "debug"
-        async = false
-        name = "biz.json"     # 日志名称
-        dir = "./"
-  juno-grafana.ini: |+
+        debug=false         # 是否在命令行输出
+        enableConsole=false # 是否按命令行格式输出
+        level="debug"
+        async=false
+        name="biz.json"     # 日志名称
+        dir="./"
+  juno-grafana.ini: |
     ##################### Grafana Configuration Defaults #####################
     #
     # Do not modify this file in grafana installs
@@ -3050,7 +3051,6 @@ data:
     # when they detect reflected cross-site scripting (XSS) attacks.
     x_xss_protection = true
 
-
     #################################### Snapshots ###########################
     [snapshots]
     # snapshot sharing options
@@ -3148,7 +3148,6 @@ data:
     # limit of api_key seconds to live before expiration
     api_key_max_seconds_to_live = -1
 
-
     #################################### Basic Auth ##########################
     [auth.basic]
     enabled = true
@@ -3165,7 +3164,6 @@ data:
     whitelist =
     headers =
     enable_login_token = false
-
 
     #################################### SMTP / Emailing #####################
     [smtp]
@@ -3315,8 +3313,8 @@ data:
     #################################### Internal Grafana Metrics ############
     # Metrics available at HTTP API Url /metrics
     [metrics]
-    enabled              = true
-    interval_seconds     = 10
+    enabled = true
+    interval_seconds = 10
     # Disable total stats (stat_totals_*) metrics to be generated
     disable_total_stats = false
 
@@ -3468,10 +3466,9 @@ data:
     # a port not in use.
     grpc_host =
     grpc_port =
-
   juno-prometheus.yml: |
     global:
-      scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+      scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
       evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
     scrape_configs:
       # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
@@ -3479,7 +3476,6 @@ data:
 
         # metrics_path defaults to '/metrics'
         # scheme defaults to 'http'.
-
         static_configs:
           - targets: ["localhost:9090"]
 
@@ -3490,280 +3486,275 @@ data:
               - "/home/www/system/prometheus/conf/*.yml"
   multiple-region-admin.toml: |
     [app]
-      secretKey = "ASDFASDFASDF" # hashStatecode
-      mode = "multiple"          # single without proxy, multiple with proxy
+      secretKey="ASDFASDFASDF" # hashStatecode
+      mode="multiple"          # single without proxy, multiple with proxy
 
     [configure]
-      dirs = ["/tmp/www/server", "/tmp/www/.config"]
-      prefixes = ["juno-agent", "jupiter-agent"]
+      dirs=["/tmp/www/server", "/tmp/www/.config"]
+      prefixes=["juno-agent", "jupiter-agent"]
 
       [configure.agent]
-        port = 50010
-
+        port=50010
 
     [logger.system]
-      debug = false        # 是否在命令行输出
-      level = "debug"
-      async = false
-      name = "system.json" # 日志名称
-      dir = "."
+      debug=false        # 是否在命令行输出
+      level="debug"
+      async=false
+      name="system.json" # 日志名称
+      dir="."
     [logger.biz]
-      debug = false     # 是否在命令行输出
-      level = "debug"
-      async = false
-      name = "biz.json" # 日志名称
-      dir = "."
+      debug=false     # 是否在命令行输出
+      level="debug"
+      async=false
+      name="biz.json" # 日志名称
+      dir="."
 
     [session]
-      maxAge = 172800
-      secret = "ldfgoqnf935nvav34"
-      type = ""
+      maxAge=172800
+      secret="ldfgoqnf935nvav34"
+      type=""
 
     [register]
-      enable = true
-      connectTimeout = "1s"
-      endpoints = ["etcd:2379"]
-      secure = false
-
+      enable=true
+      connectTimeout="1s"
+      endpoints=["etcd:2379"]
+      secure=false
 
     #################################### Server ##############################
     [server.http]
       # The ip address to bind to, empty will bind to all interfaces
-      host = "0.0.0.0"
+      host="0.0.0.0"
       # The http port to use
-      port = 50002
-      domain = "localhost"
+      port=50002
+      domain="localhost"
     [server.govern]
       # The ip address to bind to, empty will bind to all interfaces
-      host = "0.0.0.0"
+      host="0.0.0.0"
       # The http port to use
-      port = 50004
+      port=50004
     #################################### Database ##############################
     [database]
-      enable = true
-      connMaxLifetime = "300s"
-      debug = true
-      dsn = "root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
-      level = "panic"
-      maxIdleConns = 50
-      maxOpenConns = 100
+      enable=true
+      connMaxLifetime="300s"
+      debug=true
+      dsn="root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+      level="panic"
+      maxIdleConns=50
+      maxOpenConns=100
 
     [grafanaProxy]
-      enable = true
-      name = "grafana"
+      enable=true
+      name="grafana"
 
     #################################### Proxy ##############################
     [[clientProxy.multiProxy]]
-      env = "dev"
-      zoneCode = "guanggu"
+      env="dev"
+      zoneCode="guanggu"
 
       [clientProxy.multiProxy.stream]
-        enable = true
-        proxyAddr = ["127.0.0.1:50001"]
+        enable=true
+        proxyAddr=["127.0.0.1:50001"]
 
       [clientProxy.multiProxy.etcd]
-        enable = true
-        endpoints = ["127.0.0.1:5239"]
-        timeout = "3s"
+        enable=true
+        endpoints=["127.0.0.1:5239"]
+        timeout="3s"
 
       [clientProxy.multiProxy.http]
-        enable = true
-        listenAddr = "127.0.0.1:50000"
-        disableKeepAlives = true
-        maxIdelPerHost = 1
-        maxIdleConns = 10
-        timeout = 100
-        scheme = "http"
+        enable=true
+        listenAddr="127.0.0.1:50000"
+        disableKeepAlives=true
+        maxIdelPerHost=1
+        maxIdleConns=10
+        timeout=100
+        scheme="http"
 
     [pprof]
-      path = "."
+      path="."
 
     [auth]
       # Login cookie name
-      loginCookieName = "juno_session"
+      loginCookieName="juno_session"
       # The lifetime (days) an authenticated user can be inactive before being required to login at next visit. Default is 7 days.
       # 接口授权用户
-      loginMaximumInactiveLifetimeDays = 7
+      loginMaximumInactiveLifetimeDays=7
       # The maximum lifetime (days) an authenticated user can be logged in since login time before being required to login. Default is 30 days.
       # 页面登录用户
-      loginMaximumLifetimeDays = 30
+      loginMaximumLifetimeDays=30
       # How often should auth tokens be rotated for authenticated users when being active. The default is each 10 minutes.
       # 刷新时间
-      tokenRotationIntervalMinutes = 10
+      tokenRotationIntervalMinutes=10
       # Set to true to disable (hide) the login form, useful if you use OAuth
-      disableLoginForm = false
+      disableLoginForm=false
       # Set to true to disable the signout link in the side menu. useful if you use auth.proxy
-      disableSignoutMenu = false
+      disableSignoutMenu=false
       # URL to redirect the user to after sign out
-      signoutRedirectUrl = ""
+      signoutRedirectUrl=""
       # Set to true to attempt login with OAuth automatically, skipping the login screen.
       # This setting is ignored if multiple OAuth providers are configured.
-      oauthAutoLogin = false
+      oauthAutoLogin=false
       # OAuth state max age cookie duration. Defaults to 60 seconds.
-      oauthStateCookieMaxAge = 60
+      oauthStateCookieMaxAge=60
       # limit of api_key seconds to live before expiration
-      apiKeyMaxSecondsToLive = -1
+      apiKeyMaxSecondsToLive=-1
 
       #################################### Github Auth #########################
       [auth.github]
-        enable = true
-        allowSignUp = true
-        clientId = "a6633e5544e60bd2574e"
-        clientSecret = "7c6f51d97fc93d5d575ebd13115b20f397807549"
-        scopes = ["user:email", "read:org"]
-        authUrl = "https://github.com/login/oauth/authorize"
-        tokenUrl = "https://github.com/login/oauth/access_token"
-        apiUrl = "https://api.github.com/user"
-        allowedDomains = []
-        teamIds = []
-        allowedOrganizations = []
+        enable=true
+        allowSignUp=true
+        clientId="a6633e5544e60bd2574e"
+        clientSecret="7c6f51d97fc93d5d575ebd13115b20f397807549"
+        scopes=["user:email", "read:org"]
+        authUrl="https://github.com/login/oauth/authorize"
+        tokenUrl="https://github.com/login/oauth/access_token"
+        apiUrl="https://api.github.com/user"
+        allowedDomains=[]
+        teamIds=[]
+        allowedOrganizations=[]
 
     [casbin]
-      enable = false
-      debug = true
-      autoLoad = true
-      autoLoadInternal = 60
+      enable=false
+      debug=true
+      autoLoad=true
+      autoLoadInternal=60
       # 资源配置
   multiple-region-proxy.toml: |
     [app]
-        secretKey = "ASDFASDFASDF"
+        secretKey="ASDFASDFASDF"
 
     [confgo]
-        dir = "/tmp/www/server"
-        prefix = "juno-agent"
+        dir="/tmp/www/server"
+        prefix="juno-agent"
 
         [confgo.agent]
-            port = 50010
-
+            port=50010
 
     [logger.system]
-        debug = false        # 是否在命令行输出
-        level = "debug"
-        async = true
-        name = "system.json" # 日志名称
-        dir = "."
+        debug=false        # 是否在命令行输出
+        level="debug"
+        async=true
+        name="system.json" # 日志名称
+        dir="."
     [logger.biz]
-        debug = false     # 是否在命令行输出
-        level = "debug"
-        async = false
-        name = "biz.json" # 日志名称
-        dir = "."
-
+        debug=false     # 是否在命令行输出
+        level="debug"
+        async=false
+        name="biz.json" # 日志名称
+        dir="."
 
     [register]
-        enable = true
-        connectTimeout = "1s"
-        endpoints = ["etcd:2379"]
-        secure = false
-
+        enable=true
+        connectTimeout="1s"
+        endpoints=["etcd:2379"]
+        secure=false
 
     #################################### Server ##############################
     [serverProxy.httpServer]
         # The ip address to bind to, empty will bind to all interfaces
-        host = "0.0.0.0"
+        host="0.0.0.0"
         # The http port to use
-        port = 50000
+        port=50000
 
     [serverProxy.grpcServer]
         # The ip address to bind to, empty will bind to all interfaces
-        host = "0.0.0.0"
+        host="0.0.0.0"
         # The http port to use
-        port = 50001
+        port=50001
 
     [serverProxy.governServer]
         # The ip address to bind to, empty will bind to all interfaces
-        host = "0.0.0.0"
+        host="0.0.0.0"
         # The http port to use
-        port = 50008
+        port=50008
 
     [serverProxy.heartbeat]
-        enable = true
-        debug = true
-        addr = "stream"
-        internal = "120s"
-        hostName = "JUNO_HOST"     # 环境变量的名称，或者命令行参数的名称
-        regionCode = "REGION_CODE" # 环境变量的名称，或者命令行参数的名称
-        regionName = "REGION_NAME"
-        zoneCode = "ZONE_CODE"
-        zoneName = "ZONE_NAME"
-        env = "env"
+        enable=true
+        debug=true
+        addr="stream"
+        internal="120s"
+        hostName="JUNO_HOST"     # 环境变量的名称，或者命令行参数的名称
+        regionCode="REGION_CODE" # 环境变量的名称，或者命令行参数的名称
+        regionName="REGION_NAME"
+        zoneCode="ZONE_CODE"
+        zoneName="ZONE_NAME"
+        env="env"
 
     [serverProxy.etcd]
-        enable = true
-        listenAddr = "127.0.0.1:52379"
-        endpoints = ["etcd:2379"]
-        namespace = ""
+        enable=true
+        listenAddr="127.0.0.1:52379"
+        endpoints=["etcd:2379"]
+        namespace=""
         [serverProxy.etcd.tls]
-            cert = ""
-            key = ""
-            cacert = ""
+            cert=""
+            key=""
+            cacert=""
 
     [serverProxy.prometheus]
-        enable = true
-        listenAddr = "127.0.0.1:59090"
-        backend = "127.0.0.1:9090"
-        disableKeepAlives = true
-        maxIdleConns = 100
-        maxIdelPerHost = 200
-        timeout = 3
+        enable=true
+        listenAddr="127.0.0.1:59090"
+        backend="127.0.0.1:9090"
+        disableKeepAlives=true
+        maxIdleConns=100
+        maxIdelPerHost=200
+        timeout=3
   single-region-admin.toml: |
     [app]
-        secretKey = "ASDFASDFASDF"      # hashStatecode
-        mode = "local"                  # single without proxy, multiple with proxy
-        productionEnvs = ["production"]
+        secretKey="ASDFASDFASDF"      # hashStatecode
+        mode="local"                  # single without proxy, multiple with proxy
+        productionEnvs=["production"]
 
     [configure]
-        dir = "/tmp/www/server"
-        prefix = "juno-agent"
+        dir="/tmp/www/server"
+        prefix="juno-agent"
 
     [agent]
-        port = 60814
-        secret = "12341234123412341234123412341234"
+        port=60814
+        secret="12341234123412341234123412341234"
 
     [logger.system]
-        debug = false         # 是否在命令行输出
-        enableConsole = false # 是否按命令行格式输出
-        level = "debug"
-        async = false
-        name = "system.json"  # 日志名称
-        dir = "./logs"
+        debug=false         # 是否在命令行输出
+        enableConsole=false # 是否按命令行格式输出
+        level="debug"
+        async=false
+        name="system.json"  # 日志名称
+        dir="./logs"
 
     [logger.biz]
-        debug = false         # 是否在命令行输出
-        enableConsole = false # 是否按命令行格式输出
-        level = "debug"
-        async = false
-        name = "biz.json"     # 日志名称
-        dir = "./logs"
+        debug=false         # 是否在命令行输出
+        enableConsole=false # 是否按命令行格式输出
+        level="debug"
+        async=false
+        name="biz.json"     # 日志名称
+        dir="./logs"
 
     [session]
-        maxAge = 172800
-        secret = "ldfgoqnf935nvav34"
-        type = ""
+        maxAge=172800
+        secret="ldfgoqnf935nvav34"
+        type=""
 
     [register]
-        enable = true
-        connectTimeout = "1s"
-        endpoints = ["http://etcd:2379"]
-        secure = false
+        enable=true
+        connectTimeout="1s"
+        endpoints=["http://etcd:2379"]
+        secure=false
 
     [grafanaProxy]
-        enable = true
-        name = "grafana"
+        enable=true
+        name="grafana"
 
     #################################### Server ##############################
     [server.http]
-      # The ip address to bind to, empty will bind to all interfaces
-      host = "0.0.0.0"
-      # The http port to use
-      port = 50002
-      # The public facing domain name used to access grafana from a browser
-      domain = "localhost"
-      rootUrl = "http://127.0.0.1:50002/"
+        # The ip address to bind to, empty will bind to all interfaces
+        host="0.0.0.0"
+        # The http port to use
+        port=50002
+        # The public facing domain name used to access grafana from a browser
+        domain="localhost"
+        rootUrl="http://127.0.0.1:50002/"
 
     [server.govern]
-      port = 50004
-      enable = true
+        port=50004
+        enable=true
 
     #################################### Jupiter Config #########################
     [jupiter]
@@ -3772,148 +3763,146 @@ data:
         [jupiter.cron]
 
             [jupiter.cron.parse]
-                withSeconds = false
-                concurrentDelay = 10
-                immediatelyRun = false
+                withSeconds=false
+                concurrentDelay=10
+                immediatelyRun=false
 
     [jupiter.server]
 
         [jupiter.server.governor]
             # The ip address to bind to, empty will bind to all interfaces
-            host = "0.0.0.0"
+            host="0.0.0.0"
             # The http port to use
-            port = 50004
-            enable = true
+            port=50004
+            enable=true
 
     #################################### Database ##############################
     [database]
-        enable = true
-        connMaxLifetime = "300s"
-        debug = true
-        dsn = "root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
-        level = "panic"
-        maxIdleConns = 50
-        maxOpenConns = 100
+        enable=true
+        connMaxLifetime="300s"
+        debug=true
+        dsn="root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+        level="panic"
+        maxIdleConns=50
+        maxOpenConns=100
 
     #################################### Proxy ##############################
     [clientProxy]
         [clientProxy.httpRouter]
-            governConfig = "/debug/config"
+            governConfig="/debug/config"
         [clientProxy.singleProxy.registerEtcd]
-            endpoints = ["http://etcd:2379"]
+            endpoints=["http://etcd:2379"]
 
         [clientProxy.singleProxy.defaultEtcd]
-            endpoints = ["http://etcd:2379"]
+            endpoints=["http://etcd:2379"]
 
     [auth]
         # Login cookie name
-        loginCookieName = "juno_session"
+        loginCookieName="juno_session"
         # The lifetime (days) an authenticated user can be inactive before being required to login at next visit. Default is 7 days.
         # 接口授权用户
-        loginMaximumInactiveLifetimeDays = 7
+        loginMaximumInactiveLifetimeDays=7
         # The maximum lifetime (days) an authenticated user can be logged in since login time before being required to login. Default is 30 days.
         # 页面登录用户
-        loginMaximumLifetimeDays = 30
+        loginMaximumLifetimeDays=30
         # How often should auth tokens be rotated for authenticated users when being active. The default is each 10 minutes.
         # 刷新时间
-        tokenRotationIntervalMinutes = 10
+        tokenRotationIntervalMinutes=10
         # Set to true to disable (hide) the login form, useful if you use OAuth
-        disableLoginForm = false
+        disableLoginForm=false
         # Set to true to disable the signout link in the side menu. useful if you use auth.proxy
-        disableSignoutMenu = false
+        disableSignoutMenu=false
         # URL to redirect the user to after sign out
-        signoutRedirectUrl = ""
+        signoutRedirectUrl=""
         # Set to true to attempt login with OAuth automatically, skipping the login screen.
         # This setting is ignored if multiple OAuth providers are configured.
-        oauthAutoLogin = false
+        oauthAutoLogin=false
         # OAuth state max age cookie duration. Defaults to 60 seconds.
-        oauthStateCookieMaxAge = 60
+        oauthStateCookieMaxAge=60
         # limit of api_key seconds to live before expiration
-        apiKeyMaxSecondsToLive = -1
+        apiKeyMaxSecondsToLive=-1
 
         #################################### Github Auth #########################
         [auth.github]
-            enable = true
-            allowSignUp = true
-            clientId = "b88bb66e4d3114ed1669"
-            clientSecret = "a42917ca55917f330eb913cc9504cd6a1aeecabc"
-            scopes = ["user:email", "read:org"]
-            authUrl = "https://github.com/login/oauth/authorize"
-            tokenUrl = "https://github.com/login/oauth/access_token"
-            apiUrl = "https://api.github.com/user"
-            allowedDomains = []
-            teamIds = []
-            allowedOrganizations = []
+            enable=true
+            allowSignUp=true
+            clientId="b88bb66e4d3114ed1669"
+            clientSecret="a42917ca55917f330eb913cc9504cd6a1aeecabc"
+            scopes=["user:email", "read:org"]
+            authUrl="https://github.com/login/oauth/authorize"
+            tokenUrl="https://github.com/login/oauth/access_token"
+            apiUrl="https://api.github.com/user"
+            allowedDomains=[]
+            teamIds=[]
+            allowedOrganizations=[]
 
     [casbin]
-        enable = false
-        debug = true
-        autoLoad = true
-        autoLoadInternal = 60
+        enable=false
+        debug=true
+        autoLoad=true
+        autoLoadInternal=60
 
     [proxyAuth]
-        token = "token" # 用于对 Juno Proxy 的请求进行授权
+        token="token" # 用于对 Juno Proxy 的请求进行授权
 
     [grpcTest]
-        enable = false
+        enable=false
         # PB文件目录，该目录下的所有PB文件会被遍历
-        protoDir = '../proto'
+        protoDir='../proto'
 
     #################################### Go Dep Auth #########################
     [godep.gitlab]
-        host = "https://gitlab.com"
-        token = "RgZev8zy6dtP2y8EA4sB"
-        frameName = "gitlab.com/douyu/jupiter"
+        host="https://gitlab.com"
+        token="RgZev8zy6dtP2y8EA4sB"
+        frameName="gitlab.com/douyu/jupiter"
 
     [codeplatform]
-        token = "token" # 代码仓库访问凭证
+        token="token" # 代码仓库访问凭证
 
     [testplatform]
-        enable = false # 是否启用测试平台
+        enable=false # 是否启用测试平台
 
         [testplatform.worker]
-            localQueueDir = "/tmp/localworkerqueue"
-            heartbeatTimeout = "6s"
+            localQueueDir="/tmp/localworkerqueue"
+            heartbeatTimeout="6s"
 
     #################################### notice #########################
     [notice]
 
         [notice.email]
-            serverHost = "smtp.163.com"
-            serverPort = 465
-            fromEmail = "xxx@163.com"
-            fromPasswd = "xxx"
-            toers = ["xxxxxxx@qq.com"]
-            cCers = ["xxx@qq.com"]
+            serverHost="smtp.163.com"
+            serverPort=465
+            fromEmail="xxx@163.com"
+            fromPasswd="xxx"
+            toers=["xxxxxxx@qq.com"]
+            cCers=["xxx@qq.com"]
 
         [notice.ding]
-            webHook = "http://XXX.com"
-            msgType = "text"
+            webHook="http://XXX.com"
+            msgType="text"
 
     # 系统事件的 RocektMQ 配置
     [junoevent.rocketmq]
-        enable = false            # 开关.如果为false，则系统事件不写MQ.
-        addr = ["127.0.0.1:9876"] # mq地址
-        topic = "juno_test_job"   # mq topic
-        group = "juno_devops_go"  # mq producer group
-        retry = 3                 # MQ写重试次数
-        dialTimeout = "3s"        # MQ连接超时时间
+        enable=false            # 开关.如果为false，则系统事件不写MQ.
+        addr=["127.0.0.1:9876"] # mq地址
+        topic="juno_test_job"   # mq topic
+        group="juno_devops_go"  # mq producer group
+        retry=3                 # MQ写重试次数
+        dialTimeout="3s"        # MQ连接超时时间
 
     [k8s]
-        enable = true
-        prefix = [""]
-        doc = ""
+        enable=true
+        prefix=[""]
+        doc=""
+        namespace="default"
     [aliyun] # 阿里云日志秘钥配置
-        accessKeyId = ""
-        secret = ""
-        roleArn = ""
+        accessKeyId=""
+        secret=""
+        roleArn=""
         [aliyun.regions]
-            "华北2（北京）" = "cn-beijing"
+            "华北2（北京）"="cn-beijing"
 kind: ConfigMap
 metadata:
-  creationTimestamp: null
-  labels:
-    io.kompose.service: juno-admin
   name: juno-admin-cm0
 ---
 apiVersion: v1
@@ -3922,99 +3911,96 @@ data:
     [plugin]
 
         [plugin.regProxy]
-            enable = true
+            enable=true
 
             [plugin.regProxy.prometheus]
-                enable = true
-                path = "/home/www/system/prometheus/conf"
-                enableZone = false
-                zones = ["HB-WHYL"]                       # 用于支持zone过滤
-                enableCleanup = false
-                timeInterval = 10
+                enable=true
+                path="/home/www/system/prometheus/conf"
+                enableZone=false
+                zones=["HB-WHYL"]                       # 用于支持zone过滤
+                enableCleanup=false
+                timeInterval=10
 
     [plugin.confProxy]
         # 配置中心地址
-        env = ["dev", "live", "pre"]
-        prefix = "/juno-agent"
-        timeout = "3s"
-        enable = true
+        env=["dev", "live", "pre"]
+        prefix="/juno-agent"
+        timeout="3s"
+        enable=true
 
         #配置中心数据源
         [plugin.confProxy.mysql]
-            enable = false
-            dsn = ""
-            secure = false
+            enable=false
+            dsn=""
+            secure=false
 
     [plugin.supervisor]
-        enable = true
-        dir = "/etc/supervisor/conf.d"
+        enable=true
+        dir="/etc/supervisor/conf.d"
 
     [plugin.systemd]
-        enable = true
-        dir = "/etc/systemd/system"
+        enable=true
+        dir="/etc/systemd/system"
 
     [plugin.nginx]
-        enable = false
-        dir = "/usr/local/openresty/nginx/conf"
+        enable=false
+        dir="/usr/local/openresty/nginx/conf"
 
     [plugin.report]
-        enable = true
-        debug = true
-        addr = "http://juno-admin:50002/api/v1/resource/node/heartbeat"
-        internal = "60s"
-        hostName = "JUNO_HOST"                                         # 环境变量的名称，或者命令行参数的名称
-        regionCode = "REGION_CODE"                                     # 环境变量的名称，或者命令行参数的名称
-        regionName = "REGION_NAME"
-        zoneCode = "ZONE_CODE"
-        zoneName = "ZONE_NAME"
-        env = "ENV"
+        enable=true
+        debug=true
+        addr="http://juno-admin:50002/api/v1/resource/node/heartbeat"
+        internal="60s"
+        hostName="JUNO_HOST"                                          # 环境变量的名称，或者命令行参数的名称
+        regionCode="REGION_CODE"                                      # 环境变量的名称，或者命令行参数的名称
+        regionName="REGION_NAME"
+        zoneCode="ZONE_CODE"
+        zoneName="ZONE_NAME"
+        env="ENV"
 
     [plugin.healthCheck]
-        enable = false
+        enable=false
 
     [plugin.process]
-        enable = false
+        enable=false
 
     [plugin.worker]
-        enable = false
-        reqTimeout = 10
+        enable=false
+        reqTimeout=10
 
     # service registry etcd
     [jupiter.etcdv3.register]
-        endpoints = ["http://etcd:2379"]
-        connectTimeout = "3s"
+        endpoints=["http://etcd:2379"]
+        connectTimeout="3s"
 
     # default etcd (config-publish / cronjob-dispatch / etc...)
     [jupiter.etcdv3.default]
-        endpoints = ["http://etcd:2379"]
-        connectTimeout = "3s"
+        endpoints=["http://etcd:2379"]
+        connectTimeout="3s"
 
     [jupiter.logger.default]
-        name = "default"
-        debug = true
+        name="default"
+        debug=true
 
     [jupiter.logger.cronjob]
-        name = "cronjob.log"
-        level = "debug"
+        name="cronjob.log"
+        level="debug"
 
     [jupiter.server]
 
         [jupiter.server.grpc]
-            host = "0.0.0.0"
-            port = 60813
+            host="0.0.0.0"
+            port=60813
 
         [jupiter.server.http]
-            host = "0.0.0.0"
-            port = 50010
+            host="0.0.0.0"
+            port=50010
 
     [api]
         # 密钥长度需要为32位
-        secret = "j1Sblr5uiJtuCQLsT89BRqtAgWDO2anI"
+        secret="j1Sblr5uiJtuCQLsT89BRqtAgWDO2anI"
 kind: ConfigMap
 metadata:
-  creationTimestamp: null
-  labels:
-    io.kompose.service: juno-agent
   name: juno-agent-cm0
 ---
 apiVersion: v1
@@ -4664,8 +4650,10 @@ spec:
         kompose.volume.type: configMap
       creationTimestamp: null
       labels:
+        appName: juno-admin
         io.kompose.network/deployment-default: "true"
         io.kompose.service: juno-admin
+        runEnv: dev
     spec:
       containers:
       - image: ghcr.io/douyu/juno-admin-dev:latest

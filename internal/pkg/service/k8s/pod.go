@@ -94,7 +94,7 @@ func newSyncPod(zoneCode string, prefix []string, excludeSuffix []string, config
 	xlog.Info("k8sWork", xlog.String("step", "startWatch"), xlog.String("zoneCode", zoneCode))
 
 	// 同步全量拉取一次
-	err := s.sync("wsd", "")
+	err := s.sync(NameSpace, "")
 	if err != nil {
 		xlog.Error("k8sWork",
 			xlog.String("step", "start-sync"),
@@ -567,7 +567,6 @@ func mysqlNamespaceList(namespace string, appName string) (domainList []string, 
 	for _, item := range list {
 		domainList = append(domainList, item.Domain)
 	}
-
 	return
 }
 

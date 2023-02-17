@@ -72,6 +72,7 @@ type K8s struct {
 	Prefix        []string
 	ExcludeSuffix []string
 	Doc           string
+	NameSpace     string
 }
 
 type Cluster struct {

@@ -13,18 +13,23 @@ import (
 
 var IK8s apiServer
 
+var (
+	NameSpace = "wsd"
+)
+
 // Init ..
 func Init() {
-
 	if !cfg.Cfg.K8s.Enable {
 		xlog.Warn("k8sWork", xlog.String("step", "init"), xlog.Any("cfg.Cfg.K8s", cfg.Cfg.K8s))
 		return
 	}
-
 	k8sSystemConfig, err := system.System.Setting.K8SClusterSetting()
 	if err != nil {
 		xlog.Error("k8sWork", xlog.String("step", "init"), xlog.Any("err", err))
 		return
+	}
+	if cfg.Cfg.K8s.NameSpace != "" {
+		NameSpace = cfg.Cfg.K8s.NameSpace
 	}
 	if len(k8sSystemConfig.List) == 0 {
 		xlog.Error("k8sWork",
@@ -32,7 +37,6 @@ func Init() {
 			xlog.Any("k8sSystemConfig", k8sSystemConfig))
 		return
 	}
-
 	var kc map[string]view.K8sConfig
 	kc = make(map[string]view.K8sConfig, 0)
 	for _, v := range k8sSystemConfig.List {
