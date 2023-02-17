@@ -18,7 +18,6 @@ import (
 	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/store/gorm"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/sync/errgroup"
 )
 
 // GetApp 根据ID或者APPNAME获取APP信息
@@ -213,8 +212,6 @@ func (r *resource) GetAppList(where db.AppInfo, currentPage, pageSize int, keyTy
 // 获取带环境信息的应用列表
 func (r *resource) GetAppListWithEnv(param view.ReqAppListWithEnv) (resp view.RespAppListWithEnv, err error) {
 	var apps []db.AppInfo
-	var eg errgroup.Group
-
 	page := param.Page
 	if page > 0 {
 		page -= 1
@@ -232,19 +229,14 @@ func (r *resource) GetAppListWithEnv(param view.ReqAppListWithEnv) (resp view.Re
 	if param.SearchText != "" {
 		query = query.Where("app_name like ?", "%"+param.SearchText+"%")
 	}
-
-	eg.Go(func() error {
-		return query.Count(&resp.Pagination.Total).Error
-	})
-
-	eg.Go(func() error {
-		return query.Preload("AppNodes", func(db *gorm.DB) *gorm.DB {
-			// group by env
-			return db.Group("app_name,env")
-		}).Limit(pageSize).Offset(offset).Find(&apps).Error
-	})
-
-	err = eg.Wait()
+	err = query.Count(&resp.Pagination.Total).Error
+	if err != nil {
+		return
+	}
+	err = query.Preload("AppNodes").Limit(pageSize).Offset(offset).Find(&apps).Error
+	if err != nil {
+		return
+	}
 	if err != nil {
 		return view.RespAppListWithEnv{}, err
 	}
