@@ -219,24 +219,5 @@ func (g *k8sImpl) getStream(zoneCode string, url string, v map[string]string) (s
 func (g *k8sImpl) getConfig(zoneCode string) (domain, token string) {
 	c, _ := g.config[zoneCode]
 
-	var (
-		k8sConfig *rest.Config
-		err       error
-	)
-
-	// 根据机房信息,获取域名
-	// 如果没有配置token，则使用incluster的方式获取
-	if c.Domain == "" || c.Token == "" {
-		k8sConfig, err = rest.InClusterConfig()
-		if err != nil {
-			return
-		}
-	}
-
-	if k8sConfig != nil {
-		c.Domain = k8sConfig.Host
-		c.Token = k8sConfig.BearerToken
-	}
-
 	return c.Domain, c.Token
 }

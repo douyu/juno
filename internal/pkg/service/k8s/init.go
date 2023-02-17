@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/douyu/jupiter/pkg/util/xgo"
+	"k8s.io/client-go/rest"
 
 	"github.com/douyu/juno/internal/pkg/service/system"
 	"github.com/douyu/juno/pkg/cfg"
@@ -41,11 +42,22 @@ func Init() {
 		if v.Domain == "" || v.Token == "" {
 			continue
 		}
+
+		// 如果配置了incluster，则使用incluster的方式获取
+		if strings.ToLower(v.Domain) == "incluster" || strings.ToLower(v.Token) == "incluster" {
+			k8sConfig, err := rest.InClusterConfig()
+			if err == nil && k8sConfig != nil {
+				v.Domain = k8sConfig.Host
+				v.Token = k8sConfig.BearerToken
+			}
+		}
+
 		clusterItem := view.K8sConfig{
 			ZoneCode: v.ZoneCode,
 			Domain:   v.Domain,
 			Token:    v.Token,
 		}
+
 		kc[v.ZoneCode+"|"+v.Domain] = clusterItem
 	}
 	IK8s = newK8sImpl(kc)

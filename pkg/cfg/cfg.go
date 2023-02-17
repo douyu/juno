@@ -59,7 +59,7 @@ type cfg struct {
 	Notice            Notice
 	JunoEvent         JunoEvent
 	UserVisit         UserVisit
-	K8s
+	K8s               K8s
 }
 
 // DefaultConfig ...
