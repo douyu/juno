@@ -53,7 +53,6 @@ func Init() {
 				v.Domain = k8sConfig.Host
 				v.Token = k8sConfig.BearerToken
 			}
-			continue
 		}
 		clusterItem := view.K8sConfig{
 			ZoneCode: v.ZoneCode,
