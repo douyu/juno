@@ -2330,9 +2330,7 @@ data:
     ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `app`
     (`aid`, `gid`, `name`, `app_name`, `create_time`, `update_time`, `level`, `lang`,
     `biz_domain`, `created_by`, `updated_by`, `http_port`, `rpc_port`, `govern_port`,
-    `hook_id`, `users`, `web_url`, `proto_dir`, `git_url`) VALUES\n(1,\t1,\t'jupiter-agent',\t'jupiter-agent',\t1673064118,\t1675836081,\t1,\t'go',\t'直播系统',\t0,\t0,\t'8011',\t'8012',\t'9999',\t0,\t'[\\\"askuy\\\",
-    \\\"lvchao\\\", \\\"duminxiang\\\"]',\t'https://github.com/douyu/jupiter-demo',\t'',\t'git@github.com/douyu/jupiter-agent.git'),\n(2,\t2,\t'juno-admin',\t'juno-admin',\t1673064118,\t1673064118,\t1,\t'go',\t'直播系统',\t0,\t0,\t'50000',\t'0',\t'50004',\t0,\t'[\\\"askuy\\\",
-    \\\"mex\\\"]',\t'https://github.com/douyu/juno',\t'',\t'git@github.com/douyu/juno.git');\n\nDROP
+    `hook_id`, `users`, `web_url`, `proto_dir`, `git_url`) VALUES\n(1,\t1,\t'jupiter-agent',\t'jupiter-agent',\t1673064118,\t1675836081,\t1,\t'go',\t'直播系统',\t0,\t0,\t'8011',\t'8012',\t'9999',\t0,\t'[\\\"douyu\\\"]',\t'https://github.com/douyu/jupiter-agent',\t'',\t'git@github.com/douyu/jupiter-agent.git'),\n(2,\t2,\t'juno-admin',\t'juno-admin',\t1673064118,\t1673064118,\t1,\t'go',\t'直播系统',\t0,\t0,\t'50002',\t'0',\t'50004',\t0,\t'[\\\"douyu\\\"]',\t'https://github.com/douyu/juno',\t'',\t'git@github.com/douyu/juno.git'),\n(3,\t3,\t'exampleserver',\t'exampleserver',\t1676633682,\t1676633682,\t1,\t'go',\t'直播系统',\t0,\t0,\t'9527',\t'9528',\t'9529',\t0,\t'[\\\"douyu\\\"]',\t'https://github.com/douyu/juno-layout',\t'',\t'https://github.com/douyu/juno-layout');\n\nDROP
     TABLE IF EXISTS `app_change_map`;\nCREATE TABLE `app_change_map` (\n  `id` bigint(20)
     NOT NULL AUTO_INCREMENT,\n  `app_name` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n
     \ `md5` varchar(191) COLLATE utf8mb4_bin NOT NULL,\n  `updated_at` bigint(20)
