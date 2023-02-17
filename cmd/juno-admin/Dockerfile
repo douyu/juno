@@ -8,7 +8,7 @@ ARG JUNO_TAR
 RUN echo ${JUNO_TAR}
 COPY ${JUNO_TAR} .
 RUN cd /root/juno && tar xvf ${JUNO_TAR} && \
-RUN apk add unzip --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main && \
+    apk add unzip --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main && \
     wget https://github.com/brendangregg/FlameGraph/archive/refs/heads/master.zip && \
     mkdir -p /home/www/system/pprof/ && \
     unzip master.zip -d /home/www/system/pprof/ && \
