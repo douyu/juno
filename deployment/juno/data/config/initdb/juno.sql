@@ -55,8 +55,9 @@ CREATE TABLE `app` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 INSERT INTO `app` (`aid`, `gid`, `name`, `app_name`, `create_time`, `update_time`, `level`, `lang`, `biz_domain`, `created_by`, `updated_by`, `http_port`, `rpc_port`, `govern_port`, `hook_id`, `users`, `web_url`, `proto_dir`, `git_url`) VALUES
-(1,	1,	'jupiter-agent',	'jupiter-agent',	1673064118,	1675836081,	1,	'go',	'直播系统',	0,	0,	'8011',	'8012',	'9999',	0,	'[\"askuy\", \"lvchao\", \"duminxiang\"]',	'https://github.com/douyu/jupiter-demo',	'',	'git@github.com/douyu/jupiter-agent.git'),
-(2,	2,	'juno-admin',	'juno-admin',	1673064118,	1673064118,	1,	'go',	'直播系统',	0,	0,	'50000',	'0',	'50004',	0,	'[\"askuy\", \"mex\"]',	'https://github.com/douyu/juno',	'',	'git@github.com/douyu/juno.git');
+(1,	1,	'jupiter-agent',	'jupiter-agent',	1673064118,	1675836081,	1,	'go',	'直播系统',	0,	0,	'8011',	'8012',	'9999',	0,	'[\"douyu\"]',	'https://github.com/douyu/jupiter-agent',	'',	'git@github.com/douyu/jupiter-agent.git'),
+(2,	2,	'juno-admin',	'juno-admin',	1673064118,	1673064118,	1,	'go',	'直播系统',	0,	0,	'50002',	'0',	'50004',	0,	'[\"douyu\"]',	'https://github.com/douyu/juno',	'',	'git@github.com/douyu/juno.git'),
+(3,	3,	'exampleserver',	'exampleserver',	1676633682,	1676633682,	1,	'go',	'直播系统',	0,	0,	'9527',	'9528',	'9529',	0,	'[\"douyu\"]',	'https://github.com/douyu/juno-layout',	'',	'https://github.com/douyu/juno-layout');
 
 DROP TABLE IF EXISTS `app_change_map`;
 CREATE TABLE `app_change_map` (
