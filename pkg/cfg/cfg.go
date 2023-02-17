@@ -59,7 +59,7 @@ type cfg struct {
 	Notice            Notice
 	JunoEvent         JunoEvent
 	UserVisit         UserVisit
-	K8s
+	K8s               K8s
 }
 
 // DefaultConfig ...
@@ -272,7 +272,6 @@ func InitCfg() {
 	if err := conf.UnmarshalKey("", &config); err != nil {
 		xlog.Panic("parse cfg error", xlog.FieldErrKind(ecode.ErrKindUnmarshalConfigErr), xlog.FieldErr(err), xlog.FieldKey("system cfg"), xlog.FieldValueAny(config))
 	}
-
 	config.AppURL, config.AppSubURL, err = parseAppAndSubURL(config.Server.Http.RootUrl)
 	if err != nil {
 		xlog.Panic("parse root url err", zap.Error(err))

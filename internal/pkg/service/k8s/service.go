@@ -13,15 +13,17 @@ type apiServer interface {
 
 // Sync 同步指定aid的k8s节点数据，aid=0时同步全量的
 func Sync(appName string) error {
-	return IK8s.allClusterSync("wsd", appName)
+	return IK8s.allClusterSync(NameSpace, appName)
 }
 
 // SyncAll 同步所以aid的k8s节点数据，aid=0时同步全量的
 func SyncAll() error {
-	return IK8s.allClusterSync("wsd", "")
+	return IK8s.allClusterSync(NameSpace, "")
 }
 
 func Reload() {
-	IK8s.close()
+	if IK8s != nil {
+		IK8s.close()
+	}
 	Init()
 }

@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/douyu/juno/internal/pkg/service/k8s"
-
 	"github.com/douyu/juno/internal/pkg/service/system"
+
 	"github.com/douyu/juno/internal/pkg/service/testplatform/localworker"
 	"github.com/douyu/juno/internal/pkg/service/testplatform/workerpool"
 	"github.com/douyu/juno/pkg/model/view"

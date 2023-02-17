@@ -8,5 +8,17 @@ configMapGenerator:
     files:
       - ./data/config/initdb/grafana.sql
       - ./data/config/initdb/juno.sql
+  - name: juno-admin-cm0   
+    files:
+      - ./data/config/juno/entry.sh
+      - ./data/config/juno/install.toml
+      - ./data/config/juno/juno-grafana.ini
+      - ./data/config/juno/juno-prometheus.yml
+      - ./data/config/juno/multiple-region-admin.toml
+      - ./data/config/juno/multiple-region-proxy.toml
+      - ./data/config/juno/single-region-admin.toml
+  - name: juno-agent-cm0   
+    files:
+      - ./data/config/juno-agent/config.toml
 generatorOptions:
   disableNameSuffixHash: true
