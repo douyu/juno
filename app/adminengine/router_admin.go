@@ -53,7 +53,6 @@ import (
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	vmiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 func apiAdmin(server *xecho.Server) {
@@ -81,11 +80,13 @@ func apiAdmin(server *xecho.Server) {
 		})
 	}
 
-	server.Use(vmiddleware.GzipWithConfig(vmiddleware.GzipConfig{
-		Level: 5,
-	}))
+	// server.Use(vmiddleware.GzipWithConfig(vmiddleware.GzipConfig{
+	// 	Level: 5,
+	// }))
+
 	//构建前端资源
 	static.Static(server.Echo, "/ant")
+
 	//默认目录
 	echo.NotFoundHandler = func(c echo.Context) error {
 		if strings.HasPrefix(c.Request().URL.Path, "/api/") {

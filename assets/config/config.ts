@@ -332,7 +332,7 @@ export default defineConfig({
           test: /\.js$|\.css$/, //匹配文件名
           threshold: 1024, //对超过10k的数据压缩
           exclude: /umi/,
-          deleteOriginalAssets: false, //不删除源文件
+          deleteOriginalAssets: true, //不删除源文件
 
         },
       ]);
