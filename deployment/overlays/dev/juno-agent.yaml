@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: juno-agent
+spec:
+  selector:
+    matchLabels:
+      io.kompose.service: juno-agent
+  template:
+    metadata:
+      labels:
+        name: juno-agent
+        appName: juno-agent
+        runEnv: dev
