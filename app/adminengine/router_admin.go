@@ -79,14 +79,8 @@ func apiAdmin(server *xecho.Server) {
 			Enforcer: casbin.Casbin.SyncedEnforcer,
 		})
 	}
-
-	// server.Use(vmiddleware.GzipWithConfig(vmiddleware.GzipConfig{
-	// 	Level: 5,
-	// }))
-
 	//构建前端资源
 	static.Static(server.Echo, "/ant")
-
 	//默认目录
 	echo.NotFoundHandler = func(c echo.Context) error {
 		if strings.HasPrefix(c.Request().URL.Path, "/api/") {
@@ -106,17 +100,7 @@ func apiAdmin(server *xecho.Server) {
 		http.ServeContent(c.Response(), c.Request(), fi.Name(), fi.ModTime(), f)
 		return nil
 	}
-	// server.GET("/", static.File("assets/dist/index.html"), sessionMW, loginAuthRedirect)
-	// server.Static("/ant/*", "assets/dist")
 	server.Static("/pprof/*", cfg.Cfg.Pprof.StorePath)
-
-	echo.NotFoundHandler = func(c echo.Context) error {
-		if strings.HasPrefix(c.Request().URL.Path, "/api/") {
-			return c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
-		}
-		return c.File("assets/dist")
-	}
-
 	// grafana proxy
 	groupGrafana := server.Group("/grafana", sessionMW, loginAuthRedirect, middleware.GrafanaAuthMW)
 	{
