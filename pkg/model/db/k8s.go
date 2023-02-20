@@ -48,7 +48,6 @@ func (t *K8sPod) Formatting(zc, domain string, in *v1.Pod) {
 	t.ZoneCode = strings.TrimSpace(zc)
 	t.Domain = strings.TrimSpace(domain)
 	t.PodName = strings.TrimSpace(in.ObjectMeta.Name)
-	t.UpdateTime = time.Unix(in.ObjectMeta.CreationTimestamp.Time.Unix(), 0)
 	t.AppName = strings.TrimSpace(in.ObjectMeta.Labels["appName"])
 	t.Namespace = strings.TrimSpace(in.ObjectMeta.Namespace)
 
