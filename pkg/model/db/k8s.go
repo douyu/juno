@@ -48,7 +48,7 @@ func (t *K8sPod) Formatting(zc, domain string, in *v1.Pod) {
 	t.ZoneCode = strings.TrimSpace(zc)
 	t.Domain = strings.TrimSpace(domain)
 	t.PodName = strings.TrimSpace(in.ObjectMeta.Name)
-	t.UpdateTime = in.ObjectMeta.CreationTimestamp.Time
+	t.UpdateTime = time.Unix(in.ObjectMeta.CreationTimestamp.Time.Unix(), 0)
 	t.AppName = strings.TrimSpace(in.ObjectMeta.Labels["appName"])
 	t.Namespace = strings.TrimSpace(in.ObjectMeta.Namespace)
 
@@ -61,7 +61,7 @@ func (t *K8sPod) Formatting(zc, domain string, in *v1.Pod) {
 	t.PodIp = strings.TrimSpace(in.Status.PodIP)
 	t.Status = strings.TrimSpace(string(in.Status.Phase))
 	if in.Status.StartTime != nil {
-		t.StartTime = in.Status.StartTime.Time
+		t.StartTime = time.Unix(in.Status.StartTime.Time.Unix(), 0)
 	}
 	t.UpdateTime = time.Unix(time.Now().Unix(), 0)
 	t.InstanceGroupID = strings.TrimSpace(in.ObjectMeta.Labels["appDeploymentId"])
