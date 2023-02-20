@@ -404,7 +404,6 @@ func (i *syncPod) List(namespace string, appName string) (res []v1.Pod, err erro
 			Limit:         int64(step),
 			Continue:      Continue,
 		})
-		fmt.Println("=============", data, err)
 		if err != nil {
 			xlog.Error("k8sWork",
 				xlog.String("step", "list-List"),
