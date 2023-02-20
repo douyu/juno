@@ -3,6 +3,8 @@ FROM alpine:latest
 WORKDIR /root/juno/
 
 COPY --from=golang:1.19-alpine /usr/local/go/bin/go /usr/local/go/bin/go
+COPY --from=golang:1.19-alpine /usr/local/go/pkg/tool/linux_amd64/pprof /usr/local/go/pkg/tool/linux_amd64/pprof
+
 ARG JUNO_TAR
 
 RUN echo ${JUNO_TAR}
