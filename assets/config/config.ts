@@ -330,9 +330,9 @@ export default defineConfig({
       config.plugin('compression-webpack-plugin').use(CompressionPlugin, [
         {
           test: /\.js$|\.css$/, //匹配文件名
-          threshold: 1024, //对超过10k的数据压缩
+          threshold: 1024, //对超过1k的数据压缩
           exclude: /umi/,
-          deleteOriginalAssets: true, //不删除源文件
+          deleteOriginalAssets: true, //删除源文件
 
         },
       ]);
