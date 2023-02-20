@@ -3744,7 +3744,8 @@ data:
         async=false
         name="system.json"  # 日志名称
         dir="./logs"
-
+    [pprof]
+        path = "."
     [logger.biz]
         debug=false         # 是否在命令行输出
         enableConsole=false # 是否按命令行格式输出

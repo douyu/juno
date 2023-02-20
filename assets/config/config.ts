@@ -329,9 +329,11 @@ export default defineConfig({
       //gzip压缩
       config.plugin('compression-webpack-plugin').use(CompressionPlugin, [
         {
-          test: /\.js$|\.html$|\.css$/, //匹配文件名
-          threshold: 10240, //对超过10k的数据压缩
+          test: /\.js$|\.css$/, //匹配文件名
+          threshold: 1024, //对超过10k的数据压缩
+          exclude: /umi/,
           deleteOriginalAssets: false, //不删除源文件
+
         },
       ]);
     }
