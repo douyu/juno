@@ -9,6 +9,8 @@ builds:
     goos:
       - linux
     goarch: [amd64]
+    tags:
+      - embedassets
     ldflags:
       - -X github.com/douyu/jupiter/pkg.buildAppVersion={{.Version}}
       - -X github.com/douyu/jupiter/pkg.buildTime={{.Date}}
@@ -54,6 +56,5 @@ changelog:
 
 archives:
   - files:
-      - ./assets/dist/*
       - ./data/*
       - ./config/*

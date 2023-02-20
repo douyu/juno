@@ -15,11 +15,13 @@
 package adminengine
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
 	"github.com/douyu/juno/api/apiv1/provider"
 	"github.com/douyu/juno/api/apiv1/proxyintegrat"
+	"github.com/douyu/juno/assets"
 
 	"github.com/douyu/juno/api/apiv1/analysis"
 	"github.com/douyu/juno/api/apiv1/confgo"
@@ -48,11 +50,9 @@ import (
 	userSrv "github.com/douyu/juno/internal/pkg/service/user"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
-	"github.com/douyu/juno/pkg/util"
 	"github.com/douyu/jupiter/pkg/server/xecho"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	vmiddleware "github.com/labstack/echo/v4/middleware"
 )
 
 func apiAdmin(server *xecho.Server) {
@@ -80,18 +80,34 @@ func apiAdmin(server *xecho.Server) {
 		})
 	}
 
-	server.Use(vmiddleware.GzipWithConfig(vmiddleware.GzipConfig{
-		Level: 5,
-	}))
+	// server.Use(vmiddleware.GzipWithConfig(vmiddleware.GzipConfig{
+	// 	Level: 5,
+	// }))
 
-	// static file
-	flag, err := util.IsFileExists("assets/dist")
-	if err != nil || !flag {
-		panic("assets/dist not exist")
+	//构建前端资源
+	static.Static(server.Echo, "/ant")
+
+	//默认目录
+	echo.NotFoundHandler = func(c echo.Context) error {
+		if strings.HasPrefix(c.Request().URL.Path, "/api/") {
+			return c.JSON(http.StatusNotFound, http.StatusText(http.StatusNotFound))
+		}
+		var err error
+		statikFS, err := assets.Assets()
+		if err != nil {
+			log.Fatal("statikFS", err)
+		}
+		f, err := statikFS.Open("/index.html")
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		fi, _ := f.Stat()
+		http.ServeContent(c.Response(), c.Request(), fi.Name(), fi.ModTime(), f)
+		return nil
 	}
-
-	server.GET("/", static.File("assets/dist/index.html"), sessionMW, loginAuthRedirect)
-	server.Static("/ant/*", "assets/dist")
+	// server.GET("/", static.File("assets/dist/index.html"), sessionMW, loginAuthRedirect)
+	// server.Static("/ant/*", "assets/dist")
 	server.Static("/pprof/*", cfg.Cfg.Pprof.StorePath)
 
 	echo.NotFoundHandler = func(c echo.Context) error {
