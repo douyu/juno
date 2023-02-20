@@ -168,13 +168,13 @@ func (p *pprof) RunPprof(ctx context.Context, req *view.ReqRunProfile) (err erro
 
 func getFlameGraph(fileName, tagFileName string) error {
 	// 1 获取和存储profile的原始的svg图
-	out, err := exec.Command("bash", "-c", fmt.Sprintf("go tool pprof -svg %s > %s", fileName, tagFileName)).Output()
+	out, err := exec.Command("sh", "-c", fmt.Sprintf("go tool pprof -svg %s > %s", fileName, tagFileName)).Output()
 	if err != nil {
 		return fmt.Errorf("go tool pprof -svg err: %v", err)
 	}
 
 	// 2 获取火焰图准备
-	out, err = exec.Command("bash", "-c", "go tool pprof -raw "+fileName).Output()
+	out, err = exec.Command("sh", "-c", "go tool pprof -raw "+fileName).Output()
 	if err != nil {
 		return fmt.Errorf("go tool pprof -raw err: %v", err)
 	}
