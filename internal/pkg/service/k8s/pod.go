@@ -454,8 +454,8 @@ func (i *syncPod) mysqlBatchUpdate(appName string, domain string, items []v1.Pod
 
 		values = append(values, fmt.Sprintf("(%d,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",%d)",
 			m.Aid, m.Env, m.ZoneCode, m.Domain, m.PodName, m.AppName,
-			m.Namespace, m.HostIp, m.PodIp, m.NodeName, m.StartTime,
-			m.UpdateTime, m.Image, m.Status, m.InstanceGroupName,
+			m.Namespace, m.HostIp, m.PodIp, m.NodeName, time.Unix(m.StartTime.Unix(), 0),
+			time.Unix(m.UpdateTime.Unix(), 0), m.Image, m.Status, m.InstanceGroupName,
 			m.InstanceGroupName, m.MD5, m.IsDel))
 
 	}
@@ -504,8 +504,8 @@ func (i *syncPod) mysqlCreateOrUpdate(zoneCode, domain string, in *v1.Pod) (err 
 			"host_ip":             m.HostIp,
 			"pod_ip":              m.PodIp,
 			"node_name":           m.NodeName,
-			"start_time":          m.StartTime,
-			"update_time":         m.UpdateTime,
+			"start_time":          time.Unix(m.StartTime.Unix(), 0),
+			"update_time":         time.Unix(m.UpdateTime.Unix(), 0),
 			"image":               m.Image,
 			"status":              m.Status,
 			"instance_group_id":   m.InstanceGroupID,
