@@ -10,11 +10,17 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-15-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 ## Overview 
+### pyroscope
 [![pyroscope](/docs/img/pyroscope.png)](https://github.com/douyu/juno)
-[![pyroscope](/docs/img/jaeger.png)](https://github.com/douyu/juno)
-[![pyroscope](/docs/img/monitoroverview.png)](https://github.com/douyu/juno)
-[![pyroscope](/docs/img/monitorinstance.png)](https://github.com/douyu/juno)
-[![pyroscope](/docs/img/monitorapi.png)](https://github.com/douyu/juno)
+### jaeger
+[![jaeger](/docs/img/jaeger.png)](https://github.com/douyu/juno)
+### monitor dashboard
+overview metrics of app
+[![monitoroverview](/docs/img/monitoroverview.png)](https://github.com/douyu/juno)
+instance metrics of app
+[![monitorinstance](/docs/img/monitorinstance.png)](https://github.com/douyu/juno)
+api metrics of app
+[![monitorapi](/docs/img/monitorapi.png)](https://github.com/douyu/juno)
 ## Introduction
 
 JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，核心功能为配置中心，能集中化管理应用不同环境、不同机房的配置；并且集成了监控中心、测试平台、日志中心等功能模块，采用Casbin进行规范化的权限管理，适用于微服务生命周期管理。
