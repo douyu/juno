@@ -20,5 +20,8 @@ configMapGenerator:
   - name: juno-agent-cm0   
     files:
       - ./data/config/juno-agent/config.toml
+  - name: pyroscope-cm0   
+    files:
+      - ./data/config/pyroscope/server.yml    
 generatorOptions:
   disableNameSuffixHash: true

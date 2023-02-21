@@ -1,0 +1,24 @@
+# this is an example config file for pyroscope server
+---
+base-url: "/proxy/pyroscope"
+storage-path: "/tmp"
+retention: 24h # 1 days
+retention-levels:
+  0: 24h  # 1 days
+  1: 168h # 7 day
+# A list of scrape configurations.
+scrape-configs:
+  - job-name: pyroscope
+    #The list of profiles to be scraped from the targets.
+    enabled-profiles: [cpu, mem, goroutine]
+    profiles:
+      goroutine:
+        path: /debug/pprof/goroutine
+        sample-types:
+          goroutine:
+            units: objects
+            aggregation: avg
+    file-sd-configs:
+      - refresh-interval: 1m
+        files:
+          - "/home/www/system/prometheus/conf/pyroscope/*.yml"
