@@ -290,8 +290,8 @@ func (r *resource) AppNodeTransferPut(tx *gorm.DB, add, del map[string]interface
 			RegionName: node.RegionName,
 			ZoneCode:   node.ZoneCode,
 			ZoneName:   node.ZoneName,
-			CreateTime: time.Now().Unix(),
-			UpdateTime: time.Now().Unix(),
+			CreateTime: float64(time.Now().Unix()),
+			UpdateTime: float64(time.Now().Unix()),
 		}
 		itemjson, _ := json.Marshal(item)
 		xlog.Info("AppNode item: ", zap.String("item", string(itemjson)))

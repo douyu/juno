@@ -8,19 +8,19 @@ type AppNodeAgentView struct {
 
 // AppNode ..
 type AppNode struct {
-	ID         int    `json:"id" gorm:"not null;column:id"` // id类型?
-	AppName    string `json:"app_name" gorm:"not null;column:app_name"`
-	Aid        int    `json:"aid" gorm:"not null;column:aid"` // id类型?
-	HostName   string `json:"host_name" gorm:"not null;column:host_name"`
-	IP         string `json:"ip" gorm:"not null;column:ip;index"`
-	DeviceID   int    `json:"device_id" gorm:"not null;column:device_id"`
-	Env        string `json:"env" gorm:"not null"`
-	RegionCode string `json:"region_code" gorm:"not null"`
-	RegionName string `json:"region_name" gorm:"not null"`
-	ZoneCode   string `json:"zone_code" gorm:"not null"`
-	ZoneName   string `json:"zone_name" gorm:"not null"`
-	CreateTime int64  `gorm:"not null;" json:"create_time"`
-	UpdateTime int64  `gorm:"not null;" json:"update_time"`
+	ID         int     `json:"id" gorm:"not null;column:id"` // id类型?
+	AppName    string  `json:"app_name" gorm:"not null;column:app_name"`
+	Aid        int     `json:"aid" gorm:"not null;column:aid"` // id类型?
+	HostName   string  `json:"host_name" gorm:"not null;column:host_name"`
+	IP         string  `json:"ip" gorm:"not null;column:ip;index"`
+	DeviceID   int     `json:"device_id" gorm:"not null;column:device_id"`
+	Env        string  `json:"env" gorm:"not null"`
+	RegionCode string  `json:"region_code" gorm:"not null"`
+	RegionName string  `json:"region_name" gorm:"not null"`
+	ZoneCode   string  `json:"zone_code" gorm:"not null"`
+	ZoneName   string  `json:"zone_name" gorm:"not null"`
+	CreateTime float64 `gorm:"not null;" json:"create_time"`
+	UpdateTime float64 `gorm:"not null;" json:"update_time"`
 }
 
 // TableName ..

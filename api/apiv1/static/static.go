@@ -7,7 +7,6 @@ import (
 	"net/url"
 
 	"github.com/douyu/juno/assets"
-	"github.com/douyu/juno/internal/app/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -39,7 +38,7 @@ func Static(e *echo.Echo, prefix string) {
 		hanlde.ServeHTTP(c.Response(), c.Request())
 		return nil
 	}
-	e.GET("/", h, middleware.LoginAuth("/user/login", middleware.RedirectTypeHttp).Func())
+	e.GET("/", h)
 	e.GET(prefix, h)
 	e.GET(prefix+"/*", h)
 }
