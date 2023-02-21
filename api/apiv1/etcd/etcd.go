@@ -10,6 +10,7 @@ import (
 	"github.com/douyu/juno/pkg/model/view"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.uber.org/zap"
 )
@@ -99,5 +100,11 @@ func list(req view.ReqGetEtcdList) (resp []view.RespEtcdInfo, err error) {
 
 		resp = append(resp, row)
 	}
+
+	// fix duplicate etcd result
+	lo.UniqBy(resp, func(item view.RespEtcdInfo) string {
+		return item.Key
+	})
+
 	return
 }
