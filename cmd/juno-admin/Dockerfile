@@ -26,4 +26,4 @@ ENV PATH /usr/local/go/bin:/home/www/system/pprof/FlameGraph-master:$PATH
 
 EXPOSE 50002 50004 50010
 
-CMD ["/usr/local/bin/juno-admin", "--config=./config/single-region-admin.toml", "-host=0.0.0.0"]
+CMD ["/usr/local/bin/juno-admin", "--config=./config/single-region-admin.toml"]
