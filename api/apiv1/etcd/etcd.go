@@ -102,7 +102,7 @@ func list(req view.ReqGetEtcdList) (resp []view.RespEtcdInfo, err error) {
 	}
 
 	// fix duplicate etcd result
-	lo.UniqBy(resp, func(item view.RespEtcdInfo) string {
+	resp = lo.UniqBy(resp, func(item view.RespEtcdInfo) string {
 		return item.Key
 	})
 
