@@ -13,7 +13,7 @@ require (
 	github.com/bojand/ghz v0.114.0
 	github.com/casbin/casbin/v2 v2.63.0
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
-	github.com/douyu/jupiter v0.11.1
+	github.com/douyu/jupiter v0.11.2
 	github.com/go-git/go-git/v5 v5.5.2
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-playground/validator v9.31.0+incompatible
