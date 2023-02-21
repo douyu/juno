@@ -22,7 +22,7 @@ var (
 	Prefix = ""
 )
 
-func Static(e *echo.Echo, prefix string) {
+func Static(e *echo.Echo, prefix string, sessionMW echo.MiddlewareFunc) {
 	Prefix = prefix
 	var err error
 	statikFS, err = assets.Assets()
@@ -35,11 +35,14 @@ func Static(e *echo.Echo, prefix string) {
 		if err != nil {
 			return err
 		}
+		if c.Request().URL.Path == "" || c.Request().URL.Path == "/" {
+			c.Request().URL.Path = "/index.html"
+		}
 		hanlde := FileServer(Dir("./"))
 		hanlde.ServeHTTP(c.Response(), c.Request())
 		return nil
 	}
-	e.GET("/", h, middleware.LoginAuth("/user/login", middleware.RedirectTypeHttp).Func())
+	e.GET("/", h, sessionMW, middleware.LoginAuth("/user/login", middleware.RedirectTypeHttp).Func())
 	e.GET(prefix, h)
 	e.GET(prefix+"/*", h)
 }

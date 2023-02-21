@@ -80,7 +80,7 @@ func apiAdmin(server *xecho.Server) {
 		})
 	}
 	//构建前端资源
-	static.Static(server.Echo, "/ant")
+	static.Static(server.Echo, "/ant", sessionMW)
 	//默认目录
 	echo.NotFoundHandler = func(c echo.Context) error {
 		if strings.HasPrefix(c.Request().URL.Path, "/api/") {
@@ -112,7 +112,7 @@ func apiAdmin(server *xecho.Server) {
 	}
 
 	//common  proxy
-	proxy := server.Group("/proxy")
+	proxy := server.Group("/proxy", sessionMW, loginAuthRedirect)
 	{
 		AllMethods := []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodDelete,
 			http.MethodHead, http.MethodTrace, http.MethodPut, http.MethodConnect, http.MethodOptions}
