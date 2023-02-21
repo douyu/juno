@@ -1,4 +1,4 @@
--- Adminer 4.8.1 MySQL 5.7.41 dump
+-- Adminer 4.8.1 MySQL 5.7.36 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -747,7 +747,6 @@ CREATE TABLE `k8s_pod` (
   KEY `idx_node_name` (`node_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-
 DROP TABLE IF EXISTS `log_store`;
 CREATE TABLE `log_store` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -787,9 +786,6 @@ CREATE TABLE `node` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-INSERT INTO `node` (`id`, `host_name`, `ip`, `create_time`, `update_time`, `env`, `region_code`, `region_name`, `zone_code`, `zone_name`, `agent_heartbeat_time`, `proxy_heartbeat_time`, `node_type`, `agent_type`, `agent_version`, `proxy_type`, `proxy_version`) VALUES
-(1,	'wuhan-host-1-1',	'192.168.1.1',	1673061235,	1673061235,	'dev',	'cn-wuhan',	'武汉',	'cn-wuhan-guanggu-f1',	'武汉光谷F1区',	0,	0,	1,	0,	'',	0,	''),
-(4,	'juno-agent-dev01',	'172.18.0.19',	1675828157,	1675828157,	'dev',	'cn-wuhan',	'武汉',	'cn-wuhan-guanggu-f1',	'武汉光谷F1区',	1675836887,	0,	0,	1,	'0.2.1',	0,	'');
 
 DROP TABLE IF EXISTS `ops_supervisor_config`;
 CREATE TABLE `ops_supervisor_config` (
@@ -838,7 +834,6 @@ CREATE TABLE `pprof` (
   KEY `idx_pprof_delete_time` (`delete_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-
 DROP TABLE IF EXISTS `proxy_manage`;
 CREATE TABLE `proxy_manage` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -853,6 +848,9 @@ CREATE TABLE `proxy_manage` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+INSERT INTO `proxy_manage` (`id`, `title`, `sub_path`, `is_rewrite`, `proxy_addr`, `create_time`, `update_time`, `delete_time`, `uid`) VALUES
+(1,	'线下pyroscope',	'pyroscope',	1,	'http://pyroscope:4040',	1676948199,	1676948199,	0,	1),
+(2,	'jaeger',	'jaeger',	0,	'http://jaeger:16686',	1676949341,	1676949341,	0,	1);
 
 DROP TABLE IF EXISTS `proxy_menu`;
 CREATE TABLE `proxy_menu` (
@@ -868,6 +866,9 @@ CREATE TABLE `proxy_menu` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+INSERT INTO `proxy_menu` (`id`, `panel_type`, `proxy_url`, `key`, `create_time`, `update_time`, `delete_time`, `uid`, `title`) VALUES
+(1,	'pyroscope',	'/proxy/pyroscope/',	'pyroscope.pre.wh',	1676948230,	1676948265,	0,	1,	'光谷F1(pre) pyroscope'),
+(2,	'grafana',	'/proxy/jaeger',	'jaeger',	1676949390,	1676949739,	0,	1,	'光谷F1（pre) 链路追踪');
 
 DROP TABLE IF EXISTS `system_config`;
 CREATE TABLE `system_config` (
@@ -1172,4 +1173,4 @@ CREATE TABLE `zone` (
 INSERT INTO `zone` (`id`, `env`, `region_code`, `region_name`, `zone_code`, `zone_name`, `create_time`, `update_time`, `created_by`, `updated_by`) VALUES
 (1,	'dev',	'cn-wuhan',	'武汉',	'cn-wuhan-guanggu-f1',	'武汉光谷F1区',	1675836887,	1675836887,	0,	0);
 
--- 2023-02-08 06:14:47
+-- 2023-02-21 03:31:39

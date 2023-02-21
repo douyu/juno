@@ -21,6 +21,7 @@ export const PanelTypes = [
   { title: 'Grafana', val: 'grafana' },
   { title: 'Pyroscope', val: 'pyroscope' },
   { title: 'AliTrace', val: 'alitrace' },
+  { title: 'Jaeger', val: 'jaeger' },
 ];
 
 function ModalCreateResource(props: ModalCreateResourceInterface) {
