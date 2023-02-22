@@ -18,8 +18,9 @@
 [![jaeger](/docs/img/jaeger.png)](https://github.com/douyu/juno)
 ### [Monitor Dashboard]()
 -----
+Profile dashboard of app
+[![monitorpyroscope](/docs/img/monitorpyroscope.png)](https://github.com/douyu/juno)
 Overview metrics of app
-
 [![monitoroverview](/docs/img/monitoroverview.png)](https://github.com/douyu/juno)
 Instance metrics of app
 [![monitorinstance](/docs/img/monitorinstance.png)](https://github.com/douyu/juno)

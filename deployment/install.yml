@@ -204,7 +204,7 @@ data:
     \ PRIMARY KEY (`cache_key`),\n  UNIQUE KEY `UQE_cache_data_cache_key` (`cache_key`)\n)
     ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nINSERT INTO
     `cache_data` (`cache_key`, `data`, `expires`, `created_at`) VALUES\n('auth-proxy-sync-ttl:324a6bd28d83d94f7081447a94746b34',\t'
-    ��\x03\x01\x01\\ncachedItem\x01��\\0\x01\x01\x01\x03Val\x01\x10\\0\\0\\0\x0E��\x01\x05int64\x04\x02\\0\x02\\0',\t3600,\t1676892382);\n\nDROP
+    ��\x03\x01\x01\\ncachedItem\x01��\\0\x01\x01\x01\x03Val\x01\x10\\0\\0\\0\x0E��\x01\x05int64\x04\x02\\0\x02\\0',\t3600,\t1677048651);\n\nDROP
     TABLE IF EXISTS `correlation`;\nCREATE TABLE `correlation` (\n  `uid` varchar(40)
     COLLATE utf8mb4_unicode_ci NOT NULL,\n  `source_uid` varchar(40) COLLATE utf8mb4_unicode_ci
     NOT NULL,\n  `target_uid` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n
@@ -513,7 +513,14 @@ data:
     by (type,instance)\\\",\\\"interval\\\":\\\"\\\",\\\"legendFormat\\\":\\\"{{type}}
     - {{instance}}\\\",\\\"refId\\\":\\\"A\\\"}],\\\"title\\\":\\\"Counter\\\",\\\"type\\\":\\\"timeseries\\\"},{\\\"datasource\\\":{\\\"type\\\":\\\"prometheus\\\",\\\"uid\\\":\\\"${datasource}\\\"},\\\"fieldConfig\\\":{\\\"defaults\\\":{\\\"color\\\":{\\\"mode\\\":\\\"palette-classic\\\"},\\\"custom\\\":{\\\"axisCenteredZero\\\":false,\\\"axisColorMode\\\":\\\"text\\\",\\\"axisLabel\\\":\\\"\\\",\\\"axisPlacement\\\":\\\"auto\\\",\\\"barAlignment\\\":0,\\\"drawStyle\\\":\\\"line\\\",\\\"fillOpacity\\\":0,\\\"gradientMode\\\":\\\"none\\\",\\\"hideFrom\\\":{\\\"legend\\\":false,\\\"tooltip\\\":false,\\\"viz\\\":false},\\\"lineInterpolation\\\":\\\"linear\\\",\\\"lineWidth\\\":1,\\\"pointSize\\\":5,\\\"scaleDistribution\\\":{\\\"type\\\":\\\"linear\\\"},\\\"showPoints\\\":\\\"auto\\\",\\\"spanNulls\\\":false,\\\"stacking\\\":{\\\"group\\\":\\\"A\\\",\\\"mode\\\":\\\"none\\\"},\\\"thresholdsStyle\\\":{\\\"mode\\\":\\\"off\\\"}},\\\"mappings\\\":[],\\\"thresholds\\\":{\\\"mode\\\":\\\"absolute\\\",\\\"steps\\\":[{\\\"color\\\":\\\"green\\\",\\\"value\\\":null},{\\\"color\\\":\\\"red\\\",\\\"value\\\":80}]}},\\\"overrides\\\":[]},\\\"gridPos\\\":{\\\"h\\\":9,\\\"w\\\":8,\\\"x\\\":16,\\\"y\\\":0},\\\"id\\\":4,\\\"options\\\":{\\\"legend\\\":{\\\"calcs\\\":[],\\\"displayMode\\\":\\\"list\\\",\\\"placement\\\":\\\"bottom\\\",\\\"showLegend\\\":true},\\\"tooltip\\\":{\\\"mode\\\":\\\"single\\\",\\\"sort\\\":\\\"none\\\"}},\\\"targets\\\":[{\\\"datasource\\\":{\\\"type\\\":\\\"prometheus\\\",\\\"uid\\\":\\\"${datasource}\\\"},\\\"exemplar\\\":true,\\\"expr\\\":\\\"avg(histogram_quantile(0.99,rate(customized_handle_seconds_bucket{job=\\\\\\\"$appname\\\\\\\",instance=~\\\\\\\"$instance\\\\\\\"}[$interval])\\\\u003e0)*1000)by(type,instance)\\\",\\\"interval\\\":\\\"\\\",\\\"legendFormat\\\":\\\"{{type}}
     - {{instance}}\\\",\\\"refId\\\":\\\"A\\\"}],\\\"title\\\":\\\"Histogram\\\",\\\"type\\\":\\\"timeseries\\\"}],\\\"refresh\\\":\\\"\\\",\\\"schemaVersion\\\":37,\\\"style\\\":\\\"dark\\\",\\\"tags\\\":[],\\\"templating\\\":{\\\"list\\\":[{\\\"auto\\\":false,\\\"auto_count\\\":30,\\\"auto_min\\\":\\\"10s\\\",\\\"current\\\":{\\\"selected\\\":false,\\\"text\\\":\\\"1m\\\",\\\"value\\\":\\\"1m\\\"},\\\"hide\\\":0,\\\"name\\\":\\\"interval\\\",\\\"options\\\":[{\\\"selected\\\":true,\\\"text\\\":\\\"1m\\\",\\\"value\\\":\\\"1m\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"10m\\\",\\\"value\\\":\\\"10m\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"30m\\\",\\\"value\\\":\\\"30m\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"1h\\\",\\\"value\\\":\\\"1h\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"6h\\\",\\\"value\\\":\\\"6h\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"12h\\\",\\\"value\\\":\\\"12h\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"1d\\\",\\\"value\\\":\\\"1d\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"7d\\\",\\\"value\\\":\\\"7d\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"14d\\\",\\\"value\\\":\\\"14d\\\"},{\\\"selected\\\":false,\\\"text\\\":\\\"30d\\\",\\\"value\\\":\\\"30d\\\"}],\\\"query\\\":\\\"1m,10m,30m,1h,6h,12h,1d,7d,14d,30d\\\",\\\"refresh\\\":2,\\\"skipUrlSync\\\":false,\\\"type\\\":\\\"interval\\\"},{\\\"current\\\":{\\\"isNone\\\":true,\\\"selected\\\":false,\\\"text\\\":\\\"None\\\",\\\"value\\\":\\\"\\\"},\\\"datasource\\\":{\\\"type\\\":\\\"prometheus\\\",\\\"uid\\\":\\\"${datasource}\\\"},\\\"definition\\\":\\\"label_values(build_info{},name)\\\",\\\"hide\\\":2,\\\"includeAll\\\":false,\\\"multi\\\":false,\\\"name\\\":\\\"appname\\\",\\\"options\\\":[],\\\"query\\\":{\\\"query\\\":\\\"label_values(build_info{},name)\\\",\\\"refId\\\":\\\"StandardVariableQuery\\\"},\\\"refresh\\\":1,\\\"regex\\\":\\\"\\\",\\\"skipUrlSync\\\":false,\\\"sort\\\":0,\\\"type\\\":\\\"query\\\"},{\\\"current\\\":{\\\"selected\\\":false,\\\"text\\\":\\\"All\\\",\\\"value\\\":\\\"$__all\\\"},\\\"datasource\\\":{\\\"type\\\":\\\"prometheus\\\",\\\"uid\\\":\\\"${datasource}\\\"},\\\"definition\\\":\\\"label_values(build_info{name=\\'$appname\\'},instance)\\\",\\\"hide\\\":0,\\\"includeAll\\\":true,\\\"multi\\\":false,\\\"name\\\":\\\"instance\\\",\\\"options\\\":[],\\\"query\\\":{\\\"query\\\":\\\"label_values(build_info{name=\\'$appname\\'},instance)\\\",\\\"refId\\\":\\\"StandardVariableQuery\\\"},\\\"refresh\\\":1,\\\"regex\\\":\\\"\\\",\\\"skipUrlSync\\\":false,\\\"sort\\\":0,\\\"type\\\":\\\"query\\\"},{\\\"current\\\":{\\\"selected\\\":false,\\\"text\\\":\\\"dev.BJ-BG-18.v1.7.x~v1.8.x\\\",\\\"value\\\":\\\"dev.BJ-BG-18.v1.7.x~v1.8.x\\\"},\\\"hide\\\":2,\\\"includeAll\\\":false,\\\"label\\\":\\\"机房\\\",\\\"multi\\\":false,\\\"name\\\":\\\"datasource\\\",\\\"options\\\":[],\\\"query\\\":\\\"prometheus\\\",\\\"refresh\\\":1,\\\"regex\\\":\\\"\\\",\\\"skipUrlSync\\\":false,\\\"type\\\":\\\"datasource\\\"}]},\\\"time\\\":{\\\"from\\\":\\\"now-30m\\\",\\\"to\\\":\\\"now\\\"},\\\"timepicker\\\":{},\\\"timezone\\\":\\\"\\\",\\\"title\\\":\\\"自定义\\\",\\\"uid\\\":\\\"customize\\\",\\\"version\\\":2,\\\"weekStart\\\":\\\"\\\"}',\t1,\t'2023-02-20
-    11:21:57',\t'2023-02-20 11:22:09',\t1,\t1,\t0,\t'',\t4,\t0,\t0,\t'customize',\t0);\n\nDROP
+    11:21:57',\t'2023-02-20 11:22:09',\t1,\t1,\t0,\t'',\t4,\t0,\t0,\t'customize',\t0),\n(14,\t2,\t'pyroscope',\t'pyroscope',\t'{\\\"annotations\\\":{\\\"list\\\":[{\\\"builtIn\\\":1,\\\"datasource\\\":{\\\"type\\\":\\\"datasource\\\",\\\"uid\\\":\\\"grafana\\\"},\\\"enable\\\":true,\\\"hide\\\":true,\\\"iconColor\\\":\\\"rgba(0,
+    211, 255, 1)\\\",\\\"name\\\":\\\"Annotations \\\\u0026 Alerts\\\",\\\"target\\\":{\\\"limit\\\":100,\\\"matchAny\\\":false,\\\"tags\\\":[],\\\"type\\\":\\\"dashboard\\\"},\\\"type\\\":\\\"dashboard\\\"}]},\\\"editable\\\":true,\\\"fiscalYearStartMonth\\\":0,\\\"graphTooltip\\\":0,\\\"id\\\":14,\\\"links\\\":[],\\\"liveNow\\\":true,\\\"panels\\\":[{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"gridPos\\\":{\\\"h\\\":9,\\\"w\\\":12,\\\"x\\\":0,\\\"y\\\":0},\\\"id\\\":4,\\\"options\\\":{\\\"display\\\":\\\"flamegraph\\\",\\\"displayOnly\\\":\\\"flamegraph\\\",\\\"showToolbar\\\":false},\\\"targets\\\":[{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"format\\\":\\\"json\\\",\\\"from\\\":\\\"now-1h\\\",\\\"name\\\":\\\"${appname}.cpu\\\",\\\"query\\\":\\\"${appname}.cpu\\\",\\\"refId\\\":\\\"A\\\",\\\"until\\\":\\\"now\\\"}],\\\"title\\\":\\\"CPU
+    \\\",\\\"type\\\":\\\"pyroscope-panel\\\"},{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"gridPos\\\":{\\\"h\\\":9,\\\"w\\\":12,\\\"x\\\":12,\\\"y\\\":0},\\\"id\\\":14,\\\"options\\\":{\\\"display\\\":\\\"flamegraph\\\",\\\"displayOnly\\\":\\\"flamegraph\\\",\\\"showToolbar\\\":false},\\\"targets\\\":[{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"format\\\":\\\"json\\\",\\\"from\\\":\\\"now-1h\\\",\\\"hide\\\":true,\\\"name\\\":\\\"${appname}.goroutine\\\",\\\"query\\\":\\\"${appname}.goroutine\\\",\\\"refId\\\":\\\"A\\\",\\\"until\\\":\\\"now\\\"}],\\\"title\\\":\\\"goroutine\\\",\\\"type\\\":\\\"pyroscope-panel\\\"},{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"gridPos\\\":{\\\"h\\\":8,\\\"w\\\":12,\\\"x\\\":0,\\\"y\\\":9},\\\"id\\\":7,\\\"options\\\":{\\\"display\\\":\\\"flamegraph\\\",\\\"displayOnly\\\":\\\"flamegraph\\\",\\\"showToolbar\\\":false},\\\"targets\\\":[{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"format\\\":\\\"json\\\",\\\"from\\\":\\\"now-1h\\\",\\\"name\\\":\\\"${appname}.inuse_objects\\\",\\\"query\\\":\\\"${appname}.inuse_objects\\\",\\\"refId\\\":\\\"A\\\",\\\"until\\\":\\\"now\\\"}],\\\"title\\\":\\\"Inuse
+    Objects\\\",\\\"type\\\":\\\"pyroscope-panel\\\"},{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"gridPos\\\":{\\\"h\\\":8,\\\"w\\\":12,\\\"x\\\":12,\\\"y\\\":9},\\\"id\\\":8,\\\"options\\\":{\\\"display\\\":\\\"flamegraph\\\",\\\"displayOnly\\\":\\\"flamegraph\\\",\\\"showToolbar\\\":false},\\\"targets\\\":[{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"format\\\":\\\"json\\\",\\\"from\\\":\\\"now-1h\\\",\\\"hide\\\":true,\\\"name\\\":\\\"${appname}.inuse_space\\\",\\\"query\\\":\\\"${appname}.inuse_space\\\",\\\"refId\\\":\\\"A\\\",\\\"until\\\":\\\"now\\\"}],\\\"title\\\":\\\"Inuse
+    Space\\\",\\\"type\\\":\\\"pyroscope-panel\\\"},{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"gridPos\\\":{\\\"h\\\":8,\\\"w\\\":12,\\\"x\\\":0,\\\"y\\\":17},\\\"id\\\":10,\\\"options\\\":{\\\"display\\\":\\\"flamegraph\\\",\\\"displayOnly\\\":\\\"flamegraph\\\",\\\"showToolbar\\\":false},\\\"targets\\\":[{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"format\\\":\\\"json\\\",\\\"from\\\":\\\"now-1h\\\",\\\"hide\\\":true,\\\"name\\\":\\\"${appname}.alloc_objects\\\",\\\"query\\\":\\\"${appname}.alloc_objects\\\",\\\"refId\\\":\\\"A\\\",\\\"until\\\":\\\"now\\\"}],\\\"title\\\":\\\"Alloc
+    Objects\\\",\\\"type\\\":\\\"pyroscope-panel\\\"},{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"gridPos\\\":{\\\"h\\\":8,\\\"w\\\":12,\\\"x\\\":12,\\\"y\\\":17},\\\"id\\\":12,\\\"options\\\":{\\\"display\\\":\\\"flamegraph\\\",\\\"displayOnly\\\":\\\"flamegraph\\\",\\\"showToolbar\\\":false},\\\"targets\\\":[{\\\"datasource\\\":{\\\"type\\\":\\\"pyroscope-datasource\\\",\\\"uid\\\":\\\"${pydatasource}\\\"},\\\"format\\\":\\\"json\\\",\\\"from\\\":\\\"now-1h\\\",\\\"name\\\":\\\"${appname}.alloc_space\\\",\\\"query\\\":\\\"${appname}.alloc_space\\\",\\\"refId\\\":\\\"A\\\",\\\"until\\\":\\\"now\\\"}],\\\"title\\\":\\\"Alloc
+    Space\\\",\\\"type\\\":\\\"pyroscope-panel\\\"}],\\\"refresh\\\":\\\"\\\",\\\"schemaVersion\\\":37,\\\"style\\\":\\\"dark\\\",\\\"tags\\\":[],\\\"templating\\\":{\\\"list\\\":[{\\\"current\\\":{\\\"selected\\\":false,\\\"text\\\":\\\"dev.BJ-BG-18.v1.7.x~v1.8.x\\\",\\\"value\\\":\\\"dev.BJ-BG-18.v1.7.x~v1.8.x\\\"},\\\"hide\\\":2,\\\"includeAll\\\":false,\\\"label\\\":\\\"机房\\\",\\\"multi\\\":false,\\\"name\\\":\\\"datasource\\\",\\\"options\\\":[],\\\"query\\\":\\\"prometheus\\\",\\\"queryValue\\\":\\\"live\\\",\\\"refresh\\\":1,\\\"regex\\\":\\\"\\\",\\\"skipUrlSync\\\":false,\\\"type\\\":\\\"datasource\\\"},{\\\"current\\\":{\\\"selected\\\":false,\\\"text\\\":\\\"dev.HB-WHYL.v1.7.x~v1.8.x.pyroscope\\\",\\\"value\\\":\\\"dev.HB-WHYL.v1.7.x~v1.8.x.pyroscope\\\"},\\\"hide\\\":2,\\\"includeAll\\\":false,\\\"label\\\":\\\"数据源\\\",\\\"multi\\\":false,\\\"name\\\":\\\"pydatasource\\\",\\\"options\\\":[],\\\"query\\\":\\\"pyroscope-datasource\\\",\\\"queryValue\\\":\\\"\\\",\\\"refresh\\\":1,\\\"regex\\\":\\\"\\\",\\\"skipUrlSync\\\":false,\\\"type\\\":\\\"datasource\\\"},{\\\"current\\\":{\\\"selected\\\":false,\\\"text\\\":\\\"grafana\\\",\\\"value\\\":\\\"grafana\\\"},\\\"datasource\\\":{\\\"type\\\":\\\"prometheus\\\",\\\"uid\\\":\\\"${datasource}\\\"},\\\"definition\\\":\\\"label_values(go_info{},job)\\\",\\\"hide\\\":0,\\\"includeAll\\\":false,\\\"label\\\":\\\"应用名\\\",\\\"multi\\\":false,\\\"name\\\":\\\"appname\\\",\\\"options\\\":[],\\\"query\\\":{\\\"query\\\":\\\"label_values(go_info{},job)\\\",\\\"refId\\\":\\\"StandardVariableQuery\\\"},\\\"refresh\\\":1,\\\"regex\\\":\\\"\\\",\\\"skipUrlSync\\\":false,\\\"sort\\\":0,\\\"type\\\":\\\"query\\\"}]},\\\"time\\\":{\\\"from\\\":\\\"now-30m\\\",\\\"to\\\":\\\"now\\\"},\\\"timepicker\\\":{},\\\"timezone\\\":\\\"\\\",\\\"title\\\":\\\"pyroscope\\\",\\\"uid\\\":\\\"pyroscope\\\",\\\"version\\\":2,\\\"weekStart\\\":\\\"\\\"}',\t1,\t'2023-02-22
+    06:53:42',\t'2023-02-22 06:55:34',\t1,\t1,\t0,\t'',\t4,\t0,\t0,\t'pyroscope',\t0);\n\nDROP
     TABLE IF EXISTS `dashboard_acl`;\nCREATE TABLE `dashboard_acl` (\n  `id` bigint(20)
     NOT NULL AUTO_INCREMENT,\n  `org_id` bigint(20) NOT NULL,\n  `dashboard_id` bigint(20)
     NOT NULL,\n  `user_id` bigint(20) DEFAULT NULL,\n  `team_id` bigint(20) DEFAULT
@@ -571,7 +578,7 @@ data:
     text COLLATE utf8mb4_unicode_ci NOT NULL,\n  `data` mediumtext COLLATE utf8mb4_unicode_ci,\n
     \ PRIMARY KEY (`id`),\n  UNIQUE KEY `UQE_dashboard_version_dashboard_id_version`
     (`dashboard_id`,`version`),\n  KEY `IDX_dashboard_version_dashboard_id` (`dashboard_id`)\n)
-    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nDROP TABLE
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\n\nDROP TABLE
     IF EXISTS `data_keys`;\nCREATE TABLE `data_keys` (\n  `name` varchar(100) COLLATE
     utf8mb4_unicode_ci NOT NULL,\n  `active` tinyint(1) NOT NULL,\n  `scope` varchar(30)
     COLLATE utf8mb4_unicode_ci NOT NULL,\n  `provider` varchar(50) COLLATE utf8mb4_unicode_ci
@@ -579,7 +586,8 @@ data:
     \ `updated` datetime NOT NULL,\n  `label` varchar(100) COLLATE utf8mb4_unicode_ci
     DEFAULT NULL,\n  PRIMARY KEY (`name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     COLLATE=utf8mb4_unicode_ci;\n\nINSERT INTO `data_keys` (`name`, `active`, `scope`,
-    `provider`, `encrypted_data`, `created`, `updated`, `label`) VALUES\n('yxSDKTJVz',\t1,\t'root',\t'secretKey.v1',\t'*YWVzLWNmYg*yzOfhYhY���KOC~\x06����\x01�\tq�6��d\x01\\Z\\'d�\x17���',\t'2023-02-16
+    `provider`, `encrypted_data`, `created`, `updated`, `label`) VALUES\n('vQyAE314z',\t1,\t'root',\t'secretKey.v1',\t'*YWVzLWNmYg*sXhIV7ss\f{Ɉ�3�����;�?[�\aB���L\x01nm�\\r�jqk�',\t'2023-02-22
+    06:51:31',\t'2023-02-22 06:51:31',\t'2023-02-22/root@secretKey.v1'),\n('yxSDKTJVz',\t1,\t'root',\t'secretKey.v1',\t'*YWVzLWNmYg*yzOfhYhY���KOC~\x06����\x01�\tq�6��d\x01\\Z\\'d�\x17���',\t'2023-02-16
     07:46:34',\t'2023-02-16 07:46:34',\t'2023-02-16/root@secretKey.v1');\n\nDROP TABLE
     IF EXISTS `data_source`;\nCREATE TABLE `data_source` (\n  `id` bigint(20) NOT
     NULL AUTO_INCREMENT,\n  `org_id` bigint(20) NOT NULL,\n  `version` int(11) NOT
@@ -604,7 +612,8 @@ data:
     `json_data`, `created`, `updated`, `with_credentials`, `secure_json_data`, `read_only`,
     `uid`) VALUES\n(1,\t1,\t1,\t'prometheus',\t'Prometheus',\t'proxy',\t'',\t'',\t'',\t'',\t0,\t'',\t'',\t1,\t'{}',\t'2023-02-16
     07:46:34',\t'2023-02-16 07:46:34',\t0,\t'{}',\t0,\t'xbIDKTJVk'),\n(2,\t1,\t3,\t'prometheus',\t'dev.cn-wuhan-guanggu-f1.jupiter1.0',\t'proxy',\t'http://prometheus:9090',\t'',\t'',\t'',\t0,\t'',\t'',\t0,\t'{\\\"httpMethod\\\":\\\"POST\\\"}',\t'2023-02-16
-    07:46:38',\t'2023-02-16 07:47:55',\t0,\t'{}',\t0,\t'S7FvKoJVz');\n\nDROP TABLE
+    07:46:38',\t'2023-02-16 07:47:55',\t0,\t'{}',\t0,\t'S7FvKoJVz'),\n(3,\t1,\t3,\t'pyroscope-datasource',\t'dev.cn-wuhan-guanggu-f1.jupiter1.0.pyroscope',\t'proxy',\t'',\t'',\t'',\t'',\t0,\t'',\t'',\t0,\t'{\\\"httpMethod\\\":\\\"POST\\\",\\\"path\\\":\\\"http://pyroscope:4040\\\"}',\t'2023-02-22
+    06:51:31',\t'2023-02-22 06:51:54',\t0,\t'{}',\t0,\t'Mwy0Eq14z');\n\nDROP TABLE
     IF EXISTS `entity_event`;\nCREATE TABLE `entity_event` (\n  `id` bigint(20) NOT
     NULL AUTO_INCREMENT,\n  `entity_id` varchar(1024) COLLATE utf8mb4_unicode_ci NOT
     NULL,\n  `event_type` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `created`
@@ -2162,7 +2171,12 @@ data:
     11:21:57',\t'2023-02-20 11:21:57'),\n(103,\t1,\t'dashboards:delete',\t'dashboards:uid:customize',\t'2023-02-20
     11:21:57',\t'2023-02-20 11:21:57'),\n(104,\t1,\t'dashboards.permissions:read',\t'dashboards:uid:customize',\t'2023-02-20
     11:21:57',\t'2023-02-20 11:21:57'),\n(105,\t1,\t'dashboards.permissions:write',\t'dashboards:uid:customize',\t'2023-02-20
-    11:21:57',\t'2023-02-20 11:21:57');\n\nDROP TABLE IF EXISTS `playlist`;\nCREATE
+    11:21:57',\t'2023-02-20 11:21:57'),\n(106,\t1,\t'dashboards:read',\t'dashboards:uid:pyroscope',\t'2023-02-22
+    06:53:42',\t'2023-02-22 06:53:42'),\n(107,\t1,\t'dashboards:write',\t'dashboards:uid:pyroscope',\t'2023-02-22
+    06:53:42',\t'2023-02-22 06:53:42'),\n(108,\t1,\t'dashboards:delete',\t'dashboards:uid:pyroscope',\t'2023-02-22
+    06:53:42',\t'2023-02-22 06:53:42'),\n(109,\t1,\t'dashboards.permissions:read',\t'dashboards:uid:pyroscope',\t'2023-02-22
+    06:53:42',\t'2023-02-22 06:53:42'),\n(110,\t1,\t'dashboards.permissions:write',\t'dashboards:uid:pyroscope',\t'2023-02-22
+    06:53:42',\t'2023-02-22 06:53:42');\n\nDROP TABLE IF EXISTS `playlist`;\nCREATE
     TABLE `playlist` (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `name` varchar(255)
     COLLATE utf8mb4_unicode_ci NOT NULL,\n  `interval` varchar(255) COLLATE utf8mb4_unicode_ci
     NOT NULL,\n  `org_id` bigint(20) NOT NULL,\n  `uid` varchar(80) COLLATE utf8mb4_unicode_ci
@@ -2242,7 +2256,8 @@ data:
     INTO `secrets` (`id`, `org_id`, `namespace`, `type`, `value`, `created`, `updated`)
     VALUES\n(1,\t1,\t'Prometheus',\t'datasource',\t'I2VYaFRSRXRVU2xaNiMqWVdWekxXTm1ZZyowRzViSGNLR+OGfdfRJpWOw/T8bfNU+nxvvdK4',\t'2023-02-16
     07:46:34',\t'2023-02-16 07:46:34'),\n(2,\t1,\t'dev.cn-wuhan-guanggu-f1.jupiter1.0',\t'datasource',\t'I2VYaFRSRXRVU2xaNiMqWVdWekxXTm1ZZypEOFFYV3dvN9TAMOpFmgWAWs6on8qdTmx4lw',\t'2023-02-16
-    07:46:38',\t'2023-02-16 07:47:55');\n\nDROP TABLE IF EXISTS `seed_assignment`;\nCREATE
+    07:46:38',\t'2023-02-16 07:47:55'),\n(3,\t1,\t'dev.cn-wuhan-guanggu-f1.jupiter1.0.pyroscope',\t'datasource',\t'I2RsRjVRVVV6TVRSNiMqWVdWekxXTm1ZZyp2bkFKSlZhY4iRneKu51z+hBqNIAfZAL0L7g',\t'2023-02-22
+    06:51:31',\t'2023-02-22 06:51:54');\n\nDROP TABLE IF EXISTS `seed_assignment`;\nCREATE
     TABLE `seed_assignment` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `builtin_role`
     varchar(190) COLLATE utf8mb4_unicode_ci NOT NULL,\n  `role_name` varchar(190)
     COLLATE utf8mb4_unicode_ci DEFAULT NULL,\n  `action` varchar(190) COLLATE utf8mb4_unicode_ci
@@ -2256,7 +2271,7 @@ data:
     NULL,\n  PRIMARY KEY (`id`),\n  UNIQUE KEY `UQE_server_lock_operation_uid` (`operation_uid`)\n)
     ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nINSERT INTO
     `server_lock` (`id`, `operation_uid`, `version`, `last_execution`) VALUES\n(2,\t'cleanup
-    expired auth tokens',\t2,\t1676885059),\n(3,\t'delete old login attempts',\t22,\t1676892859);\n\nDROP
+    expired auth tokens',\t4,\t1677022826),\n(3,\t'delete old login attempts',\t141,\t1677051026);\n\nDROP
     TABLE IF EXISTS `session`;\nCREATE TABLE `session` (\n  `key` char(16) COLLATE
     utf8mb4_unicode_ci NOT NULL,\n  `data` blob NOT NULL,\n  `expiry` int(255) NOT
     NULL,\n  PRIMARY KEY (`key`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\n\nDROP
@@ -2331,7 +2346,7 @@ data:
     `user` (`id`, `version`, `login`, `email`, `name`, `password`, `salt`, `rands`,
     `company`, `org_id`, `is_admin`, `email_verified`, `theme`, `created`, `updated`,
     `help_flags1`, `last_seen_at`, `is_disabled`, `is_service_account`) VALUES\n(1,\t0,\t'admin',\t'admin@localhost',\t'',\t'4afa09586c5fcf6bde350c256562d7d49f939ace3e0b6796ba0f7bc4e718bd3057751a4c38eb42fe388ecd81d718f40c2a9d',\t'PEiBMkovci',\t'MCFDduOlZh',\t'',\t1,\t1,\t0,\t'',\t'2023-02-16
-    06:32:39',\t'2023-02-16 06:32:39',\t0,\t'2023-02-20 11:33:20',\t0,\t0);\n\nDROP
+    06:32:39',\t'2023-02-16 06:32:39',\t0,\t'2023-02-22 07:32:03',\t0,\t0);\n\nDROP
     TABLE IF EXISTS `user_auth`;\nCREATE TABLE `user_auth` (\n  `id` bigint(20) NOT
     NULL AUTO_INCREMENT,\n  `user_id` bigint(20) NOT NULL,\n  `auth_module` varchar(190)
     COLLATE utf8mb4_unicode_ci NOT NULL,\n  `auth_id` varchar(190) COLLATE utf8mb4_unicode_ci
@@ -2343,8 +2358,8 @@ data:
     \ KEY `IDX_user_auth_user_id` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     COLLATE=utf8mb4_unicode_ci;\n\nINSERT INTO `user_auth` (`id`, `user_id`, `auth_module`,
     `auth_id`, `created`, `o_auth_access_token`, `o_auth_refresh_token`, `o_auth_token_type`,
-    `o_auth_expiry`, `o_auth_id_token`) VALUES\n(1,\t1,\t'authproxy',\t'admin',\t'2023-02-20
-    11:26:22',\t'',\t'',\t'',\tNULL,\t'');\n\nDROP TABLE IF EXISTS `user_auth_token`;\nCREATE
+    `o_auth_expiry`, `o_auth_id_token`) VALUES\n(1,\t1,\t'authproxy',\t'admin',\t'2023-02-22
+    06:50:51',\t'',\t'',\t'',\tNULL,\t'');\n\nDROP TABLE IF EXISTS `user_auth_token`;\nCREATE
     TABLE `user_auth_token` (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `user_id`
     bigint(20) NOT NULL,\n  `auth_token` varchar(100) COLLATE utf8mb4_unicode_ci NOT
     NULL,\n  `prev_auth_token` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,\n
@@ -2362,8 +2377,8 @@ data:
     (`org_id`,`user_id`,`role_id`),\n  KEY `IDX_user_role_org_id` (`org_id`),\n  KEY
     `IDX_user_role_user_id` (`user_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nINSERT
     INTO `user_role` (`id`, `org_id`, `user_id`, `role_id`, `created`) VALUES\n(1,\t1,\t1,\t1,\t'2023-02-16
-    07:45:32');\n\n-- 2023-02-20 11:35:19"
-  juno.sql: "-- Adminer 4.8.1 MySQL 5.7.41 dump\n\nSET NAMES utf8;\nSET time_zone
+    07:45:32');\n\n-- 2023-02-22 07:33:45"
+  juno.sql: "-- Adminer 4.8.1 MySQL 5.7.36 dump\n\nSET NAMES utf8;\nSET time_zone
     = '+00:00';\nSET foreign_key_checks = 0;\nSET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';\n\nSET
     NAMES utf8mb4;\n\nDROP DATABASE IF EXISTS `juno`;\nCREATE DATABASE `juno` /*!40100
     DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin */;\nUSE `juno`;\n\nDROP TABLE
@@ -2575,28 +2590,84 @@ data:
     DEFAULT NULL,\n  `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3)
     DEFAULT NULL,\n  `published_at` datetime(3) DEFAULT NULL,\n  `lock_uid` bigint(20)
     unsigned DEFAULT NULL,\n  `lock_at` datetime(3) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n)
-    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF
-    EXISTS `configuration_cluster_status`;\nCREATE TABLE `configuration_cluster_status`
+    ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `configuration`
+    (`id`, `aid`, `name`, `content`, `format`, `env`, `zone`, `version`, `created_at`,
+    `access_token_id`, `uid`, `updated_at`, `deleted_at`, `published_at`, `lock_uid`,
+    `lock_at`) VALUES\n(1,\t3,\t'config-k8s',\t'[jupiter]\\n  mode=\\\"local-k8s\\\"\\n
+    \ [jupiter.registry.default]\\n    endpoints=[\\\"etcd:2379\\\"]\\n    timeout=\\\"3s\\\"\\n\\n
+    \ [jupiter.logger.default]\\n    # debug = true\\n    level=\\\"info\\\"\\n    dir=\\\"./logs/\\\"\\n
+    \ [jupiter.logger.jupiter]\\n    # debug = true\\n    level=\\\"info\\\"\\n    dir=\\\"./logs/\\\"\\n\\n
+    \ [jupiter.trace.jaeger]\\n    endpoint=\\\"http://jaeger:14268/api/traces\\\"\\n
+    \   sampler=1\\n# [jupiter.trace.otelgrpc]\\n#     endpoint = \\\"localhost:4317\\\"\\n#
+    \    sampler = 1\\n[jupiter.server]\\n  [jupiter.server.http]\\n    port=9527\\n
+    \ [jupiter.server.grpc]\\n    port=9528\\n  [jupiter.server.govern]\\n    port=9529\\n\\n[jupiter.grpc]\\n
+    \ [jupiter.grpc.example]\\n    addr=\\\"127.0.0.1:9528\\\"\\n    timeout=\\\"3s\\\"\\n
+    \ [jupiter.mysql.example]\\n    dsn=\\\"root:root@tcp(db:3306)/mysql?timeout=20s&readTimeout=20s\\\"\\n
+    \   debug=true\\n    maxIdleConns=50\\n    connMaxLifeTime=\\\"20m\\\"\\n    level=\\\"panic\\\"\\n
+    \   slowThreshold=\\\"400ms\\\"\\n    dialTimeout=\\\"1s\\\"\\n  [jupiter.rocketmq.example]\\n
+    \   [jupiter.rocketmq.example.consumer]\\n      enable=true\\n      addr=[\\\"namesrv:9876\\\"]\\n
+    \     group=\\\"testGroup\\\"\\n      dialTimeout=\\\"3s\\\"\\n      rwTimeout=\\\"3s\\\"\\n
+    \     topic=\\\"DefaultCluster\\\"\\n      subExpression=\\\"*\\\"\\n      rate=100\\n
+    \     enableTrace=true\\n    [jupiter.rocketmq.example.producer]\\n      group=\\\"testGroup\\\"\\n
+    \     addr=[\\\"namesrv:9876\\\"]\\n      dialTimeout=\\\"3s\\\"\\n      rwTimeout=\\\"3s\\\"\\n
+    \     topic=\\\"DefaultCluster\\\"\\n      enableTrace=true\\n\\n[jupiter.resty.example]\\n
+    \ addr=\\\"http://127.0.0.1:9527\\\"\\n\\n[jupiter.redis.example]\\n  [jupiter.redis.example.stub]\\n
+    \   debug=false\\n    maxIdle=10\\n    maxActive=50\\n    dialTimeout=\\\"2s\\\"\\n
+    \   readTimeout=\\\"2s\\\"\\n    idleTimeout=\\\"60s\\\"\\n    enableAccessLog=false\\n
+    \   [jupiter.redis.example.stub.master]\\n      addr=\\\"redis://@redis:6379\\\"\\n
+    \   [jupiter.redis.example.stub.slaves]\\n      addr=[\\\"redis://@redis:6379\\\"]\\n',\t'toml',\t'dev',\t'cn-wuhan-guanggu-f1',\t'e0549cc536dce8024a06b94e031ba227',\t'2023-02-22
+    00:56:54.631',\t0,\t1,\t'2023-02-22 00:57:21.998',\tNULL,\tNULL,\t0,\tNULL);\n\nDROP
+    TABLE IF EXISTS `configuration_cluster_status`;\nCREATE TABLE `configuration_cluster_status`
     (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `configuration_id` bigint(20)
     unsigned DEFAULT NULL,\n  `configuration_publish_id` bigint(20) unsigned DEFAULT
     NULL,\n  `cluster_name` longtext COLLATE utf8mb4_bin,\n  `used` bigint(20) unsigned
     DEFAULT NULL,\n  `synced` bigint(20) unsigned DEFAULT NULL,\n  `take_effect` bigint(20)
     unsigned DEFAULT NULL,\n  `created_at` datetime(3) DEFAULT NULL,\n  `update_at`
     datetime(3) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `configuration_history`;\nCREATE
-    TABLE `configuration_history` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
+    COLLATE=utf8mb4_bin;\n\nINSERT INTO `configuration_cluster_status` (`id`, `configuration_id`,
+    `configuration_publish_id`, `cluster_name`, `used`, `synced`, `take_effect`, `created_at`,
+    `update_at`) VALUES\n(1,\t1,\t1,\t'开发测试集群',\t0,\t0,\t0,\t'2023-02-22 00:57:23.436',\t'2023-02-22
+    00:57:23.436'),\n(2,\t1,\t2,\t'开发测试集群',\t0,\t0,\t0,\t'2023-02-22 01:12:14.560',\t'2023-02-22
+    01:12:14.560');\n\nDROP TABLE IF EXISTS `configuration_history`;\nCREATE TABLE
+    `configuration_history` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
     \ `access_token_id` bigint(20) unsigned DEFAULT NULL,\n  `uid` bigint(20) unsigned
     DEFAULT NULL,\n  `configuration_id` bigint(20) unsigned DEFAULT NULL,\n  `change_log`
     longtext COLLATE utf8mb4_bin,\n  `content` longtext COLLATE utf8mb4_bin,\n  `version`
     varchar(50) COLLATE utf8mb4_bin DEFAULT NULL,\n  `created_at` datetime(3) DEFAULT
     NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB
-    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `configuration_publish`;\nCREATE
+    DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT INTO `configuration_history`
+    (`id`, `access_token_id`, `uid`, `configuration_id`, `change_log`, `content`,
+    `version`, `created_at`, `deleted_at`) VALUES\n(1,\t0,\t1,\t1,\t'配置',\t'[jupiter]\\n
+    \ mode=\\\"local-k8s\\\"\\n  [jupiter.registry.default]\\n    endpoints=[\\\"etcd:2379\\\"]\\n
+    \   timeout=\\\"3s\\\"\\n\\n  [jupiter.logger.default]\\n    # debug = true\\n
+    \   level=\\\"info\\\"\\n    dir=\\\"./logs/\\\"\\n  [jupiter.logger.jupiter]\\n
+    \   # debug = true\\n    level=\\\"info\\\"\\n    dir=\\\"./logs/\\\"\\n\\n  [jupiter.trace.jaeger]\\n
+    \   endpoint=\\\"http://jaeger:14268/api/traces\\\"\\n    sampler=1\\n# [jupiter.trace.otelgrpc]\\n#
+    \    endpoint = \\\"localhost:4317\\\"\\n#     sampler = 1\\n[jupiter.server]\\n
+    \ [jupiter.server.http]\\n    port=9527\\n  [jupiter.server.grpc]\\n    port=9528\\n
+    \ [jupiter.server.govern]\\n    port=9529\\n\\n[jupiter.grpc]\\n  [jupiter.grpc.example]\\n
+    \   addr=\\\"127.0.0.1:9528\\\"\\n    timeout=\\\"3s\\\"\\n  [jupiter.mysql.example]\\n
+    \   dsn=\\\"root:root@tcp(db:3306)/mysql?timeout=20s&readTimeout=20s\\\"\\n    debug=true\\n
+    \   maxIdleConns=50\\n    connMaxLifeTime=\\\"20m\\\"\\n    level=\\\"panic\\\"\\n
+    \   slowThreshold=\\\"400ms\\\"\\n    dialTimeout=\\\"1s\\\"\\n  [jupiter.rocketmq.example]\\n
+    \   [jupiter.rocketmq.example.consumer]\\n      enable=true\\n      addr=[\\\"namesrv:9876\\\"]\\n
+    \     group=\\\"testGroup\\\"\\n      dialTimeout=\\\"3s\\\"\\n      rwTimeout=\\\"3s\\\"\\n
+    \     topic=\\\"DefaultCluster\\\"\\n      subExpression=\\\"*\\\"\\n      rate=100\\n
+    \     enableTrace=true\\n    [jupiter.rocketmq.example.producer]\\n      group=\\\"testGroup\\\"\\n
+    \     addr=[\\\"namesrv:9876\\\"]\\n      dialTimeout=\\\"3s\\\"\\n      rwTimeout=\\\"3s\\\"\\n
+    \     topic=\\\"DefaultCluster\\\"\\n      enableTrace=true\\n\\n[jupiter.resty.example]\\n
+    \ addr=\\\"http://127.0.0.1:9527\\\"\\n\\n[jupiter.redis.example]\\n  [jupiter.redis.example.stub]\\n
+    \   debug=false\\n    maxIdle=10\\n    maxActive=50\\n    dialTimeout=\\\"2s\\\"\\n
+    \   readTimeout=\\\"2s\\\"\\n    idleTimeout=\\\"60s\\\"\\n    enableAccessLog=false\\n
+    \   [jupiter.redis.example.stub.master]\\n      addr=\\\"redis://@redis:6379\\\"\\n
+    \   [jupiter.redis.example.stub.slaves]\\n      addr=[\\\"redis://@redis:6379\\\"]\\n',\t'e0549cc536dce8024a06b94e031ba227',\t'2023-02-22
+    00:57:20.890',\tNULL);\n\nDROP TABLE IF EXISTS `configuration_publish`;\nCREATE
     TABLE `configuration_publish` (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n
     \ `uid` bigint(20) DEFAULT NULL,\n  `access_token_id` bigint(20) unsigned DEFAULT
     NULL,\n  `configuration_id` bigint(20) unsigned DEFAULT NULL,\n  `configuration_history_id`
     bigint(20) unsigned DEFAULT NULL,\n  `apply_instance` longtext COLLATE utf8mb4_bin,\n
     \ `file_path` longtext COLLATE utf8mb4_bin,\n  `created_at` datetime(3) DEFAULT
-    NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nDROP
     TABLE IF EXISTS `configuration_resource_relation`;\nCREATE TABLE `configuration_resource_relation`
     (\n  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3)
     DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n  `configuration_history_id`
@@ -2731,7 +2802,7 @@ data:
     longtext COLLATE utf8mb4_bin,\n  `domain` longtext COLLATE utf8mb4_bin,\n  PRIMARY
     KEY (`pod_name`),\n  KEY `idx_md5` (`md5`),\n  KEY `idx_aid` (`aid`),\n  KEY `idx_appname`
     (`app_name`),\n  KEY `idx_node_name` (`node_name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    COLLATE=utf8mb4_bin;\n\n\nDROP TABLE IF EXISTS `log_store`;\nCREATE TABLE `log_store`
+    COLLATE=utf8mb4_bin;\n\nDROP TABLE IF EXISTS `log_store`;\nCREATE TABLE `log_store`
     (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `title` longtext COLLATE utf8mb4_bin
     NOT NULL,\n  `active_key` longtext COLLATE utf8mb4_bin NOT NULL,\n  `app_name`
     longtext COLLATE utf8mb4_bin NOT NULL,\n  `env` longtext COLLATE utf8mb4_bin NOT
@@ -2750,10 +2821,7 @@ data:
     bigint(20) NOT NULL,\n  `node_type` bigint(20) NOT NULL,\n  `agent_type` bigint(20)
     NOT NULL,\n  `agent_version` longtext COLLATE utf8mb4_bin NOT NULL,\n  `proxy_type`
     bigint(20) NOT NULL,\n  `proxy_version` longtext COLLATE utf8mb4_bin NOT NULL,\n
-    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
-    INTO `node` (`id`, `host_name`, `ip`, `create_time`, `update_time`, `env`, `region_code`,
-    `region_name`, `zone_code`, `zone_name`, `agent_heartbeat_time`, `proxy_heartbeat_time`,
-    `node_type`, `agent_type`, `agent_version`, `proxy_type`, `proxy_version`) VALUES\n(1,\t'wuhan-host-1-1',\t'192.168.1.1',\t1673061235,\t1673061235,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t0,\t0,\t1,\t0,\t'',\t0,\t''),\n(4,\t'juno-agent-dev01',\t'172.18.0.19',\t1675828157,\t1675828157,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t1675836887,\t0,\t0,\t1,\t'0.2.1',\t0,\t'');\n\nDROP
+    \ PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nDROP
     TABLE IF EXISTS `ops_supervisor_config`;\nCREATE TABLE `ops_supervisor_config`
     (\n  `id` bigint(20) NOT NULL AUTO_INCREMENT,\n  `aid` bigint(20) DEFAULT NULL,\n
     \ `app_name` longtext COLLATE utf8mb4_bin,\n  `ops_app_name` longtext COLLATE
@@ -2776,26 +2844,31 @@ data:
     NOT NULL,\n  `host_name` longtext COLLATE utf8mb4_bin NOT NULL,\n  `create_time`
     bigint(20) DEFAULT NULL,\n  `update_time` bigint(20) DEFAULT NULL,\n  `delete_time`
     bigint(20) DEFAULT NULL,\n  PRIMARY KEY (`id`),\n  KEY `idx_pprof_delete_time`
-    (`delete_time`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    (`delete_time`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nDROP
     TABLE IF EXISTS `proxy_manage`;\nCREATE TABLE `proxy_manage` (\n  `id` bigint(20)
     NOT NULL AUTO_INCREMENT,\n  `title` longtext COLLATE utf8mb4_bin NOT NULL,\n  `sub_path`
     longtext COLLATE utf8mb4_bin NOT NULL,\n  `is_rewrite` bigint(20) NOT NULL DEFAULT
     '0',\n  `proxy_addr` longtext COLLATE utf8mb4_bin NOT NULL,\n  `create_time` bigint(20)
     NOT NULL DEFAULT '0',\n  `update_time` bigint(20) NOT NULL DEFAULT '0',\n  `delete_time`
     bigint(20) NOT NULL DEFAULT '0',\n  `uid` bigint(20) NOT NULL DEFAULT '0',\n  PRIMARY
-    KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
+    KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `proxy_manage` (`id`, `title`, `sub_path`, `is_rewrite`, `proxy_addr`, `create_time`,
+    `update_time`, `delete_time`, `uid`) VALUES\n(1,\t'线下pyroscope',\t'pyroscope',\t1,\t'http://pyroscope:4040',\t1676948199,\t1676948199,\t0,\t1),\n(2,\t'jaeger',\t'jaeger',\t0,\t'http://jaeger:16686',\t1676949341,\t1676949341,\t0,\t1);\n\nDROP
     TABLE IF EXISTS `proxy_menu`;\nCREATE TABLE `proxy_menu` (\n  `id` bigint(20)
     NOT NULL AUTO_INCREMENT,\n  `panel_type` longtext COLLATE utf8mb4_bin NOT NULL,\n
     \ `proxy_url` longtext COLLATE utf8mb4_bin NOT NULL,\n  `key` longtext COLLATE
     utf8mb4_bin NOT NULL,\n  `create_time` bigint(20) NOT NULL DEFAULT '0',\n  `update_time`
     bigint(20) NOT NULL DEFAULT '0',\n  `delete_time` bigint(20) NOT NULL DEFAULT
     '0',\n  `uid` bigint(20) NOT NULL DEFAULT '0',\n  `title` longtext COLLATE utf8mb4_bin
-    NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\n\nDROP
-    TABLE IF EXISTS `system_config`;\nCREATE TABLE `system_config` (\n  `name` varchar(50)
-    COLLATE utf8mb4_bin NOT NULL,\n  `content` longtext COLLATE utf8mb4_bin NOT NULL,\n
-    \ `create_time` bigint(20) NOT NULL,\n  `update_time` bigint(20) NOT NULL,\n  PRIMARY
-    KEY (`name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
-    INTO `system_config` (`name`, `content`, `create_time`, `update_time`) VALUES\n('etcd',\t'[{\\\"prefix\\\":\\\"/prometheus/job/\\\",\\\"info\\\":\\\"监控查询\\\"},{\\\"prefix\\\":\\\"grpc:\\\",\\\"info\\\":\\\"grpc\\\"},{\\\"prefix\\\":\\\"http:\\\",\\\"info\\\":\\\"http\\\"}]',\t1673061016,\t1675836035),\n('grafana',\t'{\\\"host\\\":\\\"grafana:3000\\\",\\\"scheme\\\":\\\"http\\\",\\\"header_name\\\":\\\"X-WEBAUTH-USER\\\"}',\t1673061016,\t1676546139),\n('k8s_cluster',\t'{\\\"list\\\":[{\\\"name\\\":\\\"开发测试集群\\\",\\\"env\\\":[\\\"dev\\\"],\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"domain\\\":\\\"incluster\\\",\\\"token\\\":\\\"incluster\\\"}]}',\t1676627218,\t0),\n('version',\t'[{\\\"name\\\":\\\"jupiter1.0\\\",\\\"version\\\":\\\"v1.0\\\",\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboards\\\":[{\\\"name\\\":\\\"接口维度\\\",\\\"value\\\":\\\"/grafana/d/api/jie-kou-wei-du?orgId=1\\\"},{\\\"name\\\":\\\"实例维度\\\",\\\"value\\\":\\\"/grafana/d/instance/shi-li-wei-du?orgId=1\\\"},{\\\"name\\\":\\\"应用概览\\\",\\\"value\\\":\\\"/grafana/d/overview/ying-yong-gai-lan?orgId=1\\\"},{\\\"value\\\":\\\"/grafana/d/clientgrpc/ke-hu-duan-http-grpc?orgId=1\\\",\\\"name\\\":\\\"客户端HTTP/GRPC\\\"},{\\\"name\\\":\\\"客户端MySQL\\\",\\\"value\\\":\\\"/grafana/d/clientmysql/ke-hu-duan-mysql?orgId=1\\\"},{\\\"value\\\":\\\"grafana/d/clientredis/ke-hu-duan-redis?orgId=1\\\",\\\"name\\\":\\\"客户端Redis\\\"},{\\\"name\\\":\\\"客户端定时任务\\\",\\\"value\\\":\\\"/grafana/d/clientcron/ding-shi-ren-wu?orgId=1\\\"},{\\\"value\\\":\\\"/grafana/d/clientrocketmq/ke-hu-duan-rocketmq?orgId=1\\\",\\\"name\\\":\\\"客户端RocketMQ\\\"},{\\\"value\\\":\\\"/grafana/d/clientfreecache/ke-hu-duan-freecache?orgId=1\\\",\\\"name\\\":\\\"客户端FreeCache\\\"},{\\\"name\\\":\\\"熔断降级\\\",\\\"value\\\":\\\"/grafana/d/clientsentinel/sentinelrong-duan-jiang-ji?orgId=1\\\"},{\\\"name\\\":\\\"自定义\\\",\\\"value\\\":\\\"/grafana/d/customize/zi-ding-yi?orgId=1\\\"}]}]',\t1673061016,\t1676892228);\n\nDROP
+    NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `proxy_menu` (`id`, `panel_type`, `proxy_url`, `key`, `create_time`, `update_time`,
+    `delete_time`, `uid`, `title`) VALUES\n(1,\t'pyroscope',\t'/proxy/pyroscope/',\t'pyroscope.pre.wh',\t1676948230,\t1676948265,\t0,\t1,\t'光谷F1(pre)
+    pyroscope'),\n(2,\t'grafana',\t'/proxy/jaeger',\t'jaeger',\t1676949390,\t1676949739,\t0,\t1,\t'光谷F1（pre)
+    链路追踪');\n\nDROP TABLE IF EXISTS `system_config`;\nCREATE TABLE `system_config`
+    (\n  `name` varchar(50) COLLATE utf8mb4_bin NOT NULL,\n  `content` longtext COLLATE
+    utf8mb4_bin NOT NULL,\n  `create_time` bigint(20) NOT NULL,\n  `update_time` bigint(20)
+    NOT NULL,\n  PRIMARY KEY (`name`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
+    INTO `system_config` (`name`, `content`, `create_time`, `update_time`) VALUES\n('etcd',\t'[{\\\"prefix\\\":\\\"/prometheus/job/\\\",\\\"info\\\":\\\"监控查询\\\"},{\\\"prefix\\\":\\\"grpc:\\\",\\\"info\\\":\\\"grpc\\\"},{\\\"prefix\\\":\\\"http:\\\",\\\"info\\\":\\\"http\\\"}]',\t1673061016,\t1675836035),\n('grafana',\t'{\\\"host\\\":\\\"grafana:3000\\\",\\\"scheme\\\":\\\"http\\\",\\\"header_name\\\":\\\"X-WEBAUTH-USER\\\"}',\t1673061016,\t1676546139),\n('k8s_cluster',\t'{\\\"list\\\":[{\\\"name\\\":\\\"开发测试集群\\\",\\\"env\\\":[\\\"dev\\\"],\\\"zone_code\\\":\\\"cn-wuhan-guanggu-f1\\\",\\\"zone_name\\\":\\\"武汉光谷F1区\\\",\\\"domain\\\":\\\"incluster\\\",\\\"token\\\":\\\"incluster\\\"}]}',\t1676627218,\t0),\n('version',\t'[{\\\"name\\\":\\\"jupiter1.0\\\",\\\"version\\\":\\\"v1.0\\\",\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboards\\\":[{\\\"name\\\":\\\"接口维度\\\",\\\"value\\\":\\\"/grafana/d/api/jie-kou-wei-du?orgId=1\\\"},{\\\"name\\\":\\\"实例维度\\\",\\\"value\\\":\\\"/grafana/d/instance/shi-li-wei-du?orgId=1\\\"},{\\\"name\\\":\\\"应用概览\\\",\\\"value\\\":\\\"/grafana/d/overview/ying-yong-gai-lan?orgId=1\\\"},{\\\"value\\\":\\\"/grafana/d/clientgrpc/ke-hu-duan-http-grpc?orgId=1\\\",\\\"name\\\":\\\"客户端HTTP/GRPC\\\"},{\\\"name\\\":\\\"客户端MySQL\\\",\\\"value\\\":\\\"/grafana/d/clientmysql/ke-hu-duan-mysql?orgId=1\\\"},{\\\"value\\\":\\\"grafana/d/clientredis/ke-hu-duan-redis?orgId=1\\\",\\\"name\\\":\\\"客户端Redis\\\"},{\\\"name\\\":\\\"客户端定时任务\\\",\\\"value\\\":\\\"/grafana/d/clientcron/ding-shi-ren-wu?orgId=1\\\"},{\\\"value\\\":\\\"/grafana/d/clientrocketmq/ke-hu-duan-rocketmq?orgId=1\\\",\\\"name\\\":\\\"客户端RocketMQ\\\"},{\\\"value\\\":\\\"/grafana/d/clientfreecache/ke-hu-duan-freecache?orgId=1\\\",\\\"name\\\":\\\"客户端FreeCache\\\"},{\\\"name\\\":\\\"熔断降级\\\",\\\"value\\\":\\\"/grafana/d/clientsentinel/sentinelrong-duan-jiang-ji?orgId=1\\\"},{\\\"name\\\":\\\"自定义\\\",\\\"value\\\":\\\"/grafana/d/customize/zi-ding-yi?orgId=1\\\"},{\\\"value\\\":\\\"grafana/d/pyroscope/pyroscope?orgId=1&var-appname=#APP_NAME&var-env=#ENV&var-pydatasource=#DATASOURCE.pyroscope&var-datasource=#DATASOURCE&var-aid=#AID&from=now-30m&to=now\\\",\\\"name\\\":\\\"Profile\\\"}]}]',\t1673061016,\t1677049009);\n\nDROP
     TABLE IF EXISTS `test_pipeline`;\nCREATE TABLE `test_pipeline` (\n  `id` bigint(20)
     unsigned NOT NULL AUTO_INCREMENT,\n  `created_at` datetime(3) DEFAULT NULL,\n
     \ `updated_at` datetime(3) DEFAULT NULL,\n  `deleted_at` datetime(3) DEFAULT NULL,\n
@@ -2853,7 +2926,7 @@ data:
     utf8mb4_bin NOT NULL,\n  `create_time` bigint(20) NOT NULL,\n  `update_time` bigint(20)
     NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
     INTO `user_config` (`id`, `uid`, `aid`, `content`, `create_time`, `update_time`)
-    VALUES\n(1,\t1,\t1,\t'{\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboardPath\\\":\\\"/grafana/d/api\\\"}',\t1675834945,\t1675836000),\n(2,\t1,\t2,\t'{\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboardPath\\\":\\\"/grafana/d/instance\\\"}',\t1675836450,\t1675836533);\n\nDROP
+    VALUES\n(1,\t1,\t1,\t'{\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboardPath\\\":\\\"/grafana/d/clientsentinel/sentinelrong-duan-jiang-ji?orgId=1\\\"}',\t1675834945,\t1677025859),\n(2,\t1,\t2,\t'{\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboardPath\\\":\\\"grafana/d/pyroscope/pyroscope?orgId=1\\\\u0026var-appname=#APP_NAME\\\\u0026var-env=#ENV\\\\u0026var-pydatasource=#DATASOURCE.pyroscope\\\\u0026var-datasource=#DATASOURCE\\\\u0026var-aid=#AID\\\\u0026from=now-30m\\\\u0026to=now\\\"}',\t1675836450,\t1677049198),\n(3,\t1,\t3,\t'{\\\"versionKey\\\":\\\"jupiter1.0\\\",\\\"dashboardPath\\\":\\\"/grafana/d/clientcron/ding-shi-ren-wu?orgId=1\\\"}',\t1677029403,\t1677049192);\n\nDROP
     TABLE IF EXISTS `user_relation`;\nCREATE TABLE `user_relation` (\n  `id` bigint(20)
     NOT NULL AUTO_INCREMENT COMMENT '''注释''',\n  `uid` bigint(20) NOT NULL COMMENT
     '''注释''',\n  `bid` bigint(20) NOT NULL COMMENT '''注释''',\n  `type` bigint(20)
@@ -2889,8 +2962,8 @@ data:
     bigint(20) NOT NULL COMMENT '''注释''',\n  `updated_by` bigint(20) NOT NULL COMMENT
     '''注释''',\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;\n\nINSERT
     INTO `zone` (`id`, `env`, `region_code`, `region_name`, `zone_code`, `zone_name`,
-    `create_time`, `update_time`, `created_by`, `updated_by`) VALUES\n(1,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t1675836887,\t1675836887,\t0,\t0);\n\n--
-    2023-02-08 06:14:47"
+    `create_time`, `update_time`, `created_by`, `updated_by`) VALUES\n(1,\t'dev',\t'cn-wuhan',\t'武汉',\t'cn-wuhan-guanggu-f1',\t'武汉光谷F1区',\t1677051308,\t1677051308,\t0,\t0);\n\n--
+    2023-02-22 07:35:39"
 kind: ConfigMap
 metadata:
   name: db-cm0
@@ -4007,9 +4080,9 @@ data:
             [plugin.regProxy.prometheus]
                 enable=true
                 path="/home/www/system/prometheus/conf"
-                enableZone=false
-                zones=["HB-WHYL"]                       # 用于支持zone过滤
-                enableCleanup=false
+                enableZone=true
+                zones=[""]                       # 用于支持zone过滤
+                enableCleanup=true
                 timeInterval=10
 
     [plugin.confProxy]
