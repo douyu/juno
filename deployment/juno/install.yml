@@ -598,7 +598,7 @@ spec:
           env:
             - name: GRAFANA_PLUGINS
               value: pyroscope-datasource:1.1.3,pyroscope-panel:1.4.1
-          image: python
+          image: python:3.9-alpine
           command:
             - python
             - /tmp/init_plugin.py
