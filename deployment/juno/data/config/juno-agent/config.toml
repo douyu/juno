@@ -6,9 +6,9 @@
         [plugin.regProxy.prometheus]
             enable=true
             path="/home/www/system/prometheus/conf"
-            enableZone=false
-            zones=["HB-WHYL"]                       # 用于支持zone过滤
-            enableCleanup=false
+            enableZone=true
+            zones=[""]                       # 用于支持zone过滤
+            enableCleanup=true
             timeInterval=10
 
 [plugin.confProxy]

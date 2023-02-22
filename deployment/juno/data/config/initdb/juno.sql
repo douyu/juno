@@ -407,6 +407,8 @@ CREATE TABLE `configuration` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+INSERT INTO `configuration` (`id`, `aid`, `name`, `content`, `format`, `env`, `zone`, `version`, `created_at`, `access_token_id`, `uid`, `updated_at`, `deleted_at`, `published_at`, `lock_uid`, `lock_at`) VALUES
+(1,	3,	'config-k8s',	'[jupiter]\n  mode=\"local-k8s\"\n  [jupiter.registry.default]\n    endpoints=[\"etcd:2379\"]\n    timeout=\"3s\"\n\n  [jupiter.logger.default]\n    # debug = true\n    level=\"info\"\n    dir=\"./logs/\"\n  [jupiter.logger.jupiter]\n    # debug = true\n    level=\"info\"\n    dir=\"./logs/\"\n\n  [jupiter.trace.jaeger]\n    endpoint=\"http://jaeger:14268/api/traces\"\n    sampler=1\n# [jupiter.trace.otelgrpc]\n#     endpoint = \"localhost:4317\"\n#     sampler = 1\n[jupiter.server]\n  [jupiter.server.http]\n    port=9527\n  [jupiter.server.grpc]\n    port=9528\n  [jupiter.server.govern]\n    port=9529\n\n[jupiter.grpc]\n  [jupiter.grpc.example]\n    addr=\"127.0.0.1:9528\"\n    timeout=\"3s\"\n  [jupiter.mysql.example]\n    dsn=\"root:root@tcp(db:3306)/mysql?timeout=20s&readTimeout=20s\"\n    debug=true\n    maxIdleConns=50\n    connMaxLifeTime=\"20m\"\n    level=\"panic\"\n    slowThreshold=\"400ms\"\n    dialTimeout=\"1s\"\n  [jupiter.rocketmq.example]\n    [jupiter.rocketmq.example.consumer]\n      enable=true\n      addr=[\"namesrv:9876\"]\n      group=\"testGroup\"\n      dialTimeout=\"3s\"\n      rwTimeout=\"3s\"\n      topic=\"DefaultCluster\"\n      subExpression=\"*\"\n      rate=100\n      enableTrace=true\n    [jupiter.rocketmq.example.producer]\n      group=\"testGroup\"\n      addr=[\"namesrv:9876\"]\n      dialTimeout=\"3s\"\n      rwTimeout=\"3s\"\n      topic=\"DefaultCluster\"\n      enableTrace=true\n\n[jupiter.resty.example]\n  addr=\"http://127.0.0.1:9527\"\n\n[jupiter.redis.example]\n  [jupiter.redis.example.stub]\n    debug=false\n    maxIdle=10\n    maxActive=50\n    dialTimeout=\"2s\"\n    readTimeout=\"2s\"\n    idleTimeout=\"60s\"\n    enableAccessLog=false\n    [jupiter.redis.example.stub.master]\n      addr=\"redis://@redis:6379\"\n    [jupiter.redis.example.stub.slaves]\n      addr=[\"redis://@redis:6379\"]\n',	'toml',	'dev',	'cn-wuhan-guanggu-f1',	'e0549cc536dce8024a06b94e031ba227',	'2023-02-22 00:56:54.631',	0,	1,	'2023-02-22 00:57:21.998',	NULL,	NULL,	0,	NULL);
 
 DROP TABLE IF EXISTS `configuration_cluster_status`;
 CREATE TABLE `configuration_cluster_status` (
@@ -422,6 +424,9 @@ CREATE TABLE `configuration_cluster_status` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+INSERT INTO `configuration_cluster_status` (`id`, `configuration_id`, `configuration_publish_id`, `cluster_name`, `used`, `synced`, `take_effect`, `created_at`, `update_at`) VALUES
+(1,	1,	1,	'开发测试集群',	0,	0,	0,	'2023-02-22 00:57:23.436',	'2023-02-22 00:57:23.436'),
+(2,	1,	2,	'开发测试集群',	0,	0,	0,	'2023-02-22 01:12:14.560',	'2023-02-22 01:12:14.560');
 
 DROP TABLE IF EXISTS `configuration_history`;
 CREATE TABLE `configuration_history` (
@@ -437,6 +442,8 @@ CREATE TABLE `configuration_history` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+INSERT INTO `configuration_history` (`id`, `access_token_id`, `uid`, `configuration_id`, `change_log`, `content`, `version`, `created_at`, `deleted_at`) VALUES
+(1,	0,	1,	1,	'配置',	'[jupiter]\n  mode=\"local-k8s\"\n  [jupiter.registry.default]\n    endpoints=[\"etcd:2379\"]\n    timeout=\"3s\"\n\n  [jupiter.logger.default]\n    # debug = true\n    level=\"info\"\n    dir=\"./logs/\"\n  [jupiter.logger.jupiter]\n    # debug = true\n    level=\"info\"\n    dir=\"./logs/\"\n\n  [jupiter.trace.jaeger]\n    endpoint=\"http://jaeger:14268/api/traces\"\n    sampler=1\n# [jupiter.trace.otelgrpc]\n#     endpoint = \"localhost:4317\"\n#     sampler = 1\n[jupiter.server]\n  [jupiter.server.http]\n    port=9527\n  [jupiter.server.grpc]\n    port=9528\n  [jupiter.server.govern]\n    port=9529\n\n[jupiter.grpc]\n  [jupiter.grpc.example]\n    addr=\"127.0.0.1:9528\"\n    timeout=\"3s\"\n  [jupiter.mysql.example]\n    dsn=\"root:root@tcp(db:3306)/mysql?timeout=20s&readTimeout=20s\"\n    debug=true\n    maxIdleConns=50\n    connMaxLifeTime=\"20m\"\n    level=\"panic\"\n    slowThreshold=\"400ms\"\n    dialTimeout=\"1s\"\n  [jupiter.rocketmq.example]\n    [jupiter.rocketmq.example.consumer]\n      enable=true\n      addr=[\"namesrv:9876\"]\n      group=\"testGroup\"\n      dialTimeout=\"3s\"\n      rwTimeout=\"3s\"\n      topic=\"DefaultCluster\"\n      subExpression=\"*\"\n      rate=100\n      enableTrace=true\n    [jupiter.rocketmq.example.producer]\n      group=\"testGroup\"\n      addr=[\"namesrv:9876\"]\n      dialTimeout=\"3s\"\n      rwTimeout=\"3s\"\n      topic=\"DefaultCluster\"\n      enableTrace=true\n\n[jupiter.resty.example]\n  addr=\"http://127.0.0.1:9527\"\n\n[jupiter.redis.example]\n  [jupiter.redis.example.stub]\n    debug=false\n    maxIdle=10\n    maxActive=50\n    dialTimeout=\"2s\"\n    readTimeout=\"2s\"\n    idleTimeout=\"60s\"\n    enableAccessLog=false\n    [jupiter.redis.example.stub.master]\n      addr=\"redis://@redis:6379\"\n    [jupiter.redis.example.stub.slaves]\n      addr=[\"redis://@redis:6379\"]\n',	'e0549cc536dce8024a06b94e031ba227',	'2023-02-22 00:57:20.890',	NULL);
 
 DROP TABLE IF EXISTS `configuration_publish`;
 CREATE TABLE `configuration_publish` (
@@ -450,7 +457,6 @@ CREATE TABLE `configuration_publish` (
   `created_at` datetime(3) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
 
 DROP TABLE IF EXISTS `configuration_resource_relation`;
 CREATE TABLE `configuration_resource_relation` (
@@ -786,7 +792,6 @@ CREATE TABLE `node` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-
 DROP TABLE IF EXISTS `ops_supervisor_config`;
 CREATE TABLE `ops_supervisor_config` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -883,7 +888,7 @@ INSERT INTO `system_config` (`name`, `content`, `create_time`, `update_time`) VA
 ('etcd',	'[{\"prefix\":\"/prometheus/job/\",\"info\":\"监控查询\"},{\"prefix\":\"grpc:\",\"info\":\"grpc\"},{\"prefix\":\"http:\",\"info\":\"http\"}]',	1673061016,	1675836035),
 ('grafana',	'{\"host\":\"grafana:3000\",\"scheme\":\"http\",\"header_name\":\"X-WEBAUTH-USER\"}',	1673061016,	1676546139),
 ('k8s_cluster',	'{\"list\":[{\"name\":\"开发测试集群\",\"env\":[\"dev\"],\"zone_code\":\"cn-wuhan-guanggu-f1\",\"zone_name\":\"武汉光谷F1区\",\"domain\":\"incluster\",\"token\":\"incluster\"}]}',	1676627218,	0),
-('version',	'[{\"name\":\"jupiter1.0\",\"version\":\"v1.0\",\"versionKey\":\"jupiter1.0\",\"dashboards\":[{\"name\":\"接口维度\",\"value\":\"/grafana/d/api/jie-kou-wei-du?orgId=1\"},{\"name\":\"实例维度\",\"value\":\"/grafana/d/instance/shi-li-wei-du?orgId=1\"},{\"name\":\"应用概览\",\"value\":\"/grafana/d/overview/ying-yong-gai-lan?orgId=1\"},{\"value\":\"/grafana/d/clientgrpc/ke-hu-duan-http-grpc?orgId=1\",\"name\":\"客户端HTTP/GRPC\"},{\"name\":\"客户端MySQL\",\"value\":\"/grafana/d/clientmysql/ke-hu-duan-mysql?orgId=1\"},{\"value\":\"grafana/d/clientredis/ke-hu-duan-redis?orgId=1\",\"name\":\"客户端Redis\"},{\"name\":\"客户端定时任务\",\"value\":\"/grafana/d/clientcron/ding-shi-ren-wu?orgId=1\"},{\"value\":\"/grafana/d/clientrocketmq/ke-hu-duan-rocketmq?orgId=1\",\"name\":\"客户端RocketMQ\"},{\"value\":\"/grafana/d/clientfreecache/ke-hu-duan-freecache?orgId=1\",\"name\":\"客户端FreeCache\"},{\"name\":\"熔断降级\",\"value\":\"/grafana/d/clientsentinel/sentinelrong-duan-jiang-ji?orgId=1\"},{\"name\":\"自定义\",\"value\":\"/grafana/d/customize/zi-ding-yi?orgId=1\"}]}]',	1673061016,	1676892228);
+('version',	'[{\"name\":\"jupiter1.0\",\"version\":\"v1.0\",\"versionKey\":\"jupiter1.0\",\"dashboards\":[{\"name\":\"接口维度\",\"value\":\"/grafana/d/api/jie-kou-wei-du?orgId=1\"},{\"name\":\"实例维度\",\"value\":\"/grafana/d/instance/shi-li-wei-du?orgId=1\"},{\"name\":\"应用概览\",\"value\":\"/grafana/d/overview/ying-yong-gai-lan?orgId=1\"},{\"value\":\"/grafana/d/clientgrpc/ke-hu-duan-http-grpc?orgId=1\",\"name\":\"客户端HTTP/GRPC\"},{\"name\":\"客户端MySQL\",\"value\":\"/grafana/d/clientmysql/ke-hu-duan-mysql?orgId=1\"},{\"value\":\"grafana/d/clientredis/ke-hu-duan-redis?orgId=1\",\"name\":\"客户端Redis\"},{\"name\":\"客户端定时任务\",\"value\":\"/grafana/d/clientcron/ding-shi-ren-wu?orgId=1\"},{\"value\":\"/grafana/d/clientrocketmq/ke-hu-duan-rocketmq?orgId=1\",\"name\":\"客户端RocketMQ\"},{\"value\":\"/grafana/d/clientfreecache/ke-hu-duan-freecache?orgId=1\",\"name\":\"客户端FreeCache\"},{\"name\":\"熔断降级\",\"value\":\"/grafana/d/clientsentinel/sentinelrong-duan-jiang-ji?orgId=1\"},{\"name\":\"自定义\",\"value\":\"/grafana/d/customize/zi-ding-yi?orgId=1\"},{\"value\":\"grafana/d/pyroscope/pyroscope?orgId=1&var-appname=#APP_NAME&var-env=#ENV&var-pydatasource=#DATASOURCE.pyroscope&var-datasource=#DATASOURCE&var-aid=#AID&from=now-30m&to=now\",\"name\":\"Profile\"}]}]',	1673061016,	1677049009);
 
 DROP TABLE IF EXISTS `test_pipeline`;
 CREATE TABLE `test_pipeline` (
@@ -992,8 +997,9 @@ CREATE TABLE `user_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 INSERT INTO `user_config` (`id`, `uid`, `aid`, `content`, `create_time`, `update_time`) VALUES
-(1,	1,	1,	'{\"versionKey\":\"jupiter1.0\",\"dashboardPath\":\"/grafana/d/api\"}',	1675834945,	1675836000),
-(2,	1,	2,	'{\"versionKey\":\"jupiter1.0\",\"dashboardPath\":\"/grafana/d/instance\"}',	1675836450,	1675836533);
+(1,	1,	1,	'{\"versionKey\":\"jupiter1.0\",\"dashboardPath\":\"/grafana/d/clientsentinel/sentinelrong-duan-jiang-ji?orgId=1\"}',	1675834945,	1677025859),
+(2,	1,	2,	'{\"versionKey\":\"jupiter1.0\",\"dashboardPath\":\"grafana/d/pyroscope/pyroscope?orgId=1\\u0026var-appname=#APP_NAME\\u0026var-env=#ENV\\u0026var-pydatasource=#DATASOURCE.pyroscope\\u0026var-datasource=#DATASOURCE\\u0026var-aid=#AID\\u0026from=now-30m\\u0026to=now\"}',	1675836450,	1677049198),
+(3,	1,	3,	'{\"versionKey\":\"jupiter1.0\",\"dashboardPath\":\"/grafana/d/clientcron/ding-shi-ren-wu?orgId=1\"}',	1677029403,	1677049192);
 
 DROP TABLE IF EXISTS `user_relation`;
 CREATE TABLE `user_relation` (
@@ -1171,6 +1177,6 @@ CREATE TABLE `zone` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 INSERT INTO `zone` (`id`, `env`, `region_code`, `region_name`, `zone_code`, `zone_name`, `create_time`, `update_time`, `created_by`, `updated_by`) VALUES
-(1,	'dev',	'cn-wuhan',	'武汉',	'cn-wuhan-guanggu-f1',	'武汉光谷F1区',	1675836887,	1675836887,	0,	0);
+(1,	'dev',	'cn-wuhan',	'武汉',	'cn-wuhan-guanggu-f1',	'武汉光谷F1区',	1677051308,	1677051308,	0,	0);
 
--- 2023-02-21 03:31:39
+-- 2023-02-22 07:35:39
