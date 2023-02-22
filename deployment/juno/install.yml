@@ -490,7 +490,7 @@ spec:
             - --default-authentication-plugin=mysql_native_password
           env:
             - name: MYSQL_ROOT_HOST
-              value: '%'
+              value: "%"
             - name: MYSQL_ROOT_PASSWORD
               value: root
           image: mysql:5.7
@@ -517,7 +517,7 @@ spec:
       volumes:
         - configMap:
             name: db-cm0
-          name:  db-cm0
+          name: db-cm0
 status: {}
 ---
 apiVersion: apps/v1
@@ -593,6 +593,21 @@ spec:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: grafana
     spec:
+      initContainers: # 这个是重点, initcontainers
+        - name: installplugin
+          env:
+            - name: GRAFANA_PLUGINS
+              value: pyroscope-datasource:1.1.3,pyroscope-panel:1.4.1
+          image: python
+          command:
+            - python
+            - /tmp/init_plugin.py
+          volumeMounts:
+            - name: pluginvolume # volume mount
+              mountPath: /var/lib/grafana/plugins
+            - mountPath: /tmp/init_plugin.py
+              name: juno-admin-cm0
+              subPath: init_plugin.py  
       containers:
         - image: grafana/grafana:9.3.6
           name: grafana
@@ -602,15 +617,22 @@ spec:
           volumeMounts:
             - mountPath: /etc/grafana/grafana.ini
               name: juno-admin-cm0
-              subPath: grafana.ini 
+              subPath: grafana.ini
+            - name: pluginvolume # volume mount
+              mountPath: /var/lib/grafana/plugins  
       restartPolicy: Always
       volumes:
         - configMap:
             items:
               - key: juno-grafana.ini
                 path: grafana.ini
+              - key: init_plugin.py
+                path: init_plugin.py
             name: juno-admin-cm0
-          name: juno-admin-cm0  
+          name: juno-admin-cm0
+        - name: pluginvolume
+          emptyDir: {}
+
 status: {}
 ---
 apiVersion: apps/v1
@@ -646,7 +668,7 @@ spec:
             - containerPort: 4040
           resources: {}
           args:
-            - "server" 
+            - "server"
             - "-config"
             - "/etc/pyroscope/server.yml"
           volumeMounts:
@@ -654,20 +676,20 @@ spec:
               name: pyroscope-cm0
               subPath: server.yml
             - name: shared-data
-              mountPath: /home/www/system/prometheus/  
+              mountPath: /home/www/system/prometheus/
         - env:
-          - name: ENV
-            value: dev
-          - name: JUNO_HOST
-            value: juno-agent-pyroscope
-          - name: REGION_CODE
-            value: cn-wuhan
-          - name: REGION_NAME
-            value: 武汉
-          - name: ZONE_CODE
-            value: cn-wuhan-guanggu-f1
-          - name: ZONE_NAME
-            value: 武汉光谷F1区
+            - name: ENV
+              value: dev
+            - name: JUNO_HOST
+              value: juno-agent-pyroscope
+            - name: REGION_CODE
+              value: cn-wuhan
+            - name: REGION_NAME
+              value: 武汉
+            - name: ZONE_CODE
+              value: cn-wuhan-guanggu-f1
+            - name: ZONE_NAME
+              value: 武汉光谷F1区
           image: ghcr.io/douyu/juno-agent:latest
           name: juno-agent
           ports:
@@ -677,7 +699,7 @@ spec:
             - name: shared-data
               mountPath: /home/www/system/prometheus/
             - mountPath: /app/config
-              name: juno-agent-cm0              
+              name: juno-agent-cm0
       restartPolicy: Always
       volumes:
         - configMap:
@@ -725,7 +747,7 @@ spec:
             - name: COLLECTOR_ZIPKIN_HOST_PORT
               value: :9411
             - name: QUERY_BASE_PATH
-              value: /proxy/jaeger  
+              value: /proxy/jaeger
           image: jaegertracing/all-in-one:1.42
           name: jaeger
           ports:
@@ -1001,7 +1023,7 @@ spec:
             - name: shared-data
               mountPath: /home/www/system/prometheus/
             - mountPath: /app/config
-              name: juno-agent-cm0      
+              name: juno-agent-cm0
       restartPolicy: Always
       volumes:
         - configMap:
@@ -1014,7 +1036,7 @@ spec:
             name: juno-agent-cm0
           name: juno-agent-cm0
         - name: shared-data
-          emptyDir: {}  
+          emptyDir: {}
 status: {}
 
 ---
@@ -1092,10 +1114,10 @@ metadata:
   namespace: default
   name: pod-reader
 rules:
-- apiGroups: [""] # "" indicates the core API group
-  resources: ["pods"]
-  verbs: ["get", "watch", "list"]
----  
+  - apiGroups: [""] # "" indicates the core API group
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

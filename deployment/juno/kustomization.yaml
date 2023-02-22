@@ -8,7 +8,7 @@ configMapGenerator:
     files:
       - ./data/config/initdb/grafana.sql
       - ./data/config/initdb/juno.sql
-  - name: juno-admin-cm0   
+  - name: juno-admin-cm0
     files:
       - ./data/config/juno/entry.sh
       - ./data/config/juno/install.toml
@@ -17,11 +17,12 @@ configMapGenerator:
       - ./data/config/juno/multiple-region-admin.toml
       - ./data/config/juno/multiple-region-proxy.toml
       - ./data/config/juno/single-region-admin.toml
-  - name: juno-agent-cm0   
+      - ./data/config/grafana/init_plugin.py
+  - name: juno-agent-cm0
     files:
       - ./data/config/juno-agent/config.toml
-  - name: pyroscope-cm0   
+  - name: pyroscope-cm0
     files:
-      - ./data/config/pyroscope/server.yml    
+      - ./data/config/pyroscope/server.yml
 generatorOptions:
   disableNameSuffixHash: true
