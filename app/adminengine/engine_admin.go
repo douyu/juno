@@ -28,6 +28,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/appDep"
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
+	"github.com/douyu/juno/internal/pkg/service/confgov2"
 	"github.com/douyu/juno/internal/pkg/service/k8s"
 	"github.com/douyu/juno/internal/pkg/service/notify"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
@@ -38,6 +39,7 @@ import (
 	"github.com/douyu/juno/pkg/pb"
 	"github.com/douyu/jupiter"
 	jgrpc "github.com/douyu/jupiter/pkg/client/grpc"
+	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/flag"
 	"github.com/douyu/jupiter/pkg/registry/etcdv3"
 	"github.com/douyu/jupiter/pkg/server/governor"
@@ -100,6 +102,7 @@ func New() *Admin {
 		eng.initVersionWorker,
 		eng.initUserVisitWorker,
 		eng.initK8sListWorker,
+		eng.initEtcdConfig,
 	)
 
 	if err != nil {
@@ -310,4 +313,13 @@ func (eng *Admin) initK8sListWorker() (err error) {
 	cron := xcron.DefaultConfig().Build()
 	cron.Schedule(xcron.Every(time.Hour*12), xcron.FuncJob(k8s.SyncAll))
 	return eng.Schedule(cron)
+}
+
+// 初始化ETCD配置
+func (eng *Admin) initEtcdConfig() (err error) {
+	if !conf.GetBool("configure.initetcdconfig") {
+		return
+	}
+	confgov2.PublishAllConfig()
+	return nil
 }
