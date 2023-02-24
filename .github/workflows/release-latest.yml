@@ -111,6 +111,7 @@ jobs:
           files: |
               ./dist/juno_0.0.0-SNAPSHOT-*
               ./deployment/install.yml
+              ./deployment/install-mirror.yml
           body: |
             This is the "latest" release of **Juno**, which contains the most recent commits from the main branch.
 

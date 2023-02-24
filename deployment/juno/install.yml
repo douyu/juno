@@ -660,6 +660,9 @@ spec:
       labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: pyroscope
+        name: juno-agent
+        appName: juno-agent
+        runEnv: prod
     spec:
       containers:
         - image: docker.io/pyroscope/pyroscope:0.37.2

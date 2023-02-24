@@ -102,6 +102,8 @@ tar:
 
 gen-dev-deployment:
 	kustomize build deployment/overlays/dev > deployment/install.yml
+	kustomize build deployment/overlays/dev-mirror > deployment/install-mirror.yml
 
 gen-deployment:
-	kustomize build deployment/ > deployment/install.yml
+	kustomize build deployment/release > deployment/install.yml
+	kustomize build deployment/release-mirror > deployment/install-mirror.yml
