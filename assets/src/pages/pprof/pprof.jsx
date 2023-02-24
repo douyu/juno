@@ -214,7 +214,7 @@ export default class PPofList extends React.PureComponent {
 
   handleCheckLog = (e) => {
     console.log('click', e);
-    const {} = this.state;
+    const { } = this.state;
     installDep({ installType: e * 1 }).then((rs) => {
       const { code, msg, data } = rs;
       if (code === 0) {
@@ -306,7 +306,7 @@ export default class PPofList extends React.PureComponent {
       onChangeZone(e.target.value);
     };
     return (
-      <div style={{ marginLeft: 10, marginTop: 10, marginRight: 10, marginBottom: 10 }}>
+      <div style={{ marginLeft: 10, marginTop: 10, marginRight: 10, marginBottom: 10, flex: 1, overflow: "auto" }}>
         <Row>
           <Col span={8}>
             <Select

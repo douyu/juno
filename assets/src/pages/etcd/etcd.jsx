@@ -237,7 +237,7 @@ export default class Etcd extends React.PureComponent {
     }
 
     return (
-      <div style={{ backgroundColor: '#f7f8fa' }}>
+      <div style={{ backgroundColor: '#f7f8fa', flex: 1, overflow: "auto" }}>
         <div
           style={{
             marginLeft: 10,
