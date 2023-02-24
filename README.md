@@ -22,23 +22,33 @@ JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，
 
 ### Mirror Image（推荐国内走阿里云拉取镜像）
 
-```bash
-echo -e 'docker pull registry.cn-hangzhou.aliyuncs.com/sophos/quay.io.coreos.etcd:v3.3\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/quay.io.coreos.etcd:v3.3 quay.io/coreos/etcd:v3.3\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/curlimages.curl:7.88.1\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/curlimages.curl:7.88.1 curlimages/curl:7.88.1\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/redis:6.2-alpine\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/redis:6.2-alpine redis:6.2-alpine\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-agent-dev:latest\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-agent-dev:latest ghcr.io/douyu/juno-agent-dev:latest\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/jaegertracing.all-in-one:1.42\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/jaegertracing.all-in-one:1.42 jaegertracing/all-in-one:1.42\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.exampleserver-dev:latest\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.exampleserver-dev:latest ghcr.io/douyu/exampleserver-dev:latest\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/python:3.9-alpine\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/python:3.9-alpine python:3.9-alpine\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/adminer:4.8.1\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/adminer:4.8.1 adminer:4.8.1\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-admin-dev:latest\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-admin-dev:latest ghcr.io/douyu/juno-admin-dev:latest\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/grafana.grafana:9.3.6\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/grafana.grafana:9.3.6 grafana/grafana:9.3.6\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/prom.prometheus:v2.42.0\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/prom.prometheus:v2.42.0 prom/prometheus:v2.42.0\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/pyroscope.pyroscope:0.37.2\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/pyroscope.pyroscope:0.37.2 pyroscope/pyroscope:0.37.2\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/apacherocketmq.rocketmq:4.5.0\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/apacherocketmq.rocketmq:4.5.0 apacherocketmq/rocketmq:4.5.0\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/mysql:5.7\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/mysql:5.7 mysql:5.7\ndocker pull registry.cn-hangzhou.aliyuncs.com/sophos/apacherocketmq.rocketmq-dashboard:1.0.0\ndocker tag registry.cn-hangzhou.aliyuncs.com/sophos/apacherocketmq.rocketmq-dashboard:1.0.0 apacherocketmq/rocketmq-dashboard:1.0.0\n' | bash
-```
-
 ### Install Juno
+
+- Github镜像源
 
 ```bash
 kubectl apply --server-side=true -f https://github.com/douyu/juno/releases/download/latest/install.yml
 ```
 
+- 阿里云镜像源
+
+```bash
+kubectl apply --server-side=true -f https://github.com/douyu/juno/releases/download/latest/install-mirror.yml
+```
+
 ### Install Jupiter-Layout
+
+- Github镜像源
 
 ```bash
 kubectl apply -f https://github.com/douyu/jupiter-layout/releases/download/latest/install.yml
 ```
 
+- 阿里云镜像源
 
+```bash
+kubectl apply --server-side=true -f https://github.com/douyu/jupiter-layout/releases/download/latest/install-mirror.yml
+```
 
 ## Overview 
 ### [Monitor Dashboard]()
