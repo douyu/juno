@@ -749,6 +749,43 @@ func assemblyJunoAgent(nodes []db.AppNode) []view.JunoAgent {
 	return res
 }
 
+func PublishAllConfig() (err error) {
+	var configuration []db.Configuration
+	// todo split page
+	query := mysql.Where("id > 0").Order("id desc").Limit(1000).Find(&configuration)
+	if query.Error != nil {
+		return
+	}
+	for _, item := range configuration {
+		var confHistory db.ConfigurationHistory
+		query = mysql.Where("configuration_id= ?", item.ID).Order("id desc").First(&confHistory)
+		if query.Error != nil {
+			continue
+		}
+		var appInfo db.AppInfo
+		appInfo, err = resource.Resource.GetApp(item.AID)
+		if err != nil {
+			continue
+		}
+		// Save the configuration in etcd
+		if err = publishETCD(view.ReqConfigPublish{
+			AppName:      appInfo.AppName,
+			ZoneCode:     item.Zone,
+			Port:         appInfo.GovernPort,
+			FileName:     item.FileName(),
+			Format:       item.Format,
+			Content:      item.Content,
+			InstanceList: []string{},
+			Env:          item.Env,
+			Version:      confHistory.Version,
+			PubK8S:       true,
+		}); err != nil {
+			continue
+		}
+	}
+	return
+}
+
 // Publish ..
 func Publish(param view.ReqPublishConfig, c echo.Context) (err error) {
 	// Complete configuration release logic
