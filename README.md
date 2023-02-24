@@ -20,8 +20,6 @@ JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，
 
 ## Quick Start with Kubernetes
 
-### Mirror Image（推荐国内走阿里云拉取镜像）
-
 ### Install Juno
 
 - Github镜像源

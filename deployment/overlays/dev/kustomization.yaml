@@ -15,3 +15,8 @@ patches:
       kind: Deployment
       name: juno-agent
     path: juno-agent.yaml
+
+  - target:
+      kind: Service
+      name: juno-admin
+    path: service.yaml
