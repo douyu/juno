@@ -6,9 +6,9 @@ resources:
 
 images:
   - name: ghcr.io/douyu/juno-admin-dev
-    newName: registry.cn-hangzhou.aliyuncs.com/sophos/juno-admin-dev
+    newName: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-admin-dev
   - name: ghcr.io/douyu/juno-agent-dev
-    newName: registry.cn-hangzhou.aliyuncs.com/sophos/juno-agent-dev
+    newName: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-agent-dev
   - name: redis
     newName: registry.cn-hangzhou.aliyuncs.com/sophos/redis
   - name: pyroscope/pyroscope
