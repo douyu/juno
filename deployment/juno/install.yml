@@ -665,7 +665,7 @@ spec:
         runEnv: prod
     spec:
       containers:
-        - image: docker.io/pyroscope/pyroscope:0.37.2
+        - image: pyroscope/pyroscope:0.37.2
           name: pyroscope
           ports:
             - containerPort: 4040

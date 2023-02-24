@@ -2,16 +2,10 @@
 
 ## 一键启动
 
-### Docker Compose
-
-```bash
-docker-compose -f docker-compose.yml up -d
-```
-
 ### Kubernetes
 
 ```bash
-kubectl apply -f install.yml
+kubectl apply -f overlays/dev-mirror
 ```
 
 ## 访问
