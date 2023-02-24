@@ -39,7 +39,7 @@ function Event(props: AppEventProps & AppEventState) {
   }, [active, appName, env]);
 
   return (
-    <div style={{ padding: '20px', overflow: 'auto' }}>
+    <div style={{ padding: '20px', overflow: 'auto', flex: 1, overflow: "auto" }}>
       <List
         loading={listLoading}
         pagination={{
