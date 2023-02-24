@@ -6,7 +6,7 @@
 [configure]
     dir="/tmp/www/server"
     prefix="juno-agent"
-    initetcdconfig = true  
+    initEtcdConfig = true  
 
 [agent]
     port=60814

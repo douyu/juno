@@ -317,7 +317,7 @@ func (eng *Admin) initK8sListWorker() (err error) {
 
 // 初始化ETCD配置
 func (eng *Admin) initEtcdConfig() (err error) {
-	if !conf.GetBool("configure.initetcdconfig") {
+	if !conf.GetBool("configure.initEtcdConfig") {
 		return
 	}
 	confgov2.PublishAllConfig()

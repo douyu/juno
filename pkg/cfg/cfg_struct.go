@@ -208,6 +208,7 @@ type Configure struct {
 	Agent    struct {
 		Port int `json:"port"`
 	} `json:"agent"`
+	InitEtcdConfig bool `json:"initEtcdConfig"`
 }
 
 type Agent struct {
