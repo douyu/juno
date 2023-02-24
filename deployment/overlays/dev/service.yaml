@@ -3,12 +3,11 @@ kind: Service
 metadata:
   name: juno-admin
 spec:
-  type: NodePort
   ports:
-    - name: "50002"
-      port: 50002
+    - port: 50002
       targetPort: 50002
-      nodePort: 30001
+    - port: 50004
+      targetPort: 50004
   selector:
     name: juno-admin
 
