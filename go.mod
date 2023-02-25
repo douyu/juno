@@ -36,7 +36,7 @@ require (
 	github.com/onsi/gomega v1.27.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.14.0
-	github.com/robertkrimen/otto v0.0.0-20191219234010-c382bd3c16ff
+	github.com/robertkrimen/otto v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/samber/lo v1.37.0
 	github.com/sirupsen/logrus v1.9.0
