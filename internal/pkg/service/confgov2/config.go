@@ -750,21 +750,36 @@ func assemblyJunoAgent(nodes []db.AppNode) []view.JunoAgent {
 }
 
 func PublishAllConfig() (err error) {
+	step := ""
+	defer func() {
+		if err != nil {
+			xlog.Error("PublishAllConfig", zap.Error(err), zap.String("step", step))
+		}
+	}()
 	var configuration []db.Configuration
 	// todo split page
 	query := mysql.Where("id > 0").Order("id desc").Limit(1000).Find(&configuration)
 	if query.Error != nil {
+		step = "query.Error"
 		return
 	}
+	settings, err := system.System.Setting.GetAll()
+	clusterList := view.ClusterList{}
 	for _, item := range configuration {
+		if step != "" {
+			xlog.Error("PublishAllConfig.detail", zap.String("step", step))
+		}
 		var confHistory db.ConfigurationHistory
 		query = mysql.Where("configuration_id= ?", item.ID).Order("id desc").First(&confHistory)
 		if query.Error != nil {
+			err = query.Error
+			step = "confHistory.query.Error"
 			continue
 		}
 		var appInfo db.AppInfo
 		appInfo, err = resource.Resource.GetApp(item.AID)
 		if err != nil {
+			step = "resource.Resource.GetApp"
 			continue
 		}
 		// Save the configuration in etcd
@@ -780,7 +795,36 @@ func PublishAllConfig() (err error) {
 			Version:      confHistory.Version,
 			PubK8S:       true,
 		}); err != nil {
+			step = "publishETCD"
 			continue
+		}
+		var cp db.ConfigurationPublish
+		cp.ConfigurationID = item.ID
+		cp.ConfigurationHistoryID = confHistory.ID
+		if err = mysql.Save(&cp).Error; err != nil {
+			step = "mysql.Save.confHistory"
+			continue
+		}
+		_, cp.FilePath = genConfigurePath(appInfo.AppName, item.FileName())
+		if _, ok := settings["k8s_cluster"]; ok {
+			if err = json.Unmarshal([]byte(settings["k8s_cluster"]), &clusterList); err == nil {
+				for _, instance := range clusterList.List {
+					var cs db.ConfigurationClusterStatus
+					cs.ConfigurationID = item.ID
+					cs.ConfigurationPublishID = cp.ID
+					cs.ClusterName = instance.Name
+					cs.Used = 0
+					cs.Synced = 0
+					cs.TakeEffect = 0
+					cs.CreatedAt = time.Now()
+					cs.UpdateAt = time.Now()
+					if sErr := mysql.Save(&cs).Error; sErr != nil {
+						step = "mysql.Save.configurationClusterStatus"
+						continue
+					}
+				}
+
+			}
 		}
 	}
 	return
