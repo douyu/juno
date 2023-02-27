@@ -40,7 +40,7 @@ type TokenBody struct {
 func (s *Service) CompleteLogSearchUrl(ctx context.Context, req *CompleteLogSearchUrlRequest, u *db.User) (signInUrl string, err error) {
 	client, ok := s.StsClients[req.Region]
 	if !ok {
-		err = errors.New("no client")
+		err = errors.New("阿里云日志账号未正确配置，请联系管理员。")
 		return
 	}
 	//构建请求对象。
@@ -102,7 +102,7 @@ func (s *Service) CompleteLogSearchUrl(ctx context.Context, req *CompleteLogSear
 func (s *Service) CompleteTraceSearchUrl(ctx context.Context, req *CompleteTraceSearchUrlRequest, u *db.User) (signInUrl string, err error) {
 	client, ok := s.StsClients[req.Region]
 	if !ok {
-		err = errors.New("no client")
+		err = errors.New("阿里云日志账号未正确配置，请联系管理员。")
 		return
 	}
 	//构建请求对象。
