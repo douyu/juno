@@ -1,6 +1,7 @@
 package k8s
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,18 +9,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/douyu/jupiter/pkg/util/xgo"
-
 	"github.com/douyu/juno/internal/pkg/invoker"
-
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/util"
+	"github.com/douyu/jupiter/pkg/util/xgo"
 	"github.com/douyu/jupiter/pkg/xlog"
 	"gorm.io/gorm"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
@@ -399,7 +397,7 @@ func (i *syncPod) List(namespace string, appName string) (res []v1.Pod, err erro
 		labelSelector = "appName=" + appName
 	}
 	for Continue != "" || first {
-		data, err = clientSet.CoreV1().Pods(namespace).List(metav1.ListOptions{
+		data, err = clientSet.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
 			LabelSelector: labelSelector,
 			Limit:         int64(step),
 			Continue:      Continue,
