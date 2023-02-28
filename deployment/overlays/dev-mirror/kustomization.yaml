@@ -13,7 +13,7 @@ images:
     newName: registry.cn-hangzhou.aliyuncs.com/sophos/redis
   - name: pyroscope/pyroscope
     newName: registry.cn-hangzhou.aliyuncs.com/sophos/pyroscope.pyroscope
-  - name: mysql
+  - name: ghcr.io/douyu/mysql-dev
     newName: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.mysql-dev
   - name: python
     newName: registry.cn-hangzhou.aliyuncs.com/sophos/python

@@ -472,7 +472,7 @@ spec:
               value: "%"
             - name: MYSQL_ROOT_PASSWORD
               value: root
-          image: mysql:5.7
+          image: ghcr.io/douyu/mysql:latest
           livenessProbe:
             exec:
               command:
