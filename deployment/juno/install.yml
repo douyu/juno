@@ -5,7 +5,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: adminer
   name: adminer
@@ -27,7 +26,6 @@ metadata:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: broker
   name: broker
@@ -55,7 +53,6 @@ metadata:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: db
   name: db
@@ -76,7 +73,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: etcd
   name: etcd
@@ -103,7 +99,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: grafana
   name: grafana
@@ -124,7 +119,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: pyroscope
   name: pyroscope
@@ -144,7 +138,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: jaeger
   name: jaeger
@@ -194,7 +187,6 @@ metadata:
     kompose.image-pull-policy: Always
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: juno-admin
   name: juno-admin
@@ -219,7 +211,6 @@ metadata:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: juno-agent
   name: juno-agent
@@ -240,7 +231,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: mqconsole
   name: mqconsole
@@ -261,7 +251,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: namesrv
   name: namesrv
@@ -283,7 +272,6 @@ metadata:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: prometheus
   name: prometheus
@@ -304,7 +292,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -325,7 +312,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: adminer
   name: adminer
@@ -340,8 +326,6 @@ spec:
       annotations:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: adminer
     spec:
@@ -358,7 +342,6 @@ status: {}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  creationTimestamp: null
   name: deployment-default
 spec:
   ingress:
@@ -378,7 +361,6 @@ metadata:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: broker
   name: broker
@@ -395,8 +377,6 @@ spec:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
         kompose.volume.type: configMap
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: broker
     spec:
@@ -450,7 +430,6 @@ kind: ConfigMap
 metadata:
   annotations:
     use-subpath: "true"
-  creationTimestamp: null
   labels:
     io.kompose.service: broker
   name: broker-cm0
@@ -463,7 +442,6 @@ metadata:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: db
   name: db
@@ -480,8 +458,6 @@ spec:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
         kompose.volume.type: configMap
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: db
     spec:
@@ -510,14 +486,7 @@ spec:
           ports:
             - containerPort: 3306
           resources: {}
-          volumeMounts:
-            - mountPath: /docker-entrypoint-initdb.d
-              name: db-cm0
       restartPolicy: Always
-      volumes:
-        - configMap:
-            name: db-cm0
-          name: db-cm0
 status: {}
 ---
 apiVersion: apps/v1
@@ -526,7 +495,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: etcd
   name: etcd
@@ -541,8 +509,6 @@ spec:
       annotations:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: etcd
     spec:
@@ -573,7 +539,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: grafana
   name: grafana
@@ -588,8 +553,6 @@ spec:
       annotations:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: grafana
     spec:
@@ -641,7 +604,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: pyroscope
   name: pyroscope
@@ -656,8 +618,6 @@ spec:
       annotations:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: pyroscope
         name: juno-agent
@@ -725,7 +685,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: jaeger
   name: jaeger
@@ -740,8 +699,6 @@ spec:
       annotations:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: jaeger
     spec:
@@ -779,7 +736,6 @@ metadata:
     kompose.image-pull-policy: Always
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: juno-admin
   name: juno-admin
@@ -797,8 +753,6 @@ spec:
         kompose.image-pull-policy: Always
         kompose.version: 1.28.0 (HEAD)
         kompose.volume.type: configMap
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: juno-admin
         appName: juno-admin
@@ -829,7 +783,6 @@ metadata:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: juno-agent
   name: juno-agent
@@ -846,8 +799,6 @@ spec:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
         kompose.volume.type: configMap
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: juno-agent
     spec:
@@ -886,7 +837,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: mqconsole
   name: mqconsole
@@ -901,8 +851,6 @@ spec:
       annotations:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: mqconsole
     spec:
@@ -927,7 +875,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: namesrv
   name: namesrv
@@ -942,8 +889,6 @@ spec:
       annotations:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: namesrv
     spec:
@@ -970,7 +915,6 @@ metadata:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
     kompose.volume.type: configMap
-  creationTimestamp: null
   labels:
     io.kompose.service: prometheus
   name: prometheus
@@ -987,8 +931,6 @@ spec:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
         kompose.volume.type: configMap
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: prometheus
     spec:
@@ -1068,7 +1010,6 @@ kind: ConfigMap
 metadata:
   annotations:
     use-subpath: "true"
-  creationTimestamp: null
   labels:
     io.kompose.service: prometheus
   name: prometheus-cm0
@@ -1080,7 +1021,6 @@ metadata:
   annotations:
     kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
     kompose.version: 1.28.0 (HEAD)
-  creationTimestamp: null
   labels:
     io.kompose.service: redis
   name: redis
@@ -1095,8 +1035,6 @@ spec:
       annotations:
         kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
         kompose.version: 1.28.0 (HEAD)
-      creationTimestamp: null
-      labels:
         io.kompose.network/deployment-default: "true"
         io.kompose.service: redis
     spec:

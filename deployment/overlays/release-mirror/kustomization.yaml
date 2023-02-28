@@ -6,15 +6,15 @@ resources:
 
 images:
   - name: ghcr.io/douyu/juno-admin
-    newName: registry.cn-hangzhou.aliyuncs.com/sophos/juno-admin-dev
+    newName: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-admin
   - name: ghcr.io/douyu/juno-agent
-    newName: registry.cn-hangzhou.aliyuncs.com/sophos/juno-agent-dev
+    newName: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-agent
   - name: redis
     newName: registry.cn-hangzhou.aliyuncs.com/sophos/redis
   - name: pyroscope/pyroscope
     newName: registry.cn-hangzhou.aliyuncs.com/sophos/pyroscope.pyroscope
   - name: mysql
-    newName: registry.cn-hangzhou.aliyuncs.com/sophos/mysql
+    newName: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.mysql
   - name: python
     newName: registry.cn-hangzhou.aliyuncs.com/sophos/python
   - name: prom/prometheus
