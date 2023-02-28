@@ -9,6 +9,8 @@ images:
     newName: ghcr.io/douyu/juno-admin-dev
   - name: ghcr.io/douyu/juno-agent
     newName: ghcr.io/douyu/juno-agent-dev
+  - name: mysql
+    newName: ghcr.io/douyu/mysql-dev
 
 patches:
   - target:
