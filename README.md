@@ -25,13 +25,13 @@ JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，
 - Github镜像源
 
 ```bash
-kubectl apply -f https://github.com/douyu/juno/releases/download/latest/install.yml
+kubectl apply --server-side=true -f https://github.com/douyu/juno/releases/download/latest/install.yml
 ```
 
 - 阿里云镜像源（推荐国内使用）
 
 ```bash
-kubectl apply -f https://hub.gitmirror.com/https://github.com/douyu/juno/releases/download/latest/install-mirror.yml
+kubectl apply --server-side=true -f https://hub.gitmirror.com/https://github.com/douyu/juno/releases/download/latest/install-mirror.yml
 ```
 
 ### Install Jupiter-Layout
