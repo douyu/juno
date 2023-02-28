@@ -3,6 +3,7 @@ name: goreleaser
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: juno-admin
+  MYSQL_IMAGE_NAME: mysql
 
 on:
   push:
@@ -78,6 +79,7 @@ jobs:
         id: vars
         run: |
           echo "::set-output name=file_name::$(ls dist/juno_*linux* |cut -c 6-)"
+
       - name: Build and push Docker image
         uses: mr-smithers-excellent/docker-build-push@v5.9
         with:
@@ -87,5 +89,16 @@ jobs:
           addLatest: true
           directory: dist
           dockerfile: ./cmd/juno-admin/Dockerfile
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push MySQL image
+        uses: mr-smithers-excellent/docker-build-push@v5.9
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ env.MYSQL_IMAGE_NAME }}
+          addLatest: true
+          directory: deployment/dockerfiles/mysql
+          dockerfile: deployment/dockerfiles/mysql/Dockerfile
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
