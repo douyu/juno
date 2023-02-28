@@ -4,10 +4,6 @@ kind: Kustomization
 resources:
   - "./install.yml"
 configMapGenerator:
-  - name: db-cm0
-    files:
-      - ./data/config/initdb/grafana.sql
-      - ./data/config/initdb/juno.sql
   - name: juno-admin-cm0
     files:
       - ./data/config/juno/entry.sh

@@ -1,0 +1,37 @@
+name: My Latest Build
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: mysql-dev
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "deployment/dockerfiles/mysql/**"
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4.3.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: mr-smithers-excellent/docker-build-push@v5.9
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ env.IMAGE_NAME }}
+          addLatest: true
+          directory: deployment/dockerfiles/mysql
+          dockerfile: deployment/dockerfiles/mysql/Dockerfile
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}

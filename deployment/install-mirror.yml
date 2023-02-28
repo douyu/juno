@@ -1,0 +1,2289 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-reader
+  namespace: default
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: bind-pod-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pod-reader
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+---
+apiVersion: v1
+data:
+  broker.conf: |
+    brokerClusterName = DefaultCluster
+    brokerName = broker-a
+    brokerId = 0
+    deleteWhen = 04
+    autoCreateTopicEnable = true
+    fileReservedTime = 48
+    brokerRole = ASYNC_MASTER
+    flushDiskType = ASYNC_FLUSH
+    #set `brokerIP1` if you want to set physical IP as broker IP.
+    # brokerIP1=127.0.0.1
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker
+  name: broker-cm0
+---
+apiVersion: v1
+data:
+  entry.sh: |+
+    #!/bin/sh
+
+    echo "init juno-admin..."
+    # /usr/local/bin/juno-admin --config=/root/juno/config/install.toml --install=true
+    # /usr/local/bin/juno-admin --config=/root/juno/config/install.toml --mock=true
+    /usr/local/bin/juno-admin --config=/root/juno/config/single-region-admin.toml --host=0.0.0.0
+
+
+  init_plugin.py: |
+    import os
+    import zipfile
+    import urllib.request
+    import shutil
+    import platform
+
+    pluginsKey = "GRAFANA_PLUGINS"
+    pluginsVolume = "/var/lib/grafana/plugins"
+    ARCH = os.environ.get("ARCH", platform.machine())
+    OS = os.environ.get("OS", platform.system().lower())
+
+
+    class ZipFileWithPermissions(zipfile.ZipFile):
+        """Custom ZipFile class handling file permissions."""
+
+        def _extract_member(self, member, targetpath, pwd):
+            if not isinstance(member, zipfile.ZipInfo):
+                member = self.getinfo(member)
+
+            targetpath = super()._extract_member(member, targetpath, pwd)
+
+            attr = member.external_attr >> 16
+            if attr != 0:
+                os.chmod(targetpath, attr)
+            return targetpath
+
+
+    def getPlugins():
+        result = list()
+        if pluginsKey in os.environ and not (not os.environ[pluginsKey]):
+            plugins = os.environ[pluginsKey].split(",")
+            for plugin in plugins:
+                parts = plugin.split(":", 1)
+                plugin_url = ""
+                name = ""
+                if len(parts) == 2:
+                    if parts[0] == "url":
+                        plugin_url = parts[1]
+                        name = "/tmp/%s.zip" % plugin_url.rsplit("/", 1)[-1]
+                    else:
+                        plugin_url = f"https://grafana.com/api/plugins/{parts[0]}/versions/{parts[1]}/download?os={OS}&arch={ARCH}"
+                        name = f"/tmp/{parts[0]}_{parts[1]}.zip"
+                elif len(parts) == 1:
+                    plugin_url = f"https://grafana.com/api/plugins/{parts[0]}/versions/latest/download?os={OS}&arch={ARCH}"
+                    name = f"/tmp/{parts[0]}_latest.zip"
+                else:
+                    print("Invalid syntax (version missing?): " + plugin)
+
+                result.append((plugin_url, name))
+        return result
+
+
+    def downloadPlugin(plugin):
+        url, file_name = plugin
+        print(f"downloading {url}")
+        with urllib.request.urlopen(url) as response, open(file_name, "wb") as out_file:
+            shutil.copyfileobj(response, out_file)
+        return file_name
+
+
+    def extractPlugin(file_name):
+        print(f"extracting {file_name}")
+        zip = ZipFileWithPermissions(file_name)
+        zip.extractall(pluginsVolume)
+        zip.close()
+
+
+    def installPlugin(plugin):
+        try:
+            file_name = downloadPlugin(plugin)
+        except Exception as err:
+            print("Error downloading %s:%s: %s" % (*plugin, err))
+        else:
+            extractPlugin(file_name)
+
+
+    def main():
+        for plugin in getPlugins():
+            installPlugin(plugin)
+        print("done")
+
+
+    main()
+  install.toml: |
+    [database]
+        enable=true
+        connMaxLifetime="300s"
+        debug=true
+        dsn="root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+        level="panic"
+        maxIdleConns=50
+        maxOpenConns=100
+    [logger.system]
+        debug=false         # 是否在命令行输出
+        enableConsole=false # 是否按命令行格式输出
+        level="debug"
+        async=false
+        name="system.json"  # 日志名称
+        dir="./"
+    [logger.biz]
+        debug=false         # 是否在命令行输出
+        enableConsole=false # 是否按命令行格式输出
+        level="debug"
+        async=false
+        name="biz.json"     # 日志名称
+        dir="./"
+  juno-grafana.ini: |
+    ##################### Grafana Configuration Defaults #####################
+    #
+    # Do not modify this file in grafana installs
+    #
+
+    # possible values : production, development
+    app_mode = production
+
+    # instance name, defaults to HOSTNAME environment variable value or hostname if HOSTNAME var is empty
+    instance_name = ${HOSTNAME}
+
+    #################################### Paths ###############################
+    [paths]
+    # Path to where grafana can store temp files, sessions, and the sqlite3 db (if that is used)
+    data = data
+
+    # Temporary files in `data` directory older than given duration will be removed
+    temp_data_lifetime = 24h
+
+    # Directory where grafana can store logs
+    logs = data/log
+
+    # Directory where grafana will automatically scan and look for plugins
+    plugins = data/plugins
+
+    # folder that contains provisioning config files that grafana will apply on startup and while running.
+    provisioning = conf/provisioning
+
+    #################################### Server ##############################
+    [server]
+    # Protocol (http, https, h2, socket)
+    protocol = http
+
+    # The ip address to bind to, empty will bind to all interfaces
+    http_addr =
+
+    # The http port to use
+    http_port = 3000
+
+    # The public facing domain name used to access grafana from a browser
+    domain = grafana
+
+    # Redirect to correct domain if host header does not match domain
+    # Prevents DNS rebinding attacks
+    enforce_domain = false
+
+    # The full public facing url
+    root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana
+
+    # Serve Grafana from subpath specified in `root_url` setting. By default it is set to `false` for compatibility reasons.
+    serve_from_sub_path = true
+
+    # Log web requests
+    router_logging = false
+
+    # the path relative working path
+    static_root_path = public
+
+    # enable gzip
+    enable_gzip = false
+
+    # https certs & key file
+    cert_file =
+    cert_key =
+
+    # Unix socket path
+    socket = /tmp/grafana.sock
+
+    #################################### Database ############################
+    [database]
+    # You can configure the database connection by specifying type, host, name, user and password
+    # as separate properties or as on string using the url property.
+
+    # Either "mysql", "postgres" or "sqlite3", it's your choice
+    ;type = mysql
+    ;host = 127.0.0.1:3306
+    ;name = grafana
+    ;user = root
+    # If the password contains # or ; you have to wrap it with triple quotes. Ex """#password;"""
+    ;password =
+    # Use either URL or the previous fields to configure the database
+    # Example: mysql://user:secret@host:port/database
+    url = mysql://root:root@db:3306/grafana
+
+    # Max idle conn setting default is 2
+    max_idle_conn = 2
+
+    # Max conn setting default is 0 (mean not set)
+    max_open_conn =
+
+    # Connection Max Lifetime default is 14400 (means 14400 seconds or 4 hours)
+    conn_max_lifetime = 14400
+
+    # Set to true to log the sql calls and execution times.
+    log_queries =
+
+    # For "postgres", use either "disable", "require" or "verify-full"
+    # For "mysql", use either "true", "false", or "skip-verify".
+    ssl_mode = disable
+
+    ca_cert_path =
+    client_key_path =
+    client_cert_path =
+    server_cert_name =
+
+    # For "sqlite3" only, path relative to data_path setting
+    path = grafana.db
+
+    # For "sqlite3" only. cache mode setting used for connecting to the database
+    cache_mode = private
+
+    #################################### Cache server #############################
+    [remote_cache]
+    # Either "redis", "memcached" or "database" default is "database"
+    type = database
+
+    # cache connectionstring options
+    # database: will use Grafana primary database.
+    # redis: config like redis server e.g. `addr=127.0.0.1:6379,pool_size=100,db=0,ssl=false`. Only addr is required. ssl may be 'true', 'false', or 'insecure'.
+    # memcache: 127.0.0.1:11211
+    connstr =
+
+    #################################### Data proxy ###########################
+    [dataproxy]
+
+    # This enables data proxy logging, default is false
+    logging = false
+
+    # How long the data proxy waits before timing out, default is 30 seconds.
+    # This setting also applies to core backend HTTP data sources where query requests use an HTTP client with timeout set.
+    timeout = 30
+
+    # If enabled and user is not anonymous, data proxy will add X-Grafana-User header with username into the request, default is false.
+    send_user_header = false
+
+    #################################### Analytics ###########################
+    [analytics]
+    # Server reporting, sends usage counters to stats.grafana.org every 24 hours.
+    # No ip addresses are being tracked, only simple counters to track
+    # running instances, dashboard and error counts. It is very helpful to us.
+    # Change this option to false to disable reporting.
+    reporting_enabled = true
+
+    # Set to false to disable all checks to https://grafana.com
+    # for new versions (grafana itself and plugins), check is used
+    # in some UI views to notify that grafana or plugin update exists
+    # This option does not cause any auto updates, nor send any information
+    # only a GET request to https://grafana.com to get latest versions
+    check_for_updates = true
+
+    # Google Analytics universal tracking code, only enabled if you specify an id here
+    google_analytics_ua_id =
+
+    # Google Tag Manager ID, only enabled if you specify an id here
+    google_tag_manager_id =
+
+    #################################### Security ############################
+    [security]
+    # disable creation of admin user on first start of grafana
+    disable_initial_admin_creation = false
+
+    # default admin user, created on startup
+    admin_user = admin
+
+    # default admin password, can be changed before first start of grafana, or in profile settings
+    admin_password = admin
+
+    # used for signing
+    secret_key = SW2YcwTIb9zpOOhoPsMm
+
+    # disable gravatar profile images
+    disable_gravatar = false
+
+    # data source proxy whitelist (ip_or_domain:port separated by spaces)
+    data_source_proxy_whitelist =
+
+    # disable protection against brute force login attempts
+    disable_brute_force_login_protection = false
+
+    # set to true if you host Grafana behind HTTPS. default is false.
+    cookie_secure = false
+
+    # set cookie SameSite attribute. defaults to `lax`. can be set to "lax", "strict", "none" and "disabled"
+    cookie_samesite = lax
+
+    # set to true if you want to allow browsers to render Grafana in a <frame>, <iframe>, <embed> or <object>. default is false.
+    allow_embedding = true
+
+    # Set to true if you want to enable http strict transport security (HSTS) response header.
+    # This is only sent when HTTPS is enabled in this configuration.
+    # HSTS tells browsers that the site should only be accessed using HTTPS.
+    strict_transport_security = false
+
+    # Sets how long a browser should cache HSTS. Only applied if strict_transport_security is enabled.
+    strict_transport_security_max_age_seconds = 86400
+
+    # Set to true if to enable HSTS preloading option. Only applied if strict_transport_security is enabled.
+    strict_transport_security_preload = false
+
+    # Set to true if to enable the HSTS includeSubDomains option. Only applied if strict_transport_security is enabled.
+    strict_transport_security_subdomains = false
+
+    # Set to true to enable the X-Content-Type-Options response header.
+    # The X-Content-Type-Options response HTTP header is a marker used by the server to indicate that the MIME types advertised
+    # in the Content-Type headers should not be changed and be followed.
+    x_content_type_options = true
+
+    # Set to true to enable the X-XSS-Protection header, which tells browsers to stop pages from loading
+    # when they detect reflected cross-site scripting (XSS) attacks.
+    x_xss_protection = true
+
+    #################################### Snapshots ###########################
+    [snapshots]
+    # snapshot sharing options
+    external_enabled = true
+    external_snapshot_url = https://snapshots-origin.raintank.io
+    external_snapshot_name = Publish to snapshot.raintank.io
+
+    # Set to true to enable this Grafana instance act as an external snapshot server and allow unauthenticated requests for
+    # creating and deleting snapshots.
+    public_mode = false
+
+    # remove expired snapshot
+    snapshot_remove_expired = true
+
+    #################################### Dashboards ##################
+
+    [dashboards]
+    # Number dashboard versions to keep (per dashboard). Default: 20, Minimum: 1
+    versions_to_keep = 20
+
+    # Minimum dashboard refresh interval. When set, this will restrict users to set the refresh interval of a dashboard lower than given interval. Per default this is 5 seconds.
+    # The interval string is a possibly signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s or 1m.
+    min_refresh_interval = 5s
+
+    # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
+    default_home_dashboard_path =
+
+    #################################### Users ###############################
+    [users]
+    # disable user signup / registration
+    allow_sign_up = false
+
+    # Allow non admin users to create organizations
+    allow_org_create = false
+
+    # Set to true to automatically assign new users to the default organization (id 1)
+    auto_assign_org = true
+
+    # Set this value to automatically add new users to the provided organization (if auto_assign_org above is set to true)
+    auto_assign_org_id = 1
+
+    # Default role new users will be automatically assigned (if auto_assign_org above is set to true)
+    auto_assign_org_role = Viewer
+
+    # Require email validation before sign up completes
+    verify_email_enabled = false
+
+    # Background text for the user field on the login page
+    login_hint = email or username
+    password_hint = password
+
+    # Default UI theme ("dark" or "light")
+    default_theme = dark
+
+    # External user management
+    external_manage_link_url =
+    external_manage_link_name =
+    external_manage_info =
+
+    # Viewers can edit/inspect dashboard settings in the browser. But not save the dashboard.
+    viewers_can_edit = false
+
+    # Editors can administrate dashboard, folders and teams they create
+    editors_can_admin = false
+
+    [auth]
+    # Login cookie name
+    login_cookie_name = grafana_session
+
+    # The lifetime (days) an authenticated user can be inactive before being required to login at next visit. Default is 7 days.
+    login_maximum_inactive_lifetime_days = 7
+
+    # The maximum lifetime (days) an authenticated user can be logged in since login time before being required to login. Default is 30 days.
+    login_maximum_lifetime_days = 30
+
+    # How often should auth tokens be rotated for authenticated users when being active. The default is each 10 minutes.
+    token_rotation_interval_minutes = 10
+
+    # Set to true to disable (hide) the login form, useful if you use OAuth
+    disable_login_form = true
+
+    # Set to true to disable the signout link in the side menu. useful if you use auth.proxy
+    disable_signout_menu = true
+
+    # URL to redirect the user to after sign out
+    signout_redirect_url =
+
+    # Set to true to attempt login with OAuth automatically, skipping the login screen.
+    # This setting is ignored if multiple OAuth providers are configured.
+    oauth_auto_login = false
+
+    # OAuth state max age cookie duration. Defaults to 60 seconds.
+    oauth_state_cookie_max_age = 60
+
+    # limit of api_key seconds to live before expiration
+    api_key_max_seconds_to_live = -1
+
+    #################################### Basic Auth ##########################
+    [auth.basic]
+    enabled = true
+
+    #################################### Auth Proxy ##########################
+    [auth.proxy]
+    enabled = true
+    header_name = X-WEBAUTH-USER
+    header_property = username
+    auto_sign_up = true
+    # Deprecated, use sync_ttl instead
+    ldap_sync_ttl = 60
+    sync_ttl = 60
+    whitelist =
+    headers =
+    enable_login_token = false
+
+    #################################### SMTP / Emailing #####################
+    [smtp]
+    enabled = false
+    host = localhost:25
+    user =
+    # If the password contains # or ; you have to wrap it with triple quotes. Ex """#password;"""
+    password =
+    cert_file =
+    key_file =
+    skip_verify = false
+    from_address = admin@grafana.localhost
+    from_name = Grafana
+    ehlo_identity =
+    startTLS_policy =
+
+    [emails]
+    welcome_email_on_sign_up = false
+    templates_pattern = emails/*.html
+
+    #################################### Logging ##########################
+    [log]
+    # Either "console", "file", "syslog". Default is console and file
+    # Use space to separate multiple modes, e.g. "console file"
+    mode = console file
+
+    # Either "debug", "info", "warn", "error", "critical", default is "info"
+    level = info
+
+    # optional settings to set different levels for specific loggers. Ex filters = sqlstore:debug
+    filters =
+
+    # For "console" mode only
+    [log.console]
+    level =
+
+    # log line format, valid options are text, console and json
+    format = console
+
+    # For "file" mode only
+    [log.file]
+    level =
+
+    # log line format, valid options are text, console and json
+    format = text
+
+    # This enables automated log rotate(switch of following options), default is true
+    log_rotate = true
+
+    # Max line number of single file, default is 1000000
+    max_lines = 1000000
+
+    # Max size shift of single file, default is 28 means 1 << 28, 256MB
+    max_size_shift = 28
+
+    # Segment log daily, default is true
+    daily_rotate = true
+
+    # Expired days of log file(delete after max days), default is 7
+    max_days = 7
+
+    [log.syslog]
+    level =
+
+    # log line format, valid options are text, console and json
+    format = text
+
+    # Syslog network type and address. This can be udp, tcp, or unix. If left blank, the default unix endpoints will be used.
+    network =
+    address =
+
+    # Syslog facility. user, daemon and local0 through local7 are valid.
+    facility =
+
+    # Syslog tag. By default, the process' argv[0] is used.
+    tag =
+
+    #################################### Usage Quotas ########################
+    [quota]
+    enabled = false
+
+    #### set quotas to -1 to make unlimited. ####
+    # limit number of users per Org.
+    org_user = 10
+
+    # limit number of dashboards per Org.
+    org_dashboard = 100
+
+    # limit number of data_sources per Org.
+    org_data_source = 10
+
+    # limit number of api_keys per Org.
+    org_api_key = 10
+
+    # limit number of orgs a user can create.
+    user_org = 10
+
+    # Global limit of users.
+    global_user = -1
+
+    # global limit of orgs.
+    global_org = -1
+
+    # global limit of dashboards
+    global_dashboard = -1
+
+    # global limit of api_keys
+    global_api_key = -1
+
+    # global limit on number of logged in users.
+    global_session = -1
+
+    #################################### Alerting ############################
+    [alerting]
+    # Disable alerting engine & UI features
+    enabled = true
+    # Makes it possible to turn off alert rule execution but alerting UI is visible
+    execute_alerts = true
+
+    # Default setting for new alert rules. Defaults to categorize error and timeouts as alerting. (alerting, keep_state)
+    error_or_timeout = alerting
+
+    # Default setting for how Grafana handles nodata or null values in alerting. (alerting, no_data, keep_state, ok)
+    nodata_or_nullvalues = no_data
+
+    # Alert notifications can include images, but rendering many images at the same time can overload the server
+    # This limit will protect the server from render overloading and make sure notifications are sent out quickly
+    concurrent_render_limit = 5
+
+    # Default setting for alert calculation timeout. Default value is 30
+    evaluation_timeout_seconds = 30
+
+    # Default setting for alert notification timeout. Default value is 30
+    notification_timeout_seconds = 30
+
+    # Default setting for max attempts to sending alert notifications. Default value is 3
+    max_attempts = 3
+
+    # Makes it possible to enforce a minimal interval between evaluations, to reduce load on the backend
+    min_interval_seconds = 1
+
+    #################################### Explore #############################
+    [explore]
+    # Enable the Explore section
+    enabled = true
+
+    #################################### Internal Grafana Metrics ############
+    # Metrics available at HTTP API Url /metrics
+    [metrics]
+    enabled = true
+    interval_seconds = 10
+    # Disable total stats (stat_totals_*) metrics to be generated
+    disable_total_stats = false
+
+    #If both are set, basic auth will be required for the metrics endpoint.
+    basic_auth_username =
+    basic_auth_password =
+
+    # Send internal Grafana metrics to graphite
+    [metrics.graphite]
+    # Enable by setting the address setting (ex localhost:2003)
+    address =
+    prefix = prod.grafana.%(instance_name)s.
+
+    #################################### Grafana.com integration  ##########################
+    [grafana_net]
+    url = https://grafana.com
+
+    [grafana_com]
+    url = https://grafana.com
+
+    #################################### Distributed tracing ############
+    [tracing.jaeger]
+    # jaeger destination (ex localhost:6831)
+    address =
+    # tag that will always be included in when creating new spans. ex (tag1:value1,tag2:value2)
+    always_included_tag =
+    # Type specifies the type of the sampler: const, probabilistic, rateLimiting, or remote
+    sampler_type = const
+    # jaeger samplerconfig param
+    # for "const" sampler, 0 or 1 for always false/true respectively
+    # for "probabilistic" sampler, a probability between 0 and 1
+    # for "rateLimiting" sampler, the number of spans per second
+    # for "remote" sampler, param is the same as for "probabilistic"
+    # and indicates the initial sampling rate before the actual one
+    # is received from the mothership
+    sampler_param = 1
+    # Whether or not to use Zipkin span propagation (x-b3- HTTP headers).
+    zipkin_propagation = false
+    # Setting this to true disables shared RPC spans.
+    # Not disabling is the most common setting when using Zipkin elsewhere in your infrastructure.
+    disable_shared_zipkin_spans = false
+
+    #################################### External Image Storage ##############
+    [external_image_storage]
+    # Used for uploading images to public servers so they can be included in slack/email messages.
+    # You can choose between (s3, webdav, gcs, azure_blob, local)
+    provider =
+
+    [external_image_storage.s3]
+    endpoint =
+    path_style_access =
+    bucket_url =
+    bucket =
+    region =
+    path =
+    access_key =
+    secret_key =
+
+    [external_image_storage.webdav]
+    url =
+    username =
+    password =
+    public_url =
+
+    [external_image_storage.gcs]
+    key_file =
+    bucket =
+    path =
+
+    [external_image_storage.azure_blob]
+    account_name =
+    account_key =
+    container_name =
+
+    [external_image_storage.local]
+    # does not require any configuration
+
+    [rendering]
+    # Options to configure a remote HTTP image rendering service, e.g. using https://github.com/grafana/grafana-image-renderer.
+    # URL to a remote HTTP image renderer service, e.g. http://localhost:8081/render, will enable Grafana to render panels and dashboards to PNG-images using HTTP requests to an external service.
+    server_url =
+    # If the remote HTTP image renderer service runs on a different server than the Grafana server you may have to configure this to a URL where Grafana is reachable, e.g. http://grafana.domain/.
+    callback_url =
+    # Concurrent render request limit affects when the /render HTTP endpoint is used. Rendering many images at the same time can overload the server,
+    # which this setting can help protect against by only allowing a certain amount of concurrent requests.
+    concurrent_render_request_limit = 30
+
+    [panels]
+    # here for to support old env variables, can remove after a few months
+    enable_alpha = false
+    disable_sanitize_html = false
+
+    #################################### Grafana Image Renderer Plugin ##########################
+    [plugin.grafana-image-renderer]
+    # Instruct headless browser instance to use a default timezone when not provided by Grafana, e.g. when rendering panel image of alert.
+    # See ICU’s metaZones.txt (https://cs.chromium.org/chromium/src/third_party/icu/source/data/misc/metaZones.txt) for a list of supported
+    # timezone IDs. Fallbacks to TZ environment variable if not set.
+    rendering_timezone =
+
+    # Instruct headless browser instance to use a default language when not provided by Grafana, e.g. when rendering panel image of alert.
+    # Please refer to the HTTP header Accept-Language to understand how to format this value, e.g. 'fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5'.
+    rendering_language =
+
+    # Instruct headless browser instance to use a default device scale factor when not provided by Grafana, e.g. when rendering panel image of alert.
+    # Default is 1. Using a higher value will produce more detailed images (higher DPI), but will require more disk space to store an image.
+    rendering_viewport_device_scale_factor =
+
+    # Instruct headless browser instance whether to ignore HTTPS errors during navigation. Per default HTTPS errors are not ignored. Due to
+    # the security risk it's not recommended to ignore HTTPS errors.
+    rendering_ignore_https_errors =
+
+    # Instruct headless browser instance whether to capture and log verbose information when rendering an image. Default is false and will
+    # only capture and log error messages. When enabled, debug messages are captured and logged as well.
+    # For the verbose information to be included in the Grafana server log you have to adjust the rendering log level to debug, configure
+    # [log].filter = rendering:debug.
+    rendering_verbose_logging =
+
+    # Instruct headless browser instance whether to output its debug and error messages into running process of remote rendering service.
+    # Default is false. This can be useful to enable (true) when troubleshooting.
+    rendering_dumpio =
+
+    # Additional arguments to pass to the headless browser instance. Default is --no-sandbox. The list of Chromium flags can be found
+    # here (https://peter.sh/experiments/chromium-command-line-switches/). Multiple arguments is separated with comma-character.
+    rendering_args =
+
+    # You can configure the plugin to use a different browser binary instead of the pre-packaged version of Chromium.
+    # Please note that this is not recommended, since you may encounter problems if the installed version of Chrome/Chromium is not
+    # compatible with the plugin.
+    rendering_chrome_bin =
+
+    # Instruct how headless browser instances are created. Default is 'default' and will create a new browser instance on each request.
+    # Mode 'clustered' will make sure that only a maximum of browsers/incognito pages can execute concurrently.
+    # Mode 'reusable' will have one browser instance and will create a new incognito page on each request.
+    rendering_mode =
+
+    # When rendering_mode = clustered you can instruct how many browsers or incognito pages can execute concurrently. Default is 'browser'
+    # and will cluster using browser instances.
+    # Mode 'context' will cluster using incognito pages.
+    rendering_clustering_mode =
+    # When rendering_mode = clustered you can define maximum number of browser instances/incognito pages that can execute concurrently..
+    rendering_clustering_max_concurrency =
+
+    # Limit the maximum viewport width, height and device scale factor that can be requested.
+    rendering_viewport_max_width =
+    rendering_viewport_max_height =
+    rendering_viewport_max_device_scale_factor =
+
+    # Change the listening host and port of the gRPC server. Default host is 127.0.0.1 and default port is 0 and will automatically assign
+    # a port not in use.
+    grpc_host =
+    grpc_port =
+  juno-prometheus.yml: |
+    global:
+      scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+      evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+    scrape_configs:
+      # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+      - job_name: "prometheus"
+
+        # metrics_path defaults to '/metrics'
+        # scheme defaults to 'http'.
+        static_configs:
+          - targets: ["localhost:9090"]
+
+      - job_name: "node"
+        file_sd_configs:
+          - refresh_interval: 1m
+            files:
+              - "/home/www/system/prometheus/conf/*.yml"
+  multiple-region-admin.toml: |
+    [app]
+      secretKey="ASDFASDFASDF" # hashStatecode
+      mode="multiple"          # single without proxy, multiple with proxy
+
+    [configure]
+      dirs=["/tmp/www/server", "/tmp/www/.config"]
+      prefixes=["juno-agent", "jupiter-agent"]
+
+      [configure.agent]
+        port=50010
+
+    [logger.system]
+      debug=false        # 是否在命令行输出
+      level="debug"
+      async=false
+      name="system.json" # 日志名称
+      dir="."
+    [logger.biz]
+      debug=false     # 是否在命令行输出
+      level="debug"
+      async=false
+      name="biz.json" # 日志名称
+      dir="."
+
+    [session]
+      maxAge=172800
+      secret="ldfgoqnf935nvav34"
+      type=""
+
+    [register]
+      enable=true
+      connectTimeout="1s"
+      endpoints=["etcd:2379"]
+      secure=false
+
+    #################################### Server ##############################
+    [server.http]
+      # The ip address to bind to, empty will bind to all interfaces
+      host="0.0.0.0"
+      # The http port to use
+      port=50002
+      domain="localhost"
+    [server.govern]
+      # The ip address to bind to, empty will bind to all interfaces
+      host="0.0.0.0"
+      # The http port to use
+      port=50004
+    #################################### Database ##############################
+    [database]
+      enable=true
+      connMaxLifetime="300s"
+      debug=true
+      dsn="root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s"
+      level="panic"
+      maxIdleConns=50
+      maxOpenConns=100
+
+    [grafanaProxy]
+      enable=true
+      name="grafana"
+
+    #################################### Proxy ##############################
+    [[clientProxy.multiProxy]]
+      env="dev"
+      zoneCode="guanggu"
+
+      [clientProxy.multiProxy.stream]
+        enable=true
+        proxyAddr=["127.0.0.1:50001"]
+
+      [clientProxy.multiProxy.etcd]
+        enable=true
+        endpoints=["127.0.0.1:5239"]
+        timeout="3s"
+
+      [clientProxy.multiProxy.http]
+        enable=true
+        listenAddr="127.0.0.1:50000"
+        disableKeepAlives=true
+        maxIdelPerHost=1
+        maxIdleConns=10
+        timeout=100
+        scheme="http"
+
+    [pprof]
+      path="."
+
+    [auth]
+      # Login cookie name
+      loginCookieName="juno_session"
+      # The lifetime (days) an authenticated user can be inactive before being required to login at next visit. Default is 7 days.
+      # 接口授权用户
+      loginMaximumInactiveLifetimeDays=7
+      # The maximum lifetime (days) an authenticated user can be logged in since login time before being required to login. Default is 30 days.
+      # 页面登录用户
+      loginMaximumLifetimeDays=30
+      # How often should auth tokens be rotated for authenticated users when being active. The default is each 10 minutes.
+      # 刷新时间
+      tokenRotationIntervalMinutes=10
+      # Set to true to disable (hide) the login form, useful if you use OAuth
+      disableLoginForm=false
+      # Set to true to disable the signout link in the side menu. useful if you use auth.proxy
+      disableSignoutMenu=false
+      # URL to redirect the user to after sign out
+      signoutRedirectUrl=""
+      # Set to true to attempt login with OAuth automatically, skipping the login screen.
+      # This setting is ignored if multiple OAuth providers are configured.
+      oauthAutoLogin=false
+      # OAuth state max age cookie duration. Defaults to 60 seconds.
+      oauthStateCookieMaxAge=60
+      # limit of api_key seconds to live before expiration
+      apiKeyMaxSecondsToLive=-1
+
+      #################################### Github Auth #########################
+      [auth.github]
+        enable=true
+        allowSignUp=true
+        clientId="a6633e5544e60bd2574e"
+        clientSecret="7c6f51d97fc93d5d575ebd13115b20f397807549"
+        scopes=["user:email", "read:org"]
+        authUrl="https://github.com/login/oauth/authorize"
+        tokenUrl="https://github.com/login/oauth/access_token"
+        apiUrl="https://api.github.com/user"
+        allowedDomains=[]
+        teamIds=[]
+        allowedOrganizations=[]
+
+    [casbin]
+      enable=false
+      debug=true
+      autoLoad=true
+      autoLoadInternal=60
+      # 资源配置
+  multiple-region-proxy.toml: |
+    [app]
+        secretKey="ASDFASDFASDF"
+
+    [confgo]
+        dir="/tmp/www/server"
+        prefix="juno-agent"
+
+        [confgo.agent]
+            port=50010
+
+    [logger.system]
+        debug=false        # 是否在命令行输出
+        level="debug"
+        async=true
+        name="system.json" # 日志名称
+        dir="."
+    [logger.biz]
+        debug=false     # 是否在命令行输出
+        level="debug"
+        async=false
+        name="biz.json" # 日志名称
+        dir="."
+
+    [register]
+        enable=true
+        connectTimeout="1s"
+        endpoints=["etcd:2379"]
+        secure=false
+
+    #################################### Server ##############################
+    [serverProxy.httpServer]
+        # The ip address to bind to, empty will bind to all interfaces
+        host="0.0.0.0"
+        # The http port to use
+        port=50000
+
+    [serverProxy.grpcServer]
+        # The ip address to bind to, empty will bind to all interfaces
+        host="0.0.0.0"
+        # The http port to use
+        port=50001
+
+    [serverProxy.governServer]
+        # The ip address to bind to, empty will bind to all interfaces
+        host="0.0.0.0"
+        # The http port to use
+        port=50008
+
+    [serverProxy.heartbeat]
+        enable=true
+        debug=true
+        addr="stream"
+        internal="120s"
+        hostName="JUNO_HOST"     # 环境变量的名称，或者命令行参数的名称
+        regionCode="REGION_CODE" # 环境变量的名称，或者命令行参数的名称
+        regionName="REGION_NAME"
+        zoneCode="ZONE_CODE"
+        zoneName="ZONE_NAME"
+        env="env"
+
+    [serverProxy.etcd]
+        enable=true
+        listenAddr="127.0.0.1:52379"
+        endpoints=["etcd:2379"]
+        namespace=""
+        [serverProxy.etcd.tls]
+            cert=""
+            key=""
+            cacert=""
+
+    [serverProxy.prometheus]
+        enable=true
+        listenAddr="127.0.0.1:59090"
+        backend="127.0.0.1:9090"
+        disableKeepAlives=true
+        maxIdleConns=100
+        maxIdelPerHost=200
+        timeout=3
+  single-region-admin.toml: "[app]\n    secretKey=\"ASDFASDFASDF\"      # hashStatecode\n
+    \   mode=\"local\"                  # single without proxy, multiple with proxy\n
+    \   productionEnvs=[\"production\"]\n\n[configure]\n    dir=\"/tmp/www/server\"\n
+    \   prefix=\"juno-agent\"\n    initEtcdConfig = true  \n\n[agent]\n    port=60814\n
+    \   secret=\"12341234123412341234123412341234\"\n\n[logger.system]\n    debug=false
+    \        # 是否在命令行输出\n    enableConsole=false # 是否按命令行格式输出\n    level=\"debug\"\n
+    \   async=false\n    name=\"system.json\"  # 日志名称\n    dir=\"./logs\"\n[pprof]\n
+    \   path = \"/tmp\"\n[logger.biz]\n    debug=false         # 是否在命令行输出\n    enableConsole=false
+    # 是否按命令行格式输出\n    level=\"debug\"\n    async=false\n    name=\"biz.json\"     #
+    日志名称\n    dir=\"./logs\"\n\n[session]\n    maxAge=172800\n    secret=\"ldfgoqnf935nvav34\"\n
+    \   type=\"\"\n\n[register]\n    enable=true\n    connectTimeout=\"1s\"\n    endpoints=[\"http://etcd:2379\"]\n
+    \   secure=false\n\n[grafanaProxy]\n    enable=true\n    name=\"grafana\"\n\n####################################
+    Server ##############################\n[server.http]\n    # The ip address to
+    bind to, empty will bind to all interfaces\n    host=\"0.0.0.0\"\n    # The http
+    port to use\n    port=50002\n    # The public facing domain name used to access
+    grafana from a browser\n    domain=\"localhost\"\n    rootUrl=\"http://127.0.0.1:50002/\"\n\n[server.govern]\n
+    \   port=50004\n    enable=true\n\n#################################### Jupiter
+    Config #########################\n[jupiter]\n\n    ####################################
+    Config Dependency Parse #########################\n    [jupiter.cron]\n\n        [jupiter.cron.parse]\n
+    \           withSeconds=false\n            concurrentDelay=10\n            immediatelyRun=false\n\n[jupiter.server]\n\n
+    \   [jupiter.server.governor]\n        # The ip address to bind to, empty will
+    bind to all interfaces\n        host=\"0.0.0.0\"\n        # The http port to use\n
+    \       port=50004\n        enable=true\n\n####################################
+    Database ##############################\n[database]\n    enable=true\n    connMaxLifetime=\"300s\"\n
+    \   debug=true\n    dsn=\"root:root@tcp(db:3306)/juno?charset=utf8&parseTime=True&loc=Local&readTimeout=1s&timeout=1s&writeTimeout=3s\"\n
+    \   level=\"panic\"\n    maxIdleConns=50\n    maxOpenConns=100\n\n####################################
+    Proxy ##############################\n[clientProxy]\n    [clientProxy.httpRouter]\n
+    \       governConfig=\"/debug/config\"\n    [clientProxy.singleProxy.registerEtcd]\n
+    \       endpoints=[\"http://etcd:2379\"]\n\n    [clientProxy.singleProxy.defaultEtcd]\n
+    \       endpoints=[\"http://etcd:2379\"]\n\n[auth]\n    # Login cookie name\n
+    \   loginCookieName=\"juno_session\"\n    # The lifetime (days) an authenticated
+    user can be inactive before being required to login at next visit. Default is
+    7 days.\n    # 接口授权用户\n    loginMaximumInactiveLifetimeDays=7\n    # The maximum
+    lifetime (days) an authenticated user can be logged in since login time before
+    being required to login. Default is 30 days.\n    # 页面登录用户\n    loginMaximumLifetimeDays=30\n
+    \   # How often should auth tokens be rotated for authenticated users when being
+    active. The default is each 10 minutes.\n    # 刷新时间\n    tokenRotationIntervalMinutes=10\n
+    \   # Set to true to disable (hide) the login form, useful if you use OAuth\n
+    \   disableLoginForm=false\n    # Set to true to disable the signout link in the
+    side menu. useful if you use auth.proxy\n    disableSignoutMenu=false\n    # URL
+    to redirect the user to after sign out\n    signoutRedirectUrl=\"\"\n    # Set
+    to true to attempt login with OAuth automatically, skipping the login screen.\n
+    \   # This setting is ignored if multiple OAuth providers are configured.\n    oauthAutoLogin=false\n
+    \   # OAuth state max age cookie duration. Defaults to 60 seconds.\n    oauthStateCookieMaxAge=60\n
+    \   # limit of api_key seconds to live before expiration\n    apiKeyMaxSecondsToLive=-1\n\n
+    \   #################################### Github Auth #########################\n
+    \   [auth.github]\n        enable=true\n        allowSignUp=true\n        clientId=\"b88bb66e4d3114ed1669\"\n
+    \       clientSecret=\"a42917ca55917f330eb913cc9504cd6a1aeecabc\"\n        scopes=[\"user:email\",
+    \"read:org\"]\n        authUrl=\"https://github.com/login/oauth/authorize\"\n
+    \       tokenUrl=\"https://github.com/login/oauth/access_token\"\n        apiUrl=\"https://api.github.com/user\"\n
+    \       allowedDomains=[]\n        teamIds=[]\n        allowedOrganizations=[]\n\n[casbin]\n
+    \   enable=false\n    debug=true\n    autoLoad=true\n    autoLoadInternal=60\n\n[proxyAuth]\n
+    \   token=\"token\" # 用于对 Juno Proxy 的请求进行授权\n\n[grpcTest]\n    enable=false\n
+    \   # PB文件目录，该目录下的所有PB文件会被遍历\n    protoDir='../proto'\n\n####################################
+    Go Dep Auth #########################\n[godep.gitlab]\n    host=\"https://gitlab.com\"\n
+    \   token=\"RgZev8zy6dtP2y8EA4sB\"\n    frameName=\"gitlab.com/douyu/jupiter\"\n\n[codeplatform]\n
+    \   token=\"token\" # 代码仓库访问凭证\n\n[testplatform]\n    enable=false # 是否启用测试平台\n\n
+    \   [testplatform.worker]\n        localQueueDir=\"/tmp/localworkerqueue\"\n        heartbeatTimeout=\"6s\"\n\n####################################
+    notice #########################\n[notice]\n\n    [notice.email]\n        serverHost=\"smtp.163.com\"\n
+    \       serverPort=465\n        fromEmail=\"xxx@163.com\"\n        fromPasswd=\"xxx\"\n
+    \       toers=[\"xxxxxxx@qq.com\"]\n        cCers=[\"xxx@qq.com\"]\n\n    [notice.ding]\n
+    \       webHook=\"http://XXX.com\"\n        msgType=\"text\"\n\n# 系统事件的 RocektMQ
+    配置\n[junoevent.rocketmq]\n    enable=false            # 开关.如果为false，则系统事件不写MQ.\n
+    \   addr=[\"127.0.0.1:9876\"] # mq地址\n    topic=\"juno_test_job\"   # mq topic\n
+    \   group=\"juno_devops_go\"  # mq producer group\n    retry=3                 #
+    MQ写重试次数\n    dialTimeout=\"3s\"        # MQ连接超时时间\n\n[k8s]\n    enable=true\n
+    \   prefix=[\"\"]\n    doc=\"\"\n    namespace=\"default\"\n[aliyun] # 阿里云日志秘钥配置\n
+    \   accessKeyId=\"\"\n    secret=\"\"\n    roleArn=\"\"\n    [aliyun.regions]\n
+    \       \"华北2（北京）\"=\"cn-beijing\"\n"
+kind: ConfigMap
+metadata:
+  name: juno-admin-cm0
+---
+apiVersion: v1
+data:
+  config.toml: |
+    [plugin]
+
+        [plugin.regProxy]
+            enable=true
+
+            [plugin.regProxy.prometheus]
+                enable=true
+                path="/home/www/system/prometheus/conf"
+                enableZone=true
+                zones=[""]                       # 用于支持zone过滤
+                enableCleanup=true
+                timeInterval=10
+
+    [plugin.confProxy]
+        # 配置中心地址
+        env=["dev", "live", "pre"]
+        prefix="/juno-agent"
+        timeout="3s"
+        enable=true
+
+        #配置中心数据源
+        [plugin.confProxy.mysql]
+            enable=false
+            dsn=""
+            secure=false
+
+    [plugin.supervisor]
+        enable=true
+        dir="/etc/supervisor/conf.d"
+
+    [plugin.systemd]
+        enable=true
+        dir="/etc/systemd/system"
+
+    [plugin.nginx]
+        enable=false
+        dir="/usr/local/openresty/nginx/conf"
+
+    [plugin.report]
+        enable=true
+        debug=true
+        addr="http://juno-admin:50002/api/v1/resource/node/heartbeat"
+        internal="60s"
+        hostName="JUNO_HOST"                                          # 环境变量的名称，或者命令行参数的名称
+        regionCode="REGION_CODE"                                      # 环境变量的名称，或者命令行参数的名称
+        regionName="REGION_NAME"
+        zoneCode="ZONE_CODE"
+        zoneName="ZONE_NAME"
+        env="ENV"
+
+    [plugin.healthCheck]
+        enable=false
+
+    [plugin.process]
+        enable=false
+
+    [plugin.worker]
+        enable=false
+        reqTimeout=10
+
+    # service registry etcd
+    [jupiter.etcdv3.register]
+        endpoints=["http://etcd:2379"]
+        connectTimeout="3s"
+
+    # default etcd (config-publish / cronjob-dispatch / etc...)
+    [jupiter.etcdv3.default]
+        endpoints=["http://etcd:2379"]
+        connectTimeout="3s"
+
+    [jupiter.logger.default]
+        name="default"
+        debug=true
+
+    [jupiter.logger.cronjob]
+        name="cronjob.log"
+        level="debug"
+
+    [jupiter.server]
+
+        [jupiter.server.grpc]
+            host="0.0.0.0"
+            port=60813
+
+        [jupiter.server.http]
+            host="0.0.0.0"
+            port=50010
+
+    [api]
+        # 密钥长度需要为32位
+        secret="j1Sblr5uiJtuCQLsT89BRqtAgWDO2anI"
+kind: ConfigMap
+metadata:
+  name: juno-agent-cm0
+---
+apiVersion: v1
+data:
+  juno-prometheus.yml: |
+    global:
+      scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+      evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+    scrape_configs:
+        # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+        - job_name: "prometheus"
+
+          # metrics_path defaults to '/metrics'
+          # scheme defaults to 'http'.
+
+          static_configs:
+            - targets: ["localhost:9090"]
+
+        - job_name: "node"
+          file_sd_configs:
+            - refresh_interval: 1m
+              files:
+                - "/home/www/system/prometheus/conf/*.yml"
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prometheus
+  name: prometheus-cm0
+---
+apiVersion: v1
+data:
+  server.yml: |-
+    # this is an example config file for pyroscope server
+    ---
+    base-url: "/proxy/pyroscope"
+    storage-path: "/tmp"
+    retention: 24h # 1 days
+    retention-levels:
+      0: 24h  # 1 days
+      1: 168h # 7 day
+    # A list of scrape configurations.
+    scrape-configs:
+      - job-name: pyroscope
+        #The list of profiles to be scraped from the targets.
+        enabled-profiles: [cpu, mem, goroutine]
+        profiles:
+          goroutine:
+            path: /debug/pprof/goroutine
+            sample-types:
+              goroutine:
+                units: objects
+                aggregation: avg
+        file-sd-configs:
+          - refresh-interval: 1m
+            files:
+              - "/home/www/system/prometheus/conf/pyroscope/*.yml"
+kind: ConfigMap
+metadata:
+  name: pyroscope-cm0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: adminer
+  name: adminer
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  selector:
+    io.kompose.service: adminer
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker
+  name: broker
+spec:
+  ports:
+  - name: "10909"
+    port: 10909
+    targetPort: 10909
+  - name: "10911"
+    port: 10911
+    targetPort: 10911
+  - name: "10912"
+    port: 10912
+    targetPort: 10912
+  selector:
+    io.kompose.service: broker
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db
+  name: db
+spec:
+  ports:
+  - name: "3306"
+    port: 3306
+    targetPort: 3306
+  selector:
+    io.kompose.service: db
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: etcd
+  name: etcd
+spec:
+  ports:
+  - name: "2379"
+    port: 2379
+    targetPort: 2379
+  - name: "2380"
+    port: 2380
+    targetPort: 2380
+  - name: "4001"
+    port: 4001
+    targetPort: 4001
+  selector:
+    io.kompose.service: etcd
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: grafana
+  name: grafana
+spec:
+  ports:
+  - name: "3000"
+    port: 3000
+    targetPort: 3000
+  selector:
+    io.kompose.service: grafana
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: jaeger
+  name: jaeger
+spec:
+  ports:
+  - name: "16686"
+    port: 16686
+    targetPort: 16686
+  - name: "14268"
+    port: 14268
+    targetPort: 14268
+  - name: "14269"
+    port: 14269
+    targetPort: 14269
+  - name: "14250"
+    port: 14250
+    targetPort: 14250
+  - name: "9411"
+    port: 9411
+    targetPort: 9411
+  - name: "5778"
+    port: 5778
+    targetPort: 5778
+  - name: "5775"
+    port: 5775
+    protocol: UDP
+    targetPort: 5775
+  - name: "6831"
+    port: 6831
+    protocol: UDP
+    targetPort: 6831
+  - name: "6832"
+    port: 6832
+    protocol: UDP
+    targetPort: 6832
+  selector:
+    io.kompose.service: jaeger
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.image-pull-policy: Always
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-admin
+  name: juno-admin
+spec:
+  ports:
+  - name: "50002"
+    port: 50002
+    targetPort: 50002
+  - name: "50004"
+    port: 50004
+    targetPort: 50004
+  selector:
+    io.kompose.service: juno-admin
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-agent
+  name: juno-agent
+spec:
+  ports:
+  - name: "50010"
+    port: 50010
+    targetPort: 50010
+  selector:
+    io.kompose.service: juno-agent
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mqconsole
+  name: mqconsole
+spec:
+  ports:
+  - name: "19876"
+    port: 19876
+    targetPort: 8080
+  selector:
+    io.kompose.service: mqconsole
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namesrv
+  name: namesrv
+spec:
+  ports:
+  - name: "9876"
+    port: 9876
+    targetPort: 9876
+  selector:
+    io.kompose.service: namesrv
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prometheus
+  name: prometheus
+spec:
+  ports:
+  - name: "9090"
+    port: 9090
+    targetPort: 9090
+  selector:
+    io.kompose.service: prometheus
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: pyroscope
+  name: pyroscope
+spec:
+  ports:
+  - name: "4040"
+    port: 4040
+    targetPort: 4040
+  selector:
+    io.kompose.service: pyroscope
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  ports:
+  - name: "6379"
+    port: 6379
+    targetPort: 6379
+  selector:
+    io.kompose.service: redis
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: adminer
+  name: adminer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: adminer
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: adminer
+    spec:
+      containers:
+      - image: registry.cn-hangzhou.aliyuncs.com/sophos/adminer:4.8.1
+        name: adminer
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker
+  name: broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: broker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: broker
+    spec:
+      containers:
+      - args:
+        - sh
+        - mqbroker
+        - -n
+        - namesrv:9876
+        - -c
+        - ../conf/broker.conf
+        env:
+        - name: JAVA_OPT_EXT
+          value: -Xmx256m -Xms256m -Xmn128m
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/apacherocketmq.rocketmq:4.5.0
+        name: broker
+        ports:
+        - containerPort: 10909
+        - containerPort: 10911
+        - containerPort: 10912
+        resources: {}
+        volumeMounts:
+        - mountPath: /home/rocketmq/rocketmq-4.5.0/conf/broker.conf
+          name: broker-cm0
+          subPath: broker.conf
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          items:
+          - key: broker.conf
+            path: broker.conf
+          name: broker-cm0
+        name: broker-cm0
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: db
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: db
+    spec:
+      containers:
+      - args:
+        - --default-authentication-plugin=mysql_native_password
+        env:
+        - name: MYSQL_ROOT_HOST
+          value: '%'
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/mysql:5.7
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - -h
+            - localhost
+            - -u
+            - root
+            - -proot
+          failureThreshold: 10
+          timeoutSeconds: 20
+        name: db
+        ports:
+        - containerPort: 3306
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: etcd
+  name: etcd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: etcd
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: etcd
+    spec:
+      containers:
+      - env:
+        - name: ALLOW_NONE_AUTHENTICATION
+          value: "yes"
+        - name: ETCDCTL_API
+          value: "3"
+        - name: ETCD_ADVERTISE_CLIENT_URLS
+          value: http://0.0.0.0:2379
+        - name: ETCD_LISTEN_CLIENT_URLS
+          value: http://0.0.0.0:2379
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/quay.io.coreos.etcd:v3.3
+        name: etcd
+        ports:
+        - containerPort: 2379
+        - containerPort: 2380
+        - containerPort: 4001
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: grafana
+  name: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: grafana
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: grafana
+    spec:
+      containers:
+      - image: registry.cn-hangzhou.aliyuncs.com/sophos/grafana.grafana:9.3.6
+        name: grafana
+        ports:
+        - containerPort: 3000
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/grafana/grafana.ini
+          name: juno-admin-cm0
+          subPath: grafana.ini
+        - mountPath: /var/lib/grafana/plugins
+          name: pluginvolume
+      initContainers:
+      - command:
+        - python
+        - /tmp/init_plugin.py
+        env:
+        - name: GRAFANA_PLUGINS
+          value: pyroscope-datasource:1.1.3,pyroscope-panel:1.4.1
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/python:3.9-alpine
+        name: installplugin
+        volumeMounts:
+        - mountPath: /var/lib/grafana/plugins
+          name: pluginvolume
+        - mountPath: /tmp/init_plugin.py
+          name: juno-admin-cm0
+          subPath: init_plugin.py
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          items:
+          - key: juno-grafana.ini
+            path: grafana.ini
+          - key: init_plugin.py
+            path: init_plugin.py
+          name: juno-admin-cm0
+        name: juno-admin-cm0
+      - emptyDir: {}
+        name: pluginvolume
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: jaeger
+  name: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: jaeger
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: jaeger
+    spec:
+      containers:
+      - env:
+        - name: COLLECTOR_ZIPKIN_HOST_PORT
+          value: :9411
+        - name: QUERY_BASE_PATH
+          value: /proxy/jaeger
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/jaegertracing.all-in-one:1.42
+        name: jaeger
+        ports:
+        - containerPort: 16686
+        - containerPort: 14268
+        - containerPort: 14269
+        - containerPort: 14250
+        - containerPort: 9411
+        - containerPort: 5778
+        - containerPort: 5775
+          protocol: UDP
+        - containerPort: 6831
+          protocol: UDP
+        - containerPort: 6832
+          protocol: UDP
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.image-pull-policy: Always
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-admin
+  name: juno-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: juno-admin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.image-pull-policy: Always
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        appName: juno-admin
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: juno-admin
+        runEnv: dev
+    spec:
+      containers:
+      - image: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-admin-dev:latest
+        imagePullPolicy: Always
+        name: juno-admin
+        ports:
+        - containerPort: 50002
+        - containerPort: 50004
+        resources: {}
+        volumeMounts:
+        - mountPath: /root/juno/config
+          name: juno-admin-cm0
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: juno-admin-cm0
+        name: juno-admin-cm0
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: juno-agent
+  name: juno-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: juno-agent
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        appName: juno-agent
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: juno-agent
+        name: juno-agent
+        runEnv: dev
+    spec:
+      containers:
+      - env:
+        - name: ENV
+          value: dev
+        - name: JUNO_HOST
+          value: juno-agent-dev01
+        - name: REGION_CODE
+          value: cn-wuhan
+        - name: REGION_NAME
+          value: 武汉
+        - name: ZONE_CODE
+          value: cn-wuhan-guanggu-f1
+        - name: ZONE_NAME
+          value: 武汉光谷F1区
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-agent-dev:latest
+        name: juno-agent
+        ports:
+        - containerPort: 50010
+        resources: {}
+        volumeMounts:
+        - mountPath: /app/config
+          name: juno-agent-cm0
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          name: juno-agent-cm0
+        name: juno-agent-cm0
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mqconsole
+  name: mqconsole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mqconsole
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: mqconsole
+    spec:
+      containers:
+      - env:
+        - name: JAVA_OPTS
+          value: -Drocketmq.namesrv.addr=namesrv:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=falses
+        - name: JAVA_OPT_EXT
+          value: -Xmx256m -Xms256m -Xmn128m
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/apacherocketmq.rocketmq-dashboard:1.0.0
+        name: mqconsole
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namesrv
+  name: namesrv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: namesrv
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: namesrv
+    spec:
+      containers:
+      - args:
+        - sh
+        - mqnamesrv
+        env:
+        - name: JAVA_OPT_EXT
+          value: -Xmx256m -Xms256m -Xmn128m
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/apacherocketmq.rocketmq:4.5.0
+        name: namesrv
+        ports:
+        - containerPort: 9876
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+    kompose.volume.type: configMap
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prometheus
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: prometheus
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+        kompose.volume.type: configMap
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: prometheus
+    spec:
+      containers:
+      - image: registry.cn-hangzhou.aliyuncs.com/sophos/prom.prometheus:v2.42.0
+        name: prometheus
+        ports:
+        - containerPort: 9090
+        resources: {}
+        volumeMounts:
+        - mountPath: /home/www/system/prometheus/
+          name: shared-data
+        - mountPath: /etc/prometheus/prometheus.yml
+          name: prometheus-cm0
+          subPath: prometheus.yml
+      - env:
+        - name: ENV
+          value: dev
+        - name: JUNO_HOST
+          value: juno-agent-prometheus
+        - name: REGION_CODE
+          value: cn-wuhan
+        - name: REGION_NAME
+          value: 武汉
+        - name: ZONE_CODE
+          value: cn-wuhan-guanggu-f1
+        - name: ZONE_NAME
+          value: 武汉光谷F1区
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-agent-dev:latest
+        name: juno-agent
+        ports:
+        - containerPort: 50010
+        resources: {}
+        volumeMounts:
+        - mountPath: /home/www/system/prometheus/
+          name: shared-data
+        - mountPath: /app/config
+          name: juno-agent-cm0
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          items:
+          - key: juno-prometheus.yml
+            path: prometheus.yml
+          name: prometheus-cm0
+        name: prometheus-cm0
+      - configMap:
+          name: juno-agent-cm0
+        name: juno-agent-cm0
+      - emptyDir: {}
+        name: shared-data
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: pyroscope
+  name: pyroscope
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: pyroscope
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        appName: juno-agent
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: pyroscope
+        name: juno-agent
+        runEnv: prod
+    spec:
+      containers:
+      - args:
+        - server
+        - -config
+        - /etc/pyroscope/server.yml
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/pyroscope.pyroscope:0.37.2
+        name: pyroscope
+        ports:
+        - containerPort: 4040
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/pyroscope/server.yml
+          name: pyroscope-cm0
+          subPath: server.yml
+        - mountPath: /home/www/system/prometheus/
+          name: shared-data
+      - env:
+        - name: ENV
+          value: dev
+        - name: JUNO_HOST
+          value: juno-agent-pyroscope
+        - name: REGION_CODE
+          value: cn-wuhan
+        - name: REGION_NAME
+          value: 武汉
+        - name: ZONE_CODE
+          value: cn-wuhan-guanggu-f1
+        - name: ZONE_NAME
+          value: 武汉光谷F1区
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/ghcr.io.douyu.juno-agent-dev:latest
+        name: juno-agent
+        ports:
+        - containerPort: 50010
+        resources: {}
+        volumeMounts:
+        - mountPath: /home/www/system/prometheus/
+          name: shared-data
+        - mountPath: /app/config
+          name: juno-agent-cm0
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          items:
+          - key: server.yml
+            path: server.yml
+          name: pyroscope-cm0
+        name: pyroscope-cm0
+      - configMap:
+          name: juno-agent-cm0
+        name: juno-agent-cm0
+      - emptyDir: {}
+        name: shared-data
+status: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+    kompose.version: 1.28.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redis
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: redis
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f deployment/docker-compose.yml -o deployment/install.yml
+        kompose.version: 1.28.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/deployment-default: "true"
+        io.kompose.service: redis
+    spec:
+      containers:
+      - args:
+        - redis-server
+        image: registry.cn-hangzhou.aliyuncs.com/sophos/redis:6.2-alpine
+        name: redis
+        ports:
+        - containerPort: 6379
+        resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  creationTimestamp: null
+  name: deployment-default
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          io.kompose.network/deployment-default: "true"
+  podSelector:
+    matchLabels:
+      io.kompose.network/deployment-default: "true"
