@@ -14,6 +14,15 @@
 
 JUNO（朱诺） 是斗鱼数据服务组研发的分布式服务管理系统，核心功能为配置中心，能集中化管理应用不同环境、不同机房的配置；并且集成了监控中心、测试平台、日志中心等功能模块，采用Casbin进行规范化的权限管理，适用于微服务生命周期管理。
 
+## Online Demo
+
+[Jupiter Console (Juno)](https://jupiterconsole.douyu.com)
+
+```
+Username: admin
+Password: admin
+```
+
 ## Documentation
 
 更多产品介绍参见 [Juno微服务治理系统介绍](http://jupiter.douyu.com/juno)
