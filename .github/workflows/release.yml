@@ -81,7 +81,7 @@ jobs:
           echo "::set-output name=file_name::$(ls dist/juno_*linux* |cut -c 6-)"
 
       - name: Build and push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v6.0
+        uses: mr-smithers-excellent/docker-build-push@v6.1
         with:
           registry: ${{ env.REGISTRY }}
           image: ${{ env.IMAGE_NAME }}
@@ -93,7 +93,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push MySQL image
-        uses: mr-smithers-excellent/docker-build-push@v6.0
+        uses: mr-smithers-excellent/docker-build-push@v6.1
         with:
           registry: ${{ env.REGISTRY }}
           image: ${{ env.MYSQL_IMAGE_NAME }}
