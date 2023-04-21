@@ -117,7 +117,6 @@ func (c *CasbinService) CheckPermission(sub, object, action string, policyType d
 	if !c.enabled {
 		return true, nil
 	}
-
 	ok, err = c.Enforce(sub, object, action, string(policyType))
 	if err != nil {
 		log.Errorf("CasbinService.CheckUserPermission: %s", err.Error())
