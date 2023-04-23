@@ -22,7 +22,7 @@ const (
 	Url_Gitlab = "/api/v4/projects/%d/repository/files/%s?ref=%s"
 )
 
-//DepApp ..
+// DepApp ..
 type DepApp interface {
 	ParseDepFile(app db.AppInfo) ([]*db.AppPackage, error) // 获取依赖文件内容并解析
 	SaveToMysql(aid int, records []*db.AppPackage) error   // 解析结果存储到mysql
@@ -63,7 +63,7 @@ func (p *appDep) SyncAppVersion() error {
 
 		appPackages, err := depApp.ParseDepFile(app)
 		if err != nil {
-			xlog.Error("ParseDepFile", zap.Error(err), zap.String("appName", app.AppName))
+			xlog.Warn("ParseDepFile", zap.Error(err), zap.String("appName", app.AppName))
 		} else {
 			xlog.Info("ParseDepFile success", zap.String("appName", app.AppName))
 		}
