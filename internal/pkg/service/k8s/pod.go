@@ -516,6 +516,7 @@ func (i *syncPod) mysqlCreateOrUpdate(zoneCode, domain string, in *v1.Pod) (err 
 		}
 		return
 	}
+
 	// 数据库中不存在对应记录进行insert操作，或者历史配置被删除了，目前只有日志记录存档
 	err = i.db.Save(&m).Error
 	if err != nil {
