@@ -42,7 +42,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/viper v1.15.0
-	github.com/swaggo/swag v1.8.10
+	github.com/swaggo/swag v1.16.1
 	github.com/syndtr/goleveldb v1.0.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/uber-archive/go-torch v0.0.0-20181107071353-86f327cc820e
