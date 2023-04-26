@@ -27,7 +27,7 @@ require (
 	github.com/jhump/protoreflect v1.15.0
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/kevinpollet/nego v0.0.0-20211010160919-a65cd48cee43
-	github.com/labstack/echo-contrib v0.14.0
+	github.com/labstack/echo-contrib v0.14.1
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/labstack/gommon v0.4.0
 	github.com/link-duan/toml v0.3.2
@@ -151,7 +151,7 @@ require (
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
-	github.com/prometheus/common v0.39.0 // indirect
+	github.com/prometheus/common v0.40.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
