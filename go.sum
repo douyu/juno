@@ -100,8 +100,8 @@ github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+Ce
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
-github.com/bojand/ghz v0.114.0 h1:7VFBFmqEybgNLTZ1+r5s9mJAo4ne4xhQyKuis6koCFQ=
-github.com/bojand/ghz v0.114.0/go.mod h1:74kwbyjM8v55jIjRwEeYRZUfZSbBhV2ToMRtypyA+Ic=
+github.com/bojand/ghz v0.115.0 h1:L5IApM32No8welaZsu5TyHMRca6Y1dBL0RLa27zAGfU=
+github.com/bojand/ghz v0.115.0/go.mod h1:T8thwhfwJP1sXDkdg9YsTBwhDPT0vjFFR2EKgNQwOUA=
 github.com/bufbuild/protocompile v0.2.1-0.20230123224550-da57cd758c2f h1:IXSA5gow10s7zIOJfPOpXDtNBWCTA0715BDAhoJBXEs=
 github.com/bufbuild/protocompile v0.2.1-0.20230123224550-da57cd758c2f/go.mod h1:tleDrpPTlLUVmgnEoN6qBliKWqJaZFJXqZdFjTd+ocU=
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
