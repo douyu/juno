@@ -105,8 +105,8 @@ gen-dev-deployment:
 	kustomize build deployment/overlays/dev-mirror > deployment/install-mirror.yml
 
 gen-deployment:
-	kustomize build deployment/release > deployment/install.yml
-	kustomize build deployment/release-mirror > deployment/install-mirror.yml
+	kustomize build deployment/overlays/release > deployment/install.yml
+	kustomize build deployment/overlays/release-mirror > deployment/install-mirror.yml
 
 build-mysql:
 	cd deployment/dockerfiles/mysql/ && docker build -t mysql:5.7 .
