@@ -28,6 +28,8 @@ func (d Dir) Exists(name string) bool {
 	}
 	fullName := filepath.Join(dir, filepath.FromSlash(path.Clean("/"+name)))
 	fullName = strings.TrimPrefix(fullName, strings.TrimPrefix(Prefix, "/"))
+	fullName = strings.TrimPrefix(fullName, string(filepath.Separator))
+	fullName = strings.ReplaceAll(fullName, "\\", "/")
 	_, err := statikFS.Open(fullName)
 	return err == nil
 }
@@ -38,7 +40,10 @@ func (d Dir) Open(name string) (http.File, error) {
 	if dir == "" {
 		dir = "."
 	}
+
 	fullName := filepath.Join(dir, filepath.FromSlash(path.Clean("/"+name)))
 	fullName = strings.TrimPrefix(fullName, strings.TrimPrefix(Prefix, "/"))
+	fullName = strings.TrimPrefix(fullName, string(filepath.Separator))
+	fullName = strings.ReplaceAll(fullName, "\\", "/")
 	return statikFS.Open(fullName)
 }
