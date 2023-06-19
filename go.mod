@@ -10,7 +10,7 @@ require (
 	github.com/aliyun/aliyun-log-go-sdk v0.1.43
 	github.com/apache/rocketmq-client-go/v2 v2.1.2-0.20221202035048-f56a2dba2af8
 	github.com/beeker1121/goque v2.1.0+incompatible
-	github.com/bojand/ghz v0.114.0
+	github.com/bojand/ghz v0.117.0
 	github.com/casbin/casbin/v2 v2.64.0
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/douyu/jupiter v0.11.3
@@ -24,7 +24,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/gorilla/sessions v1.2.1
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/jhump/protoreflect v1.15.0
+	github.com/jhump/protoreflect v1.15.1
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/kevinpollet/nego v0.0.0-20211010160919-a65cd48cee43
 	github.com/labstack/echo-contrib v0.14.1
@@ -79,7 +79,7 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/bufbuild/protocompile v0.2.1-0.20230123224550-da57cd758c2f // indirect
+	github.com/bufbuild/protocompile v0.4.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -197,7 +197,7 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230223222841-637eb2293923 // indirect
 	google.golang.org/grpc/examples v0.0.0-20220831213702-ddcda5f76a3b // indirect
-	google.golang.org/protobuf v1.28.2-0.20220831092852-f930b1dc76e8 // indirect
+	google.golang.org/protobuf v1.28.2-0.20230222093303-bc1253ad3743 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
