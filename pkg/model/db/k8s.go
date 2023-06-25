@@ -60,7 +60,7 @@ func (t *K8sPod) Formatting(zc, domain string, in *v1.Pod) {
 	t.PodIp = strings.TrimSpace(in.Status.PodIP)
 	t.Status = strings.TrimSpace(string(in.Status.Phase))
 	if in.Status.StartTime != nil {
-		t.StartTime = time.Unix(in.Status.StartTime.Time.Unix(), 0)
+		t.StartTime = in.Status.StartTime.Time
 	}
 	t.UpdateTime = time.Unix(time.Now().Unix(), 0)
 	t.InstanceGroupID = strings.TrimSpace(in.ObjectMeta.Labels["appDeploymentId"])
