@@ -11,7 +11,7 @@ require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.2-0.20221202035048-f56a2dba2af8
 	github.com/beeker1121/goque v2.1.0+incompatible
 	github.com/bojand/ghz v0.117.0
-	github.com/casbin/casbin/v2 v2.64.0
+	github.com/casbin/casbin/v2 v2.74.0
 	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292
 	github.com/douyu/jupiter v0.11.3
 	github.com/go-git/go-git/v5 v5.6.1
