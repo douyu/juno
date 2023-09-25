@@ -72,8 +72,8 @@ github.com/alecthomas/units v0.0.0-20190717042225-c3de453c63f4/go.mod h1:ybxpYRF
 github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk541a8SKzHPHnH3zbiI+7dagKZ0cgpgrD7Fyho=
 github.com/alibaba/sentinel-golang v1.0.4 h1:i0wtMvNVdy7vM4DdzYrlC4r/Mpk1OKUUBurKKkWhEo8=
 github.com/alibaba/sentinel-golang v1.0.4/go.mod h1:Lag5rIYyJiPOylK8Kku2P+a23gdKMMqzQS7wTnjWEpk=
-github.com/aliyun/alibaba-cloud-sdk-go v1.62.186 h1:ua+NMlPxYhM8aGt1ZJ+BjR/0FXpqI3xa57711S4jlhI=
-github.com/aliyun/alibaba-cloud-sdk-go v1.62.186/go.mod h1:Api2AkmMgGaSUAhmk76oaFObkoeCPc/bKAqcyplPODs=
+github.com/aliyun/alibaba-cloud-sdk-go v1.62.567 h1:dPJqSKLZYqnAv0eFzYKskcFtrNb+FgvAYCSHZIhvuAs=
+github.com/aliyun/alibaba-cloud-sdk-go v1.62.567/go.mod h1:Api2AkmMgGaSUAhmk76oaFObkoeCPc/bKAqcyplPODs=
 github.com/aliyun/aliyun-log-go-sdk v0.1.43 h1:AmP2wVKjStvEEinj4aBiZFMchg4miIcOQ1fNwEK+5bA=
 github.com/aliyun/aliyun-log-go-sdk v0.1.43/go.mod h1:1QQ59pEJiVVXqKgbHcU6FWIgxT5RKBt+CT8AiQ2bEts=
 github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be h1:9AeTilPcZAjCFIImctFaOjnTIavg87rW78vTPkQqLI8=
