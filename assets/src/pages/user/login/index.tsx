@@ -12,6 +12,19 @@ import { connect } from 'dva';
 import { Dispatch } from '@@/plugin-dva/connect';
 import { ExclamationCircleOutlined, LoginOutlined } from '@ant-design/icons/lib';
 
+
+export const getEnv = () => {
+  const domain = window.location.host;
+  if (/^.*jupiterconsole.douyu.com.*?$/g.test(domain)) {
+    return 'demo';
+  }
+  // 个人调试使用
+  if (/^.*fskt.dz11.com.*?$/g.test(domain)) {
+    return 'demo';
+  }
+  return '';
+};
+
 var md5 = require('md5');
 
 const { Tab, UserName, Password, Submit } = LoginFrom;
@@ -217,6 +230,16 @@ const Login: React.FC<LoginProps> = (props: LoginProps) => {
         </div>
 
         <div className={styles.main}>{renderLoginForm()}</div>
+        {getEnv() == 'demo' &&
+          <div>
+            <div style={{ display: "flex", justifyContent: "center", color: 'red' }}>
+              演示环境，账号密码：admin/admin
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", color: 'red', fontSize: "20px" }}>
+              仅供斗鱼demo演示，非实际业务系统，请勿重复上报弱口令漏洞
+            </div>
+          </div>
+        }
       </div>
     </div>
   );
