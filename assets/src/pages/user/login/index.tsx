@@ -18,10 +18,6 @@ export const getEnv = () => {
   if (/^.*jupiterconsole.douyu.com.*?$/g.test(domain)) {
     return 'demo';
   }
-  // 个人调试使用
-  if (/^.*fskt.dz11.com.*?$/g.test(domain)) {
-    return 'demo';
-  }
   return '';
 };
 
