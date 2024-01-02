@@ -13,6 +13,7 @@ type LogStore struct {
 	Remark    string `gorm:"column:remark;NOT NULL" json:"remark"`           // 备注
 	Ctime     int    `gorm:"column:ctime;default:0;NOT NULL" json:"ctime"`   // 创建时间
 	Utime     int    `gorm:"column:utime" json:"utime"`                      // 更新时间
+	LogType   int    `gorm:"column:log_type" json:"log_type"`                // 日志类型 1华为云 0阿里云
 }
 
 // TableName ..
