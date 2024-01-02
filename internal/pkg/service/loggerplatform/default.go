@@ -66,7 +66,7 @@ func (a *appLogDefault) LogStore(env, query, typ, appName, aid string, u *db.Use
 	project, logStore, logType := a.GetLogStoreName(env, typ, appName)
 	query = a.genQuery(env, typ, aid, query, appName)
 	if logType > 0 {
-		req := &huaweilog.CompleteLogSearchUrlRequest{Region: "华北2（北京）", Project: "602c0fbc-1f63-4626-8d2b-4e0c256be480", LogStore: "4782636a-1755-4900-8a6b-2f592f19aa0b", Query: query}
+		req := &huaweilog.CompleteLogSearchUrlRequest{Region: "华北2（北京）", Project: project, LogStore: logStore, Query: query}
 		return huaweilog.Instance.CompleteLogSearchUrl(context.TODO(), req, u)
 	}
 	return aliyunlog.Instance.CompleteLogSearchUrl(context.TODO(), &aliyunlog.CompleteLogSearchUrlRequest{Region: "华北2（北京）", Project: project, LogStore: logStore, Query: query}, u)
@@ -95,7 +95,7 @@ func (a *appLogDefault) GetLogStoreName(env, typ, appName string) (projectName s
 		mysql.Where("app_name = ? and env = ?", appName, env).Find(&list)
 		if len(list) > 0 {
 			projectName, logStoreName, logType = list[0].Project, list[0].LogStore, list[0].LogType
-
+			return
 		}
 	}
 	var ok bool
