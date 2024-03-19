@@ -111,7 +111,12 @@ func (s *Service) CompleteLogSearchUrl(ctx context.Context, req *CompleteLogSear
 		query.Add("selectDate", req.StartTime)
 		query.Add("createTime", req.EndTime)
 	}
-	toURL = toURL + query.Encode()
+	if req.Query != "" {
+		query.Add("condition", req.Query)
+	}
+	if query.Encode() != "" {
+		toURL = toURL + "&" + query.Encode()
+	}
 	signInUrl = fmt.Sprintf("https://auth.huaweicloud.com/authui/federation/login?service=%s&logintoken=%s&idp_login_url=%s", url.QueryEscape(toURL), url.QueryEscape(signInToken), url.QueryEscape(conf.GetString("server.http.rootUrl")))
 	return
 

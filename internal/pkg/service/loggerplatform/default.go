@@ -81,7 +81,7 @@ func (a *appLogDefault) genQuery(env, typ, aid, query, appName string) string {
 		return fmt.Sprintf("* and SYSLOG_IDENTIFIER:%s", appName)
 	case LogTypJupiter, LogTypBiz:
 		if env != "prod" {
-			return fmt.Sprintf("* and aid:%s", aid)
+			return fmt.Sprintf("aid:%s", aid)
 		}
 	}
 	return query
