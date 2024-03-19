@@ -9,6 +9,7 @@ import (
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view/logstore"
+	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/xlog"
 )
 
@@ -65,7 +66,7 @@ func newAppLogD() {
 func (a *appLogDefault) LogStore(env, query, typ, appName, aid string, u *db.User) (string, error) {
 	project, logStore, logType := a.GetLogStoreName(env, typ, appName)
 	query = a.genQuery(env, typ, aid, query, appName)
-	if logType > 0 {
+	if logType > 0 || conf.GetBool("huawei.allEnable") {
 		req := &huaweilog.CompleteLogSearchUrlRequest{Region: "华北2（北京）", Project: project, LogStore: logStore, Query: query}
 		return huaweilog.Instance.CompleteLogSearchUrl(context.TODO(), req, u)
 	}

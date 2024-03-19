@@ -49,12 +49,12 @@ func Init() *Service {
 		for area := range regions {
 			client := ltsv2.NewLtsClient(
 				ltsv2.LtsClientBuilder().
-					WithRegion(ltsv2region.CN_NORTH_4).
+					WithRegion(ltsv2region.ValueOf(regions[area])).
 					WithCredential(auth).Build())
 			clients[area] = client
 			//设置调用者（RAM用户或RAM角色）的AccessKey ID和AccessKey Secret。
 			stsclient := iamv3.NewIamClient(iamv3.IamClientBuilder().
-				WithRegion(iamv3region.CN_NORTH_4).
+				WithRegion(iamv3region.ValueOf(regions[area])).
 				WithCredential(auth).Build())
 
 			stsclients[area] = stsclient
@@ -62,7 +62,6 @@ func Init() *Service {
 	}
 	s := &Service{Clients: clients, menus: make(map[string]*LogNodeMap, 0), StsClients: stsclients, enable: enable}
 	s.RefreshMenuData()
-	// fmt.Println("===================", xstring.Json(s.menus))
 	return s
 }
 

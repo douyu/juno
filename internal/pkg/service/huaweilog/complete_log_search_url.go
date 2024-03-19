@@ -99,13 +99,13 @@ func (s *Service) CompleteLogSearchUrl(ctx context.Context, req *CompleteLogSear
 			},
 		},
 	}
-	tokenURl := iamv3region.CN_NORTH_4.Endpoints[0] + "/v3.0/OS-AUTH/securitytoken/logintokens"
+	tokenURl := iamv3region.ValueOf(conf.GetString("huawei.regions." + req.Region)).Endpoints[0] + "/v3.0/OS-AUTH/securitytoken/logintokens"
 	dataRes, err := http.Post(tokenURl, "application/json", bytes.NewReader(xstring.JsonBytes(logInReq)))
 	if err != nil {
 		return
 	}
 	signInToken := dataRes.Header.Get("X-Subject-LoginToken")
-	toURL := fmt.Sprintf("https://console.huaweicloud.com/lts/?region=%s&cfModuleHide=header_sidebar_floatlayer#/cts/logEventsLeftMenu/events?groupId=%s&topicId=%s&hideHeader=true&fastAnalysisCollapsed=false&hideDashboard=true&hideFeedback=true&isFoldLabel=true&hideStreamName=false&hideBarChart=false", ltsv2region.CN_NORTH_4.Id, projectData.Value, logStoreData.Value)
+	toURL := fmt.Sprintf("https://console.huaweicloud.com/lts/?region=%s&cfModuleHide=header_sidebar_floatlayer#/cts/logEventsLeftMenu/events?groupId=%s&topicId=%s&hideHeader=true&fastAnalysisCollapsed=false&hideDashboard=true&hideFeedback=true&isFoldLabel=true&hideStreamName=false&hideBarChart=false", ltsv2region.ValueOf(conf.GetString("huawei.regions."+req.Region)).Id, projectData.Value, logStoreData.Value)
 	query := url.Values{}
 	if req.StartTime != "" {
 		query.Add("selectDate", req.StartTime)
