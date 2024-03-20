@@ -78,7 +78,7 @@ func (a *appLogDefault) LogStore(env, query, typ, appName, aid string, u *db.Use
 func (a *appLogDefault) genQuery(env, typ, aid, query, appName string) string {
 	switch typ {
 	case LogTypConsole:
-		return fmt.Sprintf("* and SYSLOG_IDENTIFIER:%s", appName)
+		return fmt.Sprintf("SYSLOG_IDENTIFIER:%s", appName)
 	case LogTypJupiter, LogTypBiz:
 		if env != "prod" {
 			return fmt.Sprintf("aid:%s", aid)

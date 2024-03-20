@@ -35,7 +35,7 @@ export default class Applog extends React.PureComponent {
       env: props.env,
       records: [],
       typ: 'biz',
-      query: '*',
+      query: '',
       url: '',
       loading: false,
     };
