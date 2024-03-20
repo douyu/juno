@@ -69,6 +69,10 @@ func (s *Service) CompleteLogSearchUrl(ctx context.Context, req *CompleteLogSear
 		err = errors.New("华为日志账号未正确配置，请联系管理员。")
 		return
 	}
+	//todo  兼容处理
+	if req.Query == "*" {
+		req.Query = ""
+	}
 	//构建请求对象。
 	request := &iamv3model.CreateTemporaryAccessKeyByTokenRequest{}
 	body := &iamv3model.CreateTemporaryAccessKeyByTokenRequestBody{}
