@@ -34,7 +34,6 @@ func main() {
 
 	// reuse the database connection in Project or create a connection here
 	// if you want to use GenerateModel/GenerateModelAs, UseDB is necessary or it will panic
-	// db, _ := gorm.Open(mysql.Open("php_vod_web:8RQQImYH2G2esU3HqKb8@tcp(10.1.42.15:11302)/channel_permission?charset=utf8mb4&parseTime=True&loc=Local&readTimeout=5s&timeout=5s&writeTimeout=1s"))
 	db, _ := gorm.Open(mysql.Open(conf.GetString("database.dsn")))
 	g.UseDB(db)
 
