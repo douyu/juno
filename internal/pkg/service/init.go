@@ -16,6 +16,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/gateway"
 	"github.com/douyu/juno/internal/pkg/service/grpctest"
 	"github.com/douyu/juno/internal/pkg/service/httptest"
+	"github.com/douyu/juno/internal/pkg/service/huaweilog"
 	"github.com/douyu/juno/internal/pkg/service/k8s"
 	"github.com/douyu/juno/internal/pkg/service/loggerplatform"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
@@ -103,5 +104,6 @@ func Init() (err error) {
 	loggerplatform.Init(invoker.JunoMysql)
 	k8s.Init()
 	aliyunlog.New()
+	huaweilog.New()
 	return
 }

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -65,7 +65,7 @@ func (s *Service) CompleteLogSearchUrl(ctx context.Context, req *CompleteLogSear
 	if err != nil {
 		return
 	}
-	dataBytes, err := ioutil.ReadAll(dataRes.Body)
+	dataBytes, err := io.ReadAll(dataRes.Body)
 	if err != nil {
 		return
 	}
@@ -127,7 +127,7 @@ func (s *Service) CompleteTraceSearchUrl(ctx context.Context, req *CompleteTrace
 	if err != nil {
 		return
 	}
-	dataBytes, err := ioutil.ReadAll(dataRes.Body)
+	dataBytes, err := io.ReadAll(dataRes.Body)
 	if err != nil {
 		return
 	}

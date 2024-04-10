@@ -29,6 +29,7 @@ import (
 	"github.com/douyu/juno/internal/pkg/service/clientproxy"
 	"github.com/douyu/juno/internal/pkg/service/confgo"
 	"github.com/douyu/juno/internal/pkg/service/confgov2"
+	"github.com/douyu/juno/internal/pkg/service/huaweilog"
 	"github.com/douyu/juno/internal/pkg/service/k8s"
 	"github.com/douyu/juno/internal/pkg/service/notify"
 	"github.com/douyu/juno/internal/pkg/service/openauth"
@@ -262,6 +263,7 @@ func (eng *Admin) refreshAliyunLogMenu() (err error) {
 	refreshMenuDataConfig.ImmediatelyRun = true
 	refreshMenuData := refreshMenuDataConfig.Build()
 	refreshMenuData.Schedule(xcron.Every(time.Minute), xcron.FuncJob(aliyunlog.Instance.RefreshMenuData))
+	refreshMenuData.Schedule(xcron.Every(time.Minute), xcron.FuncJob(huaweilog.Instance.RefreshMenuData))
 	err = eng.Schedule(refreshMenuData)
 	if err != nil {
 		return err

@@ -5,9 +5,11 @@ import (
 	"fmt"
 
 	"github.com/douyu/juno/internal/pkg/service/aliyunlog"
+	"github.com/douyu/juno/internal/pkg/service/huaweilog"
 	"github.com/douyu/juno/pkg/cfg"
 	"github.com/douyu/juno/pkg/model/db"
 	"github.com/douyu/juno/pkg/model/view/logstore"
+	"github.com/douyu/jupiter/pkg/conf"
 	"github.com/douyu/jupiter/pkg/xlog"
 )
 
@@ -62,8 +64,12 @@ func newAppLogD() {
 
 // LogStore get log store
 func (a *appLogDefault) LogStore(env, query, typ, appName, aid string, u *db.User) (string, error) {
-	project, logStore := a.GetLogStoreName(env, typ, appName)
+	project, logStore, logType := a.GetLogStoreName(env, typ, appName)
 	query = a.genQuery(env, typ, aid, query, appName)
+	if logType > 0 || conf.GetBool("huawei.allEnable") {
+		req := &huaweilog.CompleteLogSearchUrlRequest{Region: "华北2（北京）", Project: project, LogStore: logStore, Query: query}
+		return huaweilog.Instance.CompleteLogSearchUrl(context.TODO(), req, u)
+	}
 	return aliyunlog.Instance.CompleteLogSearchUrl(context.TODO(), &aliyunlog.CompleteLogSearchUrlRequest{Region: "华北2（北京）", Project: project, LogStore: logStore, Query: query}, u)
 
 }
@@ -72,40 +78,45 @@ func (a *appLogDefault) LogStore(env, query, typ, appName, aid string, u *db.Use
 func (a *appLogDefault) genQuery(env, typ, aid, query, appName string) string {
 	switch typ {
 	case LogTypConsole:
-		return fmt.Sprintf("* and SYSLOG_IDENTIFIER:%s", appName)
+		return fmt.Sprintf("SYSLOG_IDENTIFIER:%s", appName)
 	case LogTypJupiter, LogTypBiz:
 		if env != "prod" {
-			return fmt.Sprintf("* and aid:%s", aid)
+			return fmt.Sprintf("aid:%s", aid)
 		}
 	}
 	return query
 }
 
 // getLogStoreName ...
-func (a *appLogDefault) GetLogStoreName(env, typ, appName string) (string, string) {
+func (a *appLogDefault) GetLogStoreName(env, typ, appName string) (projectName string, logStoreName string, logType int) {
 	var project AppLogDefaultEnvData
 	//业务日志进行拦截
 	if typ == LogTypBiz {
 		list := make([]*logstore.LogStore, 0)
 		mysql.Where("app_name = ? and env = ?", appName, env).Find(&list)
 		if len(list) > 0 {
-			return list[0].Project, list[0].LogStore
+			projectName, logStoreName, logType = list[0].Project, list[0].LogStore, list[0].LogType
+			return
 		}
 	}
 	var ok bool
 	if project, ok = a.data[env]; !ok {
-		return "", ""
+		return
 	}
 	switch typ {
 	case LogTypConsole:
-		return project.Project, project.LogStoreConsole
+		projectName, logStoreName, logType = project.Project, project.LogStoreConsole, 0
+		return
 	case LogTypJupiter:
-		return project.Project, project.LogStoreJupiter
+		projectName, logStoreName, logType = project.Project, project.LogStoreJupiter, 0
+		return
 	case LogTypBiz:
 		if project.LogStoreBiz == "" {
-			return project.Project, appName
+			projectName, logStoreName, logType = project.Project, appName, 0
+			return
 		}
-		return project.Project, project.LogStoreBiz
+		projectName, logStoreName, logType = project.Project, project.LogStoreBiz, 0
+		return
 	}
-	return "", ""
+	return
 }
