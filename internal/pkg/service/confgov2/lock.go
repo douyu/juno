@@ -32,7 +32,8 @@ func TryLock(uid, configId uint) (err error) {
 		config.LockUid = uid
 		now := time.Now()
 		config.LockAt = &now
-		err = tx.Save(&config).Error
+		err = tx.Table("configuration").Where("id = ?", config.ID).Updates(map[string]interface{}{"lock_uid": config.LockUid,
+			"lock_at": config.LockAt}).Error
 		if err != nil {
 			tx.Rollback()
 			return errors.Wrap(err, "获取编辑锁失败")
@@ -59,7 +60,8 @@ func Unlock(uid, configId uint) (err error) {
 
 		config.LockUid = 0
 		config.LockAt = nil
-		err = tx.Save(&config).Error
+		err = tx.Table("configuration").Where("id = ?", config.ID).Updates(map[string]interface{}{"lock_uid": config.LockUid,
+			"lock_at": config.LockAt}).Error
 		if err != nil {
 			tx.Rollback()
 			return errors.Wrap(err, "释放编辑锁失败")
@@ -68,7 +70,7 @@ func Unlock(uid, configId uint) (err error) {
 	return tx.Commit().Error
 }
 
-//clearLockPeriodically 定期清除编辑锁
+// clearLockPeriodically 定期清除编辑锁
 func clearLockPeriodically() {
 	var configs []db.Configuration
 
@@ -88,7 +90,8 @@ func clearLockPeriodically() {
 			for _, config := range configs {
 				config.LockAt = nil
 				config.LockUid = 0
-				tx.Save(&config)
+				tx.Table("configuration").Where("id = ?", config.ID).Updates(map[string]interface{}{"lock_uid": config.LockUid,
+					"lock_at": config.LockAt})
 			}
 		}
 		tx.Commit()
