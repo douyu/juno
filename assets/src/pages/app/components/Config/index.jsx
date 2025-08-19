@@ -17,6 +17,15 @@ function ConfigEdit(props) {
     if (!appName) return;
     if (!env) return;
 
+    // 立即清空配置数据，避免显示旧数据
+    props.dispatch({
+      type: 'config/_apply',
+      payload: {
+        configList: [],
+        configListLoading: true,
+      },
+    });
+
     // reset
     props.dispatch({
       type: 'config/showEditorMaskLayer',
@@ -29,6 +38,10 @@ function ConfigEdit(props) {
       payload: 'config-edit',
     });
 
+    props.dispatch({
+      type: 'config/clearCurrentConfig',
+    });
+
     // load config-file list
     props.dispatch({
       type: 'config/loadConfigInfo',
@@ -36,10 +49,6 @@ function ConfigEdit(props) {
         appName,
         env,
       },
-    });
-
-    props.dispatch({
-      type: 'config/clearCurrentConfig',
     });
   }, [appName, env]);
 
