@@ -276,10 +276,9 @@ func (i *syncPod) update(old interface{}, new interface{}) {
 func (i *syncPod) delete(obj interface{}) {
 	in, ok := obj.(*v1.Pod)
 	if !ok {
-		xlog.Warn("k8sWork",
+		xlog.Warn("k8sWork not ok",
 			xlog.String("step", "add-check"),
 			xlog.String("zoneCode", i.zoneCode),
-			xlog.String("podName", in.Name),
 			xlog.Any("obj", obj),
 			xlog.String("reason", "type error"))
 		return
