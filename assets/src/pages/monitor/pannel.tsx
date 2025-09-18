@@ -66,7 +66,7 @@ function GrafanaPannel(props: any) {
         position: 'relative',
         display: 'flex',
         flex: 'auto',
-        marginLeft: iframeVisible ? 0 : -60,
+        marginLeft: 0,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
